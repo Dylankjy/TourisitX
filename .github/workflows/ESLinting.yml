@@ -2,14 +2,14 @@ name: ESLint
 
 on:
   push:
-    branches: [ development ]
+    branches: [ develop ]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ development ]
+    branches: [ develop ]
 
 jobs:
-  build:
-    name: "Validate codebase"
+  eslint:
+    name: "Validate code using ESLint"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
