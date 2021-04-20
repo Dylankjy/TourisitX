@@ -19,7 +19,6 @@
   },
   "homepage": "https://github.com/Tokinoharu/TourisitX#readme",
   "dependencies": {
-    "app-root-path": "^3.0.0",
     "chalk": "^4.1.0",
     "cookie-parser": "^1.4.5",
     "express": "^4.17.1",
@@ -28,8 +27,7 @@
     "express-slow-down": "^1.4.0",
     "handlebars": "^4.7.7",
     "loglevel": "^1.7.1",
-    "loglevel-plugin-prefix": "^0.8.4",
-    "mongodb": "^3.6.4"
+    "loglevel-plugin-prefix": "^0.8.4"
   },
   "devDependencies": {
     "eslint": "^7.22.0",
