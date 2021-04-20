@@ -8,7 +8,8 @@ on:
     branches: [ development ]
 
 jobs:
-  ESLint:
+  build:
+    name: "Validate codebase"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
