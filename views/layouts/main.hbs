@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{{meta.title}} - Ichiharu</title>
+    <!-- First-party libraries -->
+    <link rel="stylesheet" href="/css/app.css">
+    <script src="/third_party/ichiharu/init.js"></script>
+
+    <!-- Third-party libraries -->
+    <script src="/third_party/jquery/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="/third_party/bulma/bulma.min.css">
+    <script defer src="/third_party/bulma/navbar.js"></script>
+
+    <script src="/third_party/turbolinks/turbolinks.js"></script>
+
+    <link rel="stylesheet" href="/third_party/nprogress/nprogress.css">
+    <script src="/third_party/nprogress/nprogress.js"></script>
+    <script>
+        NProgress.start()
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js"></script>
+</head>
+
+<body>
+    {{>navbar}}
+
+    {{{body}}}
+</body>
+
+{{#if meta.path}}
+<script defer src="/js/{{meta.path}}.js"></script>
+{{/if}}
+
+</html>
