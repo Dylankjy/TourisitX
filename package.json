@@ -1,26 +1,23 @@
 {
-  "name": "hakkou-app-template",
-  "version": "0.1.2",
-  "description": "No nonsense authentication system using MongoDB",
+  "name": "tourisitx",
+  "version": "2.0.0",
+  "description": "NodeJS port of Tourisit",
   "main": "app.js",
   "scripts": {
-    "test": "nodemon app"
+    "dev": "nodemon app",
+    "test": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "auto-fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/HakkouHQ/Hakkou-App-Template.git"
+    "url": "git+https://github.com/Tokinoharu/TourisitX.git"
   },
-  "keywords": [
-    "auth",
-    "login",
-    "mongodb"
-  ],
-  "author": "HakkouApp",
-  "license": "MPL-2.0",
+  "author": "Tourisit Team (Alex, Amy, Chloe, Dylan)",
+  "license": "AGPL-3.0",
   "bugs": {
-    "url": "https://github.com/HakkouHQ/Hakkou-App-Template/issues"
+    "url": "https://github.com/Tokinoharu/TourisitX/issues"
   },
-  "homepage": "https://github.com/HakkouHQ/Hakkou-App-Template#readme",
+  "homepage": "https://github.com/Tokinoharu/TourisitX#readme",
   "dependencies": {
     "app-root-path": "^3.0.0",
     "chalk": "^4.1.0",
@@ -35,6 +32,8 @@
     "mongodb": "^3.6.4"
   },
   "devDependencies": {
+    "eslint": "^7.22.0",
+    "eslint-config-google": "^0.14.0",
     "nodemon": "^2.0.7"
   }
 }
