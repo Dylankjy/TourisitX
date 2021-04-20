@@ -1,20 +1,20 @@
 NProgress.configure({
     trickle: true,
-    easing: 'ease', 
-    speed: 350
-});
+    easing: 'ease',
+    speed: 350,
+})
 
-$(document).on('turbolinks:click', function () {
-    NProgress.start();
-});
+$(document).on('turbolinks:click', () => {
+    NProgress.start()
+})
 
-$(document).on('turbolinks:load', function () {
-    NProgress.done();
-});
+$(document).on('turbolinks:load', () => {
+    NProgress.done()
+})
 
-$(document).on('ready', function () {
-    $(window).on('load', function () {
-        NProgress.done();
+$(document).on('ready', () => {
+    $(window).on('load', () => {
+        NProgress.done()
         Turbolinks.start()
-    });
-});
+    })
+})

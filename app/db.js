@@ -1,40 +1,40 @@
-insertDB = function (db, coll, docs, callback) {
+insertDB = function(db, coll, docs, callback) {
     // Get the documents collection
     const collection = db.collection(coll)
     // Insert some documents
     collection.insertMany([
-        docs
-    ], function (err, result) {
+        docs,
+    ], (err, result) => {
         if (err) throw err
         callback(result)
     })
 }
 
-updateDB = function (db, coll, query, ops, callback) {
+updateDB = function(db, coll, query, ops, callback) {
     // Get the documents collection
     const collection = db.collection(coll)
     // Update document where a is 2, set b equal to 1
-    collection.updateOne(query, ops, function (err, result) {
+    collection.updateOne(query, ops, (err, result) => {
         if (err) throw err
         callback(result)
     })
 }
 
-findDB = function (db, coll, query, callback) {
+findDB = function(db, coll, query, callback) {
     // Get the documents collection
     const collection = db.collection(coll)
     // Find some documents
-    collection.find(query).toArray(function (err, docs) {
+    collection.find(query).toArray((err, docs) => {
         if (err) throw err
         callback(docs)
     })
 }
 
-deleteDB = function (db, coll, query, callback) {
+deleteDB = function(db, coll, query, callback) {
     // Get the documents collection
     const collection = db.collection(coll)
     // Find some documents
-    collection.remove(query).toArray(function (err) {
+    collection.remove(query).toArray((err) => {
         if (err) throw err
         callback(true)
     })
