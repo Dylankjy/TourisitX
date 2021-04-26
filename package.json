@@ -25,9 +25,13 @@
     "express-formidable": "^1.2.0",
     "express-handlebars": "^5.2.1",
     "express-slow-down": "^1.4.0",
+    "express-validator": "^6.10.1",
     "handlebars": "^4.7.7",
     "loglevel": "^1.7.1",
-    "loglevel-plugin-prefix": "^0.8.4"
+    "loglevel-plugin-prefix": "^0.8.4",
+    "mysql2": "^2.2.5",
+    "sequelize": "^6.6.2",
+    "sequelize-cli": "^6.2.0"
   },
   "devDependencies": {
     "eslint": "^7.22.0",
