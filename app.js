@@ -15,7 +15,7 @@ const expressSession = require('express-session')
 const axios = require('axios')
 
 // Routers for Express
-const shop_router = require('./routes/market.js')
+const shopRouter = require('./routes/market.js')
 
 
 const app = express()
@@ -105,7 +105,7 @@ const webserver = () => {
     })
 
     // Define all the router stuff here
-    app.use('/shop', shop_router)
+    app.use('/shop', shopRouter)
 
     // Don't put any more routes after this block, cuz they will get 404'ed
     app.get('*', (req, res) => {
