@@ -6,11 +6,19 @@ const config = require('./app/config')
 
 // Express related modules
 const express = require('express')
-const app = express()
 const exphbs = require('express-handlebars')
 const cookieParser = require('cookie-parser')
 const formidable = require('express-formidable')
 const slowDown = require('express-slow-down')
+const { check, validationResult } = require('express-validator')
+const expressSession = require('express-session')
+const axios = require('axios')
+
+// Routers for Express
+const shopRouter = require('./routes/market.js')
+
+
+const app = express()
 
 // Express Additional Options
 // Express: Public Directory
@@ -26,6 +34,7 @@ app.engine('hbs', exphbs({
     extname: '.hbs',
     layoutsDir: `views/layouts`,
 }))
+
 
 // Handlebars: Views folder
 app.set('views', [`views`])
@@ -95,6 +104,10 @@ const webserver = () => {
         res.render('index', metadata)
     })
 
+    // Define all the router stuff here
+    app.use('/shop', shopRouter)
+
+    // Don't put any more routes after this block, cuz they will get 404'ed
     app.get('*', (req, res) => {
         const metadata = {
             meta: {
