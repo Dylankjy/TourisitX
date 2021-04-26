@@ -10,7 +10,7 @@ const exphbs = require('express-handlebars')
 const cookieParser = require('cookie-parser')
 const formidable = require('express-formidable')
 const slowDown = require('express-slow-down')
-const {check, validationResult} = require('express-validator')
+const { check, validationResult } = require('express-validator')
 const expressSession = require('express-session')
 const axios = require("axios")
 
