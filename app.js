@@ -12,7 +12,7 @@ const formidable = require('express-formidable')
 const slowDown = require('express-slow-down')
 const { check, validationResult } = require('express-validator')
 const expressSession = require('express-session')
-const axios = require("axios")
+const axios = require('axios')
 
 // Routers for Express
 const shop_router = require('./routes/market.js')
@@ -34,7 +34,6 @@ app.engine('hbs', exphbs({
     extname: '.hbs',
     layoutsDir: `views/layouts`,
 }))
-
 
 
 // Handlebars: Views folder
