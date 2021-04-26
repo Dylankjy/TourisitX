@@ -17,6 +17,7 @@
         "indent": ["error", 4],
         "new-cap": 0,
         "object-curly-spacing": ["error", "always"],
-        "prefer-arrow-callback": "error"
+        "prefer-arrow-callback": "error",
+        "no-unused-vars": 0
     }
 }
