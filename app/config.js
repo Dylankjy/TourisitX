@@ -1,6 +1,3 @@
-// Get root of project
-const root = require('app-root-path')
-
 // Logging
 const log = require('loglevel')
 const prefix = require('loglevel-plugin-prefix')
@@ -25,7 +22,7 @@ prefix.apply(log.getLogger('critical'), {
 })
 
 try {
-    module.exports = require(root + '/config.json')
+    module.exports = require('../config.json')
 } catch (error) {
     try {
         if (fs.existsSync(path)) {
