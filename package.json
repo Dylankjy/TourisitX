@@ -4,6 +4,8 @@
   "description": "NodeJS port of Tourisit",
   "main": "app.js",
   "scripts": {
+    "install": "npm i",
+    "install-dev": "npm i --save-dev",
     "dev": "nodemon app",
     "test": "eslint . --ext .js,.jsx,.ts,.tsx",
     "auto-fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix"
