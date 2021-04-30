@@ -26,7 +26,6 @@ const routes = {
     user: require('./routes/user'),
 }
 
-
 const app = express()
 
 // Express Additional Options
