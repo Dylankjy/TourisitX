@@ -14,8 +14,17 @@ const { check, validationResult } = require('express-validator')
 const expressSession = require('express-session')
 const axios = require('axios')
 
-// Routers for Express
-const shopRouter = require('./routes/market.js')
+// Routes for Express
+const routes = {
+    admin: require('./routes/admin'),
+    api: require('./routes/api'),
+    auth: require('./routes/auth'),
+    booking: require('./routes/booking'),
+    listings: require('./routes/listings'),
+    market: require('./routes/market'),
+    tourguide: require('./routes/tourguide'),
+    user: require('./routes/user'),
+}
 
 
 const app = express()
@@ -34,7 +43,6 @@ app.engine('hbs', exphbs({
     extname: '.hbs',
     layoutsDir: `views/layouts`,
 }))
-
 
 // Handlebars: Views folder
 app.set('views', [`views`])
@@ -105,7 +113,7 @@ const webserver = () => {
     })
 
     // Define all the router stuff here
-    app.use('/shop', shopRouter)
+    app.use('/shop', routes.market)
 
     // Don't put any more routes after this block, cuz they will get 404'ed
     app.get('*', (req, res) => {
