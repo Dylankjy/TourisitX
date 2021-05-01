@@ -1,0 +1,23 @@
+.hero-fadein {
+    height: 8rem;
+    background: linear-gradient(0deg, transparent 0, #0a0a0a 100%);
+}
+
+#main-hero {
+    background: url('/static/index/hero-1.jpg') center center no-repeat scroll;
+    background-size: cover;
+    background-color: rgba(0,0,0,.5)!important;
+    background-blend-mode: overlay!important;
+}
+
+#main-hero .hero-body {
+    margin-top: -8rem;
+}
+
+#main-hero h1.title {
+    font-size: 5rem;
+}
+
+.after-main-hero {
+    margin-top: -5rem
+}
