@@ -1,22 +1,5 @@
-const { urlencoded } = require('body-parser')
-const express = require('express')
-const formidable = require('express-formidable');
-const bodyParser = require("body-parser");
-const { route } = require('./admin');
-const { validate, ValidationError, Joi } = require('express-validation')
-
-const listingValidation = {
-    body: Joi.object({
-        theName: Joi.string().required().min(3),
-        theDesc: Joi.string().required() 
-    }),
-}
-
-// const urlencodedParser = bodyParser.urlencoded({extended: false})
-
-
-const router = express.Router()
-router.use(formidable())
+// Custom validators here
+// Instructions at the bottom
 
 class Validator{
     constructor(data) {
@@ -78,10 +61,47 @@ class Validator{
     }
 }
 
-// x is sample data
-var x = {"theName": "Jaddke", "theAge": 4}
+/*
+Note:
+-  Always initialize the class first, using the Initialize method
+-  Always end off with the getResult() method to get the results of the validation. A Json object will be returned with result =  true/false and the relevant errMsg if needed
 
-var v = new Validator(x)
+Your result will look as such:
+{ name: 'theName', result: false, msg: 'Needs to be 5 chars!' }
+
+
+
+To Use custom validator:
+
+1. Initialize the validator, passing in the POST Json Data
+var x = Validator()
+
+2. Call the Initialize method of the class, passing in the name and error message to display
+x.Initialize({name: "theName", errorMessage: "Name must be 7 characters long"})
+
+^ This will validate the field <input name='theName'> and if there is an error found later, it will throw "Name must be 7 characters long"
+
+3. The Validator class supports chaining. 
+x.Initialize({blahblah..}).exists().isLength({min: 3, max: 8})
+
+^ This will call the exists() method, which checks whether the string is empty or not
+The isLength() method will then be called which checks whether the string is more than 2 chars and less than 9 chars
+
+4. Get the result by calling the getResult() method
+x.Initialize({name: "theName", errorMessage: "Name must be 8 characters long"})
+.exists().isLength({min: 3, max: 8})
+.getResult()
+
+^ This will return an object { name: 'theName', result: false, msg: 'Name must be 8 characters long' } if validation FAILED
+Else, it will return  { name: 'theName', result: true }
+
+ */
+
+// Examples
+
+var postData = {"theName": "Jaddke", "theAge": 4}
+
+var v = new Validator(postData)
 nameResult = v.Initialize({name: "theName", errorMessage: "Needs to be 5 chars!"}).exists().isLength({min:6})
         .getResult()
 
@@ -91,36 +111,3 @@ ageResult = v.Initialize({name: "theAge", errorMessage: "Minimum age is 10"}).ex
 var allResults = [nameResult, ageResult]
 console.log(allResults)
 
-
-
-// Put all your routings below this line -----
-
-// router.get('/', (req, res) => { ... }
-
-router.get('/create', (req, res)=>{
-    res.render('create_listing.hbs')
-})
-
-router.post('/submit-create', validate(listingValidation, {}, {}) , (req, res, next)=>{
-            // res.json(req.fields)
-            // req.check("theName","Must be 3 chars long").isLength({min: 3})
-            // var errors = req.validationErrors()
-            // if (errors) {
-            //     res.send('Failed')
-            // } else{
-            //     res.json(req.fields)
-            // }
-            res.json(req.fields)
-            
-    }
-)
-
-router.use(function(err, req, res, next) {
-    if (err instanceof ValidationError) {
-      return res.status(err.statusCode).json(err)
-    }
-  
-    return res.status(500).json(err)
-  })
-
-module.exports = router

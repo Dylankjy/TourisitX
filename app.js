@@ -13,6 +13,7 @@ const slowDown = require('express-slow-down')
 const { check, validationResult } = require('express-validator')
 const expressSession = require('express-session')
 const axios = require('axios')
+const bodyParser = require('body-parser')
 
 // Routers for Express
 const shopRouter = require('./routes/market.js')
@@ -50,8 +51,16 @@ app.use(cookieParser(config.app.secretKey))
 //     domain: `.${config.webserver.domain}`,
 // }
 
+// app.use(bodyParser.urlencoded({extended: true}))
+// app.use(bodyParser.json())
+// app.use(bodyParser.raw())
+
 // Formidable: For POST data accessing
 app.use(formidable())
+
+// Express-validator: For validating POST data
+
+
 
 // Slowdown: For Rate limiting
 const speedLimiter = slowDown({
@@ -106,6 +115,8 @@ const webserver = () => {
 
     // Define all the router stuff here
     app.use('/shop', shopRouter)
+
+    app.use('/listing', routes.listings)
 
     // Don't put any more routes after this block, cuz they will get 404'ed
     app.get('*', (req, res) => {
