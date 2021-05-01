@@ -1,0 +1,47 @@
+{{!-- <form class="form-horizontal" enctype="multipart/form-data" action='/listing/submit-create' method="POST"> --}}
+<form class="form-horizontal" action='/listing/submit-create' enctype="multipart/form-data" method="POST">    
+    <div class='section'>
+        <div class='container'>
+            <div class='columns is-variable is-5 is-vcentered'>
+                <div class='column is-one-quarter' style="text-align:right;">
+                    <section class="section">
+                        <h1 class="title is-5">Tour Title</h1>
+                        <h2 class="subtitle is-6">
+                            Give your tour a nice name
+                        </h2>
+                    </section>
+                </div>
+                <div class='column is-half'>
+                    <input name='theName' class="input is-primary" type="text" placeholder="Primary input">
+                </div>
+            </div>      
+        </div>
+   
+
+        <div class='is-divider'></div>
+
+
+        <div class='container'>
+            <div class='columns is-variable is-5 is-vcentered'>
+                <div class='column is-one-quarter' style="text-align:right;">
+                    <section class="section">
+                        <h1 class="title is-5">Tour Description</h1>
+                        <h2 class="subtitle is-6">
+                            Give a brief overview of your tour
+                        </h2>
+                    </section>
+                </div>
+                <div class='column is-half'>
+                    <textarea name='theDesc' class="textarea is-primary" placeholder="e.g. Hello world"></textarea>
+                </div>
+            </div>      
+        </div>
+
+    </div>
+
+    <div class='container'>
+        <button class="button is-link" type='submit'>Submit</button>
+    </div>
+    
+   
+</form>
