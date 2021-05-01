@@ -68,7 +68,6 @@ app.use(formidable())
 // Express-validator: For validating POST data
 
 
-
 // Slowdown: For Rate limiting
 const speedLimiter = slowDown({
     windowMs: 15 * 60 * 1000, // 15 minutes

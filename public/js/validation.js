@@ -1,10 +1,10 @@
 // Custom validators here
 // Instructions at the bottom
 
-class Validator{
+class Validator {
     constructor(data) {
-        this.data = data;
-        this.result = true;
+        this.data = data
+        this.result = true
     }
 
     // Used to initialize the validation. Specify the input name and the error message to display if false
@@ -13,8 +13,8 @@ class Validator{
         this.errMsg = options.errorMessage
         return this
     }
-    
-    // Checks if the element is empty 
+
+    // Checks if the element is empty
     exists() {
         if (!this.data[this.name]) {
             this.result = false
@@ -25,8 +25,8 @@ class Validator{
 
     // Checks if a string's length falls within the specified range
     isLength(options) {
-        var min = options.min 
-        var max = options.max 
+        const min = options.min
+        const max = options.max
         if ((this.data[this.name].toString().length < min) || (this.data[this.name].length > max)) {
             this.result = false
             return this
@@ -37,17 +37,17 @@ class Validator{
 
     // Checks if a numerical value is between a given range
     isValue(options) {
-        var min = options.min 
-        var max = options.max 
+        const min = options.min
+        const max = options.max
 
         // If it is a number then I'll validate
         if (!isNaN(this.data[this.name])) {
-            if ((this.data[this.name] < min) || (this.data[this.name] > max)){
+            if ((this.data[this.name] < min) || (this.data[this.name] > max)) {
                 this.result = false
                 return this
-            } 
-        } else{
-            throw 'Only accept Numeric values'
+            }
+        } else {
+            throw new Error('Only accept Numeric values')
         }
         return this
     }
@@ -55,9 +55,9 @@ class Validator{
     // Returns the JSON result of the validation
     getResult() {
         if (this.result == false) {
-            return {name: this.name, result: this.result, msg: this.errMsg}
+            return { name: this.name, result: this.result, msg: this.errMsg }
         }
-        return {name: this.name, result: this.result}
+        return { name: this.name, result: this.result }
     }
 }
 
@@ -70,7 +70,6 @@ Your result will look as such:
 { name: 'theName', result: false, msg: 'Needs to be 5 chars!' }
 
 
-
 To Use custom validator:
 
 1. Initialize the validator, passing in the POST Json Data
@@ -81,7 +80,7 @@ x.Initialize({name: "theName", errorMessage: "Name must be 7 characters long"})
 
 ^ This will validate the field <input name='theName'> and if there is an error found later, it will throw "Name must be 7 characters long"
 
-3. The Validator class supports chaining. 
+3. The Validator class supports chaining.
 x.Initialize({blahblah..}).exists().isLength({min: 3, max: 8})
 
 ^ This will call the exists() method, which checks whether the string is empty or not
@@ -99,15 +98,15 @@ Else, it will return  { name: 'theName', result: true }
 
 // Examples
 
-var postData = {"theName": "Jaddke", "theAge": 4}
+const postData = { 'theName': 'Jaddke', 'theAge': 4 }
 
-var v = new Validator(postData)
-nameResult = v.Initialize({name: "theName", errorMessage: "Needs to be 5 chars!"}).exists().isLength({min:6})
-        .getResult()
+const v = new Validator(postData)
+nameResult = v.Initialize({ name: 'theName', errorMessage: 'Needs to be 5 chars!' }).exists().isLength({ min: 6 })
+    .getResult()
 
-ageResult = v.Initialize({name: "theAge", errorMessage: "Minimum age is 10"}).exists().isValue({min:10})
-.getResult()
+ageResult = v.Initialize({ name: 'theAge', errorMessage: 'Minimum age is 10' }).exists().isValue({ min: 10 })
+    .getResult()
 
-var allResults = [nameResult, ageResult]
+const allResults = [nameResult, ageResult]
 console.log(allResults)
 
