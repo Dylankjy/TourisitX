@@ -12,11 +12,33 @@
     },
     "rules": {
         "linebreak-style": 0,
-        "semi": [2, "never"],
+        "semi": [
+            2,
+            "never"
+        ],
         "max-len": 0,
-        "indent": ["error", 4],
+        "indent": [
+            "error",
+            4
+        ],
         "new-cap": 0,
-        "object-curly-spacing": ["error", "always"],
-        "prefer-arrow-callback": "error"
+        "object-curly-spacing": [
+            "error",
+            "always"
+        ],
+        "prefer-arrow-callback": [
+            "error",
+            {
+                "allowNamedFunctions": true
+            }
+        ],
+        "func-style": [
+            "error",
+            "expression",
+            {
+                "allowArrowFunctions": true
+            }
+        ],
+        "no-unused-vars": 0
     }
 }

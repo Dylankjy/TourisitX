@@ -15,9 +15,17 @@ const expressSession = require('express-session')
 const axios = require('axios')
 const bodyParser = require('body-parser')
 
-// Routers for Express
-const shopRouter = require('./routes/market.js')
-
+// Routes for Express
+const routes = {
+    admin: require('./routes/admin'),
+    api: require('./routes/api'),
+    auth: require('./routes/auth'),
+    booking: require('./routes/booking'),
+    listings: require('./routes/listings'),
+    market: require('./routes/market'),
+    tourguide: require('./routes/tourguide'),
+    user: require('./routes/user'),
+}
 
 const app = express()
 
@@ -35,7 +43,6 @@ app.engine('hbs', exphbs({
     extname: '.hbs',
     layoutsDir: `views/layouts`,
 }))
-
 
 // Handlebars: Views folder
 app.set('views', [`views`])
@@ -114,7 +121,7 @@ const webserver = () => {
     })
 
     // Define all the router stuff here
-    app.use('/shop', shopRouter)
+    app.use('/shop', routes.market)
 
     app.use('/listing', routes.listings)
 

@@ -4,7 +4,10 @@
   "description": "NodeJS port of Tourisit",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon app",
+    "start": "node app",
+    "watch": "nodemon app",
+    "install-prod": "npm i",
+    "install-dev": "npm i --save-dev",
     "test": "eslint . --ext .js,.jsx,.ts,.tsx",
     "auto-fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix"
   },
@@ -39,7 +42,7 @@
     "validator": "^13.6.0"
   },
   "devDependencies": {
-    "eslint": "^7.22.0",
+    "eslint": "^7.25.0",
     "eslint-config-google": "^0.14.0",
     "nodemon": "^2.0.7"
   }
