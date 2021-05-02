@@ -90,26 +90,38 @@ ageResult = v.Initialize({ name: 'theAge', errorMessage: 'Minimum age is 10' }).
 const allResults = [nameResult, ageResult]
 // console.log(allResults)
 
-// Will convert to base64.
-// toHTML specifies whether you want to render image directly in a html file. If false (default) then will just write the base64 string
-// e.g imageToB64(filePath, fileType, {toHTML: false, toPath: 'routes/final.txt'})
-// toPath specifies the file to write the data to 
-function imageToB64(filePath, fileType, options) {
+// Will convert Image to base64.
+
+// Callback implementation
+// imageToB64(filePath, fileType, (data)=>{
+//     fs.writeFile(toPath, data, err=>{if (err) throw err})
+// })
+function imageToB64Callback(filePath, fileType, callback) {
     fs.readFile(filePath, (err, data)=>{
         var base64 = Buffer.from(data).toString('base64');
-        if (options.toHTML) {
-            var formattedSrc = `<img src="data:${fileType};base64, ${base64}">`
-        } else {
-            var formattedSrc = `data:${fileType};base64, ${base64}`
-        }
-        if (options.toPath) {
-            var toPath = options.toPath
-        } else {
-            var toPath = 'routes/default.txt'
-        }
-        fs.writeFile(toPath, formattedSrc, err=>{if (err) throw err})
+        // var formattedSrc = `<img src="data:${fileType};base64, ${base64}">`
+        var formattedSrc = `data:${fileType};base64, ${base64}`
+        
+        callback(formattedSrc)
         // console.log(base64)
     })
+}
+
+// Promise implementation
+// imageToB64(filePath, fileType).then(data=>console.log(data))
+function imageToB64Promise(filePath, fileType) {
+    return new Promise((res, rej)=>{
+        fs.readFile(filePath, (err, data)=>{
+            if (err) {
+                rej(err)
+            } 
+            var base64 = Buffer.from(data).toString('base64');
+            // var formattedSrc = `<img src="data:${fileType};base64, ${base64}">`
+            var formattedSrc = `data:${fileType};base64, ${base64}`
+            res(formattedSrc)
+        })
+    })
+
 }
 
 
@@ -123,19 +135,17 @@ router.get('/create', (req, res)=>{
 
 router.post('/submit-create', (req, res)=>{
         res.json(req.files)
+        
+        // TO extract the image from files
         const filePath = req.files["resume"]["path"]
         const fileType = req.files["resume"]["type"]
-
-        imageToB64(filePath, fileType, {toPath: 'routes/final.txt'})
-        // data = "data:" + response.headers["content-type"] + ";base64," + Buffer.from(body).toString('base64');
-        // fs.readFile(filePath, (err, data)=>{
-        //     var base64 = Buffer.from(data).toString('base64');
-        //     // Do this if you want to directly see the image in a html file
-        //     // var formattedSrc = `<img src="data:${fileType};base64, ${base64}">`
-        //     var formattedSrc = `data:${fileType};base64, ${base64}`
-        //     fs.writeFile('routes/img.txt', formattedSrc, err=>{if (err) throw err})
-        //     // console.log(base64)
-        // })
+        console.log(filePath)
+        imageToB64Promise(filePath, fileType).then((data)=>{
+            // Do all your database stuff here also
+            fs.writeFile(toPath, data, err=>{if (err) throw err})
+        }).catch((err)=>{
+            console.log(err)
+        })
     }
 )
 
