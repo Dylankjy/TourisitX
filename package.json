@@ -33,6 +33,7 @@
     "express-session": "^1.17.1",
     "express-slow-down": "^1.4.0",
     "express-validation": "^3.0.8",
+    "formidable": "^1.2.2",
     "handlebars": "^4.7.7",
     "loglevel": "^1.7.1",
     "loglevel-plugin-prefix": "^0.8.4",

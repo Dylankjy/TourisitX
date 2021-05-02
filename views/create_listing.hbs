@@ -6,11 +6,11 @@
 <!-- Tour Title -------- Name:tourTitle      ID: NIL -->
 <!-- Tour Description -- Name:tourDesc       ID: NIL -->
 <!-- Tour Duration ----- Name:tourDuration   ID: tourDuration -->
-<!-- Tour Timings ------ Name:tourTimings    ID: tourTiming -->
-<!-- Tour Days --------- Name:tourDays       ID: tourDay  -->
+<!-- Tour Timings ------ Final Name:finalTimings    ID: tourTiming -->
+<!-- Tour Days --------- Final Name:finalDays       ID: tourDay  -->
 
 
-<form class="form-horizontal" action='/listing/submit-create' enctype="multipart/form-data" method="POST">    
+<form class="form-horizontal" action='/listing/submit-create' enctype="multipart/form-data" method="POST" id='createListingForm'>    
     <div class='section'>
         
         <!-- TOUR TITLE -->
@@ -126,12 +126,52 @@
             </div>      
         </div>
 
+        <div class='container'>
+            <div class='columns is-variable is-5 is-vcentered'>
+                <div class='column is-one-quarter' style="text-align:right;">
+                    <section class="section">
+                        <h1 class="title is-5">Tour Image</h1>
+                        <h2 class="subtitle is-6">
+                            Show some pictures about your tour
+                        </h2>
+                    </section>
+                </div>
+
+                <div class='column is-half'>
+                    <div class="file has-name is-boxed">
+                        <label class="file-label">
+                            
+                          <input class="file-input" type="file" name="resume" 
+                          onchange="if (this.files.length > 0) document.getElementById('file-label').innerHTML = this.files[0].name;">
+
+                          <span class="file-cta">
+                            <span class="file-icon">
+                              <i class="fas fa-upload"></i>
+                            </span>
+                            <span class="file-label" id='file-label'>
+                              Upload a tour Image
+                            </span>
+                          </span>
+                          <span class="file-name">
+                          </span>
+                        </label>
+                      </div>
+                </div>
+            </div>      
+        </div>
+
+
     </div>
 
     <!-- SUBMIT BUTTON -->
     <div class='container'>
         <button class="button is-link is-right" type='submit'>Submit</button>
     </div>
+
+    <!-- These are the final inputs you will receive -->
+    <input name='finalTimings' hidden>
+    <input name='finalDays' hidden>
+
     
    
 </form>
@@ -375,6 +415,11 @@
             updateDays()
             // Add the day tag
             addDayTag()
+        })
+
+        $("#createListingForm").on('submit', ()=>{
+            $('input:hidden[name=finalTimings]').val(selectedTimeArray)
+            $('input:hidden[name=finalDays]').val(selectedDayArray)
         })
     })
 </script>

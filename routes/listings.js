@@ -1,6 +1,6 @@
 const { urlencoded } = require('body-parser')
 const express = require('express')
-const formidable = require('express-formidable')
+const formidable = require('formidable')
 const bodyParser = require('body-parser')
 const { route } = require('./admin')
 const { validate, ValidationError, Joi } = require('express-validation')
@@ -104,18 +104,10 @@ router.get('/create', (req, res)=>{
     res.render('create_listing.hbs')
 })
 
-router.post('/submit-create', validate(listingValidation, {}, {}), (req, res, next)=>{
-
-    res.json(req.fields)
-},
+router.post('/submit-create', (req, res)=>{
+    var createListingForm = new formidable.In
+    res.json(req.files)
+}
 )
-
-router.use((err, req, res, next) => {
-    if (err instanceof ValidationError) {
-        return res.status(err.statusCode).json(err)
-    }
-
-    return res.status(500).json(err)
-})
 
 module.exports = router
