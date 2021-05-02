@@ -1,4 +1,7 @@
-{{!-- <form class="form-horizontal" enctype="multipart/form-data" action='/listing/submit-create' method="POST"> --}}
+<head>
+    <link rel="stylesheet" href="/public/css/create_listing.css">
+</head>
+
 <form class="form-horizontal" action='/listing/submit-create' enctype="multipart/form-data" method="POST">    
     <div class='section'>
         
@@ -28,7 +31,7 @@
                         </h2>
                     </section>
                 </div>
-                <div class='column is-half'>
+                <div class='column is-half' style='margin-top: 50px;'>
                     <textarea name='theDesc' class="textarea is-primary" placeholder="e.g. Hello world"></textarea>
                 </div>
             </div>      
@@ -70,11 +73,15 @@
                 </div>
                 
                 
-                    <div class='column is-one-third'>
+                    <div class='column is-one-third' style='margin-top: 50px;'>
                         <div class="select is-info">
                             <select class='timeslots' id='tourTiming'>
                                 <option>-</option>
                             </select>
+                        </div>
+
+                        <div class='tag-container' id='timeTags' style='margin-top: 20px;'>
+
                         </div>
                     </div>
 
@@ -141,12 +148,14 @@
     }
 
     // The string of all currently selected times
-    var currentSelectedTimes = []
+    var selectedTimeArray = []
 
+    // Update the time ranges displayed, based on the duration and already selected items (selectedTimeArray)
     function updateTiming() {
         var duration = parseInt($("#tourDuration").val()) * 60
         // The array of current times selected already
-        var arr = currentSelectedTimes
+        var arr = selectedTimeArray
+        console.log(arr)
         var numArr = []
 
         // To get the list of nums of already selected time ranges
@@ -175,14 +184,56 @@
         }
     }
 
+    // Updates the internal array which contains the strings of all selected time ranges
+    function updateTimeRangeArray() {
+        var currentTime = $("#tourTiming").val()
+        if (currentTime != '-') {
+            selectedTimeArray.push(currentTime)
+            console.log(selectedTimeArray)
+        }   
+    }
+
+    // Removes a particular time range string from the internal array
+    function removeTimeRange(val) {
+        selectedTimeArray = selectedTimeArray.filter(e => e !== val)
+    }
+
+    function addTimeTag() {
+        $("#timeTags").html("")
+        selectedTimeArray.forEach((timeRange)=>{
+            var elem = `<span class="tag is-primary is-medium">
+                            ${timeRange} 
+                            <i class="fas fa-trash-alt" onclick='this.parentElement.remove();removeTimeRange("${timeRange}");updateTiming()' style="margin-left: 20px;"></i>
+                        </span>`
+            $("#timeTags").append(elem)
+        })
+    }
+
+    // If a new duration is selected, remove all tags
+    function resetTimeTag() {
+        $("#timeTags").html("")
+    }
+
     // Ensures that the endTime rendered is later than the startTime
     // $("$startTime").on("change", )
 
     $(window).on( "load", ()=>{
         initializeDuration()
         $("#tourDuration").on('change', ()=>{
+                // Reset the selectedTimeArray first, so it can contain the new duration ranges
+                selectedTimeArray = []
+                // Reset the timings to be displayed on the dropdown, following the new duration
                 updateTiming()
+                // Reset all the preselected time tags
+                resetTimeTag()
             }
         )
+
+        // Every time we click on a tour Timing, we want to add it to the internal array, as well as update the rendered time ranges. We also want to add the time range tag
+        $("#tourTiming").on('change', ()=>{
+            updateTimeRangeArray()
+            updateTiming()
+            addTimeTag()
+        })
     })
 </script>
