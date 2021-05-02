@@ -2,9 +2,18 @@
     <link rel="stylesheet" href="/public/css/create_listing.css">
 </head>
 
+<!-- Convetion: Name will end with 's' and ID without -->
+<!-- Tour Title -------- Name:tourTitle      ID: NIL -->
+<!-- Tour Description -- Name:tourDesc       ID: NIL -->
+<!-- Tour Duration ----- Name:tourDuration   ID: tourDuration -->
+<!-- Tour Timings ------ Name:tourTimings    ID: tourTiming -->
+<!-- Tour Days --------- Name:tourDays       ID: tourDay  -->
+
+
 <form class="form-horizontal" action='/listing/submit-create' enctype="multipart/form-data" method="POST">    
     <div class='section'>
         
+        <!-- TOUR TITLE -->
         <div class='container'>
             <div class='columns is-variable is-5 is-vcentered'>
                 <div class='column is-one-quarter' style="text-align:right;">
@@ -16,11 +25,12 @@
                     </section>
                 </div>
                 <div class='column is-half'>
-                    <input name='theName' class="input is-primary" type="text" placeholder="Primary input">
+                    <input name='tourTitle' class="input is-primary" type="text" placeholder="Primary input">
                 </div>
             </div>      
         </div>
 
+        <!-- TOUR DESCRIPTION -->
         <div class='container'>
             <div class='columns is-variable is-5 is-vcentered'>
                 <div class='column is-one-quarter' style="text-align:right;">
@@ -32,11 +42,12 @@
                     </section>
                 </div>
                 <div class='column is-half' style='margin-top: 50px;'>
-                    <textarea name='theDesc' class="textarea is-primary" placeholder="e.g. Hello world"></textarea>
+                    <textarea name='tourDesc' class="textarea is-primary" placeholder="e.g. Hello world"></textarea>
                 </div>
             </div>      
         </div>
 
+        <!-- TOUR DURATION -->
         <div class='container'>
             <div class='columns is-variable is-5 is-vcentered'>
                 <div class='column is-one-quarter' style="text-align:right;">
@@ -49,7 +60,7 @@
                 </div>
                 <div class='column is-1'>
                     <div class="select is-info">
-                            <select id='tourDuration'>
+                            <select id='tourDuration' name='tourDuration'>
                                 <option></option>
                             </select>
                         </div>
@@ -61,6 +72,7 @@
             </div>      
         </div>
 
+        <!-- TOUR TIMINGS -->
         <div class='container'>
             <div class='columns is-variable is-5 is-vcentered'>
                 <div class='column is-one-quarter' style="text-align:right;">
@@ -73,25 +85,50 @@
                 </div>
                 
                 
-                    <div class='column is-one-third' style='margin-top: 50px;'>
-                        <div class="select is-info">
-                            <select class='timeslots' id='tourTiming'>
-                                <option>-</option>
-                            </select>
-                        </div>
-
-                        <div class='tag-container' id='timeTags' style='margin-top: 20px;'>
-
-                        </div>
+                <div class='column is-three-quarters' style='margin-top: 30px;'>
+                    <div class="select is-info">
+                        <select class='timeslots' id='tourTiming' name='tourTimings'>
+                            <option>-</option>
+                        </select>
                     </div>
 
+                    <div class='tag-container' id='timeTags' style='margin-top: 20px;'>
 
+                    </div>
+                </div>
             </div>      
         </div>
 
+        <!-- AVAILABLE DAYS -->
+        <div class='container'>
+            <div class='columns is-variable is-5 is-vcentered'>
+                <div class='column is-one-quarter' style="text-align:right;">
+                    <section class="section">
+                        <h1 class="title is-5">Available Days</h1>
+                        <h2 class="subtitle is-6">
+                            Tours are available on these days
+                        </h2>
+                    </section>
+                </div>
+                <div class='column is-half'>
+                    <div class='select is-primary'>
+                        <select name='tourDays' id='tourDay'>
+                            <option>-</option>
+                        </select>
+                    </div>
+
+                    <div class='tag-container' id='dayTags' style='margin-top: 20px;'>
+                    
+                    </div>
+                    
+                    
+                </div>
+            </div>      
+        </div>
 
     </div>
 
+    <!-- SUBMIT BUTTON -->
     <div class='container'>
         <button class="button is-link is-right" type='submit'>Submit</button>
     </div>
@@ -101,6 +138,17 @@
 
 
 <script>
+
+    // GLOBAL OBJECTS
+
+    // The string of all currently selected times
+    var selectedTimeArray = []
+
+    // Days Array to initialize the Available Days
+    var allDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    var selectedDayArray = []
+
+    // HELPER FUNCTIONS
     function initializeDuration() {
         console.log("Ran duration initialize function")
 
@@ -147,22 +195,25 @@
         return num
     }
 
-    // The string of all currently selected times
-    var selectedTimeArray = []
 
+    // DURATION + TIMING
+
+
+
+
+
+    // Initializer
     // Update the time ranges displayed, based on the duration and already selected items (selectedTimeArray)
     function updateTiming() {
-        var duration = parseInt($("#tourDuration").val()) * 60
+        var duration = parseFloat($("#tourDuration").val()) * 60
         // The array of current times selected already
         var arr = selectedTimeArray
-        console.log(arr)
         var numArr = []
 
         // To get the list of nums of already selected time ranges
         arr.forEach((timeRange) =>{
             start = timeRange.split(' - ')[0]
             end = timeRange.split(' - ')[1]
-            console.log(`${start} - ${end}`)
             startNum = timeToNum(start)
             endNum = timeToNum(end)
             for(i = startNum; i<= endNum; i+= 30) {
@@ -184,24 +235,31 @@
         }
     }
 
+    // Updater
     // Updates the internal array which contains the strings of all selected time ranges
     function updateTimeRangeArray() {
         var currentTime = $("#tourTiming").val()
         if (currentTime != '-') {
             selectedTimeArray.push(currentTime)
-            console.log(selectedTimeArray)
         }   
     }
 
-    // Removes a particular time range string from the internal array
+    // Updater
+    // Removes a particular time range string from the seelectedTimeRange array
     function removeTimeRange(val) {
         selectedTimeArray = selectedTimeArray.filter(e => e !== val)
     }
 
+    // initializer
+    // Adds a time range tag when a time range is selected
+    // On removing the tag, we will 
+    // 1. Delete the entire parent element (Basically the tag)
+    // 2. Delete the time range from the selectedTimeArray 
+    // 3. Update the rendered time ranges (Which changes because the selectedTimeArray has changed)
     function addTimeTag() {
         $("#timeTags").html("")
         selectedTimeArray.forEach((timeRange)=>{
-            var elem = `<span class="tag is-primary is-medium">
+            var elem = `<span class="tag is-primary is-medium" style="margin-left: 10px;">
                             ${timeRange} 
                             <i class="fas fa-trash-alt" onclick='this.parentElement.remove();removeTimeRange("${timeRange}");updateTiming()' style="margin-left: 20px;"></i>
                         </span>`
@@ -209,16 +267,88 @@
         })
     }
 
+    // Updater
     // If a new duration is selected, remove all tags
     function resetTimeTag() {
         $("#timeTags").html("")
     }
 
-    // Ensures that the endTime rendered is later than the startTime
-    // $("$startTime").on("change", )
 
+
+
+
+
+
+
+    // AVAILABLE DAYS
+    // Updater + Initializer
+    // Create/update the dropdown items for the Available Days item
+    function initializeDays() {
+        console.log('Day Initialized')
+        selector = $("#tourDay")
+        // Reset the array first
+        selector.html("<option>-</option>")
+        allDays.forEach((day)=>{
+            selector.append(`<option>${day}</option>`)
+        })
+    }
+
+    // Update the rendered days
+    function updateDays() {
+        console.log('Day Initialized')
+        selector = $("#tourDay")
+        // Reset the array first
+        selector.html("<option>-</option>")
+        allDays.forEach((day)=>{
+            // If the day isn't selected yet, we render it
+            if (!selectedDayArray.includes(day)) {
+                selector.append(`<option>${day}</option>`)
+            }
+            
+        })
+    }
+
+    // Array Updater
+    // Will add the currently selected day to the SelectedDayArray()
+    function updateSelectedDayArray() {
+        currentDay = $("#tourDay").val()
+        if (currentDay != '-') {
+            selectedDayArray.push(currentDay)
+        }   
+    }
+
+    // Array Updater
+    // Removes a particular time range string from the seelectedTimeRange array
+    function removeDay(val) {
+        selectedDayArray = selectedDayArray.filter(e => e !== val)
+    }
+
+    
+    // Initializer
+    function addDayTag() {
+        $("#dayTags").html("")
+        selectedDayArray.forEach((day)=>{
+            var elem = `<span class="tag is-primary is-medium" style="margin-left: 10px;">
+                            ${day} 
+                            <i class="fas fa-trash-alt" onclick='this.parentElement.remove();removeDay("${day}");updateDays()' style="margin-left: 20px;"></i>
+                        </span>`
+            $("#dayTags").append(elem)
+        })
+    }
+
+
+
+
+
+
+
+    // Place all listeners inside this function
     $(window).on( "load", ()=>{
+
+        // All initialization functions here
         initializeDuration()
+        initializeDays()
+
         $("#tourDuration").on('change', ()=>{
                 // Reset the selectedTimeArray first, so it can contain the new duration ranges
                 selectedTimeArray = []
@@ -234,6 +364,17 @@
             updateTimeRangeArray()
             updateTiming()
             addTimeTag()
+        })
+
+
+        // When a day is selected
+        $("#tourDay").on('change', ()=>{
+            // Append selected option to array
+            updateSelectedDayArray()
+            // Update the rendered days
+            updateDays()
+            // Add the day tag
+            addDayTag()
         })
     })
 </script>
