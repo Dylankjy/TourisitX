@@ -12,3 +12,7 @@
 .is-transparent-75 {
     opacity: .75;
 }
+
+.listing-image {
+    height: 20rem;
+}
