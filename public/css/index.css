@@ -4,10 +4,13 @@
 }
 
 #main-hero {
-    background: url('/static/index/hero-1.jpg') center center no-repeat scroll;
-    background-size: cover;
-    background-color: rgba(0,0,0,.5)!important;
-    background-blend-mode: overlay!important;
+    background: url('/static/index/hero-1.jpg') no-repeat;
+    background-size: cover !important;
+    background-position: center !important;
+    background-attachment: scroll !important;
+    background-color: rgba(0,0,0,.5) !important;
+    background-blend-mode: overlay !important;
+    transition: background ease 0.25s !important;
 }
 
 #main-hero .hero-body {
@@ -20,4 +23,32 @@
 
 .after-main-hero {
     margin-top: -5rem
+}
+
+.preload-1 {
+    background: url("/static/index/hero-1.jpg") no-repeat !important;
+}
+.preload-2 {
+    background: url("/static/index/hero-2.jpg") no-repeat !important;
+}
+.preload-3 {
+    background: url("/static/index/hero-3.jpg") no-repeat !important;
+}
+.preload-4 {
+    background: url("/static/index/hero-4.jpg") no-repeat !important;
+}
+.preload-5 {
+    background: url("/static/index/hero-5.jpg") no-repeat !important;
+}
+.preload-6 {
+    background: url("/static/index/hero-6.jpg") no-repeat !important;
+}
+.preload-7 {
+    background: url("/static/index/hero-7.jpg") no-repeat !important;
+}
+.preload-8 {
+    background: url("/static/index/hero-8.jpg") no-repeat !important;
+}
+.preload-9 {
+    background: url("/static/index/hero-9.jpg") no-repeat !important;
 }
