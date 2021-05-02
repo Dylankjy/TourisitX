@@ -1,16 +1,11 @@
 const { urlencoded } = require('body-parser')
 const express = require('express')
-const formidable = require('formidable')
+const formidable = require('express-formidable')
 const bodyParser = require('body-parser')
 const { route } = require('./admin')
-const { validate, ValidationError, Joi } = require('express-validation')
+const ExpressFormidable = require('express-formidable')
+const fs = require('fs')
 
-const listingValidation = {
-    body: Joi.object({
-        theName: Joi.string().required().min(3),
-        theDesc: Joi.string().required(),
-    }),
-}
 
 // const urlencodedParser = bodyParser.urlencoded({extended: false})
 
@@ -95,6 +90,28 @@ ageResult = v.Initialize({ name: 'theAge', errorMessage: 'Minimum age is 10' }).
 const allResults = [nameResult, ageResult]
 // console.log(allResults)
 
+// Will convert to base64.
+// toHTML specifies whether you want to render image directly in a html file. If false (default) then will just write the base64 string
+// e.g imageToB64(filePath, fileType, {toHTML: false, toPath: 'routes/final.txt'})
+// toPath specifies the file to write the data to 
+function imageToB64(filePath, fileType, options) {
+    fs.readFile(filePath, (err, data)=>{
+        var base64 = Buffer.from(data).toString('base64');
+        if (options.toHTML) {
+            var formattedSrc = `<img src="data:${fileType};base64, ${base64}">`
+        } else {
+            var formattedSrc = `data:${fileType};base64, ${base64}`
+        }
+        if (options.toPath) {
+            var toPath = options.toPath
+        } else {
+            var toPath = 'routes/default.txt'
+        }
+        fs.writeFile(toPath, formattedSrc, err=>{if (err) throw err})
+        // console.log(base64)
+    })
+}
+
 
 // Put all your routings below this line -----
 
@@ -105,9 +122,25 @@ router.get('/create', (req, res)=>{
 })
 
 router.post('/submit-create', (req, res)=>{
-    var createListingForm = new formidable.In
-    res.json(req.files)
-}
+        res.json(req.files)
+        const filePath = req.files["resume"]["path"]
+        const fileType = req.files["resume"]["type"]
+
+        imageToB64(filePath, fileType, {toPath: 'routes/final.txt'})
+        // data = "data:" + response.headers["content-type"] + ";base64," + Buffer.from(body).toString('base64');
+        // fs.readFile(filePath, (err, data)=>{
+        //     var base64 = Buffer.from(data).toString('base64');
+        //     // Do this if you want to directly see the image in a html file
+        //     // var formattedSrc = `<img src="data:${fileType};base64, ${base64}">`
+        //     var formattedSrc = `data:${fileType};base64, ${base64}`
+        //     fs.writeFile('routes/img.txt', formattedSrc, err=>{if (err) throw err})
+        //     // console.log(base64)
+        // })
+    }
 )
+
+// fs.writeFile('this.html', "What is this", (err) =>{
+//     if (err) throw err
+// })
 
 module.exports = router
