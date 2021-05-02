@@ -93,7 +93,7 @@ ageResult = v.Initialize({ name: 'theAge', errorMessage: 'Minimum age is 10' }).
 
 
 const allResults = [nameResult, ageResult]
-console.log(allResults)
+// console.log(allResults)
 
 
 // Put all your routings below this line -----
@@ -105,14 +105,7 @@ router.get('/create', (req, res)=>{
 })
 
 router.post('/submit-create', validate(listingValidation, {}, {}), (req, res, next)=>{
-    // res.json(req.fields)
-    // req.check("theName","Must be 3 chars long").isLength({min: 3})
-    // var errors = req.validationErrors()
-    // if (errors) {
-    //     res.send('Failed')
-    // } else{
-    //     res.json(req.fields)
-    // }
+
     res.json(req.fields)
 },
 )

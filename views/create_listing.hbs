@@ -1,6 +1,7 @@
 {{!-- <form class="form-horizontal" enctype="multipart/form-data" action='/listing/submit-create' method="POST"> --}}
 <form class="form-horizontal" action='/listing/submit-create' enctype="multipart/form-data" method="POST">    
     <div class='section'>
+        
         <div class='container'>
             <div class='columns is-variable is-5 is-vcentered'>
                 <div class='column is-one-quarter' style="text-align:right;">
@@ -16,10 +17,6 @@
                 </div>
             </div>      
         </div>
-   
-
-        <div class='is-divider'></div>
-
 
         <div class='container'>
             <div class='columns is-variable is-5 is-vcentered'>
@@ -37,11 +34,155 @@
             </div>      
         </div>
 
+        <div class='container'>
+            <div class='columns is-variable is-5 is-vcentered'>
+                <div class='column is-one-quarter' style="text-align:right;">
+                    <section class="section">
+                        <h1 class="title is-5">Tour Duration</h1>
+                        <h2 class="subtitle is-6">
+                            How long will your Tour last?
+                        </h2>
+                    </section>
+                </div>
+                <div class='column is-1'>
+                    <div class="select is-info">
+                            <select id='tourDuration'>
+                                <option></option>
+                            </select>
+                        </div>
+                </div>
+
+                <div class='column'>
+                    Hours
+                </div>
+            </div>      
+        </div>
+
+        <div class='container'>
+            <div class='columns is-variable is-5 is-vcentered'>
+                <div class='column is-one-quarter' style="text-align:right;">
+                    <section class="section">
+                        <h1 class="title is-5">Tour Timings</h1>
+                        <h2 class="subtitle is-6">
+                            When your Tour will be conducted
+                        </h2>
+                    </section>
+                </div>
+                
+                
+                    <div class='column is-one-third'>
+                        <div class="select is-info">
+                            <select class='timeslots' id='tourTiming'>
+                                <option>-</option>
+                            </select>
+                        </div>
+                    </div>
+
+
+            </div>      
+        </div>
+
+
     </div>
 
     <div class='container'>
-        <button class="button is-link" type='submit'>Submit</button>
+        <button class="button is-link is-right" type='submit'>Submit</button>
     </div>
     
    
 </form>
+
+
+<script>
+    function initializeDuration() {
+        console.log("Ran duration initialize function")
+
+        var select = $('#tourDuration')
+        // Reset the select options first
+        select.html('<option></option>')
+        // select.html("")
+
+        for(var i = 1; i < 11.5; i+= 0.5) {
+            select.append(`<option value=${i}>${i}</option>`)        
+        }
+        console.log("Done Duration initialize!")
+    }
+
+    // Takes number (minutes) and returns a string
+    // Takes 420 and returns 7am
+    function numToTime(i) {
+        hours = Math.floor(i/60)
+        minutes = i%60
+        if (minutes == 0) {
+            minutes = '0' + minutes
+        }
+        ampm = hours%24 < 12 ? "AM" : "PM"
+        hours = hours % 12
+        if (hours===0) {
+            hours = 12
+        }
+
+        return `${hours}:${minutes} ${ampm}`
+    }
+
+    // Takes a date string and converts it to number
+    function timeToNum(x) {
+        hours = parseInt(x.split(':')[0])
+        tmp = x.split(':')[1]
+        min = parseInt(tmp.split(' ')[0])
+        ampm = tmp.split(' ')[1]
+        hours = hours%12
+        if (ampm == 'PM') {
+            hours += 12
+        }
+        
+        num = (hours * 60) + min
+        return num
+    }
+
+    // The string of all currently selected times
+    var currentSelectedTimes = []
+
+    function updateTiming() {
+        var duration = parseInt($("#tourDuration").val()) * 60
+        // The array of current times selected already
+        var arr = currentSelectedTimes
+        var numArr = []
+
+        // To get the list of nums of already selected time ranges
+        arr.forEach((timeRange) =>{
+            start = timeRange.split(' - ')[0]
+            end = timeRange.split(' - ')[1]
+            console.log(`${start} - ${end}`)
+            startNum = timeToNum(start)
+            endNum = timeToNum(end)
+            for(i = startNum; i<= endNum; i+= 30) {
+                numArr.push(i)
+            }
+        })
+
+        $("#tourTiming").html("<option>-</option>")
+
+            
+        for(var i = 420; i < 1380 - duration; i+= 30) {
+            if (numArr.includes(i) || numArr.includes(i+duration)) {
+                continue
+            }
+            var start = numToTime(i)
+            var end = numToTime(i + duration)
+            // Append this to the output using jquery .append
+            $("#tourTiming").append(`<option>${start} - ${end}</option>`)
+        }
+    }
+
+    // Ensures that the endTime rendered is later than the startTime
+    // $("$startTime").on("change", )
+
+    $(window).on( "load", ()=>{
+        initializeDuration()
+        $("#tourDuration").on('change', ()=>{
+                updateTiming()
+            }
+        )
+    })
+</script>
