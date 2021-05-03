@@ -1,6 +1,3 @@
-// Load environment
-const config = require('./app/config')
-
 // Module imports
 // <insert here>
 
@@ -48,7 +45,7 @@ app.engine('hbs', exphbs({
 app.set('views', [`views`])
 
 // cookieParser: Secret key for signing
-app.use(cookieParser(config.app.secretKey))
+app.use(cookieParser("Please change this when in production use"))
 
 // cookieParser: Cookie schema
 // const CookieOptions = {
@@ -76,34 +73,6 @@ const speedLimiter = slowDown({
 })
 app.use(speedLimiter)
 
-// Logging
-const log = require('loglevel')
-const prefix = require('loglevel-plugin-prefix')
-const chalk = require('chalk')
-const colors = {
-    TRACE: chalk.magenta,
-    DEBUG: chalk.cyan,
-    INFO: chalk.blue,
-    WARN: chalk.yellow,
-    ERROR: chalk.red,
-}
-prefix.reg(log)
-prefix.apply(log, {
-    format(level, name, timestamp) {
-        return `${chalk.gray(`[${timestamp}]`)} ${colors[level.toUpperCase()](level)}` // ${chalk.white(`${name}:`)}
-    },
-})
-prefix.apply(log.getLogger('critical'), {
-    format(level, name, timestamp) {
-        return chalk.red.bold(`[${timestamp}] ${level} ${name}:`)
-    },
-})
-if (config.debugMode === true) {
-    log.setLevel('debug', true)
-} else {
-    log.setLevel('info', true)
-}
-
 // Express: Routes
 const webserver = () => {
     // Define all the router stuff here
@@ -126,9 +95,9 @@ const webserver = () => {
         res.render('404', metadata)
     })
 
-    app.listen(config.webserver.port, (err) => {
+    app.listen(3000, (err) => {
         if (err) throw log.error(err)
-        log.debug(`Web server listening on port ${config.webserver.port} | http://${config.webserver.domain}`)
+        console.log(`Web server listening on port 3000 | http://localhost:3000`)
     })
 }
 
