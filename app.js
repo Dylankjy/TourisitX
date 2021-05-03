@@ -106,37 +106,9 @@ if (config.debugMode === true) {
 
 // Express: Routes
 const webserver = () => {
-    app.get('/', (req, res) => {
-        const metadata = {
-            meta: {
-                title: 'Home',
-                path: false,
-            },
-            nav: {
-                index: true,
-            },
-            listing: [
-                {
-                    name: 'Test listing',
-                    desc: 'This is a test listing',
-                    place: 'Gardens by the Bay',
-                },
-                {
-                    name: 'Test listing',
-                    desc: 'This is a test listing',
-                    place: 'Gardens by the Bay',
-                },
-                {
-                    name: 'Test listing',
-                    desc: 'This is a test listing',
-                    place: 'Gardens by the Bay',
-                },
-            ],
-        }
-        res.render('index', metadata)
-    })
-
     // Define all the router stuff here
+    app.use('/', routes.market)
+
     app.use('/shop', routes.market)
 
     app.use('/listing', routes.listings)
@@ -159,5 +131,6 @@ const webserver = () => {
         log.debug(`Web server listening on port ${config.webserver.port} | http://${config.webserver.domain}`)
     })
 }
+
 
 webserver()
