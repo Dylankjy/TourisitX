@@ -6,4 +6,7 @@ This repository is licensed under [AGPL-3.0](https://github.com/Tokinoharu/Touri
 
 # Third Party Licenses
 - [Hakkou-App-Template](https://github.com/HakkouHQ/Hakkou-App-Template) ([MPL-2.0](https://github.com/HakkouHQ/Hakkou-App-Template/blob/main/LICENSE))
+- [Genkan](https://github.com/HakkouHQ/Genkan) ([GPL-3.0](https://github.com/HakkouHQ/Genkan/blob/main/LICENSE))
+- [Bulma](https://github.com/jgthms/bulma) ([MIT](https://github.com/jgthms/bulma/blob/master/LICENSE))
+- [JQuery](https://github.com/jquery/jquery) ([MIT](https://github.com/jquery/jquery/blob/main/LICENSE.txt))
 - *Other third party licenses are provided as is in the same directory where the third party library or code is stored.*
