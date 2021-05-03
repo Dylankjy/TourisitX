@@ -45,8 +45,13 @@ app.engine('hbs', exphbs({
     // Helper functions here, will make cleaner later
     helpers: {
         haveErr: (value, options) =>{
-            return value.length != 0
+            // Removes all null values and boolean (true if not empty, false if empty)
+            return value.filter(n => n).length != 0
+        },
+        isUndef: (value, options) =>{
+            return typeof(value) !== 'undefined'
         }
+        
     }
 
 }))
@@ -56,6 +61,13 @@ app.set('views', [`views`])
 
 // cookieParser: Secret key for signing
 app.use(cookieParser(config.app.secretKey))
+
+
+// app.use(expressSession({
+//     secret: config.app.secretKey,
+//     saveUninitialized: false,
+//     resave: false
+// }))
 
 // cookieParser: Cookie schema
 // const CookieOptions = {

@@ -9,11 +9,11 @@
 <!-- Tour Timings ------ Final Name:finalTimings    ID: tourTiming -->
 <!-- Tour Days --------- Final Name:finalDays       ID: tourDay  -->
 
-{{#if (haveErr validationErr)}}
+{{#if (haveErr validationErrors)}}
 <div class='section'>
     <div class='columns'>
         <div class='column is-8 is-offset-2'>
-{{#each validationErr}}
+{{#each validationErrors}}
         <article class="message is-danger">
             <div class="message-header">
                 <p>{{this.renderedName}}</p>
