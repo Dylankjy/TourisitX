@@ -100,11 +100,12 @@ console.log(allResults)
 
 // router.get('/', (req, res) => { ... }
 
-router.get('/create', (req, res)=>{
-    res.render('create_listing.hbs')
+router.get('/listing/create', (req, res)=>{
+    res.render('tourGuide/createListing.hbs')
 })
 
-router.post('/submit-create', validate(listingValidation, {}, {}), (req, res, next)=>{
+// Msg left by Dylan: I changed your POST endpoint to match your GET. Use the same endpoint name, its neater :)
+router.post('/listing/create', validate(listingValidation, {}, {}), (req, res, next)=>{
     // res.json(req.fields)
     // req.check("theName","Must be 3 chars long").isLength({min: 3})
     // var errors = req.validationErrors()
