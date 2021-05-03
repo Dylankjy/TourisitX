@@ -95,9 +95,9 @@ const webserver = () => {
         res.render('404', metadata)
     })
 
-    app.listen(3000, (err) => {
+    app.listen(5000, (err) => {
         if (err) throw log.error(err)
-        console.log(`Web server listening on port 3000 | http://localhost:3000`)
+        console.log(`Web server listening on port 5000 | http://localhost:5000`)
     })
 }
 
