@@ -46,13 +46,13 @@ app.engine('hbs', exphbs({
     helpers: {
         haveErr: (value, options) =>{
             // Removes all null values and boolean (true if not empty, false if empty)
-            return value.filter(n => n).length != 0
+            return value.filter((n) => n).length != 0
         },
         isDefined: (value, options) =>{
             return typeof(value) !== 'undefined'
-        }
-        
-    }
+        },
+
+    },
 
 }))
 

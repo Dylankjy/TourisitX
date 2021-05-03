@@ -12,7 +12,6 @@ const expressSession = require('express-session')
 // Globals
 
 
-
 const router = express.Router()
 // router.use(formidable())
 
@@ -80,7 +79,7 @@ class Validator {
 
 // x is sample data POST DATA
 // const x = { theName: 'Jake', theAge: 4 }
-var x = {"tourTitle":"sdfsd","tourDesc":"fdfd","tourDuration":"","tourTimings":"-","tourDays":"-","finalTimings":"","finalDays":""}
+const x = { 'tourTitle': 'sdfsd', 'tourDesc': 'fdfd', 'tourDuration': '', 'tourTimings': '-', 'tourDays': '-', 'finalTimings': '', 'finalDays': '' }
 
 
 // const v_name = new Validator(x)
@@ -88,14 +87,14 @@ var x = {"tourTitle":"sdfsd","tourDesc":"fdfd","tourDuration":"","tourTimings":"
 const v = new Validator(x)
 
 
-nameResult = v.Initialize({ name: 'tourTitle', errorMessage: 'Needs to be 5 chars!', renderedName: "Tour Title" }).exists().isLength({ min: 7 })
+nameResult = v.Initialize({ name: 'tourTitle', errorMessage: 'Needs to be 5 chars!', renderedName: 'Tour Title' }).exists().isLength({ min: 7 })
     .getResult()
 
-ageResult = v.Initialize({ name: 'tourDesc', errorMessage: 'Tour Age doesnt exist', renderedName: "Tour Age" }).exists()
+ageResult = v.Initialize({ name: 'tourDesc', errorMessage: 'Tour Age doesnt exist', renderedName: 'Tour Age' }).exists()
     .getResult()
 
 
-var allResults = [nameResult, ageResult]
+const allResults = [nameResult, ageResult]
 
 // console.log(allResults)
 // console.log(allResults.filter(n => n).length)
@@ -109,10 +108,10 @@ var allResults = [nameResult, ageResult]
 // })
 function imageToB64Callback(filePath, fileType, callback) {
     fs.readFile(filePath, (err, data)=>{
-        var base64 = Buffer.from(data).toString('base64');
+        const base64 = Buffer.from(data).toString('base64')
         // var formattedSrc = `<img src="data:${fileType};base64, ${base64}">`
-        var formattedSrc = `data:${fileType};base64, ${base64}`
-        
+        const formattedSrc = `data:${fileType};base64, ${base64}`
+
         callback(formattedSrc)
         // console.log(base64)
     })
@@ -125,19 +124,18 @@ function imageToB64Promise(filePath, fileType) {
         fs.readFile(filePath, (err, data)=>{
             if (err) {
                 rej(err)
-            } 
-            var base64 = Buffer.from(data).toString('base64');
+            }
+            const base64 = Buffer.from(data).toString('base64')
             // var formattedSrc = `<img src="data:${fileType};base64, ${base64}">`
-            var formattedSrc = `data:${fileType};base64, ${base64}`
+            const formattedSrc = `data:${fileType};base64, ${base64}`
             res(formattedSrc)
         })
     })
-
 }
 
 function getImage(req, callback) {
-    var filePath = req.files["resume"]["path"]
-    var fileType = req.files["resume"]["type"]
+    const filePath = req.files['resume']['path']
+    const fileType = req.files['resume']['type']
     imageToB64Promise(filePath, fileType).then((data)=>{
         // Do all your database stuff here also
         callback(data)
@@ -148,11 +146,11 @@ function getImage(req, callback) {
 }
 
 function removeNull(arr) {
-    return arr.filter(n => n)
+    return arr.filter((n) => n)
 }
 
 function emptyArray(arr) {
-    return arr.filter(n => n).length == 0
+    return arr.filter((n) => n).length == 0
 }
 
 
@@ -172,45 +170,43 @@ router.get('/create', (req, res)=>{
     // console.log(`Stored values is: ${storedValues}`)
     // console.log(`Stored type is: ${typeof(storedValues)}`)
     // console.log(`Stored title is: ${storedValues["tourTitle"]}`)
-    
-    res.render('create_listing.hbs', {validationErrors: req.cookies.validationErrors})
+
+    res.render('create_listing.hbs', { validationErrors: req.cookies.validationErrors })
 })
 
 
 router.post('/submit-create', (req, res)=>{
-        // Save the form values so we can re-render them if there are errors
-        res.cookie('storedValues', JSON.stringify(req.fields), {maxAge:360000})
+    // Save the form values so we can re-render them if there are errors
+    res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 360000 })
 
-        const v = new Validator(req.fields)
+    const v = new Validator(req.fields)
 
-        nameResult = v.Initialize({ name: 'tourTitle', errorMessage: 'Please enter a Tour Title!', renderedName: "Tour Title" }).exists().isLength({ min: 5 })
-            .getResult()
+    nameResult = v.Initialize({ name: 'tourTitle', errorMessage: 'Please enter a Tour Title!', renderedName: 'Tour Title' }).exists().isLength({ min: 5 })
+        .getResult()
 
-        ageResult = v.Initialize({ name: 'tourDesc', errorMessage: 'Please enter a Tour description', renderedName: "Tour Description" }).exists()
-            .getResult()
+    ageResult = v.Initialize({ name: 'tourDesc', errorMessage: 'Please enter a Tour description', renderedName: 'Tour Description' }).exists()
+        .getResult()
 
-        var validationErrors = removeNull([nameResult, ageResult])
+    const validationErrors = removeNull([nameResult, ageResult])
 
-        // If there are errors, re-render the create listing page with the valid error messages
-        if (!emptyArray(validationErrors)) {
-            res.cookie('validationErrors', validationErrors, {maxAge:360000})
-            // res.render('create_listing.hbs', {validationErrors: validationErrors})
-            res.redirect('/listing/create')
-        } else {
-            res.clearCookie('validationErrors')
-            res.clearCookie("storedValues")
-            res.send("Success")
-        }
-
-        
-        
-
-        
-        // TO extract the image from files
-        // getImage(req, (base64)=>{
-        //     //DO database stuff here
-        // })
+    // If there are errors, re-render the create listing page with the valid error messages
+    if (!emptyArray(validationErrors)) {
+        res.cookie('validationErrors', validationErrors, { maxAge: 360000 })
+        // res.render('create_listing.hbs', {validationErrors: validationErrors})
+        res.redirect('/listing/create')
+    } else {
+        // Remove cookies for stored form values + validation errors
+        res.clearCookie('validationErrors')
+        res.clearCookie('storedValues')
+        res.send('Success')
     }
+
+
+    // TO extract the image from files
+    // getImage(req, (base64)=>{
+    //     //DO database stuff here
+    // })
+},
 )
 
 // fs.writeFile('this.html', "What is this", (err) =>{

@@ -109,7 +109,7 @@
                 
                 <div class='column is-three-quarters' style='margin-top: 30px;'>
                     <div class="select is-info">
-                        <select class='timeslots' id='tourTiming' name='tourTimings'>
+                        <select class='timeslots' id='tourTiming'>
                             <option>-</option>
                         </select>
                     </div>
@@ -134,7 +134,7 @@
                 </div>
                 <div class='column is-half'>
                     <div class='select is-primary'>
-                        <select name='tourDays' id='tourDay'>
+                        <select id='tourDay'>
                             <option>-</option>
                         </select>
                     </div>
@@ -227,6 +227,10 @@
     function getCookieValue(name) {
         return document.cookie.split('; ').find(row => row.startsWith(name)).split('=')[1]
     }
+
+    function emptyArray(arr) {
+        return arr.filter((n) => n).length == 0
+    }   
     
 
     // INITIALIZER FUNCTIONS
@@ -325,8 +329,16 @@
         }   
     }
 
+    // If it has "Specific" means it adds using user-defined input (time)
+    // Used to inject pre-existing values
+    function updateSpecificTimeRangeArray(time) {
+        if (time != '-') {
+            selectedTimeArray.push(time)
+        }   
+    }
+
     // Updater
-    // Removes a particular time range string from the seelectedTimeRange array
+    // Removes a particular time range string from the selectedTimeRange array
     function removeTimeRange(val) {
         selectedTimeArray = selectedTimeArray.filter(e => e !== val)
     }
@@ -346,6 +358,14 @@
                         </span>`
             $("#timeTags").append(elem)
         })
+    }
+
+    function addSpecificTimeTag(time) {
+        var elem = `<span class="tag is-primary is-medium" style="margin-left: 10px;">
+                        ${time} 
+                        <i class="fas fa-trash-alt" onclick='this.parentElement.remove();removeTimeRange("${time}");updateTiming()' style="margin-left: 20px;"></i>
+                    </span>`
+        $("#timeTags").append(elem)
     }
 
     // Updater
@@ -398,8 +418,15 @@
         }   
     }
 
+
+    function updateSpecificSelectedDayArray(day) {
+        if (day != '-') {
+            selectedDayArray.push(day)
+        }   
+    }
+
     // Array Updater
-    // Removes a particular time range string from the seelectedTimeRange array
+    // Removes a particular time range string from the selectedTimeRange array
     function removeDay(val) {
         selectedDayArray = selectedDayArray.filter(e => e !== val)
     }
@@ -417,6 +444,14 @@
         })
     }
 
+    function addSpecificDayTag(day) {
+        var elem = `<span class="tag is-primary is-medium" style="margin-left: 10px;">
+                        ${day} 
+                        <i class="fas fa-trash-alt" onclick='this.parentElement.remove();removeDay("${day}");updateDays()' style="margin-left: 20px;"></i>
+                    </span>`
+        $("#dayTags").append(elem)
+    }
+
 
 
 
@@ -431,6 +466,7 @@
         initializeDays()
 
         $("#tourDuration").on('change', ()=>{
+            console.log("DURATION CHANGE")
                 // Reset the selectedTimeArray first, so it can contain the new duration ranges
                 selectedTimeArray = []
                 // Reset the timings to be displayed on the dropdown, following the new duration
@@ -465,11 +501,47 @@
             $('input:hidden[name=finalDays]').val(selectedDayArray)
         })
 
+        // If there is stored cookies (Means that there was an error and you re-render)
         if (getCookieValue("storedValues") != 'undefined') {
             var storedValues = JSON.parse(decodeURIComponent(getCookieValue("storedValues")))
             
+            // Re-initialze the values
+            console.log(storedValues)
             $("input[name=tourTitle]").val(storedValues.tourTitle)
             $("textarea[name=tourDesc]").val(storedValues.tourDesc)
+            $("select[name=tourDuration]").val(storedValues.tourDuration)
+            // Trigger the change function for the tourDuration so I can update the Tour Timings
+            // If I simply use jQuery to set the value, the 'change' function won't trigger so I'll have to manually trigger it
+            $("select[name=tourDuration]").trigger("change")
+
+
+            var existingTimings = storedValues.finalTimings.split(',')
+            if (existingTimings != '') {
+                existingTimings.forEach((timing)=>{
+                    console.log(`Ran for time ${timing}`)
+                    updateSpecificTimeRangeArray(timing)
+                    updateTiming()
+                    addSpecificTimeTag(timing)
+                })
+            } else {
+                console.log("Time works correctly now")
+            }
+            
+
+            console.log(selectedTimeArray)
+
+            var existingDays = storedValues.finalDays.split(',')
+            if (existingDays != '') {
+                existingDays.forEach((day)=>{
+                    console.log(`Ran for day ${day}`)
+                    updateSpecificSelectedDayArray(day)
+                    updateDays()
+                    addSpecificDayTag(day)
+                })
+            } else {
+                console.log("Days works fine too")
+            }
+            
         }
     })
 </script>
