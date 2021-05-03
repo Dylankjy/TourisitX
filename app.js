@@ -48,7 +48,7 @@ app.engine('hbs', exphbs({
             // Removes all null values and boolean (true if not empty, false if empty)
             return value.filter(n => n).length != 0
         },
-        isUndef: (value, options) =>{
+        isDefined: (value, options) =>{
             return typeof(value) !== 'undefined'
         }
         

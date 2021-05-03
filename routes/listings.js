@@ -14,7 +14,7 @@ const expressSession = require('express-session')
 
 
 const router = express.Router()
-router.use(formidable())
+// router.use(formidable())
 
 class Validator {
     constructor(data) {
@@ -160,15 +160,26 @@ function emptyArray(arr) {
 
 // router.get('/', (req, res) => { ... }
 
-
+// can we use shards? (Like how we did product card that time, pass in a json and will fill in the HTML template)
 router.get('/create', (req, res)=>{
     // res.render('create_listing.hbs', {validationErr: []})
-    res.render('create_listing.hbs', {validationErrors: []})
+    if (req.cookies.storedValues) {
+        var storedValues = JSON.parse(req.cookies.storedValues)
+    } else {
+        var storedValues = {}
+    }
+
+    // console.log(`Stored values is: ${storedValues}`)
+    // console.log(`Stored type is: ${typeof(storedValues)}`)
+    // console.log(`Stored title is: ${storedValues["tourTitle"]}`)
+    
+    res.render('create_listing.hbs', {validationErrors: req.cookies.validationErrors})
 })
 
 
 router.post('/submit-create', (req, res)=>{
-        console.log(req.fields)
+        // Save the form values so we can re-render them if there are errors
+        res.cookie('storedValues', JSON.stringify(req.fields), {maxAge:360000})
 
         const v = new Validator(req.fields)
 
@@ -178,16 +189,20 @@ router.post('/submit-create', (req, res)=>{
         ageResult = v.Initialize({ name: 'tourDesc', errorMessage: 'Please enter a Tour description', renderedName: "Tour Description" }).exists()
             .getResult()
 
-        var allvalidations = removeNull([nameResult, ageResult])
+        var validationErrors = removeNull([nameResult, ageResult])
 
         // If there are errors, re-render the create listing page with the valid error messages
-        if (!emptyArray(allvalidations)) {
-            console.log(allvalidations)
-            errors = allvalidations
-            res.render('create_listing.hbs', {validationErrors: allvalidations})
+        if (!emptyArray(validationErrors)) {
+            res.cookie('validationErrors', validationErrors, {maxAge:360000})
+            // res.render('create_listing.hbs', {validationErrors: validationErrors})
+            res.redirect('/listing/create')
         } else {
+            res.clearCookie('validationErrors')
+            res.clearCookie("storedValues")
             res.send("Success")
         }
+
+        
         
 
         

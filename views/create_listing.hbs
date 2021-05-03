@@ -9,6 +9,8 @@
 <!-- Tour Timings ------ Final Name:finalTimings    ID: tourTiming -->
 <!-- Tour Days --------- Final Name:finalDays       ID: tourDay  -->
 
+<!-- If validationErrors is defined and there are validationErrors -->
+{{#if (isDefined validationErrors)}}
 {{#if (haveErr validationErrors)}}
 <div class='section'>
     <div class='columns'>
@@ -27,6 +29,7 @@
         </div>
     </div>
 </div>
+{{/if}}
 {{/if}}
 
 <form class="form-horizontal" action='/listing/submit-create' enctype="multipart/form-data" method="POST" id='createListingForm'>    
@@ -182,6 +185,8 @@
 
     </div>
 
+    <p id='renderHere'></p>
+
     <!-- SUBMIT BUTTON -->
     <div class='container'>
         <button class="button is-link is-right" type='submit'>Submit</button>
@@ -191,9 +196,17 @@
     <input name='finalTimings' hidden>
     <input name='finalDays' hidden>
 
+    <!-- {{#each storedValues}}
+    <p>{{this}}</p>
+    {{/each}} -->
+
+
+    <!-- <input id='storedValues' value= {{storedValues}} hidden> -->
+
     
    
 </form>
+
 
 
 <script>
@@ -207,7 +220,16 @@
     var allDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     var selectedDayArray = []
 
+
     // HELPER FUNCTIONS
+
+    // Returns the cookie value given its name
+    function getCookieValue(name) {
+        return document.cookie.split('; ').find(row => row.startsWith(name)).split('=')[1]
+    }
+    
+
+    // INITIALIZER FUNCTIONS
     function initializeDuration() {
         console.log("Ran duration initialize function")
 
@@ -436,9 +458,21 @@
             addDayTag()
         })
 
+
+
         $("#createListingForm").on('submit', ()=>{
             $('input:hidden[name=finalTimings]').val(selectedTimeArray)
             $('input:hidden[name=finalDays]').val(selectedDayArray)
         })
+
+        if (getCookieValue("storedValues") != 'undefined') {
+            var storedValues = JSON.parse(decodeURIComponent(getCookieValue("storedValues")))
+            
+            $("input[name=tourTitle]").val(storedValues.tourTitle)
+            $("textarea[name=tourDesc]").val(storedValues.tourDesc)
+        }
     })
 </script>
+
+
+
