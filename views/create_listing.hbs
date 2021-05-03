@@ -9,7 +9,7 @@
 
         // When the document is ready, initialize the sortable item
         $(document).ready(()=> {
-            $("#itineraryTags").sortable()
+            $("#itineraryItems").sortable()
         })
          
     </script>
@@ -209,21 +209,22 @@
 
                 <div class='column is-5 itinerary'>
                     <div class='control has-icons-right is-clickable'>
-                        <input class='input is-success'>
+                        <input class='input is-success' name='itinerary-str'>
                         <span class='icon is-right'>
-                            <i class="fas fa-feather-alt" style="margin-right: 20px; pointer-events: initial" onclick='console.log($(this.parentElement).siblings().val())'></i>
+                            <i class="fas fa-feather-alt" id='add-itinerary-icon' style="margin-right: 20px; pointer-events: initial"></i>
                         </span>
                     </div>
 
-                    <ul class='ui-sortable' id='itineraryTags'>
+                    <ul class='ui-sortable' id='itineraryItems'>
                         <li class="itinerary-item" contenteditable="true">
                             one
-                            <!-- <i class="fas fa-trash-alt" onclick='' style="margin-left: 20px;"></i> -->
+                            <i class="fas fa-trash-alt itinerary-item-icon" onclick="this.parentElement.remove()"></i>
                         </li>
+                        
 
                         <li class="itinerary-item" contenteditable="true">
                             two
-                            <!-- <i class="fas fa-trash-alt" onclick='' style="margin-left: 20px;"></i> -->
+                            <i class="fas fa-trash-alt itinerary-item-icon" onclick="this.parentElement.remove()"></i>
                         </li>
                     </ul>
 
@@ -550,15 +551,54 @@
         })
 
 
+
+
+
+        // ITINERARY LIST
+
+        // Add new itinerary list item when feather is clicked
+        function addItineraryItem() {
+            // Get the current text value
+            var item = $("input[name=itinerary-str]").val()
+            // Reset input box to empty
+            $("input[name=itinerary-str]").val("")
+            var elem = `<li class="itinerary-item" contenteditable="true">
+                            ${item}
+                            <i class="fas fa-trash-alt itinerary-item-icon" onclick="this.parentElement.remove()"></i>
+                        </li>`
+            $("#itineraryItems").append(elem)
+
+
+            // Sortable + Editable for Itinerary list
+            // Must call this everytime I add an itinerary item so that this onclick trigger applies to them too
+            // When I double-click, I can edit the string inside (But I cannot sort it)
+            $(".itinerary-item").on('dblclick', ()=>{
+                $("#itineraryItems").sortable({cancel: ':input,button,[contenteditable="true"]'})
+            })
+
+            // When I click away, I can no longer edit the string, but I can now sort it
+            $(".itinerary-item").on('focusout', ()=>{
+                $("#itineraryItems").sortable({cancel: ""})
+            })
+            
+        }
+
+        // Define function to run when the icon is clicked
+        $("#add-itinerary-icon").on('click', ()=>{
+            addItineraryItem()
+        })
+
+
+
         // Sortable + Editable for Itinerary list
         // When I double-click, I can edit the string inside (But I cannot sort it)
         $(".itinerary-item").on('dblclick', ()=>{
-            $("#itineraryTags").sortable({cancel: ':input,button,[contenteditable="true"]'})
+            $("#itineraryItems").sortable({cancel: ':input,button,[contenteditable="true"]'})
         })
 
         // When I click away, I can no longer edit the string, but I can now sort it
         $(".itinerary-item").on('focusout', ()=>{
-            $("#itineraryTags").sortable({cancel: ""})
+            $("#itineraryItems").sortable({cancel: ""})
         })
 
 

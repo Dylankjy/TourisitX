@@ -9,3 +9,12 @@
 .itinerary-item {
   margin: 10px;
 }
+
+.itinerary-item-icon {
+  position: absolute;
+  right: 35%;
+}
+
+.columns + .columns {
+  margin-bottom: 0px;
+}
