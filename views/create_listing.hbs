@@ -1,5 +1,18 @@
 <head>
-    <link rel="stylesheet" href="/public/css/create_listing.css">
+    <!-- <link rel='stylesheet' href='/public/css/create_listing.css'> -->
+    <link rel='stylesheet' href='/third_party/alex/create_listing.css'>
+    <link rel="stylesheet" href="/third_party/jquery-ui/jquery-ui.min.css">
+    <!-- <script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script> -->
+    <script src='/third_party/jquery-ui/jquery-ui.js'></script>
+
+    <script>
+
+        // When the document is ready, initialize the sortable item
+        $(document).ready(()=> {
+            $("#itineraryTags").sortable()
+        })
+         
+    </script>
 </head>
 
 <!-- Convetion: Name will end with 's' and ID without -->
@@ -114,7 +127,7 @@
                         </select>
                     </div>
 
-                    <div class='tag-container' id='timeTags' style='margin-top: 20px;'>
+                    <div class='tag-container' id='timeTags'>
 
                     </div>
                 </div>
@@ -139,7 +152,7 @@
                         </select>
                     </div>
 
-                    <div class='tag-container' id='dayTags' style='margin-top: 20px;'>
+                    <div class='tag-container' id='dayTags'>
                     
                     </div>
                     
@@ -182,10 +195,48 @@
             </div>      
         </div>
 
+        <!-- TOUR ITINERARY -->
+        <div class='container'>
+            <div class='columns is-variable is-5 is-vcentered'>
+                <div class='column is-one-quarter' style="text-align:right;">
+                    <section class="section">
+                        <h1 class="title is-5">Tour Itinerary</h1>
+                        <h2 class="subtitle is-6">
+                            Provide a detailed outline of the Tour
+                        </h2>
+                    </section>
+                </div>
+
+                <div class='column is-5 itinerary'>
+                    <div class='control has-icons-right is-clickable'>
+                        <input class='input is-success'>
+                        <span class='icon is-right'>
+                            <i class="fas fa-feather-alt" style="margin-right: 20px; pointer-events: initial" onclick='console.log($(this.parentElement).siblings().val())'></i>
+                        </span>
+                    </div>
+
+                    <ul class='ui-sortable' id='itineraryTags'>
+                        <li class="itinerary-item" contenteditable="true">
+                            one
+                            <!-- <i class="fas fa-trash-alt" onclick='' style="margin-left: 20px;"></i> -->
+                        </li>
+
+                        <li class="itinerary-item" contenteditable="true">
+                            two
+                            <!-- <i class="fas fa-trash-alt" onclick='' style="margin-left: 20px;"></i> -->
+                        </li>
+                    </ul>
+
+                </div>
+
+            </div>      
+        </div>
+
+        <h1 class='best'>
+
 
     </div>
 
-    <p id='renderHere'></p>
 
     <!-- SUBMIT BUTTON -->
     <div class='container'>
@@ -195,13 +246,6 @@
     <!-- These are the final inputs you will receive -->
     <input name='finalTimings' hidden>
     <input name='finalDays' hidden>
-
-    <!-- {{#each storedValues}}
-    <p>{{this}}</p>
-    {{/each}} -->
-
-
-    <!-- <input id='storedValues' value= {{storedValues}} hidden> -->
 
     
    
@@ -458,8 +502,19 @@
 
 
 
+
+    // TOUR ITINERARY
+    // Updater + Initializer
+   
+
+
+
+
+
+
+
     // Place all listeners inside this function
-    $(window).on( "load", ()=>{
+    $(window).on('load', ()=>{
 
         // All initialization functions here
         initializeDuration()
@@ -495,11 +550,28 @@
         })
 
 
+        // Sortable + Editable for Itinerary list
+        // When I double-click, I can edit the string inside (But I cannot sort it)
+        $(".itinerary-item").on('dblclick', ()=>{
+            $("#itineraryTags").sortable({cancel: ':input,button,[contenteditable="true"]'})
+        })
+
+        // When I click away, I can no longer edit the string, but I can now sort it
+        $(".itinerary-item").on('focusout', ()=>{
+            $("#itineraryTags").sortable({cancel: ""})
+        })
+
+
 
         $("#createListingForm").on('submit', ()=>{
             $('input:hidden[name=finalTimings]').val(selectedTimeArray)
             $('input:hidden[name=finalDays]').val(selectedDayArray)
+            // Remove whitespaces 
+            $("input[name=tourTitle]").val($.trim($("input[name=tourTitle]").val()))
+            $("textarea[name=tourDesc]").val($.trim($("textarea[name=tourDesc]").val()))
         })
+
+
 
         // If there is stored cookies (Means that there was an error and you re-render)
         if (getCookieValue("storedValues") != 'undefined') {
@@ -543,6 +615,7 @@
             }
             
         }
+        
     })
 </script>
 
