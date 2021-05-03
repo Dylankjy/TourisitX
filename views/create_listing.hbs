@@ -9,6 +9,25 @@
 <!-- Tour Timings ------ Final Name:finalTimings    ID: tourTiming -->
 <!-- Tour Days --------- Final Name:finalDays       ID: tourDay  -->
 
+{{#if (haveErr validationErr)}}
+<div class='section'>
+    <div class='columns'>
+        <div class='column is-8 is-offset-2'>
+{{#each validationErr}}
+        <article class="message is-danger">
+            <div class="message-header">
+                <p>{{this.renderedName}}</p>
+                <button class="delete" onclick="this.parentElement.parentElement.remove()"></button>
+            </div>
+            <div class="message-body">
+                {{this.msg}}    
+            </div>
+        </article>
+{{/each}}
+        </div>
+    </div>
+</div>
+{{/if}}
 
 <form class="form-horizontal" action='/listing/submit-create' enctype="multipart/form-data" method="POST" id='createListingForm'>    
     <div class='section'>

@@ -36,11 +36,19 @@ app.use('/third_party', express.static('third_party'))
 // Handlebars: Render engine
 app.set('view engine', 'hbs')
 
+
 // Handlebars: Environment options
 app.engine('hbs', exphbs({
     defaultLayout: 'main',
     extname: '.hbs',
     layoutsDir: `views/layouts`,
+    // Helper functions here, will make cleaner later
+    helpers: {
+        haveErr: (value, options) =>{
+            return value.length != 0
+        }
+    }
+
 }))
 
 // Handlebars: Views folder

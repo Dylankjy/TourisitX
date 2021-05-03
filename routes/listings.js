@@ -5,9 +5,11 @@ const bodyParser = require('body-parser')
 const { route } = require('./admin')
 const ExpressFormidable = require('express-formidable')
 const fs = require('fs')
+const exphbs = require('express-handlebars')
 
 
-// const urlencodedParser = bodyParser.urlencoded({extended: false})
+// Globals
+
 
 
 const router = express.Router()
@@ -19,10 +21,11 @@ class Validator {
         this.result = true
     }
 
-    // Used to initialize the validation. Specify the input name and the error message to display if false
+    // Used to initialize the validation. Specify the input name, error message to display if false and the name of element to render when showing error
     Initialize(options) {
         this.name = options.name
         this.errMsg = options.errorMessage
+        this.renderedName = options.renderedName
         return this
     }
 
@@ -67,9 +70,9 @@ class Validator {
     // Returns the JSON result of the validation
     getResult() {
         if (this.result == false) {
-            return { name: this.name, result: this.result, msg: this.errMsg }
+            return { renderedName: this.renderedName, result: this.result, msg: this.errMsg }
         }
-        return { name: this.name, result: this.result }
+        return null
     }
 }
 
@@ -80,15 +83,15 @@ const x = { 'theName': 'Jake', 'theAge': 4 }
 const v = new Validator(x)
 
 
-nameResult = v.Initialize({ name: 'theName', errorMessage: 'Needs to be 5 chars!' }).exists().isLength({ min: 5 })
+nameResult = v.Initialize({ name: 'theName', errorMessage: 'Needs to be 5 chars!', renderedName: "Tour Title" }).exists().isLength({ min: 5 })
     .getResult()
 
-ageResult = v.Initialize({ name: 'theAge', errorMessage: 'Minimum age is 10' }).exists().isValue({ min: 10 })
+ageResult = v.Initialize({ name: 'theAge', errorMessage: 'Minimum age is 10', renderedName: "Tour Age" }).exists().isValue({ min: 10 })
     .getResult()
 
 
-const allResults = [nameResult, ageResult]
-// console.log(allResults)
+var allResults = [nameResult, ageResult]
+console.log(allResults)
 
 // Will convert Image to base64.
 
@@ -124,27 +127,33 @@ function imageToB64Promise(filePath, fileType) {
 
 }
 
+function getImage(req, callback) {
+    var filePath = req.files["resume"]["path"]
+    var fileType = req.files["resume"]["type"]
+    imageToB64Promise(filePath, fileType).then((data)=>{
+        // Do all your database stuff here also
+        callback(data)
+        // fs.writeFile(toPath, data, err=>{if (err) throw err})
+    }).catch((err)=>{
+        console.log(err)
+    })
+}
+
 
 // Put all your routings below this line -----
 
 // router.get('/', (req, res) => { ... }
 
 router.get('/create', (req, res)=>{
-    res.render('create_listing.hbs')
+    res.render('create_listing.hbs', {validationErr:allResults})
 })
 
 router.post('/submit-create', (req, res)=>{
         res.json(req.files)
         
         // TO extract the image from files
-        const filePath = req.files["resume"]["path"]
-        const fileType = req.files["resume"]["type"]
-        console.log(filePath)
-        imageToB64Promise(filePath, fileType).then((data)=>{
-            // Do all your database stuff here also
-            fs.writeFile(toPath, data, err=>{if (err) throw err})
-        }).catch((err)=>{
-            console.log(err)
+        getImage(req, (base64)=>{
+            //DO database stuff here
         })
     }
 )
