@@ -1,0 +1,19 @@
+.background-auth {
+    background: url('/static/auth/bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: scroll;
+    background-color: rgba(255,255,255,.88);
+    background-blend-mode: overlay;
+    height: 100vh;
+}
+
+.container-auth {
+    margin: 0 auto;
+    max-width: 560px;
+}
+
+.logo-auth {
+    height: 3rem;
+    margin-bottom: 2rem;
+}
