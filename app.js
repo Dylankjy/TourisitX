@@ -45,7 +45,7 @@ app.engine('hbs', exphbs({
 app.set('views', [`views`])
 
 // cookieParser: Secret key for signing
-app.use(cookieParser("Please change this when in production use"))
+app.use(cookieParser('Please change this when in production use'))
 
 // cookieParser: Cookie schema
 // const CookieOptions = {

@@ -15,7 +15,7 @@ router.get('/login', (req, res) => {
         nav: {
             register: true,
         },
-        layout: 'auth'
+        layout: 'auth',
     }
     res.render('auth/login', metadata)
 })
@@ -29,7 +29,7 @@ router.get('/register', (req, res) => {
         nav: {
             register: true,
         },
-        layout: 'auth'
+        layout: 'auth',
     }
     res.render('auth/register', metadata)
 })
