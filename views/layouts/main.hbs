@@ -5,10 +5,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{meta.title}} - Ichiharu</title>
+    <title>{{meta.title}} - Tourisit</title>
     <!-- First-party libraries -->
     <link rel="stylesheet" href="/css/app.css">
-    <script src="/third_party/ichiharu/init.js"></script>
+    <script src="/js/init.js"></script>
+    <script src="/js/slideshow.js"></script>
 
     <!-- Third-party libraries -->
     <script src="/third_party/jquery/jquery.min.js"></script>
@@ -16,7 +17,7 @@
     <link rel="stylesheet" href="/third_party/bulma/bulma.min.css">
     <script defer src="/third_party/bulma/navbar.js"></script>
 
-    <script src="/third_party/turbolinks/turbolinks.js"></script>
+    {{!-- <script src="/third_party/turbolinks/turbolinks.js"></script> --}}
 
     <link rel="stylesheet" href="/third_party/nprogress/nprogress.css">
     <script src="/third_party/nprogress/nprogress.js"></script>
@@ -31,6 +32,8 @@
     {{>navbar}}
 
     {{{body}}}
+
+    {{>footer}}
 </body>
 
 {{#if meta.path}}
