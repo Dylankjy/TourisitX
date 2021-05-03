@@ -115,6 +115,23 @@ const webserver = () => {
             nav: {
                 index: true,
             },
+            listing: [
+                {
+                    name: 'Test listing',
+                    desc: 'This is a test listing',
+                    place: 'Gardens by the Bay',
+                },
+                {
+                    name: 'Test listing',
+                    desc: 'This is a test listing',
+                    place: 'Gardens by the Bay',
+                },
+                {
+                    name: 'Test listing',
+                    desc: 'This is a test listing',
+                    place: 'Gardens by the Bay',
+                },
+            ],
         }
         res.render('index', metadata)
     })

@@ -19,7 +19,8 @@
                     <p class="subtitle">There's always a tour for everyone.</p>
                 </div>
                 <div class="column has-text-right">
-                    <a class="button is-primary is-medium" href="/explore"><i class="fas fa-arrow-right"></i>&ensp;Explore tours</a>
+                    <a class="button is-primary is-medium" href="/explore"><i
+                            class="fas fa-arrow-right"></i>&ensp;Explore tours</a>
                 </div>
             </div>
         </div>
@@ -28,16 +29,26 @@
 
 <main id="index-section" class="section">
     <div class="container">
-        <div class="columns is-multiline">
+        <div class="has-text-centered pb-6">
+            <h1 class="title is-2">✨ Newly added tours</h1>
+            <p class="subtitle is-4">Browse new tours</p>
+        </div>
+        <div class="columns is-multiline is-variable is-5">
+            {{#each listing}}
             <div class="column is-one-quarter">
-                <a>
-                    <div class="box listing-image">
-
+                <a class="listing-clickable">
+                    <div class="box listing-image" style="background-image: url('/static/sample-listing.jpg')">
+                        <div>
+                            <p class="content has-text-white">
+                                {{this.desc}}
+                            </p>
+                        </div>
                     </div>
-                    <h3 class="title">Listing title</h3>
-                    <h4 class="subtitle">Listing subtitle</h4>
+                    <h3 class="title">{{this.name}}</h3>
+                    <h4 class="subtitle has-text-grey"><i class="fas fa-location-arrow"></i>&nbsp;{{this.place}}</h4>
                 </a>
             </div>
+            {{/each}}
         </div>
     </div>
 </main>
