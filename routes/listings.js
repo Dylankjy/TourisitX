@@ -161,6 +161,8 @@ function emptyArray(arr) {
 // can we use shards? (Like how we did product card that time, pass in a json and will fill in the HTML template)
 router.get('/create', (req, res)=>{
     // res.render('create_listing.hbs', {validationErr: []})
+    // If you have to re=render the page due to errors, there will be cookie storedValue and you use this
+    // To use cookie as JSON in javascipt, must URIdecode() then JSON.parse() it
     if (req.cookies.storedValues) {
         var storedValues = JSON.parse(req.cookies.storedValues)
     } else {
@@ -181,13 +183,27 @@ router.post('/submit-create', (req, res)=>{
 
     const v = new Validator(req.fields)
 
-    nameResult = v.Initialize({ name: 'tourTitle', errorMessage: 'Please enter a Tour Title!', renderedName: 'Tour Title' }).exists().isLength({ min: 5 })
+    // Doing this way so its cleaner. Can also directly call these into the removeNull() array
+    let nameResult = v.Initialize({ name: 'tourTitle', errorMessage: 'Please enter a Tour Title!', renderedName: 'Tour Title' }).exists().isLength({ min: 5 })
         .getResult()
 
-    ageResult = v.Initialize({ name: 'tourDesc', errorMessage: 'Please enter a Tour description', renderedName: 'Tour Description' }).exists()
+    let descResult = v.Initialize({ name: 'tourDesc', errorMessage: 'Please enter a Tour description', renderedName: 'Tour Description' }).exists()
         .getResult()
 
-    const validationErrors = removeNull([nameResult, ageResult])
+    let durationResult = v.Initialize({ name: 'tourDuration', errorMessage: 'Please enter a Tour Duration', renderedName: 'Tour Duration' }).exists()
+        .getResult()
+
+    let timingResult = v.Initialize({ name: 'finalTimings', errorMessage: 'Please provide a Tour Timing', renderedName: 'Tour Timing' }).exists()
+        .getResult()
+
+    let dayResult = v.Initialize({ name: 'finalDays', errorMessage: 'Please provide a Tour Day', renderedName: 'Tour Day' }).exists()
+        .getResult()
+
+    let itineraryResult = v.Initialize({ name: 'finalItinerary', errorMessage: 'Please create a Tour Itinerary', renderedName: 'Tour Itinerary' }).exists()
+        .getResult()
+
+
+    const validationErrors = removeNull([nameResult, descResult,durationResult, timingResult, dayResult, itineraryResult])
 
     // If there are errors, re-render the create listing page with the valid error messages
     if (!emptyArray(validationErrors)) {
@@ -198,6 +214,7 @@ router.post('/submit-create', (req, res)=>{
         // Remove cookies for stored form values + validation errors
         res.clearCookie('validationErrors')
         res.clearCookie('storedValues')
+        console.log(req.fields)
         res.send('Success')
     }
 

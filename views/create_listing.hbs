@@ -6,12 +6,10 @@
     <script src='/third_party/jquery-ui/jquery-ui.js'></script>
 
     <script>
-
         // When the document is ready, initialize the sortable item
         $(document).ready(()=> {
             $("#itineraryItems").sortable()
         })
-         
     </script>
 </head>
 
@@ -21,6 +19,8 @@
 <!-- Tour Duration ----- Name:tourDuration   ID: tourDuration -->
 <!-- Tour Timings ------ Final Name:finalTimings    ID: tourTiming -->
 <!-- Tour Days --------- Final Name:finalDays       ID: tourDay  -->
+<!-- Tour Itinerary ---- Final Name:finalItinerary  ID: itineraryItems  -->
+
 
 <!-- If validationErrors is defined and there are validationErrors -->
 {{#if (isDefined validationErrors)}}
@@ -209,31 +209,48 @@
 
                 <div class='column is-5 itinerary'>
                     <div class='control has-icons-right is-clickable'>
-                        <input class='input is-success' name='itinerary-str'>
+                        <input class='input is-success' id='itinerary-str'>
                         <span class='icon is-right'>
                             <i class="fas fa-feather-alt" id='add-itinerary-icon' style="margin-right: 20px; pointer-events: initial"></i>
                         </span>
                     </div>
 
                     <ul class='ui-sortable' id='itineraryItems'>
-                        <li class="itinerary-item" contenteditable="true">
-                            one
-                            <i class="fas fa-trash-alt itinerary-item-icon" onclick="this.parentElement.remove()"></i>
-                        </li>
-                        
-
-                        <li class="itinerary-item" contenteditable="true">
-                            two
-                            <i class="fas fa-trash-alt itinerary-item-icon" onclick="this.parentElement.remove()"></i>
-                        </li>
                     </ul>
-
                 </div>
-
             </div>      
         </div>
 
-        <h1 class='best'>
+
+        <!-- TOUR LOCATION -->
+        <div class='container'>
+            <div class='columns is-variable is-5 is-vcentered'>
+                <div class='column is-one-quarter' style="text-align:right;">
+                    <section class="section">
+                        <h1 class="title is-5">Tour Location</h1>
+                        <h2 class="subtitle is-6">
+                            Which places will your Tour cover?
+                        </h2>
+                    </section>
+                </div>
+                <div class='column is-half'>
+                    <input id='tourLocs' class="input" type='text'></textarea>
+
+                    <!-- Google map -->
+                    <div id="map"></div>
+
+                    <!-- Display geolocation data -->
+                    <ul class="geo-data">
+                        <li>Full Address: <span id="location"></span></li>
+                        <li>Postal Code: <span id="postal_code"></span></li>
+                        <li>Country: <span id="country"></span></li>
+                        <li>Latitude: <span id="lat"></span></li>
+                        <li>Longitude: <span id="lon"></span></li>
+                    </ul>
+
+                </div>
+            </div>      
+        </div>
 
 
     </div>
@@ -244,9 +261,10 @@
         <button class="button is-link is-right" type='submit'>Submit</button>
     </div>
 
-    <!-- These are the final inputs you will receive -->
+    <!-- These are the final inputs (arrays to string) you will receive -->
     <input name='finalTimings' hidden>
     <input name='finalDays' hidden>
+    <input name='finalItinerary' hidden>
 
     
    
@@ -254,7 +272,7 @@
 
 
 
-<script>
+<script defer>
 
     // GLOBAL OBJECTS
 
@@ -265,6 +283,9 @@
     var allDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     var selectedDayArray = []
 
+    // Stores all the itinerary strings
+    var createdItinerary = []
+
 
     // HELPER FUNCTIONS
 
@@ -273,9 +294,19 @@
         return document.cookie.split('; ').find(row => row.startsWith(name)).split('=')[1]
     }
 
-    function emptyArray(arr) {
+    // Returns a boolean whether array is empty
+    function isEmptyArray(arr) {
         return arr.filter((n) => n).length == 0
-    }   
+    }
+    
+    // Returns an array with trimmed elements and no empty elements
+    function trimmedArray(arr) {
+        // Remove all whitespaces front and back of each element
+        arr = arr.map(x=>x.trim())
+        // Remove all empty elements
+        arr = arr.filter(x=>x)
+        return arr
+    } 
     
 
     // INITIALIZER FUNCTIONS
@@ -326,11 +357,10 @@
     }
 
 
+
+
+
     // DURATION + TIMING
-
-
-
-
 
     // Initializer
     // Update the time ranges displayed, based on the duration and already selected items (selectedTimeArray)
@@ -506,7 +536,85 @@
 
     // TOUR ITINERARY
     // Updater + Initializer
-   
+
+
+    // ITINERARY LIST
+
+    // Add new itinerary list item when feather is clicked
+    function addItineraryItem() {
+        // Get the current text value
+        var item = $("#itinerary-str").val()
+        // Reset input box to empty
+        $("#itinerary-str").val("")
+        var elem = `<li class="itinerary-item" contenteditable="true">
+                        ${item}
+                        <i class="fas fa-trash-alt itinerary-item-icon" onclick="this.parentElement.remove()"></i>
+                    </li>`
+        $("#itineraryItems").append(elem)
+
+        // Sortable + Editable for Itinerary list
+        // Must call this everytime I add an itinerary item so that this onclick trigger applies to them too
+        // When I double-click, I can edit the string inside (But I cannot sort it)
+        $(".itinerary-item").on('dblclick', ()=>{
+            $("#itineraryItems").sortable({cancel: ':input,button,[contenteditable="true"]'})
+        })
+
+        // When I click away, I can no longer edit the string, but I can now sort it
+        $(".itinerary-item").on('focusout', ()=>{
+            $("#itineraryItems").sortable({cancel: ""})
+        })
+    }
+
+    // Inject specific itineray string to the list
+    function addSpecificItineraryItem(itinerary) {
+        // Get the current text value
+        var item = itinerary
+        // Reset input box to empty
+        $("#itinerary-str").val("")
+        var elem = `<li class="itinerary-item" contenteditable="true">
+                        ${item}
+                        <i class="fas fa-trash-alt itinerary-item-icon" onclick="this.parentElement.remove()"></i>
+                    </li>`
+        $("#itineraryItems").append(elem)
+
+        // Sortable + Editable for Itinerary list
+        // Must call this everytime I add an itinerary item so that this onclick trigger applies to them too
+        // When I double-click, I can edit the string inside (But I cannot sort it)
+        $(".itinerary-item").on('dblclick', ()=>{
+            $("#itineraryItems").sortable({cancel: ':input,button,[contenteditable="true"]'})
+        })
+
+        // When I click away, I can no longer edit the string, but I can now sort it
+        $(".itinerary-item").on('focusout', ()=>{
+            $("#itineraryItems").sortable({cancel: ""})
+        })
+    }
+
+    // Appends all the current list items into the createdItinerary array
+    function updateCreatedItineraryArray() {
+        createdItinerary = []
+        var tmp = $("#itineraryItems").text().trim().split('\n')
+        createdItinerary = trimmedArray(tmp)
+        // Must replace any commas in the string to any other character
+        // This is because when the final list is passed to the input, they will be appended by ',' but we don't want the actual string ',' to be associated with this
+        // Must reverse this using .replace(";!;", ',') when reloading the page
+        createdItinerary = createdItinerary.map(x => x.replace(",", ";!;"))
+    }
+
+    
+
+
+
+
+
+
+    // TOUR LOCATION
+    fetch()
+    [{"key":"apikey","value":"GgjNvD9p8MA6c3emVYknlImLc5cAdj7X","description":""}]
+
+
+
+
 
 
 
@@ -551,65 +659,34 @@
         })
 
 
-
-
-
-        // ITINERARY LIST
-
-        // Add new itinerary list item when feather is clicked
-        function addItineraryItem() {
-            // Get the current text value
-            var item = $("input[name=itinerary-str]").val()
-            // Reset input box to empty
-            $("input[name=itinerary-str]").val("")
-            var elem = `<li class="itinerary-item" contenteditable="true">
-                            ${item}
-                            <i class="fas fa-trash-alt itinerary-item-icon" onclick="this.parentElement.remove()"></i>
-                        </li>`
-            $("#itineraryItems").append(elem)
-
-
-            // Sortable + Editable for Itinerary list
-            // Must call this everytime I add an itinerary item so that this onclick trigger applies to them too
-            // When I double-click, I can edit the string inside (But I cannot sort it)
-            $(".itinerary-item").on('dblclick', ()=>{
-                $("#itineraryItems").sortable({cancel: ':input,button,[contenteditable="true"]'})
-            })
-
-            // When I click away, I can no longer edit the string, but I can now sort it
-            $(".itinerary-item").on('focusout', ()=>{
-                $("#itineraryItems").sortable({cancel: ""})
-            })
-            
-        }
-
-        // Define function to run when the icon is clicked
+        // Tour Itinerary, Define function to run when the icon is clicked
+        // When feather icon is clicked, add the current input to the list
         $("#add-itinerary-icon").on('click', ()=>{
-            addItineraryItem()
+            if ($("#itinerary-str").val().trim() != '') {
+                addItineraryItem()
+            } else {
+                // Reset the input 
+                $("#itinerary-str").val("")
+            }
         })
 
 
-
-        // Sortable + Editable for Itinerary list
-        // When I double-click, I can edit the string inside (But I cannot sort it)
-        $(".itinerary-item").on('dblclick', ()=>{
-            $("#itineraryItems").sortable({cancel: ':input,button,[contenteditable="true"]'})
-        })
-
-        // When I click away, I can no longer edit the string, but I can now sort it
-        $(".itinerary-item").on('focusout', ()=>{
-            $("#itineraryItems").sortable({cancel: ""})
-        })
-
-
-
+        // Right before submitting, I want to run these stuff
         $("#createListingForm").on('submit', ()=>{
             $('input:hidden[name=finalTimings]').val(selectedTimeArray)
             $('input:hidden[name=finalDays]').val(selectedDayArray)
+
+            updateCreatedItineraryArray()
+            $('input:hidden[name=finalItinerary]').val(createdItinerary)
+            
             // Remove whitespaces 
             $("input[name=tourTitle]").val($.trim($("input[name=tourTitle]").val()))
             $("textarea[name=tourDesc]").val($.trim($("textarea[name=tourDesc]").val()))
+
         })
+
+
+
 
 
 
@@ -649,6 +726,19 @@
                     updateSpecificSelectedDayArray(day)
                     updateDays()
                     addSpecificDayTag(day)
+                })
+            } else {
+                console.log("Days works fine too")
+            }
+
+
+            var existingItinerary = storedValues.finalItinerary.split(',')
+            if (existingItinerary != '') {
+                existingItinerary.forEach((itinerary)=>{
+                    // Reverse the replace operation just now. Fill back the commas
+                    itinerary = itinerary.replace(";!;", ',')
+                    addSpecificItineraryItem(itinerary)
+                    console.log(`Ran for Itinerary ${itinerary}`)
                 })
             } else {
                 console.log("Days works fine too")
