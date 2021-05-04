@@ -23,6 +23,10 @@
     backdrop-filter: saturate(180%) blur(12px);
 }
 
+.box {
+    box-shadow: 0px 4px 16px rgba(17,17,26,0.05), 0px 8px 32px rgba(17,17,26,0.05);
+}
+
 .listing-image {
     background-position: center center;
     background-repeat: no-repeat;
