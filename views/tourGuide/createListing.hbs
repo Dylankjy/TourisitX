@@ -7,7 +7,7 @@
 
     <script>
         // When the document is ready, initialize the sortable item
-        $(document).ready(()=> {
+        $(document).ready(() => {
             $("#itineraryItems").sortable()
         })
     </script>
@@ -28,26 +28,27 @@
 <div class='section'>
     <div class='columns'>
         <div class='column is-8 is-offset-2'>
-{{#each validationErrors}}
-        <article class="message is-danger">
-            <div class="message-header">
-                <p>{{this.renderedName}}</p>
-                <button class="delete" onclick="this.parentElement.parentElement.remove()"></button>
-            </div>
-            <div class="message-body">
-                {{this.msg}}    
-            </div>
-        </article>
-{{/each}}
+            {{#each validationErrors}}
+            <article class="message is-danger">
+                <div class="message-header">
+                    <p>{{this.renderedName}}</p>
+                    <button class="delete" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+                <div class="message-body">
+                    {{this.msg}}
+                </div>
+            </article>
+            {{/each}}
         </div>
     </div>
 </div>
 {{/if}}
 {{/if}}
 
-<form class="form-horizontal" action='/listing/submit-create' enctype="multipart/form-data" method="POST" id='createListingForm'>    
+<form class="form-horizontal" enctype="multipart/form-data" method="POST"
+    id='createListingForm'>
     <div class='section'>
-        
+
         <!-- TOUR TITLE -->
         <div class='container'>
             <div class='columns is-variable is-5 is-vcentered'>
@@ -62,7 +63,7 @@
                 <div class='column is-half'>
                     <input name='tourTitle' class="input is-primary" type="text" placeholder="Primary input">
                 </div>
-            </div>      
+            </div>
         </div>
 
         <!-- TOUR DESCRIPTION -->
@@ -79,7 +80,7 @@
                 <div class='column is-half' style='margin-top: 50px;'>
                     <textarea name='tourDesc' class="textarea is-primary" placeholder="e.g. Hello world"></textarea>
                 </div>
-            </div>      
+            </div>
         </div>
 
         <!-- TOUR DURATION -->
@@ -95,16 +96,16 @@
                 </div>
                 <div class='column is-1'>
                     <div class="select is-info">
-                            <select id='tourDuration' name='tourDuration'>
-                                <option></option>
-                            </select>
-                        </div>
+                        <select id='tourDuration' name='tourDuration'>
+                            <option></option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class='column'>
                     Hours
                 </div>
-            </div>      
+            </div>
         </div>
 
         <!-- TOUR TIMINGS -->
@@ -118,8 +119,8 @@
                         </h2>
                     </section>
                 </div>
-                
-                
+
+
                 <div class='column is-three-quarters' style='margin-top: 30px;'>
                     <div class="select is-info">
                         <select class='timeslots' id='tourTiming'>
@@ -131,7 +132,7 @@
 
                     </div>
                 </div>
-            </div>      
+            </div>
         </div>
 
         <!-- AVAILABLE DAYS -->
@@ -153,12 +154,12 @@
                     </div>
 
                     <div class='tag-container' id='dayTags'>
-                    
+
                     </div>
-                    
-                    
+
+
                 </div>
-            </div>      
+            </div>
         </div>
 
         <div class='container'>
@@ -175,24 +176,24 @@
                 <div class='column is-half'>
                     <div class="file has-name is-boxed">
                         <label class="file-label">
-                            
-                          <input class="file-input" type="file" name="resume" 
-                          onchange="if (this.files.length > 0) document.getElementById('file-label').innerHTML = this.files[0].name;">
 
-                          <span class="file-cta">
-                            <span class="file-icon">
-                              <i class="fas fa-upload"></i>
+                            <input class="file-input" type="file" name="resume"
+                                onchange="if (this.files.length > 0) document.getElementById('file-label').innerHTML = this.files[0].name;">
+
+                            <span class="file-cta">
+                                <span class="file-icon">
+                                    <i class="fas fa-upload"></i>
+                                </span>
+                                <span class="file-label" id='file-label'>
+                                    Upload a tour Image
+                                </span>
                             </span>
-                            <span class="file-label" id='file-label'>
-                              Upload a tour Image
+                            <span class="file-name">
                             </span>
-                          </span>
-                          <span class="file-name">
-                          </span>
                         </label>
-                      </div>
+                    </div>
                 </div>
-            </div>      
+            </div>
         </div>
 
         <!-- TOUR ITINERARY -->
@@ -211,14 +212,15 @@
                     <div class='control has-icons-right is-clickable'>
                         <input class='input is-success' id='itinerary-str'>
                         <span class='icon is-right'>
-                            <i class="fas fa-feather-alt" id='add-itinerary-icon' style="margin-right: 20px; pointer-events: initial"></i>
+                            <i class="fas fa-feather-alt" id='add-itinerary-icon'
+                                style="margin-right: 20px; pointer-events: initial"></i>
                         </span>
                     </div>
 
                     <ul class='ui-sortable' id='itineraryItems'>
                     </ul>
                 </div>
-            </div>      
+            </div>
         </div>
 
 
@@ -249,7 +251,7 @@
                     </ul>
 
                 </div>
-            </div>      
+            </div>
         </div>
 
 
@@ -266,8 +268,8 @@
     <input name='finalDays' hidden>
     <input name='finalItinerary' hidden>
 
-    
-   
+
+
 </form>
 
 
@@ -298,16 +300,16 @@
     function isEmptyArray(arr) {
         return arr.filter((n) => n).length == 0
     }
-    
+
     // Returns an array with trimmed elements and no empty elements
     function trimmedArray(arr) {
         // Remove all whitespaces front and back of each element
-        arr = arr.map(x=>x.trim())
+        arr = arr.map(x => x.trim())
         // Remove all empty elements
-        arr = arr.filter(x=>x)
+        arr = arr.filter(x => x)
         return arr
-    } 
-    
+    }
+
 
     // INITIALIZER FUNCTIONS
     function initializeDuration() {
@@ -318,8 +320,8 @@
         select.html('<option></option>')
         // select.html("")
 
-        for(var i = 1; i < 11.5; i+= 0.5) {
-            select.append(`<option value=${i}>${i}</option>`)        
+        for (var i = 1; i < 11.5; i += 0.5) {
+            select.append(`<option value=${i}>${i}</option>`)
         }
         console.log("Done Duration initialize!")
     }
@@ -327,14 +329,14 @@
     // Takes number (minutes) and returns a string
     // Takes 420 and returns 7am
     function numToTime(i) {
-        hours = Math.floor(i/60)
-        minutes = i%60
+        hours = Math.floor(i / 60)
+        minutes = i % 60
         if (minutes == 0) {
             minutes = '0' + minutes
         }
-        ampm = hours%24 < 12 ? "AM" : "PM"
+        ampm = hours % 24 < 12 ? "AM" : "PM"
         hours = hours % 12
-        if (hours===0) {
+        if (hours === 0) {
             hours = 12
         }
 
@@ -347,11 +349,11 @@
         tmp = x.split(':')[1]
         min = parseInt(tmp.split(' ')[0])
         ampm = tmp.split(' ')[1]
-        hours = hours%12
+        hours = hours % 12
         if (ampm == 'PM') {
             hours += 12
         }
-        
+
         num = (hours * 60) + min
         return num
     }
@@ -371,21 +373,21 @@
         var numArr = []
 
         // To get the list of nums of already selected time ranges
-        arr.forEach((timeRange) =>{
+        arr.forEach((timeRange) => {
             start = timeRange.split(' - ')[0]
             end = timeRange.split(' - ')[1]
             startNum = timeToNum(start)
             endNum = timeToNum(end)
-            for(i = startNum; i<= endNum; i+= 30) {
+            for (i = startNum; i <= endNum; i += 30) {
                 numArr.push(i)
             }
         })
 
         $("#tourTiming").html("<option>-</option>")
 
-            
-        for(var i = 420; i < 1380 - duration; i+= 30) {
-            if (numArr.includes(i) || numArr.includes(i+duration)) {
+
+        for (var i = 420; i < 1380 - duration; i += 30) {
+            if (numArr.includes(i) || numArr.includes(i + duration)) {
                 continue
             }
             var start = numToTime(i)
@@ -401,7 +403,7 @@
         var currentTime = $("#tourTiming").val()
         if (currentTime != '-') {
             selectedTimeArray.push(currentTime)
-        }   
+        }
     }
 
     // If it has "Specific" means it adds using user-defined input (time)
@@ -409,7 +411,7 @@
     function updateSpecificTimeRangeArray(time) {
         if (time != '-') {
             selectedTimeArray.push(time)
-        }   
+        }
     }
 
     // Updater
@@ -426,7 +428,7 @@
     // 3. Update the rendered time ranges (Which changes because the selectedTimeArray has changed)
     function addTimeTag() {
         $("#timeTags").html("")
-        selectedTimeArray.forEach((timeRange)=>{
+        selectedTimeArray.forEach((timeRange) => {
             var elem = `<span class="tag is-primary is-medium" style="margin-left: 10px;">
                             ${timeRange} 
                             <i class="fas fa-trash-alt" onclick='this.parentElement.remove();removeTimeRange("${timeRange}");updateTiming()' style="margin-left: 20px;"></i>
@@ -464,7 +466,7 @@
         selector = $("#tourDay")
         // Reset the array first
         selector.html("<option>-</option>")
-        allDays.forEach((day)=>{
+        allDays.forEach((day) => {
             selector.append(`<option>${day}</option>`)
         })
     }
@@ -475,12 +477,12 @@
         selector = $("#tourDay")
         // Reset the array first
         selector.html("<option>-</option>")
-        allDays.forEach((day)=>{
+        allDays.forEach((day) => {
             // If the day isn't selected yet, we render it
             if (!selectedDayArray.includes(day)) {
                 selector.append(`<option>${day}</option>`)
             }
-            
+
         })
     }
 
@@ -490,14 +492,14 @@
         currentDay = $("#tourDay").val()
         if (currentDay != '-') {
             selectedDayArray.push(currentDay)
-        }   
+        }
     }
 
 
     function updateSpecificSelectedDayArray(day) {
         if (day != '-') {
             selectedDayArray.push(day)
-        }   
+        }
     }
 
     // Array Updater
@@ -506,11 +508,11 @@
         selectedDayArray = selectedDayArray.filter(e => e !== val)
     }
 
-    
+
     // Initializer
     function addDayTag() {
         $("#dayTags").html("")
-        selectedDayArray.forEach((day)=>{
+        selectedDayArray.forEach((day) => {
             var elem = `<span class="tag is-primary is-medium" style="margin-left: 10px;">
                             ${day} 
                             <i class="fas fa-trash-alt" onclick='this.parentElement.remove();removeDay("${day}");updateDays()' style="margin-left: 20px;"></i>
@@ -555,13 +557,13 @@
         // Sortable + Editable for Itinerary list
         // Must call this everytime I add an itinerary item so that this onclick trigger applies to them too
         // When I double-click, I can edit the string inside (But I cannot sort it)
-        $(".itinerary-item").on('dblclick', ()=>{
-            $("#itineraryItems").sortable({cancel: ':input,button,[contenteditable="true"]'})
+        $(".itinerary-item").on('dblclick', () => {
+            $("#itineraryItems").sortable({ cancel: ':input,button,[contenteditable="true"]' })
         })
 
         // When I click away, I can no longer edit the string, but I can now sort it
-        $(".itinerary-item").on('focusout', ()=>{
-            $("#itineraryItems").sortable({cancel: ""})
+        $(".itinerary-item").on('focusout', () => {
+            $("#itineraryItems").sortable({ cancel: "" })
         })
     }
 
@@ -580,13 +582,13 @@
         // Sortable + Editable for Itinerary list
         // Must call this everytime I add an itinerary item so that this onclick trigger applies to them too
         // When I double-click, I can edit the string inside (But I cannot sort it)
-        $(".itinerary-item").on('dblclick', ()=>{
-            $("#itineraryItems").sortable({cancel: ':input,button,[contenteditable="true"]'})
+        $(".itinerary-item").on('dblclick', () => {
+            $("#itineraryItems").sortable({ cancel: ':input,button,[contenteditable="true"]' })
         })
 
         // When I click away, I can no longer edit the string, but I can now sort it
-        $(".itinerary-item").on('focusout', ()=>{
-            $("#itineraryItems").sortable({cancel: ""})
+        $(".itinerary-item").on('focusout', () => {
+            $("#itineraryItems").sortable({ cancel: "" })
         })
     }
 
@@ -601,7 +603,7 @@
         createdItinerary = createdItinerary.map(x => x.replace(",", ";!;"))
     }
 
-    
+
 
 
 
@@ -610,7 +612,7 @@
 
     // TOUR LOCATION
     fetch()
-    [{"key":"apikey","value":"GgjNvD9p8MA6c3emVYknlImLc5cAdj7X","description":""}]
+    [{ "key": "apikey", "value": "GgjNvD9p8MA6c3emVYknlImLc5cAdj7X", "description": "" }]
 
 
 
@@ -623,25 +625,25 @@
 
 
     // Place all listeners inside this function
-    $(window).on('load', ()=>{
+    $(window).on('load', () => {
 
         // All initialization functions here
         initializeDuration()
         initializeDays()
 
-        $("#tourDuration").on('change', ()=>{
+        $("#tourDuration").on('change', () => {
             console.log("DURATION CHANGE")
-                // Reset the selectedTimeArray first, so it can contain the new duration ranges
-                selectedTimeArray = []
-                // Reset the timings to be displayed on the dropdown, following the new duration
-                updateTiming()
-                // Reset all the preselected time tags
-                resetTimeTag()
-            }
+            // Reset the selectedTimeArray first, so it can contain the new duration ranges
+            selectedTimeArray = []
+            // Reset the timings to be displayed on the dropdown, following the new duration
+            updateTiming()
+            // Reset all the preselected time tags
+            resetTimeTag()
+        }
         )
 
         // Every time we click on a tour Timing, we want to add it to the internal array, as well as update the rendered time ranges. We also want to add the time range tag
-        $("#tourTiming").on('change', ()=>{
+        $("#tourTiming").on('change', () => {
             updateTimeRangeArray()
             updateTiming()
             addTimeTag()
@@ -649,7 +651,7 @@
 
 
         // When a day is selected
-        $("#tourDay").on('change', ()=>{
+        $("#tourDay").on('change', () => {
             // Append selected option to array
             updateSelectedDayArray()
             // Update the rendered days
@@ -661,7 +663,7 @@
 
         // Tour Itinerary, Define function to run when the icon is clicked
         // When feather icon is clicked, add the current input to the list
-        $("#add-itinerary-icon").on('click', ()=>{
+        $("#add-itinerary-icon").on('click', () => {
             if ($("#itinerary-str").val().trim() != '') {
                 addItineraryItem()
             } else {
@@ -672,13 +674,13 @@
 
 
         // Right before submitting, I want to run these stuff
-        $("#createListingForm").on('submit', ()=>{
+        $("#createListingForm").on('submit', () => {
             $('input:hidden[name=finalTimings]').val(selectedTimeArray)
             $('input:hidden[name=finalDays]').val(selectedDayArray)
 
             updateCreatedItineraryArray()
             $('input:hidden[name=finalItinerary]').val(createdItinerary)
-            
+
             // Remove whitespaces 
             $("input[name=tourTitle]").val($.trim($("input[name=tourTitle]").val()))
             $("textarea[name=tourDesc]").val($.trim($("textarea[name=tourDesc]").val()))
@@ -693,7 +695,7 @@
         // If there is stored cookies (Means that there was an error and you re-render)
         if (getCookieValue("storedValues") != 'undefined') {
             var storedValues = JSON.parse(decodeURIComponent(getCookieValue("storedValues")))
-            
+
             // Re-initialze the values
             console.log(storedValues)
             $("input[name=tourTitle]").val(storedValues.tourTitle)
@@ -706,7 +708,7 @@
 
             var existingTimings = storedValues.finalTimings.split(',')
             if (existingTimings != '') {
-                existingTimings.forEach((timing)=>{
+                existingTimings.forEach((timing) => {
                     console.log(`Ran for time ${timing}`)
                     updateSpecificTimeRangeArray(timing)
                     updateTiming()
@@ -715,13 +717,13 @@
             } else {
                 console.log("Time works correctly now")
             }
-            
+
 
             console.log(selectedTimeArray)
 
             var existingDays = storedValues.finalDays.split(',')
             if (existingDays != '') {
-                existingDays.forEach((day)=>{
+                existingDays.forEach((day) => {
                     console.log(`Ran for day ${day}`)
                     updateSpecificSelectedDayArray(day)
                     updateDays()
@@ -734,7 +736,7 @@
 
             var existingItinerary = storedValues.finalItinerary.split(',')
             if (existingItinerary != '') {
-                existingItinerary.forEach((itinerary)=>{
+                existingItinerary.forEach((itinerary) => {
                     // Reverse the replace operation just now. Fill back the commas
                     itinerary = itinerary.replace(";!;", ',')
                     addSpecificItineraryItem(itinerary)
@@ -743,11 +745,8 @@
             } else {
                 console.log("Days works fine too")
             }
-            
+
         }
-        
+
     })
 </script>
-
-
-

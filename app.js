@@ -1,6 +1,3 @@
-// Load environment
-const config = require('./app/config')
-
 // Module imports
 // <insert here>
 
@@ -42,8 +39,14 @@ app.engine('hbs', exphbs({
     defaultLayout: 'main',
     extname: '.hbs',
     layoutsDir: `views/layouts`,
-    // Helper functions here, will make cleaner later
     helpers: {
+        ifEquals(a, b, options) {
+            if (a === b) {
+                return options.fn(this)
+            } else {
+                return options.inverse(this)
+            }
+        },
         haveErr: (value, options) =>{
             // Removes all null values and boolean (true if not empty, false if empty)
             return value.filter((n) => n).length != 0
@@ -51,16 +54,14 @@ app.engine('hbs', exphbs({
         isDefined: (value, options) =>{
             return typeof(value) !== 'undefined'
         },
-
     },
-
 }))
 
 // Handlebars: Views folder
 app.set('views', [`views`])
 
 // cookieParser: Secret key for signing
-app.use(cookieParser(config.app.secretKey))
+app.use(cookieParser('Please change this when in production use'))
 
 
 // app.use(expressSession({
@@ -93,52 +94,13 @@ const speedLimiter = slowDown({
     delayAfter: 100, // allow 100 requests per 15 minutes, then...
     delayMs: 500, // begin adding 500ms of delay per request above 100:
 })
-app.use(speedLimiter)
-
-// Logging
-const log = require('loglevel')
-const prefix = require('loglevel-plugin-prefix')
-const chalk = require('chalk')
-const colors = {
-    TRACE: chalk.magenta,
-    DEBUG: chalk.cyan,
-    INFO: chalk.blue,
-    WARN: chalk.yellow,
-    ERROR: chalk.red,
-}
-prefix.reg(log)
-prefix.apply(log, {
-    format(level, name, timestamp) {
-        return `${chalk.gray(`[${timestamp}]`)} ${colors[level.toUpperCase()](level)}` // ${chalk.white(`${name}:`)}
-    },
-})
-prefix.apply(log.getLogger('critical'), {
-    format(level, name, timestamp) {
-        return chalk.red.bold(`[${timestamp}] ${level} ${name}:`)
-    },
-})
-if (config.debugMode === true) {
-    log.setLevel('debug', true)
-} else {
-    log.setLevel('info', true)
-}
+// app.use(speedLimiter)
 
 // Express: Routes
 const webserver = () => {
-    app.get('/', (req, res) => {
-        const metadata = {
-            meta: {
-                title: 'Home',
-                path: false,
-            },
-            nav: {
-                index: true,
-            },
-        }
-        res.render('index', metadata)
-    })
-
     // Define all the router stuff here
+    app.use('/', routes.market)
+
     app.use('/shop', routes.market)
 
     app.use('/listing', routes.listings)
@@ -156,10 +118,11 @@ const webserver = () => {
         res.render('404', metadata)
     })
 
-    app.listen(config.webserver.port, (err) => {
+    app.listen(5000, (err) => {
         if (err) throw log.error(err)
-        log.debug(`Web server listening on port ${config.webserver.port} | http://${config.webserver.domain}`)
+        console.log(`Web server listening on port 5000 | http://localhost:5000`)
     })
 }
+
 
 webserver()

@@ -107,7 +107,7 @@ const allResults = [nameResult, ageResult]
 //     fs.writeFile(toPath, data, err=>{if (err) throw err})
 // })
 function imageToB64Callback(filePath, fileType, callback) {
-    fs.readFile(filePath, (err, data)=>{
+    fs.readFile(filePath, (err, data) => {
         const base64 = Buffer.from(data).toString('base64')
         // var formattedSrc = `<img src="data:${fileType};base64, ${base64}">`
         const formattedSrc = `data:${fileType};base64, ${base64}`
@@ -120,8 +120,8 @@ function imageToB64Callback(filePath, fileType, callback) {
 // Promise implementation
 // imageToB64(filePath, fileType).then(data=>console.log(data))
 function imageToB64Promise(filePath, fileType) {
-    return new Promise((res, rej)=>{
-        fs.readFile(filePath, (err, data)=>{
+    return new Promise((res, rej) => {
+        fs.readFile(filePath, (err, data) => {
             if (err) {
                 rej(err)
             }
@@ -136,11 +136,11 @@ function imageToB64Promise(filePath, fileType) {
 function getImage(req, callback) {
     const filePath = req.files['resume']['path']
     const fileType = req.files['resume']['type']
-    imageToB64Promise(filePath, fileType).then((data)=>{
+    imageToB64Promise(filePath, fileType).then((data) => {
         // Do all your database stuff here also
         callback(data)
         // fs.writeFile(toPath, data, err=>{if (err) throw err})
-    }).catch((err)=>{
+    }).catch((err) => {
         console.log(err)
     })
 }
@@ -159,7 +159,7 @@ function emptyArray(arr) {
 // router.get('/', (req, res) => { ... }
 
 // can we use shards? (Like how we did product card that time, pass in a json and will fill in the HTML template)
-router.get('/create', (req, res)=>{
+router.get('/create', (req, res) => {
     // res.render('create_listing.hbs', {validationErr: []})
     // If you have to re=render the page due to errors, there will be cookie storedValue and you use this
     // To use cookie as JSON in javascipt, must URIdecode() then JSON.parse() it
@@ -173,11 +173,11 @@ router.get('/create', (req, res)=>{
     // console.log(`Stored type is: ${typeof(storedValues)}`)
     // console.log(`Stored title is: ${storedValues["tourTitle"]}`)
 
-    res.render('create_listing.hbs', { validationErrors: req.cookies.validationErrors })
+    res.render('tourGuide/createListing.hbs', { validationErrors: req.cookies.validationErrors })
 })
 
-
-router.post('/submit-create', (req, res)=>{
+// Msg left by Dylan: I changed your POST endpoint to match your GET. Use the same endpoint name, its neater :)
+router.post('/create', validate(listingValidation, {}, {}), (req, res, next) => {
     // Save the form values so we can re-render them if there are errors
     res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 360000 })
 
@@ -203,7 +203,7 @@ router.post('/submit-create', (req, res)=>{
         .getResult()
 
 
-    const validationErrors = removeNull([nameResult, descResult,durationResult, timingResult, dayResult, itineraryResult])
+    const validationErrors = removeNull([nameResult, descResult, durationResult, timingResult, dayResult, itineraryResult])
 
     // If there are errors, re-render the create listing page with the valid error messages
     if (!emptyArray(validationErrors)) {

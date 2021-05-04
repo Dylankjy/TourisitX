@@ -1,16 +1,65 @@
-<section id="main-hero" class="hero is-light">
+<link rel="stylesheet" href="/css/index.css">
+
+<section id="main-hero" class="hero is-white is-large">
+    <div class="hero-fadein"></div>
     <div class="hero-body">
-        <div class="container">
-            <div class="column">
-                <h1 class="title">Web template</h1>
+        <div class="container has-text-centered">
+            <h1 class="title is-1 has-text-white">Tours for locals, by locals.</h1>
+            <h2 class="subtitle is-3 has-text-white is-transparent-75">Explore Singapore with Tourisit today</h2>
+        </div>
+    </div>
+</section>
+
+<section id="search-section" class="section after-main-hero">
+    <div class="container">
+        <div class="box p-6 is-glass-white">
+            <div class="columns is-vcentered">
+                <div class="column">
+                    <h2 class="title"><i class="fas fa-search"></i>&ensp;Find your ideal tour</h2>
+                    <p class="subtitle">There's always a tour for everyone.</p>
+                </div>
+                <div class="column has-text-right">
+                    <a class="button is-primary is-medium" href="/explore"><i
+                            class="fas fa-arrow-right"></i>&ensp;Explore tours</a>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<section class="section">
+<main id="index-section" class="section">
     <div class="container">
-        <h1 class="title">Hello world!</h1>
-        <p>This is some paragraph texts.</p>
+        <div class="has-text-centered pb-6">
+            <h1 class="title is-2">✨ Newly added tours</h1>
+            <p class="subtitle is-4">Browse new tours</p>
+        </div>
+        <div class="columns is-multiline is-variable is-5">
+            {{#each listing}}
+            <div class="column is-one-quarter">
+                <a class="listing-clickable">
+                    <div class="box listing-image" style="background-image: url('/static/sample-listing.jpg')">
+                        <div>
+                            <p class="content has-text-white">
+                                {{this.desc}}
+                            </p>
+                        </div>
+                    </div>
+                    <h3 class="title">{{this.name}}</h3>
+                    <h4 class="subtitle has-text-grey"><i class="fas fa-location-arrow"></i>&nbsp;{{this.place}}</h4>
+                </a>
+            </div>
+            {{/each}}
+        </div>
     </div>
-</section>
+</main>
+
+{{!-- Preload images --}}
+<div class="preload preload-1"></div>
+<div class="preload preload-2"></div>
+<div class="preload preload-3"></div>
+<div class="preload preload-4"></div>
+<div class="preload preload-5"></div>
+<div class="preload preload-6"></div>
+<div class="preload preload-7"></div>
+<div class="preload preload-8"></div>
+<div class="preload preload-9"></div>

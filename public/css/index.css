@@ -1,0 +1,54 @@
+.hero-fadein {
+    height: 15rem;
+    background: linear-gradient(0deg, transparent 0, #0a0a0a 100%);
+}
+
+#main-hero {
+    background: url('/static/index/hero-1.jpg') no-repeat;
+    background-size: cover !important;
+    background-position: center !important;
+    background-attachment: scroll !important;
+    background-color: rgba(0,0,0,.5) !important;
+    background-blend-mode: overlay !important;
+    transition: background ease 0.25s !important;
+}
+
+#main-hero .hero-body {
+    margin-top: -15rem;
+}
+
+#main-hero h1.title {
+    font-size: 5rem;
+}
+
+.after-main-hero {
+    margin-top: -6rem
+}
+
+.preload-1 {
+    background: url("/static/index/hero-1.jpg") no-repeat !important;
+}
+.preload-2 {
+    background: url("/static/index/hero-2.jpg") no-repeat !important;
+}
+.preload-3 {
+    background: url("/static/index/hero-3.jpg") no-repeat !important;
+}
+.preload-4 {
+    background: url("/static/index/hero-4.jpg") no-repeat !important;
+}
+.preload-5 {
+    background: url("/static/index/hero-5.jpg") no-repeat !important;
+}
+.preload-6 {
+    background: url("/static/index/hero-6.jpg") no-repeat !important;
+}
+.preload-7 {
+    background: url("/static/index/hero-7.jpg") no-repeat !important;
+}
+.preload-8 {
+    background: url("/static/index/hero-8.jpg") no-repeat !important;
+}
+.preload-9 {
+    background: url("/static/index/hero-9.jpg") no-repeat !important;
+}
