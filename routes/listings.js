@@ -178,7 +178,7 @@ router.get('/create', (req, res) => {
 
 router.post('/create', (req, res)=>{
     // Save the form values so we can re-render them if there are errors
-    res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 360000 })
+    res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
 
     const v = new Validator(req.fields)
 
@@ -206,7 +206,7 @@ router.post('/create', (req, res)=>{
 
     // If there are errors, re-render the create listing page with the valid error messages
     if (!emptyArray(validationErrors)) {
-        res.cookie('validationErrors', validationErrors, { maxAge: 360000 })
+        res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
         // res.render('create_listing.hbs', {validationErrors: validationErrors})
         res.redirect('/listing/create')
     } else {
@@ -222,7 +222,7 @@ router.post('/create', (req, res)=>{
     // getImage(req, (base64)=>{
     //     //DO database stuff here
     // })
-},
+}, 
 )
 
 // fs.writeFile('this.html', "What is this", (err) =>{
