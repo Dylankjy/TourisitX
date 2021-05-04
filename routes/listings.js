@@ -106,7 +106,7 @@ const allResults = [nameResult, ageResult]
 // imageToB64(filePath, fileType, (data)=>{
 //     fs.writeFile(toPath, data, err=>{if (err) throw err})
 // })
-function imageToB64Callback(filePath, fileType, callback) {
+imageToB64Callback = (filePath, fileType, callback) => {
     fs.readFile(filePath, (err, data) => {
         const base64 = Buffer.from(data).toString('base64')
         // var formattedSrc = `<img src="data:${fileType};base64, ${base64}">`
@@ -119,7 +119,7 @@ function imageToB64Callback(filePath, fileType, callback) {
 
 // Promise implementation
 // imageToB64(filePath, fileType).then(data=>console.log(data))
-function imageToB64Promise(filePath, fileType) {
+imageToB64Promise = (filePath, fileType) => {
     return new Promise((res, rej) => {
         fs.readFile(filePath, (err, data) => {
             if (err) {
@@ -133,7 +133,7 @@ function imageToB64Promise(filePath, fileType) {
     })
 }
 
-function getImage(req, callback) {
+getImage = (req, callback) => {
     const filePath = req.files['resume']['path']
     const fileType = req.files['resume']['type']
     imageToB64Promise(filePath, fileType).then((data) => {
@@ -145,11 +145,11 @@ function getImage(req, callback) {
     })
 }
 
-function removeNull(arr) {
+removeNull = (arr) => {
     return arr.filter((n) => n)
 }
 
-function emptyArray(arr) {
+emptyArray = (arr) => {
     return arr.filter((n) => n).length == 0
 }
 
@@ -164,9 +164,9 @@ router.get('/create', (req, res) => {
     // If you have to re=render the page due to errors, there will be cookie storedValue and you use this
     // To use cookie as JSON in javascipt, must URIdecode() then JSON.parse() it
     if (req.cookies.storedValues) {
-        var storedValues = JSON.parse(req.cookies.storedValues)
+        const storedValues = JSON.parse(req.cookies.storedValues)
     } else {
-        var storedValues = {}
+        const storedValues = {}
     }
 
     // console.log(`Stored values is: ${storedValues}`)
@@ -184,22 +184,22 @@ router.post('/create', validate(listingValidation, {}, {}), (req, res, next) => 
     const v = new Validator(req.fields)
 
     // Doing this way so its cleaner. Can also directly call these into the removeNull() array
-    let nameResult = v.Initialize({ name: 'tourTitle', errorMessage: 'Please enter a Tour Title!', renderedName: 'Tour Title' }).exists().isLength({ min: 5 })
+    const nameResult = v.Initialize({ name: 'tourTitle', errorMessage: 'Please enter a Tour Title!', renderedName: 'Tour Title' }).exists().isLength({ min: 5 })
         .getResult()
 
-    let descResult = v.Initialize({ name: 'tourDesc', errorMessage: 'Please enter a Tour description', renderedName: 'Tour Description' }).exists()
+    const descResult = v.Initialize({ name: 'tourDesc', errorMessage: 'Please enter a Tour description', renderedName: 'Tour Description' }).exists()
         .getResult()
 
-    let durationResult = v.Initialize({ name: 'tourDuration', errorMessage: 'Please enter a Tour Duration', renderedName: 'Tour Duration' }).exists()
+    const durationResult = v.Initialize({ name: 'tourDuration', errorMessage: 'Please enter a Tour Duration', renderedName: 'Tour Duration' }).exists()
         .getResult()
 
-    let timingResult = v.Initialize({ name: 'finalTimings', errorMessage: 'Please provide a Tour Timing', renderedName: 'Tour Timing' }).exists()
+    const timingResult = v.Initialize({ name: 'finalTimings', errorMessage: 'Please provide a Tour Timing', renderedName: 'Tour Timing' }).exists()
         .getResult()
 
-    let dayResult = v.Initialize({ name: 'finalDays', errorMessage: 'Please provide a Tour Day', renderedName: 'Tour Day' }).exists()
+    const dayResult = v.Initialize({ name: 'finalDays', errorMessage: 'Please provide a Tour Day', renderedName: 'Tour Day' }).exists()
         .getResult()
 
-    let itineraryResult = v.Initialize({ name: 'finalItinerary', errorMessage: 'Please create a Tour Itinerary', renderedName: 'Tour Itinerary' }).exists()
+    const itineraryResult = v.Initialize({ name: 'finalItinerary', errorMessage: 'Please create a Tour Itinerary', renderedName: 'Tour Itinerary' }).exists()
         .getResult()
 
 

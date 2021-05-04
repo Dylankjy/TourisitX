@@ -292,17 +292,17 @@
     // HELPER FUNCTIONS
 
     // Returns the cookie value given its name
-    function getCookieValue(name) {
+    getCookieValue = (name) => {
         return document.cookie.split('; ').find(row => row.startsWith(name)).split('=')[1]
     }
 
     // Returns a boolean whether array is empty
-    function isEmptyArray(arr) {
+    isEmptyArray = (arr) => {
         return arr.filter((n) => n).length == 0
     }
 
     // Returns an array with trimmed elements and no empty elements
-    function trimmedArray(arr) {
+    trimmedArray = (arr) => {
         // Remove all whitespaces front and back of each element
         arr = arr.map(x => x.trim())
         // Remove all empty elements
@@ -312,7 +312,7 @@
 
 
     // INITIALIZER FUNCTIONS
-    function initializeDuration() {
+    initializeDuration = () => {
         console.log("Ran duration initialize function")
 
         var select = $('#tourDuration')
@@ -328,7 +328,7 @@
 
     // Takes number (minutes) and returns a string
     // Takes 420 and returns 7am
-    function numToTime(i) {
+    numToTime = (i) => {
         hours = Math.floor(i / 60)
         minutes = i % 60
         if (minutes == 0) {
@@ -344,7 +344,7 @@
     }
 
     // Takes a date string and converts it to number
-    function timeToNum(x) {
+    timeToNum = (x) => {
         hours = parseInt(x.split(':')[0])
         tmp = x.split(':')[1]
         min = parseInt(tmp.split(' ')[0])
@@ -366,7 +366,7 @@
 
     // Initializer
     // Update the time ranges displayed, based on the duration and already selected items (selectedTimeArray)
-    function updateTiming() {
+    updateTiming = () => {
         var duration = parseFloat($("#tourDuration").val()) * 60
         // The array of current times selected already
         var arr = selectedTimeArray
@@ -399,7 +399,7 @@
 
     // Updater
     // Updates the internal array which contains the strings of all selected time ranges
-    function updateTimeRangeArray() {
+    updateTimeRangeArray = () => {
         var currentTime = $("#tourTiming").val()
         if (currentTime != '-') {
             selectedTimeArray.push(currentTime)
@@ -408,7 +408,7 @@
 
     // If it has "Specific" means it adds using user-defined input (time)
     // Used to inject pre-existing values
-    function updateSpecificTimeRangeArray(time) {
+    updateSpecificTimeRangeArray = (time) => {
         if (time != '-') {
             selectedTimeArray.push(time)
         }
@@ -416,7 +416,7 @@
 
     // Updater
     // Removes a particular time range string from the selectedTimeRange array
-    function removeTimeRange(val) {
+    removeTimeRange = (val) => {
         selectedTimeArray = selectedTimeArray.filter(e => e !== val)
     }
 
@@ -426,7 +426,7 @@
     // 1. Delete the entire parent element (Basically the tag)
     // 2. Delete the time range from the selectedTimeArray 
     // 3. Update the rendered time ranges (Which changes because the selectedTimeArray has changed)
-    function addTimeTag() {
+    addTimeTag = () => {
         $("#timeTags").html("")
         selectedTimeArray.forEach((timeRange) => {
             var elem = `<span class="tag is-primary is-medium" style="margin-left: 10px;">
@@ -437,7 +437,7 @@
         })
     }
 
-    function addSpecificTimeTag(time) {
+    addSpecificTimeTag = (time) => {
         var elem = `<span class="tag is-primary is-medium" style="margin-left: 10px;">
                         ${time} 
                         <i class="fas fa-trash-alt" onclick='this.parentElement.remove();removeTimeRange("${time}");updateTiming()' style="margin-left: 20px;"></i>
@@ -447,7 +447,7 @@
 
     // Updater
     // If a new duration is selected, remove all tags
-    function resetTimeTag() {
+    resetTimeTag = () => {
         $("#timeTags").html("")
     }
 
@@ -461,7 +461,7 @@
     // AVAILABLE DAYS
     // Updater + Initializer
     // Create/update the dropdown items for the Available Days item
-    function initializeDays() {
+    initializeDays = () => {
         console.log('Day Initialized')
         selector = $("#tourDay")
         // Reset the array first
@@ -472,7 +472,7 @@
     }
 
     // Update the rendered days
-    function updateDays() {
+    updateDays = () => {
         console.log('Day Initialized')
         selector = $("#tourDay")
         // Reset the array first
@@ -488,7 +488,7 @@
 
     // Array Updater
     // Will add the currently selected day to the SelectedDayArray()
-    function updateSelectedDayArray() {
+    updateSelectedDayArray = () => {
         currentDay = $("#tourDay").val()
         if (currentDay != '-') {
             selectedDayArray.push(currentDay)
@@ -496,7 +496,7 @@
     }
 
 
-    function updateSpecificSelectedDayArray(day) {
+    updateSpecificSelectedDayArray = (day) => {
         if (day != '-') {
             selectedDayArray.push(day)
         }
@@ -504,13 +504,13 @@
 
     // Array Updater
     // Removes a particular time range string from the selectedTimeRange array
-    function removeDay(val) {
+    removeDay = (val) => {
         selectedDayArray = selectedDayArray.filter(e => e !== val)
     }
 
 
     // Initializer
-    function addDayTag() {
+    addDayTag = () => {
         $("#dayTags").html("")
         selectedDayArray.forEach((day) => {
             var elem = `<span class="tag is-primary is-medium" style="margin-left: 10px;">
@@ -521,7 +521,7 @@
         })
     }
 
-    function addSpecificDayTag(day) {
+    addSpecificDayTag = (day) => {
         var elem = `<span class="tag is-primary is-medium" style="margin-left: 10px;">
                         ${day} 
                         <i class="fas fa-trash-alt" onclick='this.parentElement.remove();removeDay("${day}");updateDays()' style="margin-left: 20px;"></i>
@@ -543,7 +543,7 @@
     // ITINERARY LIST
 
     // Add new itinerary list item when feather is clicked
-    function addItineraryItem() {
+    addItineraryItem = () => {
         // Get the current text value
         var item = $("#itinerary-str").val()
         // Reset input box to empty
@@ -568,7 +568,7 @@
     }
 
     // Inject specific itineray string to the list
-    function addSpecificItineraryItem(itinerary) {
+    addSpecificItineraryItem = (itinerary) => {
         // Get the current text value
         var item = itinerary
         // Reset input box to empty
@@ -593,7 +593,7 @@
     }
 
     // Appends all the current list items into the createdItinerary array
-    function updateCreatedItineraryArray() {
+    updateCreatedItineraryArray = () => {
         createdItinerary = []
         var tmp = $("#itineraryItems").text().trim().split('\n')
         createdItinerary = trimmedArray(tmp)
