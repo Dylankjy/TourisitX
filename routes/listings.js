@@ -222,7 +222,7 @@ router.post('/create', (req, res)=>{
     // getImage(req, (base64)=>{
     //     //DO database stuff here
     // })
-}, 
+},
 )
 
 // fs.writeFile('this.html', "What is this", (err) =>{
