@@ -176,7 +176,7 @@ router.get('/create', (req, res) => {
     res.render('tourGuide/createListing.hbs', { validationErrors: req.cookies.validationErrors })
 })
 
-router.post('/submit-create', (req, res)=>{
+router.post('/create', (req, res)=>{
     // Save the form values so we can re-render them if there are errors
     res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 360000 })
 
