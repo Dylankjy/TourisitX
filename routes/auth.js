@@ -34,5 +34,19 @@ router.get('/register', (req, res) => {
     res.render('auth/register', metadata)
 })
 
+router.get('/recover', (req, res) => {
+    const metadata = {
+        meta: {
+            title: 'Recover Tourisit ID',
+            path: false,
+        },
+        nav: {
+            register: true,
+        },
+        layout: 'auth',
+    }
+    res.render('auth/recover', metadata)
+})
+
 
 module.exports = router
