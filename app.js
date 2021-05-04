@@ -71,12 +71,12 @@ app.use(cookieParser('Please change this when in production use'))
 // }))
 
 // cookieParser: Cookie schema
-// const CookieOptions = {
-//     httpOnly: true,
-//     secure: true,
-//     signed: true,
-//     domain: `.${config.webserver.domain}`,
-// }
+const CookieOptions = {
+    httpOnly: true,
+    secure: false,
+    signed: true,
+    domain: `.localhost`,
+}
 
 // app.use(bodyParser.urlencoded({extended: true}))
 // app.use(bodyParser.json())

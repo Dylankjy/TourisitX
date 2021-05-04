@@ -163,8 +163,8 @@ router.get('/create', (req, res) => {
     // res.render('create_listing.hbs', {validationErr: []})
     // If you have to re=render the page due to errors, there will be cookie storedValue and you use this
     // To use cookie as JSON in javascipt, must URIdecode() then JSON.parse() it
-    if (req.cookies.storedValues) {
-        const storedValues = JSON.parse(req.cookies.storedValues)
+    if (req.signedCookies.storedValues) {
+        const storedValues = JSON.parse(req.signedCookies.storedValues)
     } else {
         const storedValues = {}
     }
@@ -173,7 +173,7 @@ router.get('/create', (req, res) => {
     // console.log(`Stored type is: ${typeof(storedValues)}`)
     // console.log(`Stored title is: ${storedValues["tourTitle"]}`)
 
-    res.render('tourGuide/createListing.hbs', { validationErrors: req.cookies.validationErrors })
+    res.render('tourGuide/createListing.hbs', { validationErrors: req.signedCookies.validationErrors })
 })
 
 router.post('/create', (req, res)=>{
