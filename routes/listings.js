@@ -176,8 +176,7 @@ router.get('/create', (req, res) => {
     res.render('tourGuide/createListing.hbs', { validationErrors: req.cookies.validationErrors })
 })
 
-// Msg left by Dylan: I changed your POST endpoint to match your GET. Use the same endpoint name, its neater :)
-router.post('/create', validate(listingValidation, {}, {}), (req, res, next) => {
+router.post('/submit-create', (req, res)=>{
     // Save the form values so we can re-render them if there are errors
     res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 360000 })
 
