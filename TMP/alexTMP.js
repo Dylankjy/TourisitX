@@ -1,9 +1,6 @@
-// for(var i = 1; i < 11.5; i+= 0.5) {
-//     console.log(`${i}`)           
-// }
+const axios = require('axios')
+const fetch = require('node-fetch')
 
-// Takes number (minutes) and returns a string
-// Takes 420 and returns 7am
 function numToTime(i) {
     hours = Math.floor(i/60)
     minutes = i%60
@@ -41,9 +38,9 @@ var arr = ["7:00 AM - 8:30 AM", "3:30 PM - 5:00 PM"]
 var numArr = []
 
 function updateTime() {
-    var duration = 
+    var duration = 0
     // The array of current times selected already
-    var arr = 
+    var arr = []
     var numArr = []
     arr.forEach((timeRange) =>{
         start = timeRange.split(' - ')[0]
@@ -79,14 +76,23 @@ arr.forEach((timeRange) =>{
     }
 })
 
-console.log(numArr)
 
-for(var i = 420; i < 1380 - duration; i+= 30) {
-    if (numArr.includes(i) || numArr.includes(i+duration)) {
-        continue
-    }
-    var start = numToTime(i)
-    var end = numToTime(i + duration)
-    console.log(`${start} - ${end}`)
+
+var TIH_API_KEY = "GgjNvD9p8MA6c3emVYknlImLc5cAdj7X"
+
+getAutoCompleteAPIURL = (searchStr, apiKey=TIH_API_KEY) =>{
+    let AUTOCOMPLETE_API_URL = `https://tih-api.stb.gov.sg/map/v1/autocomplete/type/address?input=${searchStr}&apikey=${apiKey}`
+    return AUTOCOMPLETE_API_URL
 }
 
+var APIURL = getAutoCompleteAPIURL("this",TIH_API_KEY)
+
+axios.get(APIURL, (data)=>{
+    console.log(data)
+})
+
+
+// fetch(getAutoCompleteAPIURL("this",TIH_API_KEY), {
+//     method: "GET", 
+//     headers: {"ApiEndPointTitle": "autoCompleteByType"}
+// }).then(data=>console.log(data))

@@ -7,6 +7,8 @@ const ExpressFormidable = require('express-formidable')
 const fs = require('fs')
 const exphbs = require('express-handlebars')
 const expressSession = require('express-session')
+const cors = require('cors')
+const { default: axios } = require('axios')
 
 
 // Globals
@@ -159,7 +161,7 @@ emptyArray = (arr) => {
 // router.get('/', (req, res) => { ... }
 
 // can we use shards? (Like how we did product card that time, pass in a json and will fill in the HTML template)
-router.get('/create', (req, res) => {
+router.get('/create', cors(), (req, res) => {
     // res.render('create_listing.hbs', {validationErr: []})
     // If you have to re=render the page due to errors, there will be cookie storedValue and you use this
     // To use cookie as JSON in javascipt, must URIdecode() then JSON.parse() it
@@ -222,8 +224,8 @@ router.post('/create', (req, res)=>{
     // getImage(req, (base64)=>{
     //     //DO database stuff here
     // })
-},
-)
+})
+
 
 // fs.writeFile('this.html', "What is this", (err) =>{
 //     if (err) throw err

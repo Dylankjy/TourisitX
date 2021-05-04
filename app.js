@@ -10,6 +10,7 @@ const slowDown = require('express-slow-down')
 const expressSession = require('express-session')
 const axios = require('axios')
 const bodyParser = require('body-parser')
+const cors = require('cors')
 
 // Routes for Express
 const routes = {
@@ -32,6 +33,8 @@ app.use('/third_party', express.static('third_party'))
 
 // Handlebars: Render engine
 app.set('view engine', 'hbs')
+
+app.use(cors())
 
 
 // Handlebars: Environment options
@@ -103,7 +106,7 @@ const webserver = () => {
 
     app.use('/shop', routes.market)
 
-    app.use('/listing', routes.listings)
+    app.use('/listing', cors(), routes.listings)
 
     // Don't put any more routes after this block, cuz they will get 404'ed
     app.get('*', (req, res) => {
