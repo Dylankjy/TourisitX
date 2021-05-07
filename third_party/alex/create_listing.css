@@ -19,6 +19,6 @@
   right: 35%;
 }
 
-.columns + .columns {
-  margin-bottom: 0px;
+.container + .container {
+  margin-bottom: 10px;
 }

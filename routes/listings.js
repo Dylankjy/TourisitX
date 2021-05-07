@@ -9,12 +9,16 @@ const exphbs = require('express-handlebars')
 const expressSession = require('express-session')
 const cors = require('cors')
 const { default: axios } = require('axios')
+const uuid = require('uuid')
+const fileType = require('file-type')
+const path = require('path')
+
 
 
 // Globals
-
-
 const router = express.Router()
+const {Shop} = require('../models')
+
 // router.use(formidable())
 
 class Validator {
@@ -28,7 +32,6 @@ class Validator {
         this.result = true
         this.name = options.name
         this.errMsg = options.errorMessage
-        this.renderedName = options.renderedName
         return this
     }
 
@@ -73,33 +76,60 @@ class Validator {
     // Returns the JSON result of the validation
     getResult() {
         if (this.result == false) {
-            return { renderedName: this.renderedName, result: this.result, msg: this.errMsg }
+            return {result: this.result, msg: this.errMsg }
         }
         return null
     }
 }
 
-// x is sample data POST DATA
-// const x = { theName: 'Jake', theAge: 4 }
-const x = { 'tourTitle': 'sdfsd', 'tourDesc': 'fdfd', 'tourDuration': '', 'tourTimings': '-', 'tourDays': '-', 'finalTimings': '', 'finalDays': '' }
+
+class FileValidator {
+    constructor(data) {
+        this.data = data
+    }
+
+    Initialize(options) {
+        this.result = true
+        this.errMsg = options.errorMessage
+        return this
+    }
+
+    fileExists() {
+        if (this.data["resume"]["_writeStream"]["bytesWritten"] == 0) {
+            this.result = false
+            console.log("This ran")
+            return this
+        }
+        return this
+    }
+
+    sizeAllowed(options) {
+        if (this.data["resume"]["_writeStream"]["bytesWritten"] > options.maxSize) {
+            this.result = false
+        } 
+        return this
+    }
+
+    extAllowed(allowedExtensions) {
+        let extName = path.extname(this.data["resume"]["name"])
+        if (!allowedExtensions.includes(extName)) {
+            this.result = false
+        }
+        console.log("Ext" + extName)
+        return this
+    }
 
 
-// const v_name = new Validator(x)
-// const v_age = new Validator(x)
-const v = new Validator(x)
 
+    getResult() {
+        if (this.result == false) {
+            return {result: this.result, msg: this.errMsg }
+        }
+        return null
+    }
 
-nameResult = v.Initialize({ name: 'tourTitle', errorMessage: 'Needs to be 5 chars!', renderedName: 'Tour Title' }).exists().isLength({ min: 7 })
-    .getResult()
+}
 
-ageResult = v.Initialize({ name: 'tourDesc', errorMessage: 'Tour Age doesnt exist', renderedName: 'Tour Age' }).exists()
-    .getResult()
-
-
-const allResults = [nameResult, ageResult]
-
-// console.log(allResults)
-// console.log(allResults.filter(n => n).length)
 
 
 // Will convert Image to base64.
@@ -135,6 +165,7 @@ imageToB64Promise = (filePath, fileType) => {
     })
 }
 
+// Get and save the B64 encoded image using callback
 getImage = (req, callback) => {
     const filePath = req.files['resume']['path']
     const fileType = req.files['resume']['type']
@@ -147,6 +178,20 @@ getImage = (req, callback) => {
     })
 }
 
+
+// To save image to specified folder. A UUID will be given as name
+// filePath -- received path; ext - extension of file; folder - folder to save image to
+storeImage = (filePath, fileExt, folder) =>{
+    var imgName = uuid.v4()
+    fs.readFile(filePath, (err, data) => {
+        var imgBuffer = Buffer.from(data)
+        fs.writeFile(`public/${imgName}.${fileExt}`, imgBuffer, (err) => {console.log(err)})
+    })
+    return `${imgName}.${fileExt}`
+}
+
+
+
 removeNull = (arr) => {
     return arr.filter((n) => n)
 }
@@ -155,15 +200,13 @@ emptyArray = (arr) => {
     return arr.filter((n) => n).length == 0
 }
 
-
 // Put all your routings below this line -----
 
-// router.get('/', (req, res) => { ... }
 
 // can we use shards? (Like how we did product card that time, pass in a json and will fill in the HTML template)
 router.get('/create', cors(), (req, res) => {
     // res.render('create_listing.hbs', {validationErr: []})
-    // If you have to re=render the page due to errors, there will be cookie storedValue and you use this
+    // If you have to re-render the page due to errors, there will be cookie storedValue and you use this
     // To use cookie as JSON in javascipt, must URIdecode() then JSON.parse() it
     if (req.cookies.storedValues) {
         const storedValues = JSON.parse(req.cookies.storedValues)
@@ -185,37 +228,97 @@ router.post('/create', (req, res)=>{
     const v = new Validator(req.fields)
 
     // Doing this way so its cleaner. Can also directly call these into the removeNull() array
-    const nameResult = v.Initialize({ name: 'tourTitle', errorMessage: 'Please enter a Tour Title!', renderedName: 'Tour Title' }).exists().isLength({ min: 5 })
+    let nameResult = v.Initialize({ name: 'tourTitle', errorMessage: 'Tour Title must be min 5 characters long'}).exists().isLength({ min: 5 })
         .getResult()
 
-    const descResult = v.Initialize({ name: 'tourDesc', errorMessage: 'Please enter a Tour description', renderedName: 'Tour Description' }).exists()
+    let descResult = v.Initialize({ name: 'tourDesc', errorMessage: 'Please enter a Tour description'}).exists()
         .getResult()
 
-    const durationResult = v.Initialize({ name: 'tourDuration', errorMessage: 'Please enter a Tour Duration', renderedName: 'Tour Duration' }).exists()
+    let durationResult = v.Initialize({ name: 'tourDuration', errorMessage: 'Please enter a Tour Duration'}).exists()
         .getResult()
 
-    const timingResult = v.Initialize({ name: 'finalTimings', errorMessage: 'Please provide a Tour Timing', renderedName: 'Tour Timing' }).exists()
+    let timingResult = v.Initialize({ name: 'finalTimings', errorMessage: 'Please provide a Tour Timing'}).exists()
         .getResult()
 
-    const dayResult = v.Initialize({ name: 'finalDays', errorMessage: 'Please provide a Tour Day', renderedName: 'Tour Day' }).exists()
+    let dayResult = v.Initialize({ name: 'finalDays', errorMessage: 'Please provide a Tour Day'}).exists()
         .getResult()
 
-    const itineraryResult = v.Initialize({ name: 'finalItinerary', errorMessage: 'Please create a Tour Itinerary', renderedName: 'Tour Itinerary' }).exists()
+    let itineraryResult = v.Initialize({ name: 'finalItinerary', errorMessage: 'Please create a Tour Itinerary'}).exists()
         .getResult()
 
+    let locationResult = v.Initialize({ name: 'finalLocations', errorMessage: 'Please provide at least one location'}).exists()
+    .getResult()
 
-    const validationErrors = removeNull([nameResult, descResult, durationResult, timingResult, dayResult, itineraryResult])
+    let priceResult = v.Initialize({ name: 'tourPrice', errorMessage: 'Tour price must be more than $0'}).exists().isValue({min:1})
+    .getResult()
+
+    let paxResult = v.Initialize({ name: 'tourPax', errorMessage: 'Tour Pax must be at least 1'}).exists().isValue({min:1})
+    .getResult()
+
+    let revResult = v.Initialize({ name: 'tourRevision', errorMessage: 'Tour Revision cannot be negative'}).exists().isValue({min:0})
+    .getResult()
+
+    // Initialize Image Validator using req.files
+    const imgV = new FileValidator(req.files)
+    let imgResult = imgV.Initialize({ errorMessage: 'Please provide a Tour Image (.png/.jpg allowed < 3MB)'}).fileExists().sizeAllowed({maxSize: 300000}).extAllowed(['.jpg', '.png'])
+    .getResult()
+
+    var validationErrors = removeNull([nameResult, descResult, durationResult, timingResult, dayResult, itineraryResult, priceResult, paxResult, revResult, imgResult])
 
     // If there are errors, re-render the create listing page with the valid error messages
-    if (!emptyArray(validationErrors)) {
+    // if (!emptyArray(validationErrors)) {
+    if (false) {
         res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
-        // res.render('create_listing.hbs', {validationErrors: validationErrors})
-        res.redirect('/listing/create')
-    } else {
+        // If a valid image was provided, we want to persist it
+        console.log(imgResult)
+        if (imgResult == null) {
+            console.log("Saving image COOKIE")
+            // If there was a previous savedImageName cookie saved (Meaning that a valid image was submitted before)
+            // I'll check if the submitted names are the same
+            console.log(req.cookies.savedImageName)
+            // console.log(req.files["resume"]["name"])
+            if (req.cookies.savedImageName  == req.files["resume"]["name"]) {
+                console.log("YES RAN")
+                
+            }
+            // Save the image to the tmp directory. If the next image name is the same as the previous one, we'll use this image
+            // Else if the name is different, means a new image was uploaded. Then we'll delete this saved image and use the newly uploaded image
+            
+
+            res.cookie('savedImageName', req.files["resume"]["name"])
+            res.redirect('/listing/create')
+        } else {
+            res.redirect('/listing/create')
+        }
+        
+    } else { // If successful
         // Remove cookies for stored form values + validation errors
         res.clearCookie('validationErrors')
         res.clearCookie('storedValues')
-        console.log(req.fields)
+
+        console.log(`Result is ${JSON.stringify(imgResult)}`)
+        var filePath = req.files['resume']['path']
+        var fileExt = path.extname(req.files['resume']['name'])
+
+        var savedPath = storeImage(filePath, fileExt, 'savedImages')
+
+        Shop.create({
+            id: uuid.v4(),
+            tourTitle: req.fields.tourTitle,
+            tourDesc: req.fields.tourDesc,
+            tourDuration: req.fields.tourDuration,
+            tourPrice: req.fields.tourPrice,
+            tourPax: req.fields.tourPax,
+            tourRevision: req.fields.tourRevision,
+            finalTimings: req.fields.finalTimings,
+            finalDays: req.fields.finalDays,
+            finalItinerary: req.fields.finalItinerary,
+            finalLocations: req.fields.finalLocations,
+            tourImage: savedPath
+        }).catch((err)=>{
+            console.log(err)
+        })
+
         res.send('Success')
     }
 

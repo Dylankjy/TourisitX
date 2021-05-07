@@ -34,13 +34,16 @@
     "express-session": "^1.17.1",
     "express-slow-down": "^1.4.0",
     "express-validation": "^3.0.8",
+    "file-type": "^16.4.0",
     "formidable": "^1.2.2",
     "handlebars": "^4.7.7",
+    "image-extensions": "^1.1.0",
     "loglevel": "^1.7.1",
     "loglevel-plugin-prefix": "^0.8.4",
     "mysql2": "^2.2.5",
     "sequelize": "^6.6.2",
     "sequelize-cli": "^6.2.0",
+    "uuid": "^8.3.2",
     "validator": "^13.6.0"
   },
   "devDependencies": {

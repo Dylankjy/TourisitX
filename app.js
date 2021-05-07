@@ -26,6 +26,8 @@ const routes = {
 
 const app = express()
 
+const db = require('./models')
+
 // Express Additional Options
 // Express: Public Directory
 app.use('/', express.static('public'))
@@ -128,4 +130,7 @@ const webserver = () => {
 }
 
 
-webserver()
+db.sequelize.sync().then((req) => {
+    webserver()
+}).catch(console.log)
+

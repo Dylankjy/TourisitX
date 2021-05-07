@@ -34,7 +34,7 @@
             </div>
             <div class='message-body'>
             {{#each validationErrors}}
-                    <blockquote>{{this.renderedName}}: {{this.msg}}</blockquote>    
+                    <blockquote>{{this.msg}}</blockquote>    
             {{/each}}
             </div>
         </article>
@@ -80,6 +80,8 @@
                 </div>
             </div>      
         </div>
+
+
 
         <!-- TOUR DURATION -->
         <div class='container'>
@@ -245,6 +247,61 @@
             </div>      
         </div>
     </div>
+
+    <!-- Min Price -->
+    <div class='container'>
+        <div class='columns is-variable is-5 is-vcentered'>
+            <div class='column is-one-quarter' style="text-align:right;">
+                <section class="section">
+                    <h1 class="title is-5">Tour Price</h1>
+                    <h2 class="subtitle is-6">
+                        Minimum price of your Tour
+                    </h2>
+                </section>
+            </div>
+            <div class='column is-2'>
+                <input name='tourPrice' class="input is-primary" type="number">
+            </div>
+        </div>      
+    </div>
+
+
+    <!-- Max Pax -->
+    <div class='container'>
+        <div class='columns is-variable is-5 is-vcentered'>
+            <div class='column is-one-quarter' style="text-align:right;">
+                <section class="section">
+                    <h1 class="title is-5">Tour Pax</h1>
+                    <h2 class="subtitle is-6">
+                        Maximum Tour Participants
+                    </h2>
+                </section>
+            </div>
+            <div class='column is-2'>
+                <input name='tourPax' class="input is-primary" type="number">
+            </div>
+        </div>      
+    </div>
+
+
+    <!-- Max Revisions -->
+    <div class='container'>
+        <div class='columns is-variable is-5 is-vcentered'>
+            <div class='column is-one-quarter' style="text-align:right;">
+                <section class="section">
+                    <h1 class="title is-5">Tour Revisions</h1>
+                    <h2 class="subtitle is-6">
+                        Maximum times a customer can revise the itinerary for free
+                    </h2>
+                </section>
+            </div>
+            <div class='column is-2'>
+                <input name='tourRevision' class="input is-primary" type="number">
+            </div>
+        </div>      
+    </div>
+
+
 
 
     <!-- SUBMIT BUTTON -->
@@ -769,15 +826,24 @@
         // If there is stored cookies (Means that there was an error and you re-render)
         if (getCookieValue("storedValues") != 'undefined') {
             var storedValues = JSON.parse(decodeURIComponent(getCookieValue("storedValues")))
-            
+
             // Re-initialze the values
             console.log(storedValues)
             $("input[name=tourTitle]").val(storedValues.tourTitle)
             $("textarea[name=tourDesc]").val(storedValues.tourDesc)
             $("select[name=tourDuration]").val(storedValues.tourDuration)
+
+            // Populate the numerical inputs
+            $("input[name=tourPrice]").val(storedValues.tourPrice)
+            $("input[name=tourPax]").val(storedValues.tourPax)
+            $("input[name=tourRevision]").val(storedValues.tourRevision)
+
             // Trigger the change function for the tourDuration so I can update the Tour Timings
             // If I simply use jQuery to set the value, the 'change' function won't trigger so I'll have to manually trigger it
             $("select[name=tourDuration]").trigger("change")
+
+            $("#file-label").html(decodeURIComponent(getCookieValue("savedImageName")))
+            
 
 
             // Tour Timings
