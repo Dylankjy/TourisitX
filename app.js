@@ -72,6 +72,10 @@ app.engine('hbs', exphbs({
 
         readArr: (value, options) =>{
             return value.split(',')
+        },
+
+        emptyArr: (value, options) =>{
+            return (value.length == 0)
         }
     },
 }))

@@ -1,0 +1,33 @@
+<head>
+    <link rel='stylesheet' href='/third_party/alex/listing.css'>
+</head>
+
+
+
+<section class="section has-background-white">
+    <div class="container">
+        <h1 class="is-size-1 has-text-weight-bold mt-6">My tours</h1>
+    </div>
+</section>
+
+
+<section class='section'>
+    <div class='container'>
+        {{#if (emptyArr datas)}}
+        <h1 class="'has-text-dark">Nothing to show here.</h1>
+        {{else}}
+
+        {{#each datas}}
+    
+            <div class='listing-banner'>
+                <a class='listing-link' href='/listing/{{this.id}}'>
+                    <p class='title is-5'>{{this.tourTitle}}</p>
+                </a>
+            </div>
+
+        {{/each}}
+
+        {{/if}}
+
+    </div>
+</section>

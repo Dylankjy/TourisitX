@@ -7,6 +7,11 @@ module.exports = (sequelize, DataTypes) =>{
             type: DataTypes.UUID
         },
 
+        userId: {
+            allowNull: false,
+            type: DataTypes.UUID
+        },
+
         tourTitle: {
             type: DataTypes.STRING,
             allowNull: false
