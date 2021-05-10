@@ -45,6 +45,7 @@ app.engine('hbs', exphbs({
     extname: '.hbs',
     layoutsDir: `views/layouts`,
     helpers: {
+
         ifEquals(a, b, options) {
             if (a === b) {
                 return options.fn(this)
@@ -52,13 +53,25 @@ app.engine('hbs', exphbs({
                 return options.inverse(this)
             }
         },
+
         haveErr: (value, options) =>{
             // Removes all null values and boolean (true if not empty, false if empty)
             return value.filter((n) => n).length != 0
         },
+
         isDefined: (value, options) =>{
             return typeof(value) !== 'undefined'
         },
+
+        readArrWithReplace: (value, options) =>{
+            var arr = value.split(',')
+            arr = arr.map(e=>e.replace(';!;', ','))
+            return arr
+        },
+
+        readArr: (value, options) =>{
+            return value.split(',')
+        }
     },
 }))
 

@@ -1,10 +1,7 @@
-const axios = require('axios')
+var x = "werwer,Go to the chopper;!; at bshan an eat some duck rice"
+x = x.split(',')
+x = x.map(e=>e.replace(';!;', ','))
 
-var searchStr = 'raf'
-var apiKey = 'GgjNvD9p8MA6c3emVYknlImLc5cAdj7X'
-var AUTOCOMPLETE_API_URL = `https://tih-api.stb.gov.sg/map/v1/autocomplete/type/address?input=${searchStr}&apikey=${apiKey}`
+console.log(x)
 
-axios.get(AUTOCOMPLETE_API_URL)
-.then((data)=>{
-console.log(data)
-})
+

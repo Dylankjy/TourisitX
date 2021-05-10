@@ -12,12 +12,16 @@ const { default: axios } = require('axios')
 const uuid = require('uuid')
 const fileType = require('file-type')
 const path = require('path')
+const elasticSearch = require('elasticsearch')
 
 
 
 // Globals
 const router = express.Router()
 const {Shop} = require('../models')
+
+
+// bin\elasticsearch.bat
 
 // router.use(formidable())
 
@@ -97,7 +101,6 @@ class FileValidator {
     fileExists() {
         if (this.data["resume"]["_writeStream"]["bytesWritten"] == 0) {
             this.result = false
-            console.log("This ran")
             return this
         }
         return this
@@ -115,7 +118,6 @@ class FileValidator {
         if (!allowedExtensions.includes(extName)) {
             this.result = false
         }
-        console.log("Ext" + extName)
         return this
     }
 
@@ -142,7 +144,8 @@ imageToB64Callback = (filePath, fileType, callback) => {
     fs.readFile(filePath, (err, data) => {
         const base64 = Buffer.from(data).toString('base64')
         // var formattedSrc = `<img src="data:${fileType};base64, ${base64}">`
-        const formattedSrc = `data:${fileType};base64, ${base64}`
+        fileType = fileType.replace('.', '')
+        const formattedSrc = `data:image/${fileType};base64, ${base64}`
 
         callback(formattedSrc)
         // console.log(base64)
@@ -159,7 +162,9 @@ imageToB64Promise = (filePath, fileType) => {
             }
             const base64 = Buffer.from(data).toString('base64')
             // var formattedSrc = `<img src="data:${fileType};base64, ${base64}">`
-            const formattedSrc = `data:${fileType};base64, ${base64}`
+            // Remove the . from ".jpg" -- for rendering the base64 string image
+            fileType = fileType.replace('.', '')
+            const formattedSrc = `data:image/${fileType};base64, ${base64}`
             res(formattedSrc)
         })
     })
@@ -185,9 +190,36 @@ storeImage = (filePath, fileExt, folder) =>{
     var imgName = uuid.v4()
     fs.readFile(filePath, (err, data) => {
         var imgBuffer = Buffer.from(data)
-        fs.writeFile(`public/${imgName}.${fileExt}`, imgBuffer, (err) => {console.log(err)})
+        fileExt = fileExt.replace('.', '')
+        fs.writeFile(`${folder}/${imgName}.${fileExt}`, imgBuffer, (err) => {console.log(err)})
     })
     return `${imgName}.${fileExt}`
+}
+
+
+// dbImg is the name of the saved image (In the database)
+// localImg is the req.files["resume"] object of the image that was submitted
+// Returns boolean whether 2 images are the same
+sameImage = (dbImg, localImgObject) => {
+    return new Promise((res, rej)=>{
+        imageToB64Promise(`savedImages/${filename}`, path.extname(filename))
+        .then((dbImgDataB64)=>{
+            fs.readFile(localImg["path"], (err, localImgData)=>{
+                var localImgDataB64 = Buffer.from(localImgData).toString('base64')
+                localImgDataB64 = `data:${type};base64, ${base64}`
+                if (localImgDataB64 == dbImgDataB64) {
+                    console.log("THe 2 images are the same")
+                    return true
+                } else {
+                    console.log("The 2 images are different")
+                    return false
+                }
+            })
+        })
+        .catch((err)=>{
+            console.log(err)
+        })
+    })
 }
 
 
@@ -203,8 +235,9 @@ emptyArray = (arr) => {
 // Put all your routings below this line -----
 
 
+
 // can we use shards? (Like how we did product card that time, pass in a json and will fill in the HTML template)
-router.get('/create', cors(), (req, res) => {
+router.get('/create', (req, res) => {
     // res.render('create_listing.hbs', {validationErr: []})
     // If you have to re-render the page due to errors, there will be cookie storedValue and you use this
     // To use cookie as JSON in javascipt, must URIdecode() then JSON.parse() it
@@ -214,15 +247,11 @@ router.get('/create', cors(), (req, res) => {
         const storedValues = {}
     }
 
-    // console.log(`Stored values is: ${storedValues}`)
-    // console.log(`Stored type is: ${typeof(storedValues)}`)
-    // console.log(`Stored title is: ${storedValues["tourTitle"]}`)
-
     res.render('tourGuide/createListing.hbs', { validationErrors: req.cookies.validationErrors })
 })
 
+
 router.post('/create', (req, res)=>{
-    // Save the form values so we can re-render them if there are errors
     res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
 
     const v = new Validator(req.fields)
@@ -259,50 +288,27 @@ router.post('/create', (req, res)=>{
     .getResult()
 
     // Initialize Image Validator using req.files
-    const imgV = new FileValidator(req.files)
-    let imgResult = imgV.Initialize({ errorMessage: 'Please provide a Tour Image (.png/.jpg allowed < 3MB)'}).fileExists().sizeAllowed({maxSize: 300000}).extAllowed(['.jpg', '.png'])
-    .getResult()
+    // const imgV = new FileValidator(req.files)
+    // let imgResult = imgV.Initialize({ errorMessage: 'Please provide a Tour Image (.png/.jpg allowed < 3MB)'}).fileExists().sizeAllowed({maxSize: 300000}).extAllowed(['.jpg', '.png'])
+    // .getResult()
 
-    var validationErrors = removeNull([nameResult, descResult, durationResult, timingResult, dayResult, itineraryResult, priceResult, paxResult, revResult, imgResult])
+    // Evaluate the files and fields data separately
+    var validationErrors = removeNull([nameResult, descResult, durationResult, timingResult, dayResult, itineraryResult, priceResult, paxResult, revResult])
 
     // If there are errors, re-render the create listing page with the valid error messages
-    // if (!emptyArray(validationErrors)) {
-    if (false) {
+    if (!emptyArray(validationErrors)) {
+    // if (false) {
         res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
-        // If a valid image was provided, we want to persist it
-        console.log(imgResult)
-        if (imgResult == null) {
-            console.log("Saving image COOKIE")
-            // If there was a previous savedImageName cookie saved (Meaning that a valid image was submitted before)
-            // I'll check if the submitted names are the same
-            console.log(req.cookies.savedImageName)
-            // console.log(req.files["resume"]["name"])
-            if (req.cookies.savedImageName  == req.files["resume"]["name"]) {
-                console.log("YES RAN")
-                
-            }
-            // Save the image to the tmp directory. If the next image name is the same as the previous one, we'll use this image
-            // Else if the name is different, means a new image was uploaded. Then we'll delete this saved image and use the newly uploaded image
-            
-
-            res.cookie('savedImageName', req.files["resume"]["name"])
-            res.redirect('/listing/create')
-        } else {
-            res.redirect('/listing/create')
-        }
+        res.redirect(`/listing/create`)
         
     } else { // If successful
         // Remove cookies for stored form values + validation errors
         res.clearCookie('validationErrors')
         res.clearCookie('storedValues')
-
-        console.log(`Result is ${JSON.stringify(imgResult)}`)
-        var filePath = req.files['resume']['path']
-        var fileExt = path.extname(req.files['resume']['name'])
-
-        var savedPath = storeImage(filePath, fileExt, 'savedImages')
+        res.clearCookie('savedImageName')
 
         Shop.create({
+            // You create the uuid when you initialize the create listing
             id: uuid.v4(),
             tourTitle: req.fields.tourTitle,
             tourDesc: req.fields.tourDesc,
@@ -314,7 +320,7 @@ router.post('/create', (req, res)=>{
             finalDays: req.fields.finalDays,
             finalItinerary: req.fields.finalItinerary,
             finalLocations: req.fields.finalLocations,
-            tourImage: savedPath
+            tourImage: "default.jpg"
         }).catch((err)=>{
             console.log(err)
         })
@@ -330,8 +336,242 @@ router.post('/create', (req, res)=>{
 })
 
 
+router.get('/:id', (req, res)=>{
+    var itemID = req.params.id
+
+    Shop.findAll({where:{
+        id: itemID
+    }}).then((items)=>{
+        var data = items[0]["dataValues"]
+        console.log(data["finalItinerary"])
+        res.render('listing.hbs', {data: data})
+    }).catch(err=>console.log)
+}) 
+
+
 // fs.writeFile('this.html', "What is this", (err) =>{
 //     if (err) throw err
 // })
+
+router.get('/api/getImage/:id', (req, res)=>{
+    var itemID = req.params.id
+
+    Shop.findAll({where:{
+        id: itemID
+    }}).then((items)=>{
+        res.json(items[0]["tourImage"])
+    }).catch(err=>console.log)
+})
+
+
+
+// Elastic Search stuff
+
+const esClient = elasticSearch.Client({
+    host: "http://localhost:9200"
+})
+
+// Deletes an index from the Elastic Search node (An index here can be likened to a database table)
+deleteIndex = () => {  
+    return esClient.indices.delete({
+        index: "products"
+    });
+}
+
+
+// Creates an index
+createIndex = () => {  
+    return esClient.indices.create({
+        index: "products"
+    });
+}
+
+
+// To initialize the mapping (Define the data it will store, types, etc)
+initMapping = () => {  
+    return esClient.indices.putMapping({
+        include_type_name: true,
+        index: "products",
+        type: "document",
+        body: {
+            properties: {
+                name: {type: "text"},
+                description: {type: "text"},
+                image: {type: "text"},
+                // Define the suggestion function
+                suggest: {
+                    type: "completion",
+                    analyzer: "simple",
+                    search_analyzer: "simple",
+                }
+            }
+        }
+    });
+}
+
+
+addDocument = (document) => {  
+    return esClient.index({
+        index: "products",
+        type: "document",
+        body: {
+            name: document.name,
+            description: document.description,
+            image: document.image,
+            // Define the suggestion criteria.
+            suggest: {
+                // I will split the words in the title. So, when I type one of these words (or part of this word), I will be suggested the tour title
+                input: document.name.split(" "),
+                // Suggest the title 
+                output: document.title
+            }
+        }
+    });
+}
+
+
+getSuggestions = (input) => {  
+    return esClient.search({
+        index: "products",
+        type: "document",
+        body: {
+            docsuggest: {
+                text: input,
+                completion: {
+                    field: "suggest",
+                    fuzzy: true
+                }
+            }
+        }
+    })
+}   
+
+
+// deleteIndex()
+// .then((data)=>{
+//     console.log("Deleted Index")
+// })
+// .catch((err)=>{
+//     console.log(err)
+// })
+
+// createIndex()
+// .then((data)=>{
+//     console.log("Created Index")
+// })
+// .catch((err)=>{
+//     console.log(err)
+// })
+
+
+initMapping()
+.then((data)=>{
+    console.log("Initialized mappings")
+})
+.catch((err)=>{
+    console.log(err)
+})
+
+var prods = [
+    {
+        name: "Blues of the Bishan", 
+        description: "See the sights of singapore",
+        image: "default.jpg"
+    },
+    {
+        name: "Raffles Night Life", 
+        description: "Attractive lights by the bay",
+        image: "raffles.jpg"
+    },
+    {
+        name: "Sentosa caves ", 
+        description: "Explore the dark caves of the island",
+        image: "sent.jpg"
+    }
+]
+
+
+addDocument({
+    name: "Blues of the Bishan", 
+    description: "See the sights of singapore",
+    image: "default.jpg"
+})
+.then((data)=>{
+    console.log("Added data")
+})
+.catch((err)=>{
+    console.log(err)
+})
+
+
+getSuggestions("bi")
+.then((data)=>{
+    console.log(data)
+})
+.catch((err)=>{
+    console.log(err)
+})
+
+
+router.post('/upload', (req, res) => {
+    esClient.index({
+        index: 'products',
+        body: {
+            "id": req.fields.id,
+            "name": req.fields.name,
+            "description": req.fields.description,
+            "image": req.fields.image
+        }
+    })
+    .then((data)=>{
+        console.log("Indexed!")
+        return res.json({"Message": "Indexing successful"})
+    })
+    .catch(err=>{
+        console.log(err)
+    })
+})
+
+
+router.get('/search', (req, res) => {
+    const searchText = req.query.text
+    esClient.search({
+        index: "products",
+        body: {
+            query: {
+                match: {"name": searchText.trim()}
+            }
+        }
+    })
+    .then((data)=>{
+        console.log("Ran")
+        return res.json(data)
+    })
+    .catch((err)=>{
+        return res.status(500).json({"Message": "Error"})
+    })
+})
+
+
+// esClient.search({
+//     index: "products",
+//     body: {
+//         query: {
+//             fuzzy : {
+//                 description: {
+//                     value: "sing",
+//                     fuzziness: 5
+//                 }
+//             }
+//         },
+//     }
+// })
+// .then((data)=>{
+//     console.log(data["hits"]["hits"])
+// })
+// .catch((err)=>{
+//     console.log("Ther eis nothign")
+// })
+
 
 module.exports = router

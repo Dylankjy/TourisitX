@@ -1,0 +1,98 @@
+<head>
+    <link rel='stylesheet' href='/third_party/bulma/bulma-timeline.min.css'>
+    <link rel='stylesheet' href='/third_party/alex/listing.css'>
+</head>
+
+<section class="section" style="padding-top: 5rem">
+    <div class='container'>
+        <div class='box'>
+            <div class='columns'>
+                
+                <!-- For name and description -->
+                <div class='column is-5'>
+                    <div class='content'>
+                        <h1 class='title is-4'>Tour Title:</h1>
+                        <p class='subtitle is-6'>{{data.tourTitle}}</p>
+                    </div>
+                    
+                    <br><br>
+                    <div class='content'>
+                        <h1 class='title is-4'>Tour Description:</h1>
+                        <p class='subtitle is-6'>{{data.tourDesc}}</p>
+                    </div>
+                </div>
+
+
+                <div class="column is-4">
+                    <div class="timeline">
+
+                        <header class="timeline-header">
+                            <span class="tag is-medium is-info">Tour Start</span>
+                        </header>
+
+                        {{#each (readArrWithReplace data.finalItinerary)}}
+                        <div class="timeline-item">
+                            <div class="timeline-marker is-icon">
+                                <i class="fa fa-flag"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <p>{{this}}</p>
+                            </div>
+                        </div>
+                        {{/each}}
+
+                        <div class="timeline-header">
+                          <span class="tag is-medium is-info">End</span>
+                        </div>
+                      </div>
+                </div>
+
+                <div class='column is-3'>
+                    <div class='content'>
+                        <h1 class='title is-4'>Tour Duration:</h1>
+                        <p class='subtitle is-6'>{{data.tourDuration}} hours</p>
+                    </div>
+
+                    <div class='content'>
+                        <h1 class='title is-4'>Tour Timing:</h1>
+                        {{#each (readArr data.finalTimings)}}
+                        <p class='subtitle is-6'>{{this}}</p>
+                        {{/each}}
+                    </div>
+
+                    <div class='content'>
+                        <h1 class='title is-4'>Tour Days:</h1>
+                        {{#each (readArr data.finalDays)}}
+                        <p class='subtitle is-6'>{{this}}</p>
+                        {{/each}}
+                    </div>
+                </div>
+
+            </div>
+
+
+                {{#if true}}
+                <button class='button is-success is-outlined'>
+                    <span class='icon'>
+                        <i class="fas fa-shopping-cart"></i>
+                    </span>
+                    <span>
+                        Purchase
+                    </span>
+                </button>
+                
+                <button class='button is-danger is-outlined'>
+                    <span class='icon'>
+                        <i class="fas fa-heart"></i>
+                    </span>
+                    <span>
+                        Add to favourite
+                    </span>
+                </button>
+                {{else}}
+                {{/if}}
+
+        </div>
+        
+    </div>
+</section>

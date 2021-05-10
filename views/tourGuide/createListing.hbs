@@ -44,7 +44,7 @@
 {{/if}}
 {{/if}}
 
-<form class="form-horizontal" enctype="multipart/form-data" method="POST" id='createListingForm'>    
+<form class="form-horizontal" enctype="multipart/form-data" method="POST" id='createListingForm' action='/listing/create'>    
     <div class='section'>
         
         <!-- TOUR TITLE -->
@@ -162,39 +162,8 @@
             </div>      
         </div>
 
-        <div class='container'>
-            <div class='columns is-variable is-5 is-vcentered'>
-                <div class='column is-one-quarter' style="text-align:right;">
-                    <section class="section">
-                        <h1 class="title is-5">Tour Image</h1>
-                        <h2 class="subtitle is-6">
-                            Show some pictures about your tour
-                        </h2>
-                    </section>
-                </div>
+        
 
-                <div class='column is-half'>
-                    <div class="file has-name is-boxed">
-                        <label class="file-label">
-                            
-                          <input class="file-input" type="file" name="resume" 
-                          onchange="if (this.files.length > 0) document.getElementById('file-label').innerHTML = this.files[0].name;">
-
-                          <span class="file-cta">
-                            <span class="file-icon">
-                              <i class="fas fa-upload"></i>
-                            </span>
-                            <span class="file-label" id='file-label'>
-                              Upload a tour Image
-                            </span>
-                          </span>
-                          <span class="file-name">
-                          </span>
-                        </label>
-                      </div>
-                </div>
-            </div>      
-        </div>
 
         <!-- TOUR ITINERARY -->
         <div class='container'>
@@ -337,6 +306,13 @@
 
     // Stores all the locations
     var selectedLocationArray = []
+
+
+    // Initialize the Image file reader for rendering
+    // var reader = new FileReader()
+    //     reader.onload = (e) => {
+    //         $("renderImg").attr("src", e.target.result)
+    // }
 
 
     // HELPER FUNCTIONS
@@ -712,6 +688,43 @@
 
 
 
+    // Tour Image
+
+    // renderImage = (input) =>{
+    //     var reader = new FileReader()
+    //     reader.onload = (e) => {
+    //         $("renderImg").attr("src", e.target.result)
+    //     }
+    //     reader.readAsDataURL(input.files[0]);
+    // }
+
+    // toBase64 = (file) => {
+    //     var reader = new FileReader()
+    //     reader.readAsDataURL(file)
+    //     reader.onload = () => {
+    //         $('#renderImg').attr('src', reader.result);
+    //     }
+    //     reader.onerror = (error) => {
+    //         console.log('Error: ', error)
+    //     }
+    // }
+
+
+
+    // renderImage = () => {
+    //     var c = document.getElementById("renderImg");
+    //     var ctx = c.getContext("2d");
+    //     var file = $("#tourImg").prop('files')[0]
+    //     ctx.drawImage(file, 10, 10);
+    // }
+
+
+
+
+
+
+
+
 
 
 
@@ -797,6 +810,17 @@
             // Add the tag to the box
             addLocationTag()
         })
+
+
+
+
+        // Tour Image, render image when a file is uploaded
+        // $("#tourImg").on('change', ()=>{
+        //     // var file = $("#tourImg").prop('files')[0]
+        //     flag = toBase64($("#tourImg").prop('files')[0])
+        //     console.log("Uploaded")
+        // })
+
 
 
         // Right before submitting, I want to run these stuff
