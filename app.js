@@ -91,7 +91,7 @@ const webserver = () => {
 
     app.use('/listing', routes.listings)
 
-    app.use('/p', routes.user)
+    app.use('/users', routes.user)
 
     // Don't put any more routes after this block, cuz they will get 404'ed
     app.get('*', (req, res) => {
