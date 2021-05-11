@@ -567,35 +567,94 @@ const esClient = elasticSearch.Client({
 //     })
 // })
 
-
-
 router.get('/es-api/create-index', (req, res)=>{
+    var searchText = req.query.text
     esClient.indices.create({
-        index: 'products',
+        index: "products",
+        id: req.fields.id,
         body: {
-            mappings: {
-                properties: {
-                    "name": {"type": "text"},
-                    // set index to false, as you only need to index the name for searching
-                    "description": {"type": "text", "index": false},
-                    "image": {"type": "text", "index": false},
-                    "suggest": {
-                        "type": "completion",
-                        "analyzer": "simple",
-                        "search_analyzer": "simple"
+            "settings": {
+                // SPECIFY ALL THE CUSTOM FILTERS AND ANALYZERS HERE
+                "analysis": {
+                    // Specify custom filters here
+                    "filter": {
+                        // Will generate n-grams from the words {E.g "shirt --> "sh", "shi", "shir", "shirt"}
+                        "autocomplete_filter": {
+                            "type": "ngram",
+                            "min_gram": "2",
+                            "max_gram": "3"
+                        }
+                    },
+                    // Specify custom analyzers here
+                    "analyzer": {
+                        "autocomplete": {
+                            "filter": ["lowercase", "autocomplete_filter"],
+                            "type": "custom",
+                            "tokenizer": "whitespace"
+                        }
+                    }
+                },
+            },
+            // Define the mappings here
+            "mappings": {
+                // Define the field mapppings here
+                "properties": {
+                    "name": {
+                        "type": "text",
+                        // Define the custom analyzers here (This is run everytime a new data is added)
+                        "analyzer": "autocomplete"
+                    },
+                    "description": {
+                        "type": "text",
+                        "index": "false"
+                    },
+                    "image": {
+                        "type": "text",
+                        "index": "false"
                     }
                 }
             }
         }
     })
     .then((data)=>{
-        console.log("Created Index!")
-        return res.json({"Message": "Create successful"})
+        return res.json({"Message": "Indexing Successful"})
     })
-    .catch(err=>{
+    .catch((err)=>{
         console.log(err)
+        return res.status(500).json({"Message": "Error"})
     })
 })
+
+
+
+// router.get('/es-api/create-index', (req, res)=>{
+//     esClient.indices.create({
+//         index: 'products',
+//         body: {
+//             mappings: {
+//                 properties: {
+//                     "name": {"type": "text"},
+//                     // set index to false, as you only need to index the name for searching
+//                     "description": {"type": "text", "index": false},
+//                     "image": {"type": "text", "index": false},
+//                     "suggest": {
+//                         "type": "completion",
+//                         "analyzer": "simple",
+//                         "search_analyzer": "simple"
+//                     }
+//                 }
+//             }
+//         }
+//     })
+//     .then((data)=>{
+//         console.log("Created Index!")
+//         return res.json({"Message": "Create successful"})
+//     })
+//     .catch(err=>{
+//         console.log(err)
+//     })
+// })
+
 
 router.post('/es-api/upload', (req, res) => {
     esClient.index({
@@ -652,7 +711,7 @@ router.post('/es-api/update', (req, res) => {
         id: req.fields.id,
         body: {
             doc: {
-                "name": req.fields.name.toLowerCase(),
+                "name": req.fields.name,
                 // "id": req.fields.id,
                 "description": req.fields.description,
                 "image": req.fields.image
@@ -688,47 +747,78 @@ router.get('/es-api/search', (req, res) => {
     esClient.search({
         index: "products",
         body: {
-            query: {
-                // fuzzy: {
-                //     name : {
-                //         value: searchText,
-                //         fuzziness: 5,
-                //         prefix_length: 0
-                //     }
-                // },
-                match: {
+            "query": {
+                "match":{
+                    // Specify the 'name' field to be matched against the searchText
                     "name": searchText
                 }
-            },
-            suggest: {
-                text: searchText,
-                gotsuggest: {
-                    term: {
-                        field: 'name',
-                        analyzer: 'simple',
-                        size: 3,
-                        sort: 'score',
-                        prefix_length: 0,
-                        min_word_length: 2,
-                        suggest_mode: "always"
-                    }
-                },
-                // otherSuggest: {
-                //     "completion": {
-                //         "field": "suggest"
+                // "fuzzy": {
+                //     "name": {
+                //         "value": searchText,
+                //         "fuzziness": 3,
+                //         "prefix_length": 0
                 //     }
                 // }
             }
         }
     })
     .then((data)=>{
-        console.log("Ran")
-        return res.json(data)
-    })
+            console.log("Ran")
+            return res.json(data)
+        })
     .catch((err)=>{
         return res.status(500).json({"Message": "Error"})
     })
 })
+
+
+
+// router.get('/es-api/search', (req, res) => {
+//     const searchText = req.query.text
+//     esClient.search({
+//         index: "products",
+//         body: {
+//             query: {
+//                 // fuzzy: {
+//                 //     name : {
+//                 //         value: searchText,
+//                 //         fuzziness: 5,
+//                 //         prefix_length: 0
+//                 //     }
+//                 // },
+//                 match: {
+//                     "name": searchText
+//                 }
+//             },
+//             suggest: {
+//                 text: searchText,
+//                 gotsuggest: {
+//                     term: {
+//                         field: 'name',
+//                         analyzer: 'simple',
+//                         size: 3,
+//                         sort: 'score',
+//                         prefix_length: 0,
+//                         min_word_length: 2,
+//                         suggest_mode: "always"
+//                     }
+//                 },
+//                 // otherSuggest: {
+//                 //     "completion": {
+//                 //         "field": "suggest"
+//                 //     }
+//                 // }
+//             }
+//         }
+//     })
+//     .then((data)=>{
+//         console.log("Ran")
+//         return res.json(data)
+//     })
+//     .catch((err)=>{
+//         return res.status(500).json({"Message": "Error"})
+//     })
+// })
 
 
 router.get('/es-api/suggest', (req, res) => {

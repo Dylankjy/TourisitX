@@ -7,8 +7,11 @@ Mappings:
 - Define fields of a document (Data Types, Operations to execute when indexing, etc)
 - String field can be indexed as a 'text' field for full-text search, and 'keyword' field for sorting/aggregations
 
-Mapping parameters can be found here:
+Field Mapping parameters can be found here:
 https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-params.html
+
+Data Types can be found here:
+https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html
 
 <Sample>
 
@@ -36,6 +39,7 @@ E.g
         }
     }
 }
+
 
 
 
@@ -81,5 +85,30 @@ E.g
                 "filter": ["lowercase"]
             }
         }
+    }
+}
+
+
+
+
+CUSTOM FILTERS
+-- If you want to define your own filters (Can be for Character or Token) (I.e NGrams, etc.)
+https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-tokenizers.html
+
+"filter": {
+    "my_custom_filter: {
+        // PARAMS HERE
+    }
+}
+
+
+
+E.g
+
+"filter": {
+    "my_autocomplete_filter": {
+        "type": "edge_ngram",
+        "min_gram": "1",
+        "max_gram": "40"
     }
 }
