@@ -1,16 +1,11 @@
-<head>
-    <!-- <link rel='stylesheet' href='/public/css/create_listing.css'> -->
-    <link rel='stylesheet' href='/third_party/alex/create_listing.css'>
-    <!-- <script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script> -->
-    <script src='/third_party/jquery-ui/jquery-ui.js'></script>
 
-    <script>
-        // When the document is ready, initialize the sortable item
-        $(document).ready(()=> {
-            $("#itineraryItems").sortable()
-        })
-    </script>
-</head>
+<!-- <link rel='stylesheet' href='/public/css/create_listing.css'> -->
+<link rel='stylesheet' href='/third_party/alex/create_listing.css'>
+<!-- <script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script> -->
+<script src='/third_party/jquery-ui/jquery-ui.js'></script>
+
+
+
 
 <!-- Convetion: Name will end with 's' and ID without -->
 <!-- Tour Title -------- Name:tourTitle      ID: NIL -->
@@ -27,26 +22,26 @@
 <div class='section'>
     <div class='columns'>
         <div class='column is-8 is-offset-2'>
-        <article class="message is-danger">
-            <div class="message-header">
-                <p>Errors</p>
-                <button class="delete" onclick="this.parentElement.parentElement.remove()"></button>
-            </div>
-            <div class='message-body'>
-            {{#each validationErrors}}
-                    <blockquote>{{this.msg}}</blockquote>    
-            {{/each}}
-            </div>
-        </article>
+            <article class="message is-danger">
+                <div class="message-header">
+                    <p>Errors</p>
+                    <button class="delete" onclick="this.parentElement.parentElement.remove()"></button>
+                </div>
+                <div class='message-body'>
+                    {{#each validationErrors}}
+                    <blockquote>{{this.msg}}</blockquote>
+                    {{/each}}
+                </div>
+            </article>
         </div>
     </div>
 </div>
 {{/if}}
 {{/if}}
 
-<form class="form-horizontal" enctype="multipart/form-data" method="POST" id='createListingForm'>    
+<form class="form-horizontal" enctype="multipart/form-data" method="POST" id='createListingForm'>
     <div class='section'>
-        
+
         <!-- TOUR TITLE -->
         <div class='container'>
             <div class='columns is-variable is-5 is-vcentered'>
@@ -61,7 +56,7 @@
                 <div class='column is-half'>
                     <input name='tourTitle' class="input is-primary" type="text" placeholder="Primary input">
                 </div>
-            </div>      
+            </div>
         </div>
 
         <!-- TOUR DESCRIPTION -->
@@ -78,7 +73,7 @@
                 <div class='column is-half' style='margin-top: 50px;'>
                     <textarea name='tourDesc' class="textarea is-primary" placeholder="e.g. Hello world"></textarea>
                 </div>
-            </div>      
+            </div>
         </div>
 
 
@@ -96,16 +91,16 @@
                 </div>
                 <div class='column is-1'>
                     <div class="select is-info">
-                            <select id='tourDuration' name='tourDuration'>
-                                <option></option>
-                            </select>
-                        </div>
+                        <select id='tourDuration' name='tourDuration'>
+                            <option></option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class='column'>
                     Hours
                 </div>
-            </div>      
+            </div>
         </div>
 
         <!-- TOUR TIMINGS -->
@@ -119,8 +114,8 @@
                         </h2>
                     </section>
                 </div>
-                
-                
+
+
                 <div class='column is-three-quarters' style='margin-top: 30px;'>
                     <div class="select is-info">
                         <select class='timeslots' id='tourTiming'>
@@ -132,7 +127,7 @@
 
                     </div>
                 </div>
-            </div>      
+            </div>
         </div>
 
         <!-- AVAILABLE DAYS -->
@@ -154,15 +149,15 @@
                     </div>
 
                     <div class='tag-container' id='dayTags'>
-                    
+
                     </div>
-                    
-                    
+
+
                 </div>
-            </div>      
+            </div>
         </div>
 
-        
+
 
 
         <!-- TOUR ITINERARY -->
@@ -181,21 +176,22 @@
                     <div class='control has-icons-right is-clickable'>
                         <input class='input is-success' id='itinerary-str'>
                         <span class='icon is-right'>
-                            <i class="fas fa-feather-alt" id='add-itinerary-icon' style="margin-right: 20px; pointer-events: initial"></i>
+                            <i class="fas fa-feather-alt" id='add-itinerary-icon'
+                                style="margin-right: 20px; pointer-events: initial"></i>
                         </span>
                     </div>
 
                     <ul class='ui-sortable' id='itineraryItems'>
                     </ul>
                 </div>
-            </div>      
+            </div>
         </div>
 
 
         <!-- TOUR LOCATION -->
         <div class='container'>
             <div class='columns is-variable is-5 is-vcentered'>
-                
+
                 <div class='column is-one-quarter' style="text-align:right;">
                     <section class="section">
                         <h1 class="title is-5">Tour Location</h1>
@@ -207,13 +203,13 @@
 
                 <div class='column is-4'>
                     <input id='tourLocation' class="input is-info" type='text' list='renderedLocations'>
-                        <datalist id="renderedLocations"></datalist>
+                    <datalist id="renderedLocations"></datalist>
                 </div>
 
                 <div class='column is-4 tag-container' id='locationTags'>
                 </div>
 
-            </div>      
+            </div>
         </div>
     </div>
 
@@ -231,7 +227,7 @@
             <div class='column is-2'>
                 <input name='tourPrice' class="input is-primary" type="number">
             </div>
-        </div>      
+        </div>
     </div>
 
 
@@ -249,7 +245,7 @@
             <div class='column is-2'>
                 <input name='tourPax' class="input is-primary" type="number">
             </div>
-        </div>      
+        </div>
     </div>
 
 
@@ -267,7 +263,7 @@
             <div class='column is-2'>
                 <input name='tourRevision' class="input is-primary" type="number">
             </div>
-        </div>      
+        </div>
     </div>
 
 
@@ -284,13 +280,13 @@
     <input name='finalItinerary' hidden>
     <input name='finalLocations' hidden>
 
-    
-   
+
+
 </form>
 
 
 
-<script defer>
+<script>
 
     // GLOBAL OBJECTS
 
@@ -326,16 +322,16 @@
     isEmptyArray = (arr) => {
         return arr.filter((n) => n).length == 0
     }
-    
+
     // Returns an array with trimmed elements and no empty elements
     trimmedArray = (arr) => {
         // Remove all whitespaces front and back of each element
-        arr = arr.map(x=>x.trim())
+        arr = arr.map(x => x.trim())
         // Remove all empty elements
-        arr = arr.filter(x=>x)
+        arr = arr.filter(x => x)
         return arr
-    } 
-    
+    }
+
 
     // INITIALIZER FUNCTIONS
     initializeDuration = () => {
@@ -346,8 +342,8 @@
         select.html('<option></option>')
         // select.html("")
 
-        for(var i = 1; i < 11.5; i+= 0.5) {
-            select.append(`<option value=${i}>${i}</option>`)        
+        for (var i = 1; i < 11.5; i += 0.5) {
+            select.append(`<option value=${i}>${i}</option>`)
         }
         console.log("Done Duration initialize!")
     }
@@ -355,14 +351,14 @@
     // Takes number (minutes) and returns a string
     // Takes 420 and returns 7am
     numToTime = (i) => {
-        hours = Math.floor(i/60)
-        minutes = i%60
+        hours = Math.floor(i / 60)
+        minutes = i % 60
         if (minutes == 0) {
             minutes = '0' + minutes
         }
-        ampm = hours%24 < 12 ? "AM" : "PM"
+        ampm = hours % 24 < 12 ? "AM" : "PM"
         hours = hours % 12
-        if (hours===0) {
+        if (hours === 0) {
             hours = 12
         }
 
@@ -375,11 +371,11 @@
         tmp = x.split(':')[1]
         min = parseInt(tmp.split(' ')[0])
         ampm = tmp.split(' ')[1]
-        hours = hours%12
+        hours = hours % 12
         if (ampm == 'PM') {
             hours += 12
         }
-        
+
         num = (hours * 60) + min
         return num
     }
@@ -399,21 +395,21 @@
         var numArr = []
 
         // To get the list of nums of already selected time ranges
-        arr.forEach((timeRange) =>{
+        arr.forEach((timeRange) => {
             start = timeRange.split(' - ')[0]
             end = timeRange.split(' - ')[1]
             startNum = timeToNum(start)
             endNum = timeToNum(end)
-            for(i = startNum; i<= endNum; i+= 30) {
+            for (i = startNum; i <= endNum; i += 30) {
                 numArr.push(i)
             }
         })
 
         $("#tourTiming").html("<option>-</option>")
 
-            
-        for(var i = 420; i < 1380 - duration; i+= 30) {
-            if (numArr.includes(i) || numArr.includes(i+duration)) {
+
+        for (var i = 420; i < 1380 - duration; i += 30) {
+            if (numArr.includes(i) || numArr.includes(i + duration)) {
                 continue
             }
             var start = numToTime(i)
@@ -429,7 +425,7 @@
         var currentTime = $("#tourTiming").val()
         if (currentTime != '-') {
             selectedTimeArray.push(currentTime)
-        }   
+        }
     }
 
     // If it has "Specific" means it adds using user-defined input (time)
@@ -437,7 +433,7 @@
     updateSpecificTimeRangeArray = (time) => {
         if (time != '-') {
             selectedTimeArray.push(time)
-        }   
+        }
     }
 
     // Updater
@@ -454,7 +450,7 @@
     // 3. Update the rendered time ranges (Which changes because the selectedTimeArray has changed)
     addTimeTag = () => {
         $("#timeTags").html("")
-        selectedTimeArray.forEach((timeRange)=>{
+        selectedTimeArray.forEach((timeRange) => {
             var elem = `<span class="tag is-primary is-medium" style="margin-left: 10px;">
                             ${timeRange} 
                             <i class="fas fa-trash-alt" onclick='this.parentElement.remove();removeTimeRange("${timeRange}");updateTiming()' style="margin-left: 20px;"></i>
@@ -492,7 +488,7 @@
         selector = $("#tourDay")
         // Reset the array first
         selector.html("<option>-</option>")
-        allDays.forEach((day)=>{
+        allDays.forEach((day) => {
             selector.append(`<option>${day}</option>`)
         })
     }
@@ -503,12 +499,12 @@
         selector = $("#tourDay")
         // Reset the array first
         selector.html("<option>-</option>")
-        allDays.forEach((day)=>{
+        allDays.forEach((day) => {
             // If the day isn't selected yet, we render it
             if (!selectedDayArray.includes(day)) {
                 selector.append(`<option>${day}</option>`)
             }
-            
+
         })
     }
 
@@ -518,14 +514,14 @@
         currentDay = $("#tourDay").val()
         if (currentDay != '-') {
             selectedDayArray.push(currentDay)
-        }   
+        }
     }
 
 
     updateSpecificSelectedDayArray = (day) => {
         if (day != '-') {
             selectedDayArray.push(day)
-        }   
+        }
     }
 
     // Array Updater
@@ -534,11 +530,11 @@
         selectedDayArray = selectedDayArray.filter(e => e !== val)
     }
 
-    
+
     // Initializer
     addDayTag = () => {
         $("#dayTags").html("")
-        selectedDayArray.forEach((day)=>{
+        selectedDayArray.forEach((day) => {
             var elem = `<span class="tag is-primary is-medium" style="margin-left: 10px;">
                             ${day} 
                             <i class="fas fa-trash-alt" onclick='this.parentElement.remove();removeDay("${day}");updateDays()' style="margin-left: 20px;"></i>
@@ -583,13 +579,13 @@
         // Sortable + Editable for Itinerary list
         // Must call this everytime I add an itinerary item so that this onclick trigger applies to them too
         // When I double-click, I can edit the string inside (But I cannot sort it)
-        $(".itinerary-item").on('dblclick', ()=>{
-            $("#itineraryItems").sortable({cancel: ':input,button,[contenteditable="true"]'})
+        $(".itinerary-item").on('dblclick', () => {
+            $("#itineraryItems").sortable({ cancel: ':input,button,[contenteditable="true"]' })
         })
 
         // When I click away, I can no longer edit the string, but I can now sort it
-        $(".itinerary-item").on('focusout', ()=>{
-            $("#itineraryItems").sortable({cancel: ""})
+        $(".itinerary-item").on('focusout', () => {
+            $("#itineraryItems").sortable({ cancel: "" })
         })
     }
 
@@ -608,13 +604,13 @@
         // Sortable + Editable for Itinerary list
         // Must call this everytime I add an itinerary item so that this onclick trigger applies to them too
         // When I double-click, I can edit the string inside (But I cannot sort it)
-        $(".itinerary-item").on('dblclick', ()=>{
-            $("#itineraryItems").sortable({cancel: ':input,button,[contenteditable="true"]'})
+        $(".itinerary-item").on('dblclick', () => {
+            $("#itineraryItems").sortable({ cancel: ':input,button,[contenteditable="true"]' })
         })
 
         // When I click away, I can no longer edit the string, but I can now sort it
-        $(".itinerary-item").on('focusout', ()=>{
-            $("#itineraryItems").sortable({cancel: ""})
+        $(".itinerary-item").on('focusout', () => {
+            $("#itineraryItems").sortable({ cancel: "" })
         })
     }
 
@@ -629,7 +625,7 @@
         createdItinerary = createdItinerary.map(x => x.replaceAll(",", ";!;"))
     }
 
-    
+
 
 
 
@@ -639,21 +635,21 @@
     // TOUR LOCATION
     var TIH_API_KEY = "GgjNvD9p8MA6c3emVYknlImLc5cAdj7X"
 
-    updateSelectedLocationArray = () =>{
+    updateSelectedLocationArray = () => {
         currentLocation = $("#tourLocation").val()
         selectedLocationArray.push(currentLocation)
     }
 
-    updateSpecificSelectedLocationArray = (location) =>{
+    updateSpecificSelectedLocationArray = (location) => {
         currentLocation = location
         selectedLocationArray.push(currentLocation)
     }
 
     removeLocation = (val) => {
-        selectedLocationArray = selectedLocationArray.filter(e => e!== val)
+        selectedLocationArray = selectedLocationArray.filter(e => e !== val)
     }
 
-    addLocationTag = () =>{
+    addLocationTag = () => {
         let selectedLocation = $("#tourLocation").val()
         updateSelectedLocationArray()
         $("#tourLocation").val("")
@@ -665,7 +661,7 @@
         locationTags.append(elem)
     }
 
-    addSpecificLocationTag = (location) =>{
+    addSpecificLocationTag = (location) => {
         let selectedLocation = location
         updateSpecificSelectedLocationArray(selectedLocation)
         $("#tourLocation").val("")
@@ -688,67 +684,26 @@
 
 
 
-    // Tour Image
-
-    // renderImage = (input) =>{
-    //     var reader = new FileReader()
-    //     reader.onload = (e) => {
-    //         $("renderImg").attr("src", e.target.result)
-    //     }
-    //     reader.readAsDataURL(input.files[0]);
-    // }
-
-    // toBase64 = (file) => {
-    //     var reader = new FileReader()
-    //     reader.readAsDataURL(file)
-    //     reader.onload = () => {
-    //         $('#renderImg').attr('src', reader.result);
-    //     }
-    //     reader.onerror = (error) => {
-    //         console.log('Error: ', error)
-    //     }
-    // }
-
-
-
-    // renderImage = () => {
-    //     var c = document.getElementById("renderImg");
-    //     var ctx = c.getContext("2d");
-    //     var file = $("#tourImg").prop('files')[0]
-    //     ctx.drawImage(file, 10, 10);
-    // }
-
-
-
-
-
-
-
-
-
-
-
-
     // Place all listeners inside this function
-    $(window).on('load', ()=>{
+    $(window).on('load', () => {
 
         // All initialization functions here
         initializeDuration()
         initializeDays()
 
-        $("#tourDuration").on('change', ()=>{
+        $("#tourDuration").on('change', () => {
             console.log("DURATION CHANGE")
-                // Reset the selectedTimeArray first, so it can contain the new duration ranges
-                selectedTimeArray = []
-                // Reset the timings to be displayed on the dropdown, following the new duration
-                updateTiming()
-                // Reset all the preselected time tags
-                resetTimeTag()
-            }
+            // Reset the selectedTimeArray first, so it can contain the new duration ranges
+            selectedTimeArray = []
+            // Reset the timings to be displayed on the dropdown, following the new duration
+            updateTiming()
+            // Reset all the preselected time tags
+            resetTimeTag()
+        }
         )
 
         // Every time we click on a tour Timing, we want to add it to the internal array, as well as update the rendered time ranges. We also want to add the time range tag
-        $("#tourTiming").on('change', ()=>{
+        $("#tourTiming").on('change', () => {
             updateTimeRangeArray()
             updateTiming()
             addTimeTag()
@@ -756,7 +711,7 @@
 
 
         // When a day is selected
-        $("#tourDay").on('change', ()=>{
+        $("#tourDay").on('change', () => {
             // Append selected option to array
             updateSelectedDayArray()
             // Update the rendered days
@@ -768,7 +723,7 @@
 
         // Tour Itinerary, Define function to run when the icon is clicked
         // When feather icon is clicked, add the current input to the list
-        $("#add-itinerary-icon").on('click', ()=>{
+        $("#add-itinerary-icon").on('click', () => {
             if ($("#itinerary-str").val().trim() != '') {
                 addItineraryItem()
             } else {
@@ -778,9 +733,9 @@
         })
 
 
-        
+
         // Tour Location, when a location is typed, trigger fetch API call and autocomplete
-        $("#tourLocation").on("keyup", ()=>{
+        $("#tourLocation").on("keyup", () => {
             var selector = $("#renderedLocations")
             var typedLocation = $("#tourLocation").val()
             // Reset the selector
@@ -790,23 +745,23 @@
             if (typedLocation.length > 4) {
                 // fetch data from the TIH API
                 fetch(`https://tih-api.stb.gov.sg/map/v1/autocomplete/type/address?input=${typedLocation}&apikey=${TIH_API_KEY}`)
-                .then((res)=>{
-                    return res.json()
-                }).then((data)=>{
-                    // console.log(data["data"])
-                    data["data"].forEach((elem)=>{
-                        // If the location was previously selected, won't render again
-                        if (!selectedLocationArray.includes(elem["description"])) {
-                            selector.append(`<option value='${elem["description"]}' id='location-elem'>`)
-                        }
+                    .then((res) => {
+                        return res.json()
+                    }).then((data) => {
+                        // console.log(data["data"])
+                        data["data"].forEach((elem) => {
+                            // If the location was previously selected, won't render again
+                            if (!selectedLocationArray.includes(elem["description"])) {
+                                selector.append(`<option value='${elem["description"]}' id='location-elem'>`)
+                            }
+                        })
                     })
-                })
-            } 
+            }
         })
 
 
         // When a location from the dropdown is selected
-        $("#tourLocation").on("change", ()=>{
+        $("#tourLocation").on("change", () => {
             // Add the tag to the box
             addLocationTag()
         })
@@ -824,18 +779,18 @@
 
 
         // Right before submitting, I want to run these stuff
-        $("#createListingForm").on('submit', ()=>{
+        $("#createListingForm").on('submit', () => {
             // Don't have to update these, because these are constantly updated when changed/deleted (Because they are used to render the outputs)
             $('input:hidden[name=finalTimings]').val(selectedTimeArray)
             $('input:hidden[name=finalDays]').val(selectedDayArray)
-            
+
             // Replace all commas with ';!;'
             removeCommaLocationTag()
             $('input:hidden[name=finalLocations]').val(selectedLocationArray)
 
             updateCreatedItineraryArray()
             $('input:hidden[name=finalItinerary]').val(createdItinerary)
-            
+
             // Remove whitespaces 
             $("input[name=tourTitle]").val($.trim($("input[name=tourTitle]").val()))
             $("textarea[name=tourDesc]").val($.trim($("textarea[name=tourDesc]").val()))
@@ -865,13 +820,13 @@
             // Trigger the change function for the tourDuration so I can update the Tour Timings
             // If I simply use jQuery to set the value, the 'change' function won't trigger so I'll have to manually trigger it
             $("select[name=tourDuration]").trigger("change")
-        
+
 
             // Tour Timings
             var existingTimings = storedValues.finalTimings.split(',')
             console.log("Running for TIMINGS")
             if (existingTimings != '') {
-                existingTimings.forEach((timing)=>{
+                existingTimings.forEach((timing) => {
                     console.log(`Ran for time ${timing}`)
                     updateSpecificTimeRangeArray(timing)
                     updateTiming()
@@ -880,13 +835,13 @@
             } else {
                 console.log("Time works correctly now")
             }
-            
+
 
 
             // Tour Days
             var existingDays = storedValues.finalDays.split(',')
             if (existingDays != '') {
-                existingDays.forEach((day)=>{
+                existingDays.forEach((day) => {
                     console.log(`Ran for day ${day}`)
                     updateSpecificSelectedDayArray(day)
                     updateDays()
@@ -900,7 +855,7 @@
             // Tour Itinerary
             var existingItinerary = storedValues.finalItinerary.split(',')
             if (existingItinerary != '') {
-                existingItinerary.forEach((itinerary)=>{
+                existingItinerary.forEach((itinerary) => {
                     // Reverse the replace operation just now. Fill back the commas
                     itinerary = itinerary.replaceAll(";!;", ',')
                     addSpecificItineraryItem(itinerary)
@@ -914,7 +869,7 @@
 
             var existingLocations = storedValues.finalLocations.split(',')
             if (existingLocations != '') {
-                existingLocations.forEach((location)=>{
+                existingLocations.forEach((location) => {
                     // Reverse the replace operation just now. Fill back the commas
                     location = location.replaceAll(";!;", ',')
                     addSpecificLocationTag(location)
@@ -923,8 +878,14 @@
             } else {
                 console.log("Days works fine too")
             }
-            
+
         }
-      
+
+    })
+
+
+    $(document).on('turbolinks:load', () => {
+        $("#itineraryItems").sortable()
+        console.log("RAN THIS THING")
     })
 </script>

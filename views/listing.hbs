@@ -3,6 +3,20 @@
     <link rel='stylesheet' href='/third_party/alex/listing.css'>
 </head>
 
+<section class='section'>
+    <a href='/listing'>
+        <button class='button is-danger is-lighted'>
+            <span class='icon'>
+                <i class="fas fa-arrow-left"></i>
+            </span>
+            <span>
+                Back to Home
+            </span>
+        </button>
+    </a>
+</section>
+
+
 <section class="section" style="padding-top: 5rem">
     <div class='container'>
         <div class='box'>
@@ -30,6 +44,7 @@
 
 
                 <div class="column is-4">
+                    
                     <div class="timeline">
 
                         <header class="timeline-header">
@@ -72,6 +87,14 @@
                         <p class='subtitle is-6'>{{this}}</p>
                         {{/each}}
                     </div>
+                    
+                    <div class='content'>
+                        <h1 class='title is-4'>Tour Locations:</h1>
+                        {{#each (readArrWithReplace data.finalLocations)}}
+                        <p class='subtitle is-6'>{{this}}</p>
+                        {{/each}}
+                    </div>
+                    
                 </div>
 
             </div>
@@ -98,7 +121,7 @@
                 </button>
 
                 {{else}}
-                <a href='http://localhost:5000/listing/edit/{{data.id}}' target='_blank'>
+                <a href='/listing/edit/{{data.id}}'>
                     <button class='button is-darker-warning' target>
                             <span class='icon'>
                                 <i class="fas fa-edit"></i>
@@ -130,6 +153,7 @@
                 </button>
                 {{/if}}
 
+                <a href="/listing/delete/{{data.id}}">
                 <button class='button is-danger is-light'>
                     <span class='icon'>
                         <i class="fas fa-trash"></i>
@@ -138,6 +162,7 @@
                         Delete Listing
                     </span>
                 </button>
+                </a>
                 {{/if}}
         </div>
     </div>

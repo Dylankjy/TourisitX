@@ -14,13 +14,23 @@
 <section class='section'>
     <div class='container'>
         {{#if (emptyArr datas)}}
-        <h1 class="'has-text-dark">Nothing to show here.</h1>
+        <p class="subtitle">You haven't added any Tours yet</p>
+        <a href='/listing/create'>
+            <button class='button is-success is-outlined'>
+                <span class='icon'>
+                    <i class="fas fa-plus"></i>
+                </span>
+                <span>
+                    Add a Tour
+                </span>
+            </button>
+        </a>
         {{else}}
 
         {{#each datas}}
     
             <div class='listing-banner'>
-                <a class='listing-link' href='/listing/{{this.id}}'>
+                <a class='listing-link' href='/listing/info/{{this.id}}'>
                     <p class='title is-5'>{{this.tourTitle}}</p>
                 </a>
             </div>

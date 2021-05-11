@@ -67,6 +67,11 @@ module.exports = (sequelize, DataTypes) =>{
             allowNull: false
         },
 
+        hidden: {
+            type: DataTypes.STRING,
+            allowNull: false
+        }
+
     }, 
     
     {

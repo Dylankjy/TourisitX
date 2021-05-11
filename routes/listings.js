@@ -234,6 +234,16 @@ emptyArray = (arr) => {
 
 // Put all your routings below this line -----
 
+// Show the user all of their own listings
+router.get('/', (req, res)=>{
+    Shop.findAll({where:{
+        // Set to empty now, but it should be replaced with the userID when authentication library is out
+        userId: "sample"
+    }}).then((items)=>{
+        var itemsArr = items.map(x=>x["dataValues"])
+        res.render('tourGuide/myListings.hbs' , {datas: itemsArr})
+    }).catch(err=>console.log)
+})
 
 
 
@@ -244,7 +254,6 @@ router.get('/create', (req, res) => {
     // If you have to re-render the page due to errors, there will be cookie storedValue and you use this
     // To use cookie as JSON in javascipt, must URIdecode() then JSON.parse() it
     if (req.cookies.storedValues) {
-        console.log("There are SAVED values")
         const storedValues = JSON.parse(req.cookies.storedValues)
     } else {
         const storedValues = {}
@@ -297,11 +306,10 @@ router.post('/create', (req, res)=>{
     // .getResult()
 
     // Evaluate the files and fields data separately
-    var validationErrors = removeNull([nameResult, descResult, durationResult, timingResult, dayResult, itineraryResult, priceResult, paxResult, revResult])
+    var validationErrors = removeNull([nameResult, descResult, durationResult, timingResult, dayResult, itineraryResult, locationResult, priceResult, paxResult, revResult])
 
     // If there are errors, re-render the create listing page with the valid error messages
     if (!emptyArray(validationErrors)) {
-        console.log("UNCESSESSFUL")
         res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
         res.redirect(`/listing/create`)
         
@@ -326,7 +334,8 @@ router.post('/create', (req, res)=>{
             finalDays: req.fields.finalDays,
             finalItinerary: req.fields.finalItinerary,
             finalLocations: req.fields.finalLocations,
-            tourImage: "default.jpg"
+            tourImage: "default.jpg",
+            hidden: "false"
         }).catch((err)=>{
             console.log(err)
         })
@@ -339,12 +348,10 @@ router.post('/create', (req, res)=>{
 
 
 router.get('/edit/:savedId', (req, res)=>{
-    console.log("GET THE EDIT PAGE")
     Shop.findAll({where:{
         id: req.params.savedId
     }}).then((items)=>{
         var savedData = items[0]["dataValues"]
-        console.log(savedData)
         // Validate that the user can edit the listing
         // if (userID == savedData["userId"])
         res.cookie('storedValues', JSON.stringify(savedData), {maxAge: 5000})
@@ -392,28 +399,17 @@ router.post('/edit/:savedId', (req, res)=>{
     let revResult = v.Initialize({ name: 'tourRevision', errorMessage: 'Tour Revision cannot be negative'}).exists().isValue({min:0})
     .getResult()
 
-    // Initialize Image Validator using req.files
-    // const imgV = new FileValidator(req.files)
-    // let imgResult = imgV.Initialize({ errorMessage: 'Please provide a Tour Image (.png/.jpg allowed < 3MB)'}).fileExists().sizeAllowed({maxSize: 300000}).extAllowed(['.jpg', '.png'])
-    // .getResult()
+    var validationErrors = removeNull([nameResult, descResult, durationResult, timingResult, dayResult, itineraryResult, locationResult, priceResult, paxResult, revResult])
 
-    // Evaluate the files and fields data separately
-    var validationErrors = removeNull([nameResult, descResult, durationResult, timingResult, dayResult, itineraryResult, priceResult, paxResult, revResult])
-
-    // If there are errors, re-render the create listing page with the valid error messages
     if (!emptyArray(validationErrors)) {
-        console.log("UNCESSESSFUL")
         res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
-        console.log("REDIRECT FOR EDIT POST")
         res.redirect(`/listing/edit/${req.params.savedId}`)
         
-    } else { // If successful
-        // Remove cookies for stored form values + validation errors
+    } else {
         res.clearCookie('validationErrors')
         res.clearCookie('storedValues')
         res.clearCookie('savedImageName')
 
-        console.log("GONING TO SAVE EDITTED LISTING")
         Shop.update({
             tourTitle: req.fields.tourTitle,
             tourDesc: req.fields.tourDesc,
@@ -424,8 +420,7 @@ router.post('/edit/:savedId', (req, res)=>{
             finalTimings: req.fields.finalTimings,
             finalDays: req.fields.finalDays,
             finalItinerary: req.fields.finalItinerary,
-            finalLocations: req.fields.finalLocations,
-            tourImage: "default.jpg"
+            finalLocations: req.fields.finalLocations
         }, {
             where: { id: req.params.savedId }
         }).catch((err)=>{
@@ -437,29 +432,33 @@ router.post('/edit/:savedId', (req, res)=>{
 })
 
 
-// Show the user all of their own listings
-router.get('/', (req, res)=>{
-    Shop.findAll({where:{
-        // Set to empty now, but it should be replaced with the userID when authentication library is out
-        userId: "sample"
-    }}).then((items)=>{
-        var itemsArr = items.map(x=>x["dataValues"])
-        console.log(itemsArr)
-        res.render('tourGuide/myListings.hbs' , {datas: itemsArr})
-    }).catch(err=>console.log)
+router.get('/delete/:savedId', (req, res)=>{
+    Shop.destroy({
+        where: {
+            id: req.params.savedId
+        }
+    }).then((data)=>{
+        res.send("Deleted!")
+    }).catch((err)=>{
+        console.log(err)
+    })
 })
 
 
+router.get('/explore', (req, res)=>{
+    console.log("THIS RAN")
+    res.render("marketplace.hbs")
+})
+
 
 // To get a specific listing
-router.get('/:id', (req, res)=>{
+router.get('/info/:id', (req, res)=>{
     var itemID = req.params.id
 
     Shop.findAll({where:{
         id: itemID
     }}).then((items)=>{
         var data = items[0]["dataValues"]
-        console.log(data["finalItinerary"])
         res.render('listing.hbs', {data: data})
     }).catch(err=>console.log)
 }) 
@@ -482,6 +481,21 @@ router.get('/api/getImage/:id', (req, res)=>{
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Elastic Search stuff
 
 const esClient = elasticSearch.Client({
@@ -489,14 +503,114 @@ const esClient = elasticSearch.Client({
 })
 
 
-router.post('/upload', (req, res) => {
-    esClient.index({
+// router.get('/es-api/create-index', (req, res)=>{
+//     esClient.indices.create({
+//         index: 'products',
+//         body: {
+//             mappings: {
+//                 properties: {
+//                     suggest: {
+//                         "type": "completion"
+//                     },
+//                     "name": 
+//                     {"type": "text",
+//                     "fields": {
+//                         "trigram": {
+//                             type: "text",
+//                             analyzer: 'trigram'
+//                         },
+//                         "reverse": {
+//                             type: "text",
+//                             analyzer: "reverse"
+//                         }
+//                     }
+//                 },
+//                     // set index to false, as you only need to index the name for searching
+//                     "description": {"type": "text", "index": false},
+//                     "image": {"type": "text", "index": false},
+//                     suggest: {
+//                         type: "completion"
+//                     }
+//                 }
+//             },
+//             settings: {
+//                 analysis: {
+//                     analyzer: {
+//                         trigram: {
+//                             type: "custom",
+//                             tokenizer: "standard",
+//                             "filter": ["lowercase", "shingle"]
+//                         },
+//                         reverse: {
+//                             type: "custom",
+//                             tokenizer: "standard",
+//                             "filter": ["lowercase", "reverse"]
+//                         }
+//                     },
+//                     filter: {
+//                         shingle: {
+//                             type: "shingle",
+//                             "min_shingle_size": 2,
+//                             "max_shingle_size": 3
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//     })
+//     .then((data)=>{
+//         console.log("Created Index!")
+//         return res.json({"Message": "Create successful"})
+//     })
+//     .catch(err=>{
+//         console.log(err)
+//     })
+// })
+
+
+
+router.get('/es-api/create-index', (req, res)=>{
+    esClient.indices.create({
         index: 'products',
         body: {
-            "id": req.fields.id,
+            mappings: {
+                properties: {
+                    "name": {"type": "text"},
+                    // set index to false, as you only need to index the name for searching
+                    "description": {"type": "text", "index": false},
+                    "image": {"type": "text", "index": false},
+                    "suggest": {
+                        "type": "completion",
+                        "analyzer": "simple",
+                        "search_analyzer": "simple"
+                    }
+                }
+            }
+        }
+    })
+    .then((data)=>{
+        console.log("Created Index!")
+        return res.json({"Message": "Create successful"})
+    })
+    .catch(err=>{
+        console.log(err)
+    })
+})
+
+router.post('/es-api/upload', (req, res) => {
+    esClient.index({
+        index: 'products',
+        // Need to define the ID here so you can update using ID
+        id: req.fields.id,
+        body: {
             "name": req.fields.name,
+            // "id": req.fields.id,
             "description": req.fields.description,
-            "image": req.fields.image
+            "image": req.fields.image,
+            // "suggest": {
+            //     input: req.fields.name.split(' '),
+            // },
+            // "output": req.fields.name
         }
     })
     .then((data)=>{
@@ -509,23 +623,129 @@ router.post('/upload', (req, res) => {
 })
 
 
-router.get('/search', (req, res) => {
+// router.post('/es-api/upload', (req, res) => {
+//     esClient.index({
+//         index: 'products',
+//         // Need to define the ID here so you can update using ID
+//         id: req.fields.id,
+//         body: {
+//             "name": req.fields.name,
+//             // "id": req.fields.id,
+//             "description": req.fields.description,
+//             "image": req.fields.image
+//         }
+//     })
+//     .then((data)=>{
+//         console.log("Indexed!")
+//         return res.json({"Message": "Indexing successful"})
+//     })
+//     .catch(err=>{
+//         console.log(err)
+//     })
+// })
+
+
+
+router.post('/es-api/update', (req, res) => {
+    esClient.update({
+        index: 'products',
+        id: req.fields.id,
+        body: {
+            doc: {
+                "name": req.fields.name.toLowerCase(),
+                // "id": req.fields.id,
+                "description": req.fields.description,
+                "image": req.fields.image
+            }  
+        }
+    })
+    .then((data)=>{
+        console.log("Updated!")
+        return res.json({"Message": "Update successful"})
+    })
+    .catch(err=>{
+        console.log(err)
+    })
+})
+
+
+router.get('/es-api/delete', (req, res) => {
+    esClient.indices.delete({
+        index: 'products'
+    })
+    .then((data)=>{
+        console.log("Deleted!")
+        return res.json({"Message": "Delete successful"})
+    })
+    .catch(err=>{
+        console.log(err)
+    })
+})
+
+
+router.get('/es-api/search', (req, res) => {
     const searchText = req.query.text
     esClient.search({
         index: "products",
         body: {
             query: {
-                fuzzy: {
-                    name : {
-                        value: searchText.trim(),
-                        fuzziness: 5
-                    }
+                // fuzzy: {
+                //     name : {
+                //         value: searchText,
+                //         fuzziness: 5,
+                //         prefix_length: 0
+                //     }
+                // },
+                match: {
+                    "name": searchText
                 }
+            },
+            suggest: {
+                text: searchText,
+                gotsuggest: {
+                    term: {
+                        field: 'name',
+                        analyzer: 'simple',
+                        size: 3,
+                        sort: 'score',
+                        prefix_length: 0,
+                        min_word_length: 2,
+                        suggest_mode: "always"
+                    }
+                },
+                // otherSuggest: {
+                //     "completion": {
+                //         "field": "suggest"
+                //     }
+                // }
             }
         }
     })
     .then((data)=>{
         console.log("Ran")
+        return res.json(data)
+    })
+    .catch((err)=>{
+        return res.status(500).json({"Message": "Error"})
+    })
+})
+
+
+router.get('/es-api/suggest', (req, res) => {
+    const searchText = req.query.text
+    esClient.search({
+        index: "products",
+        body: {
+            suggest: {
+                gotsuggest: {
+                    text: searchText,
+                    term: {field: 'name'}
+                }
+            }
+        }
+    })
+    .then((data)=>{
+        console.log("Ran suggester")
         return res.json(data)
     })
     .catch((err)=>{
