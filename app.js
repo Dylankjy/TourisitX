@@ -65,8 +65,8 @@ app.engine('hbs', exphbs({
         },
 
         readArrWithReplace: (value, options) =>{
-            var arr = value.split(',')
-            arr = arr.map(e=>e.replace(';!;', ','))
+            let arr = value.split(',')
+            arr = arr.map((e)=>e.replace(';!;', ','))
             return arr
         },
 
@@ -76,7 +76,7 @@ app.engine('hbs', exphbs({
 
         emptyArr: (value, options) =>{
             return (value.length == 0)
-        }
+        },
     },
 }))
 

@@ -16,10 +16,9 @@ const elasticSearch = require('elasticsearch')
 const io = require('socket.io')
 
 
-
 // Globals
 const router = express.Router()
-const {Shop} = require('../models')
+const { Shop } = require('../models')
 
 
 // bin\elasticsearch.bat
@@ -81,7 +80,7 @@ class Validator {
     // Returns the JSON result of the validation
     getResult() {
         if (this.result == false) {
-            return {result: this.result, msg: this.errMsg }
+            return { result: this.result, msg: this.errMsg }
         }
         return null
     }
@@ -100,7 +99,7 @@ class FileValidator {
     }
 
     fileExists() {
-        if (this.data["resume"]["_writeStream"]["bytesWritten"] == 0) {
+        if (this.data['resume']['_writeStream']['bytesWritten'] == 0) {
             this.result = false
             return this
         }
@@ -108,14 +107,14 @@ class FileValidator {
     }
 
     sizeAllowed(options) {
-        if (this.data["resume"]["_writeStream"]["bytesWritten"] > options.maxSize) {
+        if (this.data['resume']['_writeStream']['bytesWritten'] > options.maxSize) {
             this.result = false
-        } 
+        }
         return this
     }
 
     extAllowed(allowedExtensions) {
-        let extName = path.extname(this.data["resume"]["name"])
+        const extName = path.extname(this.data['resume']['name'])
         if (!allowedExtensions.includes(extName)) {
             this.result = false
         }
@@ -123,16 +122,13 @@ class FileValidator {
     }
 
 
-
     getResult() {
         if (this.result == false) {
-            return {result: this.result, msg: this.errMsg }
+            return { result: this.result, msg: this.errMsg }
         }
         return null
     }
-
 }
-
 
 
 // Will convert Image to base64.
@@ -188,11 +184,13 @@ getImage = (req, callback) => {
 // To save image to specified folder. A UUID will be given as name
 // filePath -- received path; ext - extension of file; folder - folder to save image to
 storeImage = (filePath, fileExt, folder) =>{
-    var imgName = uuid.v4()
+    const imgName = uuid.v4()
     fs.readFile(filePath, (err, data) => {
-        var imgBuffer = Buffer.from(data)
+        const imgBuffer = Buffer.from(data)
         fileExt = fileExt.replace('.', '')
-        fs.writeFile(`${folder}/${imgName}.${fileExt}`, imgBuffer, (err) => {console.log(err)})
+        fs.writeFile(`${folder}/${imgName}.${fileExt}`, imgBuffer, (err) => {
+            console.log(err)
+        })
     })
     return `${imgName}.${fileExt}`
 }
@@ -204,25 +202,24 @@ storeImage = (filePath, fileExt, folder) =>{
 sameImage = (dbImg, localImgObject) => {
     return new Promise((res, rej)=>{
         imageToB64Promise(`savedImages/${filename}`, path.extname(filename))
-        .then((dbImgDataB64)=>{
-            fs.readFile(localImg["path"], (err, localImgData)=>{
-                var localImgDataB64 = Buffer.from(localImgData).toString('base64')
-                localImgDataB64 = `data:${type};base64, ${base64}`
-                if (localImgDataB64 == dbImgDataB64) {
-                    console.log("THe 2 images are the same")
-                    return true
-                } else {
-                    console.log("The 2 images are different")
-                    return false
-                }
+            .then((dbImgDataB64)=>{
+                fs.readFile(localImg['path'], (err, localImgData)=>{
+                    let localImgDataB64 = Buffer.from(localImgData).toString('base64')
+                    localImgDataB64 = `data:${type};base64, ${base64}`
+                    if (localImgDataB64 == dbImgDataB64) {
+                        console.log('THe 2 images are the same')
+                        return true
+                    } else {
+                        console.log('The 2 images are different')
+                        return false
+                    }
+                })
             })
-        })
-        .catch((err)=>{
-            console.log(err)
-        })
+            .catch((err)=>{
+                console.log(err)
+            })
     })
 }
-
 
 
 removeNull = (arr) => {
@@ -237,15 +234,14 @@ emptyArray = (arr) => {
 
 // Show the user all of their own listings
 router.get('/', (req, res)=>{
-    Shop.findAll({where:{
+    Shop.findAll({ where: {
         // Set to empty now, but it should be replaced with the userID when authentication library is out
-        userId: "sample"
-    }}).then((items)=>{
-        var itemsArr = items.map(x=>x["dataValues"])
-        res.render('tourGuide/myListings.hbs' , {datas: itemsArr})
-    }).catch(err=>console.log)
+        userId: 'sample',
+    } }).then((items)=>{
+        const itemsArr = items.map((x)=>x['dataValues'])
+        res.render('tourGuide/myListings.hbs', { datas: itemsArr })
+    }).catch((err)=>console.log)
 })
-
 
 
 // can we use shards? (Like how we did product card that time, pass in a json and will fill in the HTML template)
@@ -271,35 +267,35 @@ router.post('/create', (req, res)=>{
     const v = new Validator(req.fields)
 
     // Doing this way so its cleaner. Can also directly call these into the removeNull() array
-    let nameResult = v.Initialize({ name: 'tourTitle', errorMessage: 'Tour Title must be min 5 characters long'}).exists().isLength({ min: 5 })
+    const nameResult = v.Initialize({ name: 'tourTitle', errorMessage: 'Tour Title must be min 5 characters long' }).exists().isLength({ min: 5 })
         .getResult()
 
-    let descResult = v.Initialize({ name: 'tourDesc', errorMessage: 'Please enter a Tour description'}).exists()
+    const descResult = v.Initialize({ name: 'tourDesc', errorMessage: 'Please enter a Tour description' }).exists()
         .getResult()
 
-    let durationResult = v.Initialize({ name: 'tourDuration', errorMessage: 'Please enter a Tour Duration'}).exists()
+    const durationResult = v.Initialize({ name: 'tourDuration', errorMessage: 'Please enter a Tour Duration' }).exists()
         .getResult()
 
-    let timingResult = v.Initialize({ name: 'finalTimings', errorMessage: 'Please provide a Tour Timing'}).exists()
+    const timingResult = v.Initialize({ name: 'finalTimings', errorMessage: 'Please provide a Tour Timing' }).exists()
         .getResult()
 
-    let dayResult = v.Initialize({ name: 'finalDays', errorMessage: 'Please provide a Tour Day'}).exists()
+    const dayResult = v.Initialize({ name: 'finalDays', errorMessage: 'Please provide a Tour Day' }).exists()
         .getResult()
 
-    let itineraryResult = v.Initialize({ name: 'finalItinerary', errorMessage: 'Please create a Tour Itinerary'}).exists()
+    const itineraryResult = v.Initialize({ name: 'finalItinerary', errorMessage: 'Please create a Tour Itinerary' }).exists()
         .getResult()
 
-    let locationResult = v.Initialize({ name: 'finalLocations', errorMessage: 'Please provide at least one location'}).exists()
-    .getResult()
+    const locationResult = v.Initialize({ name: 'finalLocations', errorMessage: 'Please provide at least one location' }).exists()
+        .getResult()
 
-    let priceResult = v.Initialize({ name: 'tourPrice', errorMessage: 'Tour price must be more than $0'}).exists().isValue({min:1})
-    .getResult()
+    const priceResult = v.Initialize({ name: 'tourPrice', errorMessage: 'Tour price must be more than $0' }).exists().isValue({ min: 1 })
+        .getResult()
 
-    let paxResult = v.Initialize({ name: 'tourPax', errorMessage: 'Tour Pax must be at least 1'}).exists().isValue({min:1})
-    .getResult()
+    const paxResult = v.Initialize({ name: 'tourPax', errorMessage: 'Tour Pax must be at least 1' }).exists().isValue({ min: 1 })
+        .getResult()
 
-    let revResult = v.Initialize({ name: 'tourRevision', errorMessage: 'Tour Revision cannot be negative'}).exists().isValue({min:0})
-    .getResult()
+    const revResult = v.Initialize({ name: 'tourRevision', errorMessage: 'Tour Revision cannot be negative' }).exists().isValue({ min: 0 })
+        .getResult()
 
     // Initialize Image Validator using req.files
     // const imgV = new FileValidator(req.files)
@@ -307,13 +303,12 @@ router.post('/create', (req, res)=>{
     // .getResult()
 
     // Evaluate the files and fields data separately
-    var validationErrors = removeNull([nameResult, descResult, durationResult, timingResult, dayResult, itineraryResult, locationResult, priceResult, paxResult, revResult])
+    const validationErrors = removeNull([nameResult, descResult, durationResult, timingResult, dayResult, itineraryResult, locationResult, priceResult, paxResult, revResult])
 
     // If there are errors, re-render the create listing page with the valid error messages
     if (!emptyArray(validationErrors)) {
         res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
         res.redirect(`/listing/create`)
-        
     } else { // If successful
         // Remove cookies for stored form values + validation errors
         res.clearCookie('validationErrors')
@@ -324,7 +319,7 @@ router.post('/create', (req, res)=>{
             // You create the uuid when you initialize the create listing
             id: uuid.v4(),
             // Replace with actual usesrID once the auth library is out
-            userId: "sample",
+            userId: 'sample',
             tourTitle: req.fields.tourTitle,
             tourDesc: req.fields.tourDesc,
             tourDuration: req.fields.tourDuration,
@@ -335,8 +330,8 @@ router.post('/create', (req, res)=>{
             finalDays: req.fields.finalDays,
             finalItinerary: req.fields.finalItinerary,
             finalLocations: req.fields.finalLocations,
-            tourImage: "default.jpg",
-            hidden: "false"
+            tourImage: 'default.jpg',
+            hidden: 'false',
         }).catch((err)=>{
             console.log(err)
         })
@@ -346,20 +341,18 @@ router.post('/create', (req, res)=>{
 })
 
 
-
-
 router.get('/edit/:savedId', (req, res)=>{
-    Shop.findAll({where:{
-        id: req.params.savedId
-    }}).then((items)=>{
-        var savedData = items[0]["dataValues"]
+    Shop.findAll({ where: {
+        id: req.params.savedId,
+    } }).then((items)=>{
+        const savedData = items[0]['dataValues']
         // Validate that the user can edit the listing
         // if (userID == savedData["userId"])
-        res.cookie('storedValues', JSON.stringify(savedData), {maxAge: 5000})
+        res.cookie('storedValues', JSON.stringify(savedData), { maxAge: 5000 })
         res.render('tourGuide/editListing.hbs', { validationErrors: req.cookies.validationErrors })
     }).catch((err)=>{
         console.log(err)
-        res.send("No such listing exists!")
+        res.send('No such listing exists!')
     })
 })
 
@@ -370,42 +363,41 @@ router.post('/edit/:savedId', (req, res)=>{
     const v = new Validator(req.fields)
 
     // Doing this way so its cleaner. Can also directly call these into the removeNull() array
-    let nameResult = v.Initialize({ name: 'tourTitle', errorMessage: 'Tour Title must be min 5 characters long'}).exists().isLength({ min: 5 })
+    const nameResult = v.Initialize({ name: 'tourTitle', errorMessage: 'Tour Title must be min 5 characters long' }).exists().isLength({ min: 5 })
         .getResult()
 
-    let descResult = v.Initialize({ name: 'tourDesc', errorMessage: 'Please enter a Tour description'}).exists()
+    const descResult = v.Initialize({ name: 'tourDesc', errorMessage: 'Please enter a Tour description' }).exists()
         .getResult()
 
-    let durationResult = v.Initialize({ name: 'tourDuration', errorMessage: 'Please enter a Tour Duration'}).exists()
+    const durationResult = v.Initialize({ name: 'tourDuration', errorMessage: 'Please enter a Tour Duration' }).exists()
         .getResult()
 
-    let timingResult = v.Initialize({ name: 'finalTimings', errorMessage: 'Please provide a Tour Timing'}).exists()
+    const timingResult = v.Initialize({ name: 'finalTimings', errorMessage: 'Please provide a Tour Timing' }).exists()
         .getResult()
 
-    let dayResult = v.Initialize({ name: 'finalDays', errorMessage: 'Please provide a Tour Day'}).exists()
+    const dayResult = v.Initialize({ name: 'finalDays', errorMessage: 'Please provide a Tour Day' }).exists()
         .getResult()
 
-    let itineraryResult = v.Initialize({ name: 'finalItinerary', errorMessage: 'Please create a Tour Itinerary'}).exists()
+    const itineraryResult = v.Initialize({ name: 'finalItinerary', errorMessage: 'Please create a Tour Itinerary' }).exists()
         .getResult()
 
-    let locationResult = v.Initialize({ name: 'finalLocations', errorMessage: 'Please provide at least one location'}).exists()
-    .getResult()
+    const locationResult = v.Initialize({ name: 'finalLocations', errorMessage: 'Please provide at least one location' }).exists()
+        .getResult()
 
-    let priceResult = v.Initialize({ name: 'tourPrice', errorMessage: 'Tour price must be more than $0'}).exists().isValue({min:1})
-    .getResult()
+    const priceResult = v.Initialize({ name: 'tourPrice', errorMessage: 'Tour price must be more than $0' }).exists().isValue({ min: 1 })
+        .getResult()
 
-    let paxResult = v.Initialize({ name: 'tourPax', errorMessage: 'Tour Pax must be at least 1'}).exists().isValue({min:1})
-    .getResult()
+    const paxResult = v.Initialize({ name: 'tourPax', errorMessage: 'Tour Pax must be at least 1' }).exists().isValue({ min: 1 })
+        .getResult()
 
-    let revResult = v.Initialize({ name: 'tourRevision', errorMessage: 'Tour Revision cannot be negative'}).exists().isValue({min:0})
-    .getResult()
+    const revResult = v.Initialize({ name: 'tourRevision', errorMessage: 'Tour Revision cannot be negative' }).exists().isValue({ min: 0 })
+        .getResult()
 
-    var validationErrors = removeNull([nameResult, descResult, durationResult, timingResult, dayResult, itineraryResult, locationResult, priceResult, paxResult, revResult])
+    const validationErrors = removeNull([nameResult, descResult, durationResult, timingResult, dayResult, itineraryResult, locationResult, priceResult, paxResult, revResult])
 
     if (!emptyArray(validationErrors)) {
         res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
         res.redirect(`/listing/edit/${req.params.savedId}`)
-        
     } else {
         res.clearCookie('validationErrors')
         res.clearCookie('storedValues')
@@ -421,9 +413,9 @@ router.post('/edit/:savedId', (req, res)=>{
             finalTimings: req.fields.finalTimings,
             finalDays: req.fields.finalDays,
             finalItinerary: req.fields.finalItinerary,
-            finalLocations: req.fields.finalLocations
+            finalLocations: req.fields.finalLocations,
         }, {
-            where: { id: req.params.savedId }
+            where: { id: req.params.savedId },
         }).catch((err)=>{
             console.log(err)
         })
@@ -436,10 +428,10 @@ router.post('/edit/:savedId', (req, res)=>{
 router.get('/delete/:savedId', (req, res)=>{
     Shop.destroy({
         where: {
-            id: req.params.savedId
-        }
+            id: req.params.savedId,
+        },
     }).then((data)=>{
-        res.send("Deleted!")
+        res.send('Deleted!')
     }).catch((err)=>{
         console.log(err)
     })
@@ -447,23 +439,22 @@ router.get('/delete/:savedId', (req, res)=>{
 
 
 router.get('/explore', (req, res)=>{
-    console.log("THIS RAN")
-    res.render("marketplace.hbs")
+    console.log('THIS RAN')
+    res.render('marketplace.hbs')
 })
 
 
 // To get a specific listing
 router.get('/info/:id', (req, res)=>{
-    var itemID = req.params.id
+    const itemID = req.params.id
 
-    Shop.findAll({where:{
-        id: itemID
-    }}).then((items)=>{
-        var data = items[0]["dataValues"]
-        res.render('listing.hbs', {data: data})
-    }).catch(err=>console.log)
-}) 
-
+    Shop.findAll({ where: {
+        id: itemID,
+    } }).then((items)=>{
+        const data = items[0]['dataValues']
+        res.render('listing.hbs', { data: data })
+    }).catch((err)=>console.log)
+})
 
 
 // fs.writeFile('this.html', "What is this", (err) =>{
@@ -471,36 +462,20 @@ router.get('/info/:id', (req, res)=>{
 // })
 
 router.get('/api/getImage/:id', (req, res)=>{
-    var itemID = req.params.id
+    const itemID = req.params.id
 
-    Shop.findAll({where:{
-        id: itemID
-    }}).then((items)=>{
-        res.json(items[0]["tourImage"])
-    }).catch(err=>console.log)
+    Shop.findAll({ where: {
+        id: itemID,
+    } }).then((items)=>{
+        res.json(items[0]['tourImage'])
+    }).catch((err)=>console.log)
 })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // Elastic Search stuff
 
 const esClient = elasticSearch.Client({
-    host: "http://localhost:9200"
+    host: 'http://localhost:9200',
 })
 
 
@@ -513,7 +488,7 @@ const esClient = elasticSearch.Client({
 //                     suggest: {
 //                         "type": "completion"
 //                     },
-//                     "name": 
+//                     "name":
 //                     {"type": "text",
 //                     "fields": {
 //                         "trigram": {
@@ -569,63 +544,62 @@ const esClient = elasticSearch.Client({
 // })
 
 router.get('/es-api/create-index', (req, res)=>{
-    var searchText = req.query.text
+    const searchText = req.query.text
     esClient.indices.create({
-        index: "products",
+        index: 'products',
         id: req.fields.id,
         body: {
-            "settings": {
+            'settings': {
                 // SPECIFY ALL THE CUSTOM FILTERS AND ANALYZERS HERE
-                "analysis": {
+                'analysis': {
                     // Specify custom filters here
-                    "filter": {
+                    'filter': {
                         // Will generate n-grams from the words {E.g "shirt --> "sh", "shi", "shir", "shirt"}
-                        "autocomplete_filter": {
-                            "type": "ngram",
-                            "min_gram": "2",
-                            "max_gram": "3"
-                        }
+                        'autocomplete_filter': {
+                            'type': 'ngram',
+                            'min_gram': '2',
+                            'max_gram': '3',
+                        },
                     },
                     // Specify custom analyzers here
-                    "analyzer": {
-                        "autocomplete": {
-                            "filter": ["lowercase", "autocomplete_filter"],
-                            "type": "custom",
-                            "tokenizer": "whitespace"
-                        }
-                    }
+                    'analyzer': {
+                        'autocomplete': {
+                            'filter': ['lowercase', 'autocomplete_filter'],
+                            'type': 'custom',
+                            'tokenizer': 'whitespace',
+                        },
+                    },
                 },
             },
             // Define the mappings here
-            "mappings": {
+            'mappings': {
                 // Define the field mapppings here
-                "properties": {
-                    "name": {
-                        "type": "text",
+                'properties': {
+                    'name': {
+                        'type': 'text',
                         // Define the custom analyzers here (This is run everytime a new data is added)
-                        "analyzer": "autocomplete"
+                        'analyzer': 'autocomplete',
                     },
-                    "description": {
-                        "type": "text",
-                        "index": "false"
+                    'description': {
+                        'type': 'text',
+                        'index': 'false',
                     },
-                    "image": {
-                        "type": "text",
-                        "index": "false"
-                    }
-                }
-            }
-        }
+                    'image': {
+                        'type': 'text',
+                        'index': 'false',
+                    },
+                },
+            },
+        },
     })
-    .then((data)=>{
-        return res.json({"Message": "Indexing Successful"})
-    })
-    .catch((err)=>{
-        console.log(err)
-        return res.status(500).json({"Message": "Error"})
-    })
+        .then((data)=>{
+            return res.json({ 'Message': 'Indexing Successful' })
+        })
+        .catch((err)=>{
+            console.log(err)
+            return res.status(500).json({ 'Message': 'Error' })
+        })
 })
-
 
 
 // router.get('/es-api/create-index', (req, res)=>{
@@ -663,23 +637,23 @@ router.post('/es-api/upload', (req, res) => {
         // Need to define the ID here so you can update using ID
         id: req.fields.id,
         body: {
-            "name": req.fields.name,
+            'name': req.fields.name,
             // "id": req.fields.id,
-            "description": req.fields.description,
-            "image": req.fields.image,
+            'description': req.fields.description,
+            'image': req.fields.image,
             // "suggest": {
             //     input: req.fields.name.split(' '),
             // },
             // "output": req.fields.name
-        }
+        },
     })
-    .then((data)=>{
-        console.log("Indexed!")
-        return res.json({"Message": "Indexing successful"})
-    })
-    .catch(err=>{
-        console.log(err)
-    })
+        .then((data)=>{
+            console.log('Indexed!')
+            return res.json({ 'Message': 'Indexing successful' })
+        })
+        .catch((err)=>{
+            console.log(err)
+        })
 })
 
 
@@ -705,66 +679,64 @@ router.post('/es-api/upload', (req, res) => {
 // })
 
 
-
 router.post('/es-api/update', (req, res) => {
     esClient.update({
         index: 'products',
         id: req.fields.id,
         body: {
             doc: {
-                "name": req.fields.name,
+                'name': req.fields.name,
                 // "id": req.fields.id,
-                "description": req.fields.description,
-                "image": req.fields.image
-            }  
-        }
+                'description': req.fields.description,
+                'image': req.fields.image,
+            },
+        },
     })
-    .then((data)=>{
-        console.log("Updated!")
-        return res.json({"Message": "Update successful"})
-    })
-    .catch(err=>{
-        console.log(err)
-    })
+        .then((data)=>{
+            console.log('Updated!')
+            return res.json({ 'Message': 'Update successful' })
+        })
+        .catch((err)=>{
+            console.log(err)
+        })
 })
 
 
 router.get('/es-api/delete', (req, res) => {
     esClient.indices.delete({
-        index: 'products'
+        index: 'products',
     })
-    .then((data)=>{
-        console.log("Deleted!")
-        return res.json({"Message": "Delete successful"})
-    })
-    .catch(err=>{
-        console.log(err)
-    })
+        .then((data)=>{
+            console.log('Deleted!')
+            return res.json({ 'Message': 'Delete successful' })
+        })
+        .catch((err)=>{
+            console.log(err)
+        })
 })
 
 
 router.get('/es-api/search', (req, res) => {
     const searchText = req.query.text
     esClient.search({
-        index: "products",
+        index: 'products',
         body: {
-            "query": {
-                "match":{
+            'query': {
+                'match': {
                     // Specify the 'name' field to be matched against the searchText
-                    "name": searchText
-                }
-            }
-        }
+                    'name': searchText,
+                },
+            },
+        },
     })
-    .then((data)=>{
-            console.log("Ran")
+        .then((data)=>{
+            console.log('Ran')
             return res.json(data)
         })
-    .catch((err)=>{
-        return res.status(500).json({"Message": "Error"})
-    })
+        .catch((err)=>{
+            return res.status(500).json({ 'Message': 'Error' })
+        })
 })
-
 
 
 // router.get('/es-api/search', (req, res) => {
@@ -818,23 +790,23 @@ router.get('/es-api/search', (req, res) => {
 router.get('/es-api/suggest', (req, res) => {
     const searchText = req.query.text
     esClient.search({
-        index: "products",
+        index: 'products',
         body: {
             suggest: {
                 gotsuggest: {
                     text: searchText,
-                    term: {field: 'name'}
-                }
-            }
-        }
+                    term: { field: 'name' },
+                },
+            },
+        },
     })
-    .then((data)=>{
-        console.log("Ran suggester")
-        return res.json(data)
-    })
-    .catch((err)=>{
-        return res.status(500).json({"Message": "Error"})
-    })
+        .then((data)=>{
+            console.log('Ran suggester')
+            return res.json(data)
+        })
+        .catch((err)=>{
+            return res.status(500).json({ 'Message': 'Error' })
+        })
 })
 
 

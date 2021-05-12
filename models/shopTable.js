@@ -1,82 +1,82 @@
 module.exports = (sequelize, DataTypes) =>{
-    const Shop = sequelize.define("Shop", {
+    const Shop = sequelize.define('Shop', {
 
         id: {
             allowNull: false,
             primaryKey: true,
-            type: DataTypes.UUID
+            type: DataTypes.UUID,
         },
 
         userId: {
             allowNull: false,
-            type: DataTypes.UUID
+            type: DataTypes.UUID,
         },
 
         tourTitle: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
         },
 
         tourDesc: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
         },
 
         tourDuration: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
         },
 
         finalTimings: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
         },
 
         finalDays: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
         },
 
         finalItinerary: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
         },
 
         finalLocations: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
         },
 
         tourImage: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
         },
 
         tourPax: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
         },
 
-        tourRevision:  {
+        tourRevision: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
         },
 
         tourPrice: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
         },
 
         hidden: {
             type: DataTypes.STRING,
-            allowNull: false
-        }
+            allowNull: false,
+        },
 
-    }, 
-    
+    },
+
     {
-        tableName: "Shop"
+        tableName: 'Shop',
     })
 
-    return Shop;
+    return Shop
 }
