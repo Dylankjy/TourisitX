@@ -30,6 +30,7 @@ const app = express()
 // Express: Public Directory
 app.use('/', express.static('public'))
 app.use('/third_party', express.static('third_party'))
+app.use('/usercontent', express.static('storage'))
 
 // Handlebars: Render engine
 app.set('view engine', 'hbs')
