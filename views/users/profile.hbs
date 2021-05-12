@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="/css/profile.css">
+<link rel='stylesheet' href='/css/profile.css' />
 
 <section class='section is-medium'>
 	<div class='container profile-container box p-6' style="background-image: url('/static/pfp.jpg')">
@@ -20,7 +20,7 @@
 
 				</p>
 				<p id='bioContainer' class='is-size-5 has-text-grey-lighter'>
-					&nbsp;
+					Hide the Pain Harold
 					<span class='has-text-grey'>
 						<i onclick="$('#bioContainer').fadeOut('fast', () => { $('#bioEditFormContainer').slideDown() });" class='fa fa-edit'></i>
 					</span>
@@ -30,6 +30,21 @@
 				<div id='bioEditFormContainer' style='display: none;'>
 					<form class='form-horizontal' action='/users/profile' method='POST'>
 						<fieldset>
+							<div class='field'>
+								<div class='control'>
+									<input class='input' type='text' style='height:50px;' />
+									<ul>
+										<li class='has-text-danger'>Error</li>
+									</ul>
+								</div>
+							</div>
+							<div class='field is-small has-text-right'>
+								<label class='label' for='bio-submit'></label>
+								<button type='submit' class='button is-success' id='bio-submit'><i class='fas fa-save'></i>&nbsp; Save
+								</button>
+								<a class='button is-danger is-light' onclick="$('#bioEditFormContainer').slideUp('', () => { $('#bioContainer').fadeIn() });">
+									<i class='fas fa-times'></i>&nbsp; Cancel</a>
+							</div>
 						</fieldset>
 					</form>
 				</div>
