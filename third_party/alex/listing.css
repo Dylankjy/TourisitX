@@ -1,0 +1,38 @@
+.button {
+    margin-right: 30px;
+    width: 12%;
+}
+
+.is-darker-warning {
+    background-color: #fff5cb;
+    color: #ffae00;
+    border: none;
+}
+
+.is-darker-warning:hover {
+    filter: brightness(0.97);
+    color: #ffae00;
+}
+
+
+
+.listing-banner {
+    padding: 15px;
+    background-image: url("../../savedImages/night.jpg");
+    box-sizing: border-box;
+    border-radius: 15px;
+    background-color: #C2FBD7;
+}
+
+a + a {
+    margin-top: 50px;
+}
+
+.listing-banner p {
+    line-height: 100px;
+    text-align: center;
+}
+
+.listing-banner + .listing-banner {
+    margin-top: 50px;
+}

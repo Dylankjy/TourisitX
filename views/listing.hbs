@@ -1,0 +1,169 @@
+<head>
+    <link rel='stylesheet' href='/third_party/bulma/bulma-timeline.min.css'>
+    <link rel='stylesheet' href='/third_party/alex/listing.css'>
+</head>
+
+<section class='section'>
+    <a href='/listing'>
+        <button class='button is-danger is-lighted'>
+            <span class='icon'>
+                <i class="fas fa-arrow-left"></i>
+            </span>
+            <span>
+                Back to Home
+            </span>
+        </button>
+    </a>
+</section>
+
+
+<section class="section" style="padding-top: 5rem">
+    <div class='container'>
+        <div class='box'>
+            <div class='columns'>
+                
+                <!-- For name and description -->
+                <div class='column is-5'>
+                    <div class='content'>
+                        <h1 class='title is-4'>Tour Title:</h1>
+                        <p class='subtitle is-6'>{{data.tourTitle}}</p>
+                    </div>
+                    
+                    <br>
+                    <div class='content'>
+                        <h1 class='title is-4'>Tour Description:</h1>
+                        <p class='subtitle is-6'>{{data.tourDesc}}</p>
+                    </div>
+
+                    <br>
+                    <div class='content'>
+                        <h1 class='title is-4'>Tour Price:</h1>
+                        <p class='subtitle is-6'>${{data.tourPrice}}</p>
+                    </div>
+                </div>
+
+
+                <div class="column is-4">
+                    
+                    <div class="timeline">
+
+                        <header class="timeline-header">
+                            <span class="tag is-medium is-info">Tour Start</span>
+                        </header>
+
+                        {{#each (readArrWithReplace data.finalItinerary)}}
+                        <div class="timeline-item">
+                            <div class="timeline-marker is-icon">
+                                <i class="fa fa-flag"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <p>{{this}}</p>
+                            </div>
+                        </div>
+                        {{/each}}
+
+                        <div class="timeline-header">
+                          <span class="tag is-medium is-info">End</span>
+                        </div>
+                      </div>
+                </div>
+
+                <div class='column is-3'>
+                    <div class='content'>
+                        <h1 class='title is-4'>Tour Duration:</h1>
+                        <p class='subtitle is-6'>{{data.tourDuration}} hours</p>
+                    </div>
+
+                    <div class='content'>
+                        <h1 class='title is-4'>Tour Timing:</h1>
+                        {{#each (readArr data.finalTimings)}}
+                        <p class='subtitle is-6'>{{this}}</p>
+                        {{/each}}
+                    </div>
+
+                    <div class='content'>
+                        <h1 class='title is-4'>Tour Days:</h1>
+                        {{#each (readArr data.finalDays)}}
+                        <p class='subtitle is-6'>{{this}}</p>
+                        {{/each}}
+                    </div>
+                    
+                    <div class='content'>
+                        <h1 class='title is-4'>Tour Locations:</h1>
+                        {{#each (readArrWithReplace data.finalLocations)}}
+                        <p class='subtitle is-6'>{{this}}</p>
+                        {{/each}}
+                    </div>
+                    
+                </div>
+
+            </div>
+            
+            <br><br>
+            <div class='container'>
+                {{#if false}}
+                <button class='button is-success is-outlined'>
+                    <span class='icon'>
+                        <i class="fas fa-shopping-cart"></i>
+                    </span>
+                    <span>
+                        Purchase
+                    </span>
+                </button>
+                
+                <button class='button is-danger is-outlined'>
+                    <span class='icon'>
+                        <i class="fas fa-heart"></i>
+                    </span>
+                    <span>
+                        Add to favourite
+                    </span>
+                </button>
+
+                {{else}}
+                <a href='/listing/edit/{{data.id}}'>
+                    <button class='button is-darker-warning' target>
+                            <span class='icon'>
+                                <i class="fas fa-edit"></i>
+                            </span>
+                            <span>
+                                Edit Listing
+                            </span>
+                    </button>
+                </a>
+
+                <!-- Check if hidden or not -->
+                {{#if true}}
+                <button class='button is-danger is-light'>
+                    <span class='icon'>
+                        <i class="fas fa-eye-slash"></i>
+                    </span>
+                    <span>
+                        Hide Listing
+                    </span>
+                </button>
+                {{else}}
+                <button class='button is-success is-light'>
+                    <span class='icon'>
+                        <i class="fas fa-eye"></i>
+                    </span>
+                    <span>
+                        Unhide Listing
+                    </span>
+                </button>
+                {{/if}}
+
+                <a href="/listing/delete/{{data.id}}">
+                <button class='button is-danger is-light'>
+                    <span class='icon'>
+                        <i class="fas fa-trash"></i>
+                    </span>
+                    <span>
+                        Delete Listing
+                    </span>
+                </button>
+                </a>
+                {{/if}}
+        </div>
+    </div>
+</section>

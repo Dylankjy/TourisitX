@@ -7,10 +7,10 @@ const exphbs = require('express-handlebars')
 const cookieParser = require('cookie-parser')
 const formidable = require('express-formidable')
 const slowDown = require('express-slow-down')
-const { check, validationResult } = require('express-validator')
 const expressSession = require('express-session')
 const axios = require('axios')
 const bodyParser = require('body-parser')
+const cors = require('cors')
 
 // Routes for Express
 const routes = {
@@ -26,6 +26,8 @@ const routes = {
 
 const app = express()
 
+const db = require('./models')
+
 // Express Additional Options
 // Express: Public Directory
 app.use('/', express.static('public'))
@@ -35,18 +37,45 @@ app.use('/usercontent', express.static('storage'))
 // Handlebars: Render engine
 app.set('view engine', 'hbs')
 
+app.use(cors())
+
+
 // Handlebars: Environment options
 app.engine('hbs', exphbs({
     defaultLayout: 'main',
     extname: '.hbs',
     layoutsDir: `views/layouts`,
     helpers: {
+
         ifEquals(a, b, options) {
             if (a === b) {
                 return options.fn(this)
             } else {
                 return options.inverse(this)
             }
+        },
+
+        haveErr: (value, options) =>{
+            // Removes all null values and boolean (true if not empty, false if empty)
+            return value.filter((n) => n).length != 0
+        },
+
+        isDefined: (value, options) =>{
+            return typeof(value) !== 'undefined'
+        },
+
+        readArrWithReplace: (value, options) =>{
+            let arr = value.split(',')
+            arr = arr.map((e)=>e.replace(';!;', ','))
+            return arr
+        },
+
+        readArr: (value, options) =>{
+            return value.split(',')
+        },
+
+        emptyArr: (value, options) =>{
+            return (value.length == 0)
         },
     },
 }))
@@ -56,6 +85,13 @@ app.set('views', [`views`])
 
 // cookieParser: Secret key for signing
 app.use(cookieParser('Please change this when in production use'))
+
+
+// app.use(expressSession({
+//     secret: config.app.secretKey,
+//     saveUninitialized: false,
+//     resave: false
+// }))
 
 // cookieParser: Cookie schema
 // const CookieOptions = {
@@ -90,7 +126,7 @@ const webserver = () => {
 
     app.use('/shop', routes.market)
 
-    app.use('/listing', routes.listings)
+    app.use('/listing', cors(), routes.listings)
 
     app.use('/users', routes.user)
 
@@ -114,4 +150,7 @@ const webserver = () => {
 }
 
 
-webserver()
+db.sequelize.sync().then((req) => {
+    webserver()
+}).catch(console.log)
+
