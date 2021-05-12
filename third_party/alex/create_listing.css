@@ -1,0 +1,24 @@
+.tag-container {
+  margin-top: 20px;
+}
+
+.itinerary {
+  padding-top: 50px
+}
+
+.itinerary-item {
+  margin: 10px;
+}
+
+.tag-item {
+  margin: 10px;
+}
+
+.itinerary-item-icon {
+  position: absolute;
+  right: 35%;
+}
+
+.container + .container {
+  margin-bottom: 10px;
+}
