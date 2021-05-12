@@ -6,4 +6,18 @@ const router = express.Router()
 
 // router.get('/', (req, res) => { ... }
 
+router.get('/', (req, res) => {
+    const metadata = {
+        meta: {
+            title: 'Administration',
+            path: false,
+        },
+        nav: {
+            register: true,
+        },
+        layout: 'admin',
+    }
+    res.render('admin/dashboard', metadata)
+})
+
 module.exports = router

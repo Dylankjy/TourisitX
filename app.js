@@ -130,6 +130,8 @@ const webserver = () => {
 
     app.use('/users', routes.user)
 
+    app.use('/admin', routes.admin)
+
     // Don't put any more routes after this block, cuz they will get 404'ed
     app.get('*', (req, res) => {
         const metadata = {
