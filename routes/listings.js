@@ -13,6 +13,7 @@ const uuid = require('uuid')
 const fileType = require('file-type')
 const path = require('path')
 const elasticSearch = require('elasticsearch')
+const io = require('socket.io')
 
 
 
@@ -752,13 +753,6 @@ router.get('/es-api/search', (req, res) => {
                     // Specify the 'name' field to be matched against the searchText
                     "name": searchText
                 }
-                // "fuzzy": {
-                //     "name": {
-                //         "value": searchText,
-                //         "fuzziness": 3,
-                //         "prefix_length": 0
-                //     }
-                // }
             }
         }
     })

@@ -1,3 +1,6 @@
+https://betterprogramming.pub/introduction-to-elasticsearch-using-node-js-part-1-164311327557
+
+
 Indexing: To insert Data (Document)
 
 Field: An attribute of the document (E.g Name, ID, Description, etc.)
@@ -112,3 +115,10 @@ E.g
         "max_gram": "40"
     }
 }
+
+
+
+
+
+COMBINED EG
+
