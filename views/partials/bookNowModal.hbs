@@ -1,0 +1,87 @@
+<h1>i am small pepe i procrastinated</h1>
+<div class="modal is-active" id="bookNowModal">
+  <div class="modal-background"></div>
+  <div class="modal-content">
+      <div class="box has-text-centered">
+    <!--Customise tour-->
+    <form class="form" id="custom_form" method="POST">
+        <button class="button is-medium is-fullwidth is-success" type="submit" name="CustomiseTour"
+                value="CustomiseTour">
+            Customise Tour
+        </button>
+
+        <button class="button is-white is-pulled-right has-tooltip-multiline has-tooltip-right"
+                data-tooltip="Pay an extra Customisation fee of ${{ customfee }}0 to Customise this tour to fit your needs.
+        To start the process, the Customisation fee is paid upfront. 
+        Once the tour plan is tailored and perfect for you, the remaining fees are paid. This tour comes 
+        with {{ item.tour_revisions }} free revisions, such that you may request additional changes if the tour plan is
+        unsatisfactory.">
+            <i class="far fa-question-circle"></i>
+        </button>
+
+    </form>
+    <!-- end: customise tour-->
+    <div class="divider">OR</div>
+    <!--Booking form-->
+    <form id="book_form" method="POST">
+
+                        <div class='field'>
+                            <label class="label">Select Date</label>
+                            <input name='book_day' type='date' id='day_selector' class='input'>
+                        </div>
+
+                        <div class="field">
+                            <label class="label">Select Time</label>
+                            <div>
+                                uh oh
+                            </div>
+
+                            <!-- This is checked by default. Is a hidden radio button -->
+                            <input type='radio' id='book_timeslot_hidden' value="None" name='book_timeslot'
+                                   checked='checked' style='display:none'>
+                            <!--<input class="input" type="time" placeholder="">-->
+                        </div>
+
+                        <div class='field'>
+                            <div class='control is-expanded'>
+                            <label class="label">Number of Participants</label>
+                            <div>
+                                no
+                            </div>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="control">
+                                <label class="checkbox">
+                                    <!--<input type="checkbox">-->
+                                    I agree to the <a class="has-tooltip-multiline has-text-centered has-tooltip-danger"
+                                                      href="#"
+                                                      data-tooltip="There should not be more than 8 people in a group. Safe distancing measures should be adhered to at all times.">
+                                    terms and conditions.</a>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="control">
+                                <button type="submit" id="book_submit" class="button is-medium is-fullwidth is-link">
+                                    <p class="has-text-weight-semibold">Book Now</p>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <p class="is-grey has-text-centered mt-2">Not sure if this tour is for you?
+                    <form id="chat_form" method="POST"
+                          class="has-text-centered">
+                        <button class="button is-text has-text-link" type="submit" name="ChatFirst"
+                                value="ChatFirst" style="text-decoration:none;">
+                            Chat with me (hehe) first.
+                        </button>
+                    </form>
+                    </p>
+    <!-- end: Booking form-->
+    </div>
+  </div>
+  <button class="modal-close is-large" aria-label="close" onclick="$('#bookNowModal').fadeOut('fast');"></button>
+</div>
