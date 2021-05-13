@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
             path: false,
         },
         nav: {
-            sidebarActive: "dashboard",
+            sidebarActive: 'dashboard',
         },
         layout: 'admin',
     }
@@ -27,11 +27,11 @@ router.get('/manage/users', (req, res) => {
             path: false,
         },
         nav: {
-            sidebarActive: "users",
+            sidebarActive: 'users',
         },
         layout: 'admin',
     }
-    res.render('admin/users', metadata) 
+    res.render('admin/users', metadata)
 })
 
 module.exports = router
