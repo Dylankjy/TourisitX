@@ -131,7 +131,7 @@ const webserver = () => {
 
     app.use('/listing', cors(), routes.listings)
 
-    app.use('/users', routes.user)
+    app.use('/u', routes.user)
 
     app.use('/booking', routes.booking)
 
