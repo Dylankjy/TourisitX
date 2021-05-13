@@ -20,4 +20,18 @@ router.get('/', (req, res) => {
     res.render('admin/dashboard', metadata)
 })
 
+router.get('/manage/users', (req, res) => {
+    const metadata = {
+        meta: {
+            title: 'Manage Users',
+            path: false,
+        },
+        nav: {
+            sidebarActive: "users",
+        },
+        layout: 'admin',
+    }
+    res.render('admin/users', metadata) 
+})
+
 module.exports = router
