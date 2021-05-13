@@ -6,22 +6,22 @@ const router = express.Router()
 
 // router.get('/', (req, res) => { ... }
 
-let exampleUser = {
-    name: "Takahashi Taro",
+const exampleUser = {
+    name: 'Takahashi Taro',
     email_status: true,
-    registration_time: new Date("2011-10-05T14:48:00.000Z"),
-    last_seen_time: new Date("2011-10-05T14:48:00.000Z"),
+    registration_time: new Date('2011-10-05T14:48:00.000Z'),
+    last_seen_time: new Date('2011-10-05T14:48:00.000Z'),
     account_mode: 1,
-    ip_address: "10.0.0.10",
+    ip_address: '10.0.0.10',
 }
 
-let exampleUser2 = {
-    name: "Niho Yoshiko",
+const exampleUser2 = {
+    name: 'Niho Yoshiko',
     email_status: true,
-    registration_time: new Date("2011-10-05T14:48:00.000Z"),
-    last_seen_time: new Date("2011-10-05T14:48:00.000Z"),
+    registration_time: new Date('2011-10-05T14:48:00.000Z'),
+    last_seen_time: new Date('2011-10-05T14:48:00.000Z'),
     account_mode: 0,
-    ip_address: "10.0.0.10",
+    ip_address: '10.0.0.10',
 }
 
 router.get('/', (req, res) => {
@@ -49,8 +49,8 @@ router.get('/manage/users', (req, res) => {
         },
         layout: 'admin',
         data: {
-            users: {exampleUser, exampleUser2}
-        }
+            users: { exampleUser, exampleUser2 },
+        },
     }
     res.render('admin/users', metadata)
 })
@@ -66,8 +66,8 @@ router.get('/manage/staff', (req, res) => {
         },
         layout: 'admin',
         data: {
-            users: {exampleUser, exampleUser2}
-        }
+            users: { exampleUser, exampleUser2 },
+        },
     }
     res.render('admin/staff', metadata)
 })

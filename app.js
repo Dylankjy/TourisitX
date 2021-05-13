@@ -1,5 +1,5 @@
 // Module imports
-const dateFormat = require("dateformat");
+const dateFormat = require('dateformat')
 
 // Express related modules
 const express = require('express')
@@ -78,7 +78,7 @@ app.engine('hbs', exphbs({
         },
 
         timestampParseISO: (value) => {
-            return dateFormat(value, "dS mmmm yyyy, HH:MM:ss");
+            return dateFormat(value, 'dS mmmm yyyy, HH:MM:ss')
         },
     },
 }))
