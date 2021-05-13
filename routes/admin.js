@@ -122,4 +122,18 @@ router.get('/manage/tours', (req, res) => {
     res.render('admin/listings', metadata)
 })
 
+router.get('/tickets', (req, res) => {
+    const metadata = {
+        meta: {
+            title: 'Support Tickets',
+            path: false,
+        },
+        nav: {
+            sidebarActive: 'tickets',
+        },
+        layout: 'admin',
+    }
+    res.render('admin/tickets', metadata)
+})
+
 module.exports = router
