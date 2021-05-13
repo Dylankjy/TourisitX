@@ -122,6 +122,24 @@ router.get('/manage/tours', (req, res) => {
     res.render('admin/listings', metadata)
 })
 
+router.get('/payments', (req, res) => {
+    const metadata = {
+        meta: {
+            title: 'Payments',
+            path: false,
+        },
+        nav: {
+            sidebarActive: 'payments',
+        },
+        layout: 'admin',
+        data: {
+            transactions: { exampleTransaction, exampleTransaction2 },
+        },
+    }
+    res.render('admin/payments', metadata)
+})
+
+
 router.get('/tickets', (req, res) => {
     const metadata = {
         meta: {
