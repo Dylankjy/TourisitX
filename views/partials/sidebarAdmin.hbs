@@ -1,0 +1,40 @@
+<aside data-turbolinks-permanent class="column is-2">
+    <nav data-turbolinks-permanent class="menu">
+        <p class="menu-label">
+            General
+        </p>
+        <ul class="menu-list">
+            <li><a href="/admin" {{#ifEquals nav.sidebarActive "dashboard"}}class="is-active"{{/ifEquals}}>Dashboard</a></li>
+        </ul>
+        <p class="menu-label">
+            Manage
+        </p>
+        <ul class="menu-list">
+            <li><a href="/admin/manage/users" {{#ifEquals nav.sidebarActive "users"}}class="is-active"{{/ifEquals}}>Users</a></li>
+            <li><a href="/admin/manage/staff" {{#ifEquals nav.sidebarActive "staff"}}class="is-active"{{/ifEquals}}>Staff</a></li>
+            <li><a href="/admin/manage/tours" {{#ifEquals nav.sidebarActive "tourListings"}}class="is-active"{{/ifEquals}}>Tour Listings</a></li>
+        </ul>
+        <p class="menu-label">
+            Transactions
+        </p>
+        <ul class="menu-list">
+            <li><a href="/admin/payments" {{#ifEquals nav.sidebarActive "payments"}}class="is-active"{{/ifEquals}}>Payments</a></li>
+        </ul>
+        <p class="menu-label">
+            Customer Support
+        </p>
+        <ul class="menu-list">
+            <li><a href="/admin/tickets" {{#ifEquals nav.sidebarActive "tickets"}}class="is-active"{{/ifEquals}}>Tickets</a></li>
+        </ul>
+
+
+        {{!-- <li>
+            <a class="">Manage Your Team</a>
+            <ul>
+                <li><a>Members</a></li>
+                <li><a>Plugins</a></li>
+                <li><a>Add a member</a></li>
+            </ul>
+        </li> --}}
+    </nav>
+</aside>
