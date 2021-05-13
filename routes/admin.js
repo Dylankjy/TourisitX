@@ -24,6 +24,25 @@ const exampleUser2 = {
     ip_address: '10.0.0.10',
 }
 
+const exampleTransaction = {
+    date_paid: new Date('2011-10-05T14:48:00.000Z'),
+    tour_name: 'Sex on the beach',
+    cust_id: 'Takahashi Taro',
+    tg_id: 'Nakamoto Yui',
+    earnings: '1000',
+    status: true,
+}
+
+const exampleTransaction2 = {
+    date_paid: new Date('2011-10-05T14:48:00.000Z'),
+    tour_name: 'City Dwelling',
+    cust_id: 'Ri Ui',
+    tg_id: 'Nakamoto Yui',
+    earnings: '1000',
+    status: false,
+}
+
+
 router.get('/', (req, res) => {
     const metadata = {
         meta: {
