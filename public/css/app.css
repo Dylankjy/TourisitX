@@ -60,6 +60,18 @@
     text-overflow: ellipsis;
 }
 
+.listing-image-horizontal {
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    /* height: 1rem; */
+}
+
+.listing-clickable .listing-image-horizontal {
+    background-color: rgba(0, 0, 0, .5) !important;
+    background-blend-mode: overlay !important;
+}
+
 .menu-list a, .menu-list a.is-active {
     transition: all .35s ease !important;
 }

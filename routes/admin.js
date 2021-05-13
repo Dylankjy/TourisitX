@@ -91,4 +91,35 @@ router.get('/manage/staff', (req, res) => {
     res.render('admin/staff', metadata)
 })
 
+router.get('/manage/tours', (req, res) => {
+    const metadata = {
+        meta: {
+            title: 'Manage Tours',
+            path: false,
+        },
+        nav: {
+            sidebarActive: 'tourListings',
+        },
+        layout: 'admin',
+        listing: [
+            {
+                name: 'Test listing',
+                desc: 'This is a test listing',
+                place: 'Gardens by the Bay',
+            },
+            {
+                name: 'Test listing',
+                desc: 'This is a test listing',
+                place: 'Gardens by the Bay',
+            },
+            {
+                name: 'Test listing',
+                desc: 'This is a test listing',
+                place: 'Gardens by the Bay',
+            },
+        ],
+    }
+    res.render('admin/listings', metadata)
+})
+
 module.exports = router
