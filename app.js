@@ -76,6 +76,10 @@ app.engine('hbs', exphbs({
         emptyArr: (value, options) =>{
             return (value.length == 0)
         },
+
+        timestampParseISO: (value) => {
+            return value.toString()
+        },
     },
 }))
 
