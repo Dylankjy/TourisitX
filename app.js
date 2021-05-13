@@ -46,7 +46,6 @@ app.engine('hbs', exphbs({
     extname: '.hbs',
     layoutsDir: `views/layouts`,
     helpers: {
-
         ifEquals(a, b, options) {
             if (a === b) {
                 return options.fn(this)
