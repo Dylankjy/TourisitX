@@ -1,8 +1,12 @@
-<h1>i am small pepe i procrastinated</h1>
+<link rel="stylesheet" href="/third_party/bulma/bulma-divider.css">
+<link rel="stylesheet" href="/third_party/bulma/bulma-tooltip.css">
+
+
 <div class="modal is-active" id="bookNowModal">
-  <div class="modal-background"></div>
+  <div class="modal-background" onclick="$('#bookNowModal').fadeOut('fast');"></div>
   <div class="modal-content">
-      <div class="box has-text-centered">
+      <div class="box">
+          <div class="container">
     <!--Customise tour-->
     <form class="form" id="custom_form" method="POST">
         <button class="button is-medium is-fullwidth is-success" type="submit" name="CustomiseTour"
@@ -10,8 +14,8 @@
             Customise Tour
         </button>
 
-        <button class="button is-white is-pulled-right has-tooltip-multiline has-tooltip-right"
-                data-tooltip="Pay an extra Customisation fee of ${{ customfee }}0 to Customise this tour to fit your needs.
+        <button class="button is-white is-pulled-right has-tooltip-multiline has-tooltip-left"
+                data-tooltip="Pay an extra Customisation fee of ${{custom_fee}} to Customise this tour to fit your needs.
         To start the process, the Customisation fee is paid upfront. 
         Once the tour plan is tailored and perfect for you, the remaining fees are paid. This tour comes 
         with {{ item.tour_revisions }} free revisions, such that you may request additional changes if the tour plan is
@@ -21,19 +25,20 @@
 
     </form>
     <!-- end: customise tour-->
-    <div class="divider">OR</div>
+    <br>
+    <div class="divider has-text-centered">OR</div>
     <!--Booking form-->
     <form id="book_form" method="POST">
 
                         <div class='field'>
                             <label class="label">Select Date</label>
-                            <input name='book_day' type='date' id='day_selector' class='input'>
+                            <input class="input" type="date" placeholder="Date">
                         </div>
 
                         <div class="field">
                             <label class="label">Select Time</label>
                             <div>
-                                uh oh
+                                <input class="input" type="time" placeholder="Time">
                             </div>
 
                             <!-- This is checked by default. Is a hidden radio button -->
@@ -45,8 +50,11 @@
                         <div class='field'>
                             <div class='control is-expanded'>
                             <label class="label">Number of Participants</label>
-                            <div>
-                                no
+                            <div class="select">
+                                <select>
+                                    <option>1</option>
+                                    <option>2</option>
+                                </select>
                             </div>
                             </div>
                         </div>
@@ -54,7 +62,7 @@
                         <div class="field">
                             <div class="control">
                                 <label class="checkbox">
-                                    <!--<input type="checkbox">-->
+                                    <input type="checkbox">
                                     I agree to the <a class="has-tooltip-multiline has-text-centered has-tooltip-danger"
                                                       href="#"
                                                       data-tooltip="There should not be more than 8 people in a group. Safe distancing measures should be adhered to at all times.">
@@ -76,11 +84,12 @@
                           class="has-text-centered">
                         <button class="button is-text has-text-link" type="submit" name="ChatFirst"
                                 value="ChatFirst" style="text-decoration:none;">
-                            Chat with me (hehe) first.
+                            Chat with Tour Guide first.
                         </button>
                     </form>
                     </p>
     <!-- end: Booking form-->
+    </div>
     </div>
   </div>
   <button class="modal-close is-large" aria-label="close" onclick="$('#bookNowModal').fadeOut('fast');"></button>
