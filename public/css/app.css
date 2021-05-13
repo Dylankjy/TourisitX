@@ -59,3 +59,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.menu-list a, .menu-list a.is-active {
+    transition: all .35s ease !important;
+}
