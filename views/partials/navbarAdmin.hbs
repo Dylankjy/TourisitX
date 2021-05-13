@@ -1,0 +1,40 @@
+<nav data-turbolinks-permanent class="navbar is-white has-shadow" role="navigation" aria-label="main navigation">
+    <div class="container">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/admin">
+                <img src="/static/logo-dark.png">
+                {{!-- <span class="is-family-secondary has-text-weight-semibold has-text-grey-darker">Koukyo コウキョ</span>
+                --}}
+            </a>
+            <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div class="navbar-menu">
+            <div class="navbar-end">
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <div class="has-background-danger-dark navbar-item has-text-white pl-4 pr-4"><i
+                            class="fas fa-exclamation-triangle"></i>&ensp;Administration Mode
+                    </div>
+
+                    <div class="navbar-dropdown is-boxed">
+                        <a class="navbar-item has-text-danger-dark" href="/">
+                            <i class="fas fa-times-circle"></i>&ensp;Return to User mode
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {{!-- <div class="navbar-end">
+                <div class="navbar-item has-background-dark">
+                    <a href="https://id.ichiharu.com/logout"
+                        class="navbar-item is-family-secondary has-text-white has-background-dark">
+                        <i class="fas fa-sign-out-alt"></i>&ensp;Logout
+                    </a>
+                </div>
+            </div> --}}
+        </div>
+    </div>
+</nav>

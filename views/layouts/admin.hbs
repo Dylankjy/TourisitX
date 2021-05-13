@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="turbolinks-cache-control" content="no-cache">
+
+    <title>{{meta.title}} - Tourisit</title>
+    <!-- First-party libraries -->
+    <link rel="stylesheet" href="/css/app.css">
+
+    <!-- Third-party libraries -->
+    <script src="/third_party/jquery/jquery.min.js"></script>
+
+
+    <link rel="stylesheet" href="/third_party/bulma/bulma.min.css">
+    <script defer src="/js/navbar.js"></script>
+
+    <script src="/third_party/turbolinks/turbolinks.js"></script>
+
+    {{!--
+    <link rel="stylesheet" href="/third_party/nprogress/nprogress.css">
+    <script src="/third_party/nprogress/nprogress.js"></script> --}}
+
+    {{!--
+    <script>
+        NProgress.start()
+    </script> --}}
+    <script>
+        Turbolinks.start()
+    </script>
+    <script>
+        $(document).on('turbolinks:before-load', function () {
+            return $('main').fadeOut('fast');
+        });
+        $(document).on('turbolinks:load', function () {
+            return $('main').fadeIn('fast');
+        });
+    </script>
+
+    <link href="https://use.fontawesome.com/releases/v5.15.1/css/all.css" rel="stylesheet">
+</head>
+
+<body>
+    {{>navbarAdmin}}
+    <div class="section">
+        <div class="container">
+            <div class="columns">
+                {{>sidebarAdmin}}
+
+                <main class="column" style="display: none;">
+                    {{{body}}}
+                    {{!-- {{>footer}} --}}
+                </main>
+            </div>
+        </div>
+</body>
+
+{{#if meta.path}}
+<script defer src="/js/{{meta.path}}.js"></script>
+{{/if}}
+
+</html>

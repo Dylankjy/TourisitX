@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="turbolinks-cache-control" content="no-cache">
+
+    <title>{{meta.title}} - Tourisit</title>
+    <!-- First-party libraries -->
+    <link rel="stylesheet" href="/css/app.css">
+    <script src="/js/slideshow.js"></script>
+
+    <!-- Third-party libraries -->
+    <script src="/third_party/jquery/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="/third_party/bulma/bulma.min.css">
+    <script defer src="/js/navbar.js"></script>
+
+    <script src="/third_party/turbolinks/turbolinks.js"></script>
+
+    <script>
+        Turbolinks.start()
+    </script>
+    <script>
+        $(document).on('turbolinks:before-load', function () {
+            return $('main').fadeOut('fast');
+        });
+        $(document).on('turbolinks:load', function () {
+            return $('main').fadeIn('fast');
+        });
+    </script>
+
+    <link rel="stylesheet" href="/css/auth.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js"></script>
+</head>
+
+<body class="background-auth">
+    <div class="container-auth">
+        <section class="section is-medium">
+            <div class="has-text-centered">
+                <img class="logo-auth" src="/static/logo-dark.png">
+            </div>
+            
+            <main style="display: none;">
+                {{{body}}}
+
+                <p class="has-text-centered">
+                    <br>
+                    <a class="has-text-danger" href="/"><i class="fas fa-long-arrow-alt-left"></i>&ensp;Return to
+                        Tourisit</a>
+                </p>
+            </main>
+        </section>
+    </div>
+</body>
+
+</html>
