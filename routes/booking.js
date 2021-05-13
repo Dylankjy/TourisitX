@@ -6,6 +6,10 @@ const router = express.Router()
 
 // router.get('/', (req, res) => { ... }
 
+router.get('/', (req, res) => {
+    res.render('myBooking.hbs')
+})
+
 // router.get('/booknow', (req, res) => {
 //     res.render('partials/bookNowModal.hbs')
 // })
