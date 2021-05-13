@@ -9,11 +9,11 @@ const router = express.Router()
 router.get('/', (req, res) => {
     const metadata = {
         meta: {
-            title: 'Administration',
+            title: 'Admin Dashboard',
             path: false,
         },
         nav: {
-            register: true,
+            sidebarActive: "dashboard",
         },
         layout: 'admin',
     }
