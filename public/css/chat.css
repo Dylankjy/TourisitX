@@ -47,4 +47,16 @@
 .chat-background {
     margin-bottom: -9rem;
     height: 10rem
+}    animation: slide .5s ease-out;
+}
+
+@keyframes slide {
+    0% {
+        opacity: 0;
+        transform: translateY(6rem);
+    };
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
