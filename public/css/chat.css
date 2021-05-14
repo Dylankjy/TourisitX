@@ -45,9 +45,12 @@
 }
 
 .chat-background {
-    margin-bottom: -9rem;
-    height: 10rem
-}    animation: slide .5s ease-out;
+    margin-bottom: -12rem;
+    height: 13rem
+}
+
+.chat-box {
+    animation: slide .5s ease-out;
 }
 
 @keyframes slide {
