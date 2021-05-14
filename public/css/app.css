@@ -6,6 +6,7 @@
 @import url('/css/listing.css');
 @import url('/css/admin.css');
 @import url('/css/navbar.css');
+@import url('/css/chat.css');
 
 * {
     font-family: 'Source Sans Pro', sans-serif;
@@ -28,5 +29,5 @@
 }
 
 .box {
-    box-shadow: 0px 4px 16px rgba(17,17,26,0.05), 0px 8px 32px rgba(17,17,26,0.05);
+    box-shadow: 0px 4px 16px rgba(17,17,26,0.05), 0px 8px 32px rgba(17,17,26,0.05) !important;
 }
