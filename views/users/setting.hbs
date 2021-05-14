@@ -37,12 +37,11 @@
 		<div class='box' style='width:75%; margin-left: 12.5%;'>
 			<div class='column'>
 				<!-- Update account settings -->
-				<form class='form-horizontal' enctype='multipart/form-data' method='POST' id='editSettingForm'>
+				<form class='form-horizontal formfield' enctype='multipart/form-data' method='POST' id='editSettingForm'>
 
 					<fieldset>
 						<!-- Account Mode -->
 						
-
 						<div class='field'>
 							<label class='has-text-weight-medium has-text-grey-dark' for='account_mode'>Tour Guide Mode:</label> &nbsp;
 							<input class='switch is-rounded' id='account_mode' type='checkbox' name='account_mode' />
@@ -155,7 +154,38 @@
 			<p class='is-size-5 has-text-weight-bold has-text-centered'>Update Password?</p>
 			<p class='has-text-centered'>Feel free to change your password anytime.</p>
 			<form class='form-horizontal' method='POST'>
-
+				<div class="field">
+                        <label class="label has-text-weight-medium has-text-grey-dark" for="old_password">Current Password:</label>
+                        <div class="control">
+					    <input class='input' type='password' style='height:50px;' id="old_password">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label has-text-weight-medium has-text-grey-dark" for="password">New Password:</label>
+                        <div class="control">
+                            <input class='input' type='password' style='height:50px;' id="password">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label has-text-weight-medium has-text-grey-dark" for="confirm">Confirm New Password:</label>
+                        <div class="control">
+                            <input class='input' type='password' style='height:50px;' id="confirm">
+                        </div>
+                    </div>
+                    <div class="field is-grouped is-grouped-centered mt-5 has-text-centered">
+                        <div class="control">
+                            <button class="button is-danger is-light" id="closebtn"
+                                    onclick="$('#ChangePasswordModal').fadeOut('fast');">
+                                Cancel
+                            </button>
+                        </div>
+                        <form id="ChangePassword" method="POST">
+                            <div class="control">
+                                <input type="submit" class="button is-success" id="change-pass"
+                                       name="submit-change-pass" value="Update Password"
+                                       onclick="$('#ChangePasswordModal').fadeOut('fast');">
+                            </div>
+                        </form>
 			</form>
 		</div>
 	</div>
