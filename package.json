@@ -25,6 +25,7 @@
     "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "bulma-divider": "^0.2.0",
+    "bulma-switch": "^2.0.0",
     "chalk": "^4.1.0",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
