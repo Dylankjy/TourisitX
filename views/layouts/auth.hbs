@@ -13,21 +13,12 @@
 
     <!-- Third-party libraries -->
     <script src="/third_party/jquery/jquery.min.js"></script>
-    
 
     <link rel="stylesheet" href="/third_party/bulma/bulma.min.css">
     <script defer src="/js/navbar.js"></script>
 
     <script src="/third_party/turbolinks/turbolinks.js"></script>
 
-    {{!--
-    <link rel="stylesheet" href="/third_party/nprogress/nprogress.css">
-    <script src="/third_party/nprogress/nprogress.js"></script> --}}
-
-    {{!--
-    <script>
-        NProgress.start()
-    </script> --}}
     <script>
         Turbolinks.start()
     </script>
@@ -40,20 +31,29 @@
         });
     </script>
 
-    <link href="https://use.fontawesome.com/releases/v5.15.1/css/all.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/auth.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js"></script>
 </head>
 
-<body>
-    {{>navbar}}
-    <main style="display: none;">
-    {{{body}}}
-    </main>
+<body class="background-auth">
+    <div class="container-auth">
+        <section class="section is-medium">
+            <div class="has-text-centered">
+                <img class="logo-auth" src="/static/logo-dark.png">
+            </div>
+            
+            <main style="display: none;">
+                {{{body}}}
 
-    {{>footer}}
+                <p class="has-text-centered">
+                    <br>
+                    <a class="has-text-danger" href="/"><i class="fas fa-long-arrow-alt-left"></i>&ensp;Return to
+                        Tourisit</a>
+                </p>
+            </main>
+        </section>
+    </div>
 </body>
-
-{{#if meta.path}}
-<script defer src="/js/{{meta.path}}.js"></script>
-{{/if}}
 
 </html>

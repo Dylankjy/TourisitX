@@ -1,0 +1,32 @@
+.listing-image {
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 20rem;
+}
+
+.listing-clickable .listing-image {
+    transition: ease .5s all;
+    background-color: rgba(0, 0, 0, .0) !important;
+    background-blend-mode: overlay !important;
+}
+
+.listing-clickable:hover .listing-image {
+    transform: scale(1.025);
+    background-color: rgba(0, 0, 0, .5) !important;
+    background-blend-mode: overlay !important;
+}
+
+.listing-clickable .listing-image>div {
+    transition: ease .5s opacity;
+    opacity: .0;
+}
+
+.listing-clickable:hover .listing-image>div {
+    opacity: .8;
+}
+
+.listing-clickable .subtitle {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
