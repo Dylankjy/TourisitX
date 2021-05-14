@@ -11,6 +11,7 @@ router.get('/profile', (req, res) => {
 
 router.get('/settings', (req, res) => {
     res.render('users/setting.hbs')
+})
   
 router.get('/messages', (req, res) => {
     const metadata = {
