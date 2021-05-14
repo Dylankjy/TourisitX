@@ -13,7 +13,7 @@
 
     <!-- Third-party libraries -->
     <script src="/third_party/jquery/jquery.min.js"></script>
-    
+
 
     <link rel="stylesheet" href="/third_party/bulma/bulma.min.css">
     <script defer src="/js/navbar.js"></script>
@@ -45,8 +45,10 @@
 
 <body>
     {{>navbar}}
+    <div class="section has-background-black chat-background">
+    </div>
     <main style="display: none;">
-    {{{body}}}
+        {{{body}}}
     </main>
 
     {{>footer}}

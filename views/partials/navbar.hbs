@@ -3,7 +3,6 @@
         <div class="navbar-brand">
             <a class="navbar-item" href="/">
                 <img src="/static/logo.png">
-                {{!-- <span class="is-family-secondary has-text-weight-semibold has-text-grey-darker">Koukyo コウキョ</span> --}}
             </a>
             <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false">
                 <span aria-hidden="true"></span>
@@ -14,21 +13,62 @@
 
         <div class="navbar-menu">
             <div class="navbar-start">
-                <a class="navbar-item has-text-white is-family-secondary {{#if nav.index}}is-active has-text-bold{{/if}}" href="/">
+                <a class="navbar-item has-text-white is-family-secondary {{#if nav.index}}is-active has-text-bold{{/if}}"
+                    href="/">
                     Home
                 </a>
-                <a class="navbar-item has-text-white is-family-secondary {{#if nav.index}}is-active has-text-bold{{/if}}" href="/users/profile">
+                <a class="navbar-item has-text-white is-family-secondary {{#if nav.index}}is-active has-text-bold{{/if}}"
+                    href="/users/profile">
                     Profile
                 </a>
             </div>
             <div class="navbar-end">
+                <a class="navbar-item has-tooltip-arrow has-tooltip-bottom" data-tooltip="Your Bookings"
+                    href="/bookings">
+                    <i class="fas fa-bookmark"></i>
+                </a>
+                <a class="navbar-item has-tooltip-arrow has-tooltip-bottom" data-tooltip="Your Wishlist"
+                    href="/wishlist">
+                    <i class="fas fa-heart"></i>
+                </a>
+                <a class="navbar-item has-tooltip-arrow has-tooltip-bottom" data-tooltip="Your Inbox"
+                    href="/u/messages">
+                    <i class="fas fa-comment-alt"></i>
+                </a>
+
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <div class="navbar-item">
+                        <div class="profile-img" style="background-image: url('/static/pfp.jpg')"></div>
+                    </div>
+
+                    <div class="navbar-dropdown is-boxed is-right is-glass-white">
+                        <div class="has-background-light p-4 mb-2 has-text-black">
+                            <p class="has-text-weight-bold">Logged in as</p>
+                            <p>{{ user.name }}</p>
+                        </div>
+                        <a class="navbar-item" href='/users/{{ user._id }}'>
+                            Your profile
+                        </a>
+                        <a class="navbar-item" href='/bookings'>
+                            Your bookings
+                        </a>
+                        <a class="navbar-item" href='/settings'>
+                            Account settings
+                        </a>
+                        <hr class="navbar-divider">
+                        <a onclick="$('#logoutOptionsModal').fadeIn('fast')" class="navbar-item has-text-danger-dark">
+                            <i class="fas fa-sign-out-alt"></i>&ensp;Sign out
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {{!-- <div class="navbar-end">
                 <div class="navbar-item has-background-dark">
-                    <a href="/id/login"
-                        class="navbar-item is-family-secondary has-text-white has-background-dark">
+                    <a href="/id/login" class="navbar-item is-family-secondary has-text-white has-background-dark">
                         <i class="fas fa-sign-out-alt"></i>&ensp;Login
                     </a>
                 </div>
-            </div>
+            </div> --}}
         </div>
     </div>
 </nav>

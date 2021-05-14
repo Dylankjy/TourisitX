@@ -1,0 +1,17 @@
+<h1 class="title">Support Tickets</h1>
+<table class="table is-fullwidth">
+    <tr>
+        <th>Issue</th>
+        <th>User</th>
+        <th>Status</th>
+    </tr>
+    {{#each data.tickets}}
+    <tr>
+        <td><a href="/admin/manage/user/{{this.id}}">{{ this.support_type }}</a></td>
+
+        <td>{{ this.user }}</td>
+
+        <td>{{ this.status }}</td>
+    </tr>
+    {{/each}}
+</table>
