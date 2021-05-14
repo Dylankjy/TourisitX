@@ -9,5 +9,9 @@ router.get('/profile', (req, res) => {
     res.render('users/profile.hbs')
 })
 
+router.get('/settings', (req, res) => {
+    res.render('users/setting.hbs')
+})
+
 
 module.exports = router
