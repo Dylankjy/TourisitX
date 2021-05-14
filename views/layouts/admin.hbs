@@ -9,11 +9,10 @@
     <title>{{meta.title}} - Tourisit</title>
     <!-- First-party libraries -->
     <link rel="stylesheet" href="/css/app.css">
-    <script src="/js/slideshow.js"></script>
 
     <!-- Third-party libraries -->
     <script src="/third_party/jquery/jquery.min.js"></script>
-    
+
 
     <link rel="stylesheet" href="/third_party/bulma/bulma.min.css">
     <script defer src="/js/navbar.js"></script>
@@ -44,12 +43,19 @@
 </head>
 
 <body>
-    {{>navbar}}
-    <main style="display: none;">
-    {{{body}}}
-    </main>
+    {{>navbarAdmin}}
+    <div class="section">
+        <div class="container">
+            <div class="columns">
+                {{>sidebarAdmin}}
 
-    {{>footer}}
+                <main class="column" style="display: none;">
+                    {{{body}}}
+                    {{!-- {{>footer}} --}}
+                </main>
+            </div>
+        </div>
+    </div>
 </body>
 
 {{#if meta.path}}
