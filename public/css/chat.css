@@ -1,5 +1,6 @@
 .chat-sidebar {
-    border-radius: 5px;
+    border-top-left-radius: 5.5px;
+    border-bottom-left-radius: 5.5px;
     height: 70vh;
     margin: -.5rem;
 }

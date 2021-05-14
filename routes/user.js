@@ -19,7 +19,7 @@ router.get('/messages', (req, res) => {
             navbar: 'chat',
             sidebarActive: 'aa',
         },
-        // layout: 'admin',
+        layout: 'chat',
     }
     res.render('chat.hbs', metadata)
 })
