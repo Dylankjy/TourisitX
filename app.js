@@ -159,15 +159,15 @@ const webserver = () => {
     })
 
     app.use('/shop', routes.market)
-  
+
     app.use('/listing', routes.listings)
-  
+
     app.use('/u', routes.user)
-  
+
     app.use('/admin', routes.admin)
-  
+
     app.use('/tourguide', routes.tourguide)
-  
+
     app.use('/marketplace', routes.market)
 
     // Don't put any more routes after this block, cuz they will get 404'ed
