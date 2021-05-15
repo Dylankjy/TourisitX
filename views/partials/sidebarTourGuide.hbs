@@ -1,0 +1,47 @@
+<aside data-turbolinks-permanent class="column is-2">
+    <nav data-turbolinks-permanent class="menu">
+        <p class="menu-label">
+            General
+        </p>
+        <ul class="menu-list">
+            <li><a href="/tourguide" {{#ifEquals nav.sidebarActive "desk" }}class="is-active" {{/ifEquals}}><i
+                        class="fas fa-chart-line"></i>&ensp;Overview</a></li>
+        </ul>
+        <p class="menu-label">
+            My Business
+        </p>
+        <ul class="menu-list">
+            <li>
+                <a href="/tourguide/manage/listings" {{#ifEquals nav.sidebarActive "listings" }}class="is-active"
+                    {{/ifEquals}}><i class="fas fa-list"></i>&ensp;My Tour Listings</a>
+                {{#ifEquals nav.sidebarActive "listings" }}
+                <ul>
+                    <li><a {{#unless nav.sidebarSubActive }}class="has-background-grey-lighter"
+                    {{/unless}} href="/tourguide/manage/listings"><i class="fas fa-store"></i>&ensp;Active listings</a></li>
+
+                    <li><a {{#ifEquals nav.sidebarSubActive "listingsArchived" }}class="has-background-grey-lighter"
+                    {{/ifEquals}} href="/tourguide/manage/listings/archived"><i class="fas fa-archive"></i>&ensp;Archived listings</a></li>
+                </ul>
+                {{/ifEquals}}
+            </li>
+            <li><a href="/tourguide/bookings" {{#ifEquals nav.sidebarActive "bookings" }}class="is-active"
+                    {{/ifEquals}}><i class="fas fa-handshake"></i>&ensp;Bookings</a></li>
+        </ul>
+        <p class="menu-label">
+            Transactions
+        </p>
+        <ul class="menu-list">
+            <li><a href="/tourguide/payments" {{#ifEquals nav.sidebarActive "payments" }}class="is-active"
+                    {{/ifEquals}}><i class="fas fa-money-check-alt"></i>&ensp;Transaction History</a></li>
+        </ul>
+
+        {{!-- <li>
+            <a class="">Manage Your Team</a>
+            <ul>
+                <li><a>Members</a></li>
+                <li><a>Plugins</a></li>
+                <li><a>Add a member</a></li>
+            </ul>
+        </li> --}}
+    </nav>
+</aside>

@@ -1,7 +1,6 @@
-<head>
-    <link rel='stylesheet' href='/third_party/bulma/bulma-timeline.min.css'>
-    <link rel='stylesheet' href='/third_party/alex/listing.css'>
-</head>
+<link rel='stylesheet' href='/third_party/bulma/bulma-timeline.min.css'>
+<link rel='stylesheet' href='/third_party/alex/listing.css'>
+
 
 <section class='section'>
     <a href='/listing'>
@@ -19,9 +18,21 @@
 
 <section class="section" style="padding-top: 5rem">
     <div class='container'>
-        <div class='box'>
+
+        {{#if isOwner}}
+            {{#if (isDefined errMsg)}}
+            <div class='container'>
+                <p>{{errMsg}}</p>
+            </div>
+            {{/if}}
+        {{>editableImage}}
+
+        {{else}}
+        <div class='listing-img' style='background-image: url("savedImages/{{data.tourImage}}")'></div>
+        {{/if}}
+
+        <div class='box' img='content-box'>
             <div class='columns'>
-                
                 <!-- For name and description -->
                 <div class='column is-5'>
                     <div class='content'>
@@ -167,3 +178,5 @@
         </div>
     </div>
 </section>
+
+

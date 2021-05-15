@@ -45,6 +45,21 @@
 }
 
 .chat-background {
-    margin-bottom: -9rem;
-    height: 10rem
+    margin-bottom: -12rem;
+    height: 13rem
+}
+
+.chat-box {
+    animation: bigToSmall .4s ease;
+}
+
+@keyframes bigToSmall {
+    0% {
+        opacity: 0;
+        transform: scale(1.2)
+    };
+    100% {
+        opacity: 1;
+        transform: scale(1)
+    }
 }
