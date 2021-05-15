@@ -1,4 +1,6 @@
 # TourisitX
+[![ESLint](https://github.com/Tokinoharu/TourisitX/actions/workflows/ESLinting.yml/badge.svg)](https://github.com/Tokinoharu/TourisitX/actions/workflows/ESLinting.yml)
+
 TourisitX is a NodeJS port of [Tourisit](https://github.com/Tokinoharu/Tourisit) which aims to serve as a platform for retrenched tour guides to find freelancing jobs and to promote local tourism.
 
 > **Why the name?**
