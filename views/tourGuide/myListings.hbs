@@ -7,6 +7,20 @@
 <section class="section has-background-white">
     <div class="container">
         <h1 class="is-size-1 has-text-weight-bold mt-6">My tours</h1>
+
+        {{#if (emptyArr datas)}}
+        {{else}}
+        <a href='/listing/create'>
+            <button class='button is-success is-outlined is-pulled-right'>
+                    <span class='icon'>
+                        <i class="fas fa-plus"></i>
+                    </span>
+                    <span>
+                        Add a Tour
+                    </span>
+            </button>
+        </a>
+        {{/if}}
     </div>
 </section>
 

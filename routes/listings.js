@@ -5,6 +5,7 @@ const bodyParser = require('body-parser')
 const { route } = require('./admin')
 const ExpressFormidable = require('express-formidable')
 const fs = require('fs')
+const fsPromise = require('fs/promises')
 const exphbs = require('express-handlebars')
 const expressSession = require('express-session')
 const cors = require('cors')
@@ -14,121 +15,23 @@ const fileType = require('file-type')
 const path = require('path')
 const elasticSearch = require('elasticsearch')
 const io = require('socket.io')
-
+const fakeGenerator = require('../TMP/listingGenerator').generateFakeEntry
+const formidableValidator = require('../app/validation')
+const { convert } = require('image-file-resize')
 
 // Globals
 const router = express.Router()
 const { Shop } = require('../models')
+const { generateFakeEntry } = require('../TMP/listingGenerator')
 
 
+const Validator = formidableValidator.Validator
+const fileValidator = formidableValidator.FileValidator
 // bin\elasticsearch.bat
 
 // router.use(formidable())
 
-class Validator {
-    constructor(data) {
-        this.data = data
-    }
 
-    // Used to initialize the validation. Specify the input name, error message to display if false and the name of element to render when showing error
-    Initialize(options) {
-        // Reset the result attribute to true (Make result an instance attribute, not a class attribute so I remove it from the constructor)
-        this.result = true
-        this.name = options.name
-        this.errMsg = options.errorMessage
-        return this
-    }
-
-    // Checks if the element is empty
-    exists() {
-        if (!this.data[this.name]) {
-            this.result = false
-            return this
-        }
-        return this
-    }
-
-    // Checks if a string's length falls within the specified range
-    isLength(options) {
-        const min = options.min
-        const max = options.max
-        if ((this.data[this.name].toString().length < min) || (this.data[this.name].length > max)) {
-            this.result = false
-            return this
-        }
-        // if ((this.data[name]).toString().length < min) return false
-        return this
-    }
-
-    // Checks if a numerical value is between a given range
-    isValue(options) {
-        const min = options.min
-        const max = options.max
-
-        // If it is a number then I'll validate
-        if (!isNaN(this.data[this.name])) {
-            if ((this.data[this.name] < min) || (this.data[this.name] > max)) {
-                this.result = false
-                return this
-            }
-        } else {
-            throw new Error('Only accept Numeric values')
-        }
-        return this
-    }
-
-    // Returns the JSON result of the validation
-    getResult() {
-        if (this.result == false) {
-            return { result: this.result, msg: this.errMsg }
-        }
-        return null
-    }
-}
-
-
-class FileValidator {
-    constructor(data) {
-        this.data = data
-    }
-
-    Initialize(options) {
-        this.result = true
-        this.errMsg = options.errorMessage
-        return this
-    }
-
-    fileExists() {
-        if (this.data['resume']['_writeStream']['bytesWritten'] == 0) {
-            this.result = false
-            return this
-        }
-        return this
-    }
-
-    sizeAllowed(options) {
-        if (this.data['resume']['_writeStream']['bytesWritten'] > options.maxSize) {
-            this.result = false
-        }
-        return this
-    }
-
-    extAllowed(allowedExtensions) {
-        const extName = path.extname(this.data['resume']['name'])
-        if (!allowedExtensions.includes(extName)) {
-            this.result = false
-        }
-        return this
-    }
-
-
-    getResult() {
-        if (this.result == false) {
-            return { result: this.result, msg: this.errMsg }
-        }
-        return null
-    }
-}
 
 
 // Will convert Image to base64.
@@ -167,13 +70,25 @@ imageToB64Promise = (filePath, fileType) => {
     })
 }
 
+
 // Get and save the B64 encoded image using callback
+// getImage = (req, callback) => {
+//     const filePath = req.files['resume']['path']
+//     const fileType = req.files['resume']['type']
+//     imageToB64Promise(filePath, fileType).then((data) => {
+//         // Do all your database stuff here also
+//         callback(data)
+//         // fs.writeFile(toPath, data, err=>{if (err) throw err})
+//     }).catch((err) => {
+//         console.log(err)
+//     })
+// }
+
 getImage = (req, callback) => {
     const filePath = req.files['resume']['path']
     const fileType = req.files['resume']['type']
     imageToB64Promise(filePath, fileType).then((data) => {
         // Do all your database stuff here also
-        callback(data)
         // fs.writeFile(toPath, data, err=>{if (err) throw err})
     }).catch((err) => {
         console.log(err)
@@ -181,44 +96,41 @@ getImage = (req, callback) => {
 }
 
 
-// To save image to specified folder. A UUID will be given as name
-// filePath -- received path; ext - extension of file; folder - folder to save image to
-storeImage = (filePath, fileExt, folder) =>{
-    const imgName = uuid.v4()
-    fs.readFile(filePath, (err, data) => {
-        const imgBuffer = Buffer.from(data)
-        fileExt = fileExt.replace('.', '')
-        fs.writeFile(`${folder}/${imgName}.${fileExt}`, imgBuffer, (err) => {
-            console.log(err)
+
+resizeImage = (file, width, height, type) => {
+    return new Promise((resolve, reject) =>{
+        convert({
+            file: file,
+            width: width,
+            height: height,
+            type: type
+        })
+        .then((data)=>{
+            resolve(data)
+        })
+        .catch((err)=>{
+            reject(err)
         })
     })
-    return `${imgName}.${fileExt}`
 }
 
 
-// dbImg is the name of the saved image (In the database)
-// localImg is the req.files["resume"] object of the image that was submitted
-// Returns boolean whether 2 images are the same
-sameImage = (dbImg, localImgObject) => {
-    return new Promise((res, rej)=>{
-        imageToB64Promise(`savedImages/${filename}`, path.extname(filename))
-            .then((dbImgDataB64)=>{
-                fs.readFile(localImg['path'], (err, localImgData)=>{
-                    let localImgDataB64 = Buffer.from(localImgData).toString('base64')
-                    localImgDataB64 = `data:${type};base64, ${base64}`
-                    if (localImgDataB64 == dbImgDataB64) {
-                        console.log('THe 2 images are the same')
-                        return true
-                    } else {
-                        console.log('The 2 images are different')
-                        return false
-                    }
-                })
-            })
-            .catch((err)=>{
-                console.log(err)
-            })
-    })
+// To save image to specified folder. A UUID will be given as name
+// filePath -- received path; fileName - name of local file; folder - folder to save image to
+storeImage =  (filePath, fileName, folder) =>{
+    var imgName = uuid.v4()
+
+    var fileExt = path.extname(fileName)
+    var savedName = `${imgName}${fileExt}`
+    var savedPath = `${folder}/${imgName}${fileExt}`
+
+    var data = fs.readFileSync(filePath)
+    var imgBuffer = Buffer.from(data)
+
+    fs.writeFileSync(savedPath, imgBuffer)
+
+    return savedName
+
 }
 
 
@@ -230,17 +142,31 @@ emptyArray = (arr) => {
     return arr.filter((n) => n).length == 0
 }
 
+
+
+
+
 // Put all your routings below this line -----
 
 // Show the user all of their own listings
 router.get('/', (req, res)=>{
-    Shop.findAll({ where: {
-        // Set to empty now, but it should be replaced with the userID when authentication library is out
-        userId: 'sample',
-    } }).then((items)=>{
-        const itemsArr = items.map((x)=>x['dataValues'])
+    Shop.findAll(
+        {
+            where: {
+                // Set to empty now, but it should be replaced with the userID when authentication library is out
+                userId: 'sample',
+            }, 
+            order: 
+                [['updatedAt', 'ASC']]
+        }
+    )
+    .then((items)=>{
+        var itemsArr = items.map((x)=>x['dataValues'])
         res.render('tourGuide/myListings.hbs', { datas: itemsArr })
-    }).catch((err)=>console.log)
+    })
+    .catch((err)=>{
+        console.log
+    })
 })
 
 
@@ -315,9 +241,11 @@ router.post('/create', (req, res)=>{
         res.clearCookie('storedValues')
         res.clearCookie('savedImageName')
 
+        var genId = uuid.v4()
+
         Shop.create({
             // You create the uuid when you initialize the create listing
-            id: uuid.v4(),
+            id: genId,
             // Replace with actual usesrID once the auth library is out
             userId: 'sample',
             tourTitle: req.fields.tourTitle,
@@ -332,11 +260,13 @@ router.post('/create', (req, res)=>{
             finalLocations: req.fields.finalLocations,
             tourImage: 'default.jpg',
             hidden: 'false',
-        }).catch((err)=>{
+        })
+        .catch((err)=>{
             console.log(err)
         })
 
-        res.send('Success')
+        console.log("Inserted")
+        res.redirect(`/listing`)
     }
 })
 
@@ -420,7 +350,44 @@ router.post('/edit/:savedId', (req, res)=>{
             console.log(err)
         })
 
-        res.send('Success')
+        res.redirect(`/listing/info/${req.params.savedId}`)
+    }
+})
+
+
+router.post('/edit/image/:savedId', (req, res)=>{
+    console.log("Image edited")
+    const v = new fileValidator(req.files["tourImage"])
+    var imageResult = v.Initialize({errorMessage: "Please supply a valid Image"}).fileExists().sizeAllowed({maxSize:5000000})
+        .getResult()
+        // 5000000
+
+    // Upload is successful
+    if (imageResult == null) {
+        var filePath = req.files["tourImage"]["path"]
+        var fileName = req.files["tourImage"]["name"]
+        var saveFolder = 'savedImages/Listing'
+        var savedName = storeImage(filePath = filePath, fileName = fileName, folder=saveFolder)
+        console.log(savedName)
+        Shop.update({
+            tourImage: savedName
+            }, {
+                where: { id: req.params.savedId },
+            }).catch((err)=>{
+                console.log(err)
+        })
+        .then((data)=>{
+            res.redirect(`/listing/info/${req.params.savedId}`,)
+        })
+        .catch((err)=> {
+            console.log(err)
+        })
+        
+    } else {
+        var errMsg = imageResult.msg
+        console.log("Failed")
+        res.cookie('imageValError', errMsg, { maxAge: 5000 })
+        res.redirect(`/listing/info/${req.params.savedId}`)
     }
 })
 
@@ -438,21 +405,27 @@ router.get('/delete/:savedId', (req, res)=>{
 })
 
 
-router.get('/explore', (req, res)=>{
-    console.log('THIS RAN')
-    res.render('marketplace.hbs')
-})
-
-
 // To get a specific listing
 router.get('/info/:id', (req, res)=>{
     const itemID = req.params.id
 
+    if (req.cookies.imageValError) {
+        var errMsg = req.cookies.imageValError
+    } else {
+        var errMsg = ""
+    }
+
     Shop.findAll({ where: {
         id: itemID,
     } }).then((items)=>{
-        const data = items[0]['dataValues']
-        res.render('listing.hbs', { data: data })
+        var data = items[0]['dataValues']
+        // Check here if data.userId = loggedIn user ID
+        if (true) {
+            owner = true
+        } else {
+            owner = false
+        }
+        res.render('listing.hbs', { data: data, isOwner:owner, errMsg: errMsg })
     }).catch((err)=>console.log)
 })
 
@@ -472,76 +445,44 @@ router.get('/api/getImage/:id', (req, res)=>{
 })
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Elastic Search stuff
 
 const esClient = elasticSearch.Client({
     host: 'http://localhost:9200',
 })
 
-
-// router.get('/es-api/create-index', (req, res)=>{
-//     esClient.indices.create({
-//         index: 'products',
-//         body: {
-//             mappings: {
-//                 properties: {
-//                     suggest: {
-//                         "type": "completion"
-//                     },
-//                     "name":
-//                     {"type": "text",
-//                     "fields": {
-//                         "trigram": {
-//                             type: "text",
-//                             analyzer: 'trigram'
-//                         },
-//                         "reverse": {
-//                             type: "text",
-//                             analyzer: "reverse"
-//                         }
-//                     }
-//                 },
-//                     // set index to false, as you only need to index the name for searching
-//                     "description": {"type": "text", "index": false},
-//                     "image": {"type": "text", "index": false},
-//                     suggest: {
-//                         type: "completion"
-//                     }
-//                 }
-//             },
-//             settings: {
-//                 analysis: {
-//                     analyzer: {
-//                         trigram: {
-//                             type: "custom",
-//                             tokenizer: "standard",
-//                             "filter": ["lowercase", "shingle"]
-//                         },
-//                         reverse: {
-//                             type: "custom",
-//                             tokenizer: "standard",
-//                             "filter": ["lowercase", "reverse"]
-//                         }
-//                     },
-//                     filter: {
-//                         shingle: {
-//                             type: "shingle",
-//                             "min_shingle_size": 2,
-//                             "max_shingle_size": 3
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//     })
-//     .then((data)=>{
-//         console.log("Created Index!")
-//         return res.json({"Message": "Create successful"})
-//     })
-//     .catch(err=>{
-//         console.log(err)
-//     })
-// })
 
 router.get('/es-api/create-index', (req, res)=>{
     const searchText = req.query.text
@@ -557,8 +498,8 @@ router.get('/es-api/create-index', (req, res)=>{
                         // Will generate n-grams from the words {E.g "shirt --> "sh", "shi", "shir", "shirt"}
                         'autocomplete_filter': {
                             'type': 'ngram',
-                            'min_gram': '2',
-                            'max_gram': '3',
+                            'min_gram': '3',
+                            'max_gram': '4',
                         },
                     },
                     // Specify custom analyzers here
@@ -590,6 +531,13 @@ router.get('/es-api/create-index', (req, res)=>{
                     },
                 },
             },
+            // 'index':{
+            //     "similarity": {
+            //         "name_similarity": {
+            //             "type": ""
+            //         }
+            //     }
+            // }
         },
     })
         .then((data)=>{
@@ -600,35 +548,6 @@ router.get('/es-api/create-index', (req, res)=>{
             return res.status(500).json({ 'Message': 'Error' })
         })
 })
-
-
-// router.get('/es-api/create-index', (req, res)=>{
-//     esClient.indices.create({
-//         index: 'products',
-//         body: {
-//             mappings: {
-//                 properties: {
-//                     "name": {"type": "text"},
-//                     // set index to false, as you only need to index the name for searching
-//                     "description": {"type": "text", "index": false},
-//                     "image": {"type": "text", "index": false},
-//                     "suggest": {
-//                         "type": "completion",
-//                         "analyzer": "simple",
-//                         "search_analyzer": "simple"
-//                     }
-//                 }
-//             }
-//         }
-//     })
-//     .then((data)=>{
-//         console.log("Created Index!")
-//         return res.json({"Message": "Create successful"})
-//     })
-//     .catch(err=>{
-//         console.log(err)
-//     })
-// })
 
 
 router.post('/es-api/upload', (req, res) => {
@@ -656,27 +575,6 @@ router.post('/es-api/upload', (req, res) => {
         })
 })
 
-
-// router.post('/es-api/upload', (req, res) => {
-//     esClient.index({
-//         index: 'products',
-//         // Need to define the ID here so you can update using ID
-//         id: req.fields.id,
-//         body: {
-//             "name": req.fields.name,
-//             // "id": req.fields.id,
-//             "description": req.fields.description,
-//             "image": req.fields.image
-//         }
-//     })
-//     .then((data)=>{
-//         console.log("Indexed!")
-//         return res.json({"Message": "Indexing successful"})
-//     })
-//     .catch(err=>{
-//         console.log(err)
-//     })
-// })
 
 
 router.post('/es-api/update', (req, res) => {
@@ -727,6 +625,7 @@ router.get('/es-api/search', (req, res) => {
                     'name': searchText,
                 },
             },
+            "sort" : ["_score"]
         },
     })
         .then((data)=>{
@@ -734,57 +633,10 @@ router.get('/es-api/search', (req, res) => {
             return res.json(data)
         })
         .catch((err)=>{
+            console.log(err)
             return res.status(500).json({ 'Message': 'Error' })
         })
 })
-
-
-// router.get('/es-api/search', (req, res) => {
-//     const searchText = req.query.text
-//     esClient.search({
-//         index: "products",
-//         body: {
-//             query: {
-//                 // fuzzy: {
-//                 //     name : {
-//                 //         value: searchText,
-//                 //         fuzziness: 5,
-//                 //         prefix_length: 0
-//                 //     }
-//                 // },
-//                 match: {
-//                     "name": searchText
-//                 }
-//             },
-//             suggest: {
-//                 text: searchText,
-//                 gotsuggest: {
-//                     term: {
-//                         field: 'name',
-//                         analyzer: 'simple',
-//                         size: 3,
-//                         sort: 'score',
-//                         prefix_length: 0,
-//                         min_word_length: 2,
-//                         suggest_mode: "always"
-//                     }
-//                 },
-//                 // otherSuggest: {
-//                 //     "completion": {
-//                 //         "field": "suggest"
-//                 //     }
-//                 // }
-//             }
-//         }
-//     })
-//     .then((data)=>{
-//         console.log("Ran")
-//         return res.json(data)
-//     })
-//     .catch((err)=>{
-//         return res.status(500).json({"Message": "Error"})
-//     })
-// })
 
 
 router.get('/es-api/suggest', (req, res) => {
@@ -807,6 +659,68 @@ router.get('/es-api/suggest', (req, res) => {
         .catch((err)=>{
             return res.status(500).json({ 'Message': 'Error' })
         })
+})
+
+
+// To generate fake entries to test out elastic search
+router.get('/es-api/dev/generateFakes', (req, res) => {
+    var noToGenerate = req.query.num
+    var fakes = []
+    for (var i = 0; i <= noToGenerate; i ++) {
+            fakes.push(generateFakeEntry())
+    }
+
+    const body = fakes.flatMap(doc => [{ index: { _index: 'products' } }, doc])
+    esClient.bulk({ refresh: true, body })
+    .then((d)=>{
+        console.log(d)
+        res.json({"Message": "Success"})
+    })
+    .catch((err)=>{
+        console.log(err)
+        res.json(err)
+    })
+})
+
+// docs is the array of documents to batch inset. index is the name of the ElasticSearch index to populate
+batchIndex = (docs, es_index) => {
+    return new Promise((resolve, reject)=>{
+        const body = docs.flatMap(doc => [{ index: { _index: es_index } }, doc])
+        esClient.bulk({ refresh: true, body })
+        .then((d)=>{
+            resolve(d)
+        })
+        .catch((err)=>{
+            reject(err)
+        })
+    })
+}
+
+// To populate the elastic search index using the Shop Database
+router.get('/es-api/getFromShopDB', (req, res) => {
+    // This array will contain all the JSON objects
+    var docs = []
+    // Specify the attributes to retrieve
+    Shop.findAll({attributes: ['id', 'tourTitle', 'tourDesc']})
+    .then((data)=>{
+        data.forEach((doc)=>{
+            // console.log(doc["Shop"]["dataValues"])
+            docs.push(doc["dataValues"])
+        })
+
+        batchIndex(docs, "products")
+        .then((data)=>{
+            res.json({"Message": "Success", "data": docs})
+        })
+        .catch((err)=>{
+            console.log(err)
+            res.json({"Message": "Failed"})
+        })
+    })
+    .catch((err)=>{
+        console.log(err)
+        res.json({"Message": "Error"})
+    })
 })
 
 

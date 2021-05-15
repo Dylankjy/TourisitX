@@ -4,11 +4,12 @@
 class Validator {
     constructor(data) {
         this.data = data
-        this.result = true
     }
 
-    // Used to initialize the validation. Specify the input name and the error message to display if false
+    // Used to initialize the validation. Specify the input name, error message to display if false and the name of element to render when showing error
     Initialize(options) {
+        // Reset the result attribute to true (Make result an instance attribute, not a class attribute so I remove it from the constructor)
+        this.result = true
         this.name = options.name
         this.errMsg = options.errorMessage
         return this
@@ -55,46 +56,59 @@ class Validator {
     // Returns the JSON result of the validation
     getResult() {
         if (this.result == false) {
-            return { name: this.name, result: this.result, msg: this.errMsg }
+            return { result: this.result, msg: this.errMsg }
         }
-        return { name: this.name, result: this.result }
+        return null
     }
 }
 
-/*
-Note:
--  Always initialize the class first, using the Initialize method
--  Always end off with the getResult() method to get the results of the validation. A Json object will be returned with result =  true/false and the relevant errMsg if needed
 
-Your result will look as such:
-{ name: 'theName', result: false, msg: 'Needs to be 5 chars!' }
+class FileValidator {
+    constructor(data) {
+        this.data = data
+    }
+
+    Initialize(options) {
+        this.result = true
+        this.errMsg = options.errorMessage
+        return this
+    }
+
+    fileExists() {
+        if (this.data['size'] == 0) {
+            this.result = false
+            return this
+        }
+        return this
+    }
+
+    sizeAllowed(options) {
+        if (this.data['size'] > options.maxSize) {
+            this.result = false
+        }
+        return this
+    }
+
+    extAllowed(allowedExtensions) {
+        const extName = path.extname(this.data['name'])
+        if (!allowedExtensions.includes(extName)) {
+            this.result = false
+        }
+        return this
+    }
 
 
-To Use custom validator:
+    getResult() {
+        if (this.result == false) {
+            return { result: this.result, msg: this.errMsg }
+        }
+        return null
+    }
+}
 
-1. Initialize the validator, passing in the POST Json Data
-var x = Validator()
-
-2. Call the Initialize method of the class, passing in the name and error message to display
-x.Initialize({name: "theName", errorMessage: "Name must be 7 characters long"})
-
-^ This will validate the field <input name='theName'> and if there is an error found later, it will throw "Name must be 7 characters long"
-
-3. The Validator class supports chaining.
-x.Initialize({blahblah..}).exists().isLength({min: 3, max: 8})
-
-^ This will call the exists() method, which checks whether the string is empty or not
-The isLength() method will then be called which checks whether the string is more than 2 chars and less than 9 chars
-
-4. Get the result by calling the getResult() method
-x.Initialize({name: "theName", errorMessage: "Name must be 8 characters long"})
-.exists().isLength({min: 3, max: 8})
-.getResult()
-
-^ This will return an object { name: 'theName', result: false, msg: 'Name must be 8 characters long' } if validation FAILED
-Else, it will return  { name: 'theName', result: true }
-
- */
+module.exports = {
+    FileValidator, Validator
+}
 
 // Examples
 
@@ -108,5 +122,5 @@ ageResult = v.Initialize({ name: 'theAge', errorMessage: 'Minimum age is 10' }).
     .getResult()
 
 const allResults = [nameResult, ageResult]
-console.log(allResults)
+// console.log(allResults)
 

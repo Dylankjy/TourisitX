@@ -48,6 +48,7 @@ E.g
 
 
 Analyzers:
+https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-custom-analyzer.html
 - Used during Indexing to break down sentences into terms
 - This is run every time a new document is inserted
 
@@ -120,5 +121,10 @@ E.g
 
 
 
-COMBINED EG
+Others
+
+Define custom similarity functions to use
+https://www.elastic.co/guide/en/elasticsearch/reference/7.x/index-modules-similarity.html
+
+
 

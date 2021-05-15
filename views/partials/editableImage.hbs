@@ -1,0 +1,31 @@
+<div class='section listing-img editable-img' id='renderImage' style='background-image: url("/Listing/{{data.tourImage}}")'>
+    <p class='subtitle image-center-text' id="editText" hidden>Change Image</p>
+</div>
+
+<form class="form-horizontal" enctype="multipart/form-data" method="POST" id='editImageForm' action='/listing/edit/image/{{data.id}}'>
+    <input name="tourImage" type="file" accept="image/x-png,image/jpeg" hidden>
+</form>    
+
+
+<script>
+    $(window).on('load', ()=>{
+        $("#renderImage").on('click', ()=>{
+            $("input[name=tourImage").click()
+        })
+
+        $("input[name=tourImage").on('change', ()=>{
+            console.log("Changed")
+            $("#editImageForm").submit()
+        })
+
+        $(".editable-img").on("mouseover", ()=>{
+            $("#editText").show()
+        })
+
+        $(".editable-img").on("mouseout", ()=>{
+            $("#editText").hide()
+        })
+    })    
+
+    
+</script>
