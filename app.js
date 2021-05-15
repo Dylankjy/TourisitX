@@ -135,6 +135,8 @@ const webserver = () => {
 
     app.use('/admin', routes.admin)
 
+    app.use('/tourguide', routes.tourguide)
+
     // Don't put any more routes after this block, cuz they will get 404'ed
     app.get('*', (req, res) => {
         const metadata = {
