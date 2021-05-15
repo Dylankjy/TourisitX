@@ -1,1 +1,35 @@
-<p>Yea</p>
+<section class="hero is-medium is-success has-text-centered">
+  <div class="hero-body">
+    <p class="title">
+      ✨ Search for your Ideal Tour
+    </p>
+    <p class="subtitle is-4">
+        Browse new tours
+    </p>
+  </div>
+</section>
+
+<div class='container'>
+    <nav class='panel'>
+        <div class='panel-block'>
+            <p class="control has-icons-left">
+            <input class="input" type="text" placeholder="Search">
+            <span class="icon is-left">
+                <i class="fas fa-search" aria-hidden="true"></i>
+            </span>
+            </p>
+        </div>
+    </nav>
+</div>
+
+
+<main id="index-section" class="section">
+    <div class="container">
+        <div class="columns is-multiline is-variable is-5">
+            {{#each listings}}
+            {{>listingCard}}
+            {{/each}}
+        </div>
+    </div>
+</main>
+

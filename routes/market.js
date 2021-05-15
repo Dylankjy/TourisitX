@@ -1,35 +1,25 @@
 const express = require('express')
+const { Shop } = require('../models')
 
 const router = express.Router()
 
 router.get('/', (req, res) => {
-    const metadata = {
-        meta: {
-            title: 'Home',
-            path: false,
-        },
-        nav: {
-            index: true,
-        },
-        listing: [
-            {
-                name: 'Test listing',
-                desc: 'This is a test listing',
-                place: 'Gardens by the Bay',
-            },
-            {
-                name: 'Test listing',
-                desc: 'This is a test listing',
-                place: 'Gardens by the Bay',
-            },
-            {
-                name: 'Test listing',
-                desc: 'This is a test listing',
-                place: 'Gardens by the Bay',
-            },
-        ],
-    }
-    res.render('index', metadata)
+    const listings = []
+    Shop.findAll({
+        attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
+        // limit: Set a limit on number of examples to retrieve
+    })
+        .then((data)=>{
+            data.forEach((doc)=>{
+                listings.push(doc['dataValues'])
+            })
+            console.log(listings)
+            res.render('marketplace.hbs', { listings: listings })
+        })
+        .catch((err)=>{
+            console.log(err)
+            res.json({ 'Message': 'Failed' })
+        })
 })
 
 
