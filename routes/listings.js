@@ -421,6 +421,7 @@ router.get('/info/:id', (req, res)=>{
         var data = items[0]['dataValues']
         // Check here if data.userId = loggedIn user ID
         if (true) {
+            // Manually set to true now.. while waiting for the validation library
             owner = true
         } else {
             owner = false
