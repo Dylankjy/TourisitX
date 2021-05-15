@@ -30,14 +30,17 @@ const db = require('./models')
 
 // Express Additional Options
 // Express: Public Directory
+
+// Need this in order to render the css and images
 app.use('/', express.static('public'))
+app.use('/', express.static('savedImages'))
 app.use('/third_party', express.static('third_party'))
 app.use('/usercontent', express.static('storage'))
 
 // Handlebars: Render engine
 app.set('view engine', 'hbs')
 
-app.use(cors())
+// app.use(cors())
 
 
 // Handlebars: Environment options
@@ -125,15 +128,45 @@ const speedLimiter = slowDown({
 // Express: Routes
 const webserver = () => {
     // Define all the router stuff here
-    app.use('/', routes.market)
+    app.get('/', (req, res)=>{
+        const metadata = {
+            meta: {
+                title: 'Home',
+                path: false,
+            },
+            nav: {
+                index: true,
+            },
+            listing: [
+                {
+                    tourTitle: 'Test listing one',
+                    tourDesc: 'This is a test listing',
+                    tourImage: 'default.jpg',
+                },
+                {
+                    tourTitle: 'Test listing two',
+                    tourDesc: 'This is a test listing two',
+                    tourImage: 'default.jpg',
+                },
+                {
+                    tourTitle: 'Test listing three',
+                    tourDesc: 'This is a test listing three',
+                    tourImage: 'default.jpg',
+                },
+            ],
+        }
+        res.render('index.hbs', metadata)
+    })
 
     app.use('/shop', routes.market)
 
-    app.use('/listing', cors(), routes.listings)
+    app.use('/listing', routes.listings)
 
     app.use('/u', routes.user)
 
     app.use('/admin', routes.admin)
+
+    app.use('/marketplace', routes.market)
 
     // Don't put any more routes after this block, cuz they will get 404'ed
     app.get('*', (req, res) => {
