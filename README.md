@@ -4,6 +4,7 @@
 TourisitX is a NodeJS port of [Tourisit](https://github.com/Tokinoharu/Tourisit) which aims to serve as a platform for retrenched tour guides to find freelancing jobs and to promote local tourism.
 
 > **Why the name?**
+>
 > Why the X at the end? No freaking clue, because tech companies find it cool and funky to use an X at the back of their newly improved app's name. So why not?
 
 # License
