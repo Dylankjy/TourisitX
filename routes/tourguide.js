@@ -82,4 +82,18 @@ router.get('/manage/listings/archived', (req, res) => {
     res.render('tourguide/dashboard/archived', metadata)
 })
 
+router.get('/bookings', (req, res) => {
+    const metadata = {
+        meta: {
+            title: 'Bookings',
+            path: false,
+        },
+        nav: {
+            sidebarActive: 'bookings',
+        },
+        layout: 'tourguide',
+    }
+    res.render('tourguide/dashboard/bookings', metadata)
+})
+
 module.exports = router
