@@ -31,6 +31,26 @@
                     <div class="box">
                     <section class="section">
                         <div class="container">
+                            <p class="has-text-centered is-size-4 has-text-weight-bold">Activity</p>
+                            <div class="has-text-weight-semibold">
+                            <span>Current Progress</span>
+                            <progress class="progress is-success" value="50" max="100">100%</progress>
+                            <div id="steps">
+                            <p>Current Step</p>
+                            <!--START: steps-->
+                            <div class="tags are-medium">
+                                <a href="#"><span class="tag is-link">Submit Requirements &nbsp;<i class="fas fa-arrow-right"></i></span></a>
+                                <a href="#"><span class="tag is-link is-hidden">Review Tour Plan &nbsp;<i class="fas fa-arrow-right"></i></span></a>
+                                <a href="#"><span class="tag is-link is-hidden">Make Payment &nbsp;<i class="fas fa-arrow-right"></i></span></a>
+                                <a href="#"><span class="tag is-link is-hidden">Declare that Tour is Complete &nbsp;<i class="fas fa-arrow-right"></i></span></a>
+                                <a href="#"><span class="tag is-link is-hidden">Leave a Review &nbsp;<i class="fas fa-arrow-right"></i></span></a>
+                                <span class="tag is-hidden">Awaiting Tour Guide Action</span>
+                            </div>
+                            </div>
+                            <!--END: steps-->
+                            </div>
+                            <br>
+                            <div class="divider is-right"></div>
                             <p class="has-text-right has-text-link"><i class="fas fa-angle-double-down"></i> 
                             Jump to latest activity</p>
                                <!--START: timeline-->
@@ -293,23 +313,112 @@
                 </div>
                 <!--END: Activity Section-->
 
-                <!--START: Billing Section-->
+                <!--START: Details Section-->
                 <div id="Details" class="content-tab" style="display:none;">
-                    Tour details: finalised tour info
+                    <div class="box">
+                        <section class="section">
+                            <div class="container">
+                                <p class="has-text-centered is-size-4 has-text-weight-bold">Tour Plan
+                                <span class="tag is-success is-light">Finalised</span></p>
+                                <br>
+                                <!--START: Tour plan-->
+                                <table class="table is-fullwidth">
+                                                <tr>
+                                                    <th><i class="far fa-calendar"></i>&ensp;Date</th>
+                                                    <td>Date</td>
+                                                </tr>
+                                                <tr>
+                                                    <th><i class="fas fa-clock"></i>&ensp;Time</th>
+                                                    <td>Time</td>
+                                                </tr>
+                                                <tr>
+                                                    <th><i class="fas fa-user-friends"></i>&ensp;Number of Participants</th>
+                                                    <td>Pax</td>
+                                                </tr>
+                                                <tr onclick="openTab(event,'Billing')" class="is-clickable">
+                                                    <th><i class="fas fa-dollar-sign"></i>&ensp;Cost</th>
+                                                    <td>Cost</td>
+                                                </tr>
+                                            </table>
+                                            <br>
+
+                                            <!--START: Itinerary-->
+
+                                            <div class="timeline">
+                                                <header class="timeline-header">
+                                                    <span class="tag is-medium is-info">Tour Start</span>
+                                                </header>
+
+                                                {{!-- {{#each (readArrWithReplace data.finalItinerary)}} --}}
+                                                <div class="timeline-item">
+                                                    <div class="timeline-marker is-icon">
+                                                        <i class="fa fa-flag"></i>
+                                                    </div>
+                                                    <div class="timeline-content">
+                                                        Activity
+                                                        {{!-- <p>{{this}}</p> --}}
+                                                    </div>
+                                                </div>
+                                                {{!-- {{/each}} --}}
+
+                                                <div class="timeline-header">
+                                                <span class="tag is-medium is-info">End</span>
+                                                </div>
+                                            </div>                
+
+                                            <!--END: Itinerary-->
+                                <!--END: Tour plan-->
+                            </div>
+                        </section>
+                    </div>
+                </div>
+                <!--END: Details Section-->
+
+                <!--START: Billing Section-->
+                <div id="Billing" class="content-tab" style="display:none;">
+                    <div class="columns">
+                        <div class="column">
+                            <div class="box p-5">
+                                <p class="has-text-weight-bold is-size-5">Paid</p>
+                                <table class="table is-fullwidth">
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Qty.</th>
+                                        <th>Price</th>
+                                    </tr>
+                                    <tr>
+                                        <td>Booking Fee</td>
+                                        <td>&ndash;</td>
+                                        <td>$20</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="box">Outstanding</div>
+                        </div>
+                    </div>
+                    <div class="box">
+                        <section class="section">
+                            <div class="container">
+                                Overall
+                            </div>
+                        </section>
+                    </div>
                 </div>
                 <!--END: Billing Section-->
 
-                <!--START: Requirements Section-->
-                <div id="Billing" class="content-tab" style="display:none;">
-                    Billing: charges and receipt and payment
-                </div>
-                <!--END: Requirements Section-->
-
-                <!--START: Delivery Section-->
+                <!--START: Req Section-->
                 <div id="Req" class="content-tab" style="display:none;">
-                    customer's previous requirements and requests (also display remaining no of revisions)
+                    <div class="box">
+                        <section class="section">
+                            <div class="container">
+                                customer's previous requirements and requests (also display remaining no of revisions)
+                            </div>
+                        </section>
+                    </div>
                 </div>
-                <!--END: Delivery Section-->
+                <!--END: Req Section-->
 
             </div>
             <div class="column is-one-quarter">
