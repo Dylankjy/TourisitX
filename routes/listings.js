@@ -402,9 +402,9 @@ router.get('/info/:id', (req, res)=>{
     const itemID = req.params.id
 
     if (req.cookies.imageValError) {
-        let errMsg = req.cookies.imageValError
+        const errMsg = req.cookies.imageValError
     } else {
-        let errMsg = ''
+        const errMsg = ''
     }
 
     Shop.findAll({ where: {
