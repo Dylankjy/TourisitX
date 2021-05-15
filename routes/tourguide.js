@@ -50,4 +50,36 @@ router.get('/manage/listings', (req, res) => {
     res.render('tourguide/dashboard/listings', metadata)
 })
 
+router.get('/manage/listings/archived', (req, res) => {
+    const metadata = {
+        meta: {
+            title: 'Manage listings',
+            path: false,
+        },
+        nav: {
+            sidebarActive: 'listings',
+            sidebarSubActive: 'listingsArchived',
+        },
+        layout: 'tourguide',
+        listing: [
+            {
+                name: 'Test listing',
+                desc: 'This is a test listing',
+                place: 'Gardens by the Bay',
+            },
+            {
+                name: 'Test listing',
+                desc: 'This is a test listing',
+                place: 'Gardens by the Bay',
+            },
+            {
+                name: 'Test listing',
+                desc: 'This is a test listing',
+                place: 'Gardens by the Bay',
+            },
+        ],
+    }
+    res.render('tourguide/dashboard/archived', metadata)
+})
+
 module.exports = router
