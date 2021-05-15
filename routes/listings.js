@@ -32,8 +32,6 @@ const fileValidator = formidableValidator.FileValidator
 // router.use(formidable())
 
 
-
-
 // Will convert Image to base64.
 
 // Callback implementation
@@ -96,41 +94,39 @@ getImage = (req, callback) => {
 }
 
 
-
 resizeImage = (file, width, height, type) => {
     return new Promise((resolve, reject) =>{
         convert({
             file: file,
             width: width,
             height: height,
-            type: type
+            type: type,
         })
-        .then((data)=>{
-            resolve(data)
-        })
-        .catch((err)=>{
-            reject(err)
-        })
+            .then((data)=>{
+                resolve(data)
+            })
+            .catch((err)=>{
+                reject(err)
+            })
     })
 }
 
 
 // To save image to specified folder. A UUID will be given as name
 // filePath -- received path; fileName - name of local file; folder - folder to save image to
-storeImage =  (filePath, fileName, folder) =>{
-    var imgName = uuid.v4()
+storeImage = (filePath, fileName, folder) =>{
+    const imgName = uuid.v4()
 
-    var fileExt = path.extname(fileName)
-    var savedName = `${imgName}${fileExt}`
-    var savedPath = `${folder}/${imgName}${fileExt}`
+    const fileExt = path.extname(fileName)
+    const savedName = `${imgName}${fileExt}`
+    const savedPath = `${folder}/${imgName}${fileExt}`
 
-    var data = fs.readFileSync(filePath)
-    var imgBuffer = Buffer.from(data)
+    const data = fs.readFileSync(filePath)
+    const imgBuffer = Buffer.from(data)
 
     fs.writeFileSync(savedPath, imgBuffer)
 
     return savedName
-
 }
 
 
@@ -143,9 +139,6 @@ emptyArray = (arr) => {
 }
 
 
-
-
-
 // Put all your routings below this line -----
 
 // Show the user all of their own listings
@@ -155,18 +148,18 @@ router.get('/', (req, res)=>{
             where: {
                 // Set to empty now, but it should be replaced with the userID when authentication library is out
                 userId: 'sample',
-            }, 
-            order: 
-                [['updatedAt', 'ASC']]
-        }
+            },
+            order:
+                [['updatedAt', 'ASC']],
+        },
     )
-    .then((items)=>{
-        var itemsArr = items.map((x)=>x['dataValues'])
-        res.render('tourGuide/myListings.hbs', { datas: itemsArr })
-    })
-    .catch((err)=>{
-        console.log
-    })
+        .then((items)=>{
+            const itemsArr = items.map((x)=>x['dataValues'])
+            res.render('tourGuide/myListings.hbs', { datas: itemsArr })
+        })
+        .catch((err)=>{
+            console.log
+        })
 })
 
 
@@ -241,7 +234,7 @@ router.post('/create', (req, res)=>{
         res.clearCookie('storedValues')
         res.clearCookie('savedImageName')
 
-        var genId = uuid.v4()
+        const genId = uuid.v4()
 
         Shop.create({
             // You create the uuid when you initialize the create listing
@@ -261,11 +254,11 @@ router.post('/create', (req, res)=>{
             tourImage: 'default.jpg',
             hidden: 'false',
         })
-        .catch((err)=>{
-            console.log(err)
-        })
+            .catch((err)=>{
+                console.log(err)
+            })
 
-        console.log("Inserted")
+        console.log('Inserted')
         res.redirect(`/listing`)
     }
 })
@@ -356,36 +349,35 @@ router.post('/edit/:savedId', (req, res)=>{
 
 
 router.post('/edit/image/:savedId', (req, res)=>{
-    console.log("Image edited")
-    const v = new fileValidator(req.files["tourImage"])
-    var imageResult = v.Initialize({errorMessage: "Please supply a valid Image"}).fileExists().sizeAllowed({maxSize:5000000})
+    console.log('Image edited')
+    const v = new fileValidator(req.files['tourImage'])
+    const imageResult = v.Initialize({ errorMessage: 'Please supply a valid Image' }).fileExists().sizeAllowed({ maxSize: 5000000 })
         .getResult()
         // 5000000
 
     // Upload is successful
     if (imageResult == null) {
-        var filePath = req.files["tourImage"]["path"]
-        var fileName = req.files["tourImage"]["name"]
-        var saveFolder = 'savedImages/Listing'
-        var savedName = storeImage(filePath = filePath, fileName = fileName, folder=saveFolder)
+        let filePath = req.files['tourImage']['path']
+        let fileName = req.files['tourImage']['name']
+        const saveFolder = 'savedImages/Listing'
+        const savedName = storeImage(filePath = filePath, fileName = fileName, folder=saveFolder)
         console.log(savedName)
         Shop.update({
-            tourImage: savedName
-            }, {
-                where: { id: req.params.savedId },
-            }).catch((err)=>{
-                console.log(err)
-        })
-        .then((data)=>{
-            res.redirect(`/listing/info/${req.params.savedId}`,)
-        })
-        .catch((err)=> {
+            tourImage: savedName,
+        }, {
+            where: { id: req.params.savedId },
+        }).catch((err)=>{
             console.log(err)
         })
-        
+            .then((data)=>{
+                res.redirect(`/listing/info/${req.params.savedId}`)
+            })
+            .catch((err)=> {
+                console.log(err)
+            })
     } else {
-        var errMsg = imageResult.msg
-        console.log("Failed")
+        const errMsg = imageResult.msg
+        console.log('Failed')
         res.cookie('imageValError', errMsg, { maxAge: 5000 })
         res.redirect(`/listing/info/${req.params.savedId}`)
     }
@@ -410,15 +402,15 @@ router.get('/info/:id', (req, res)=>{
     const itemID = req.params.id
 
     if (req.cookies.imageValError) {
-        var errMsg = req.cookies.imageValError
+        let errMsg = req.cookies.imageValError
     } else {
-        var errMsg = ""
+        let errMsg = ''
     }
 
     Shop.findAll({ where: {
         id: itemID,
     } }).then((items)=>{
-        var data = items[0]['dataValues']
+        const data = items[0]['dataValues']
         // Check here if data.userId = loggedIn user ID
         if (true) {
             // Manually set to true now.. while waiting for the validation library
@@ -426,7 +418,7 @@ router.get('/info/:id', (req, res)=>{
         } else {
             owner = false
         }
-        res.render('listing.hbs', { data: data, isOwner:owner, errMsg: errMsg })
+        res.render('listing.hbs', { data: data, isOwner: owner, errMsg: errMsg })
     }).catch((err)=>console.log)
 })
 
@@ -444,38 +436,6 @@ router.get('/api/getImage/:id', (req, res)=>{
         res.json(items[0]['tourImage'])
     }).catch((err)=>console.log)
 })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // Elastic Search stuff
@@ -577,7 +537,6 @@ router.post('/es-api/upload', (req, res) => {
 })
 
 
-
 router.post('/es-api/update', (req, res) => {
     esClient.update({
         index: 'products',
@@ -626,7 +585,7 @@ router.get('/es-api/search', (req, res) => {
                     'name': searchText,
                 },
             },
-            "sort" : ["_score"]
+            'sort': ['_score'],
         },
     })
         .then((data)=>{
@@ -665,63 +624,63 @@ router.get('/es-api/suggest', (req, res) => {
 
 // To generate fake entries to test out elastic search
 router.get('/es-api/dev/generateFakes', (req, res) => {
-    var noToGenerate = req.query.num
-    var fakes = []
-    for (var i = 0; i <= noToGenerate; i ++) {
-            fakes.push(generateFakeEntry())
+    const noToGenerate = req.query.num
+    const fakes = []
+    for (let i = 0; i <= noToGenerate; i ++) {
+        fakes.push(generateFakeEntry())
     }
 
-    const body = fakes.flatMap(doc => [{ index: { _index: 'products' } }, doc])
+    const body = fakes.flatMap((doc) => [{ index: { _index: 'products' } }, doc])
     esClient.bulk({ refresh: true, body })
-    .then((d)=>{
-        console.log(d)
-        res.json({"Message": "Success"})
-    })
-    .catch((err)=>{
-        console.log(err)
-        res.json(err)
-    })
+        .then((d)=>{
+            console.log(d)
+            res.json({ 'Message': 'Success' })
+        })
+        .catch((err)=>{
+            console.log(err)
+            res.json(err)
+        })
 })
 
 // docs is the array of documents to batch inset. index is the name of the ElasticSearch index to populate
-batchIndex = (docs, es_index) => {
+batchIndex = (docs, esIndex) => {
     return new Promise((resolve, reject)=>{
-        const body = docs.flatMap(doc => [{ index: { _index: es_index } }, doc])
+        const body = docs.flatMap((doc) => [{ index: { _index: esIndex } }, doc])
         esClient.bulk({ refresh: true, body })
-        .then((d)=>{
-            resolve(d)
-        })
-        .catch((err)=>{
-            reject(err)
-        })
+            .then((d)=>{
+                resolve(d)
+            })
+            .catch((err)=>{
+                reject(err)
+            })
     })
 }
 
 // To populate the elastic search index using the Shop Database
 router.get('/es-api/getFromShopDB', (req, res) => {
     // This array will contain all the JSON objects
-    var docs = []
+    const docs = []
     // Specify the attributes to retrieve
-    Shop.findAll({attributes: ['id', 'tourTitle', 'tourDesc']})
-    .then((data)=>{
-        data.forEach((doc)=>{
-            // console.log(doc["Shop"]["dataValues"])
-            docs.push(doc["dataValues"])
-        })
-
-        batchIndex(docs, "products")
+    Shop.findAll({ attributes: ['id', 'tourTitle', 'tourDesc'] })
         .then((data)=>{
-            res.json({"Message": "Success", "data": docs})
+            data.forEach((doc)=>{
+            // console.log(doc["Shop"]["dataValues"])
+                docs.push(doc['dataValues'])
+            })
+
+            batchIndex(docs, 'products')
+                .then((data)=>{
+                    res.json({ 'Message': 'Success', 'data': docs })
+                })
+                .catch((err)=>{
+                    console.log(err)
+                    res.json({ 'Message': 'Failed' })
+                })
         })
         .catch((err)=>{
             console.log(err)
-            res.json({"Message": "Failed"})
+            res.json({ 'Message': 'Error' })
         })
-    })
-    .catch((err)=>{
-        console.log(err)
-        res.json({"Message": "Error"})
-    })
 })
 
 

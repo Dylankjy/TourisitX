@@ -141,17 +141,17 @@ const webserver = () => {
                 {
                     tourTitle: 'Test listing one',
                     tourDesc: 'This is a test listing',
-                    tourImage: "default.jpg"
+                    tourImage: 'default.jpg',
                 },
                 {
                     tourTitle: 'Test listing two',
                     tourDesc: 'This is a test listing two',
-                    tourImage: "default.jpg"
+                    tourImage: 'default.jpg',
                 },
                 {
                     tourTitle: 'Test listing three',
                     tourDesc: 'This is a test listing three',
-                    tourImage: "default.jpg"
+                    tourImage: 'default.jpg',
                 },
             ],
         }

@@ -107,7 +107,7 @@ class FileValidator {
 }
 
 module.exports = {
-    FileValidator, Validator
+    FileValidator, Validator,
 }
 
 // Examples
