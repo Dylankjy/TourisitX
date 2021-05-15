@@ -1,5 +1,5 @@
 // Module imports
-// <insert here>
+const dateFormat = require('dateformat')
 
 // Express related modules
 const express = require('express')
@@ -49,7 +49,6 @@ app.engine('hbs', exphbs({
     extname: '.hbs',
     layoutsDir: `views/layouts`,
     helpers: {
-
         ifEquals(a, b, options) {
             if (a === b) {
                 return options.fn(this)
@@ -79,6 +78,10 @@ app.engine('hbs', exphbs({
 
         emptyArr: (value, options) =>{
             return (value.length == 0)
+        },
+
+        timestampParseISO: (value) => {
+            return dateFormat(value, 'dS mmmm yyyy, HH:MM:ss')
         },
     },
 }))
@@ -159,7 +162,9 @@ const webserver = () => {
 
     app.use('/listing', routes.listings)
 
-    app.use('/users', routes.user)
+    app.use('/u', routes.user)
+
+    app.use('/admin', routes.admin)
 
     app.use('/marketplace', routes.market)
 
