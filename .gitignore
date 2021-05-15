@@ -36,8 +36,6 @@ build/Release
 node_modules/
 jspm_packages/
 
-TMP/
-
 # TypeScript v1 declaration files
 typings/
 
@@ -76,3 +74,7 @@ typings/
 
 # FuseBox cache
 .fusebox/
+
+# Ignore temporary folders that Alex creates
+tmp/
+TMP/
