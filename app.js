@@ -22,6 +22,7 @@ const routes = {
     market: require('./routes/market'),
     tourguide: require('./routes/tourguide'),
     user: require('./routes/user'),
+    support: require('./routes/support')
 }
 
 const app = express()
@@ -134,6 +135,8 @@ const webserver = () => {
     app.use('/u', routes.user)
 
     app.use('/admin', routes.admin)
+
+    app.use('/', routes.support)
 
     // Don't put any more routes after this block, cuz they will get 404'ed
     app.get('*', (req, res) => {

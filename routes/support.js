@@ -6,7 +6,7 @@ const router = express.Router()
 
 // router.get('/', (req, res) => { ... }
 router.get('/helpdesk', (req, res) => {
-    res.render('users/profile.hbs')
+    res.render('support.hbs')
 })
 
 module.exports = router
