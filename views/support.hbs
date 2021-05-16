@@ -9,7 +9,7 @@
 		<fieldset>
 			<div class='field'>
 				<label class='label'>What can we help you with?</label>
-				<div class='select is-fullwidth'>
+				<div class='select is-fullwidth' name="type">
 					<select>
 						<option>General Enquiry</option>
 						<option>Report Tour Guide</option>
@@ -19,13 +19,13 @@
 			</div>
 			<div class='field'>
 				<div class='control'>
-					<input class='input' type='hidden' id='link' />
+					<input class='input' type='hidden' id='link' name="link"/>
 				</div>
 			</div>
 			<div class='field'>
 				<label class='label'>Message <label class='has-text-danger'>*</label></label>
 				<div class='control'>
-					<textarea class='textarea' rows="5" style="height: 150px;"></textarea>
+					<textarea name="content" class='textarea' rows="5" style="height: 150px;"></textarea>
 				</div>
 			</div>
 			<div class='field has-text-centered mt-6'>
@@ -37,16 +37,18 @@
 	</form>
 </div>
 
+
 <div id='SuccessModal' class='modal is-active' style='display: none;'>
 	<div class='modal-background'></div>
 	<div class='modal-card box' style='padding: 3em;'>
 		<i class='far fa-check-circle fa-6x has-text-centered' style='color: limegreen;'></i>
 		<p class='title is-3 has-text-weight-semibold has-text-centered'>Successfully submitted</p>
 		<p class='subtitle has-text-centered'>We will get in touch with you via email</p>
-		<a href='' class='button is-success is-fullwidth'>
+		<a href='/' class='button is-success is-fullwidth'>
 			<i class='fas fa-home'></i>&ensp;Return to Homepage</a>
 	</div>
 </div>
+
 
 <script>
 	var pfplink = sessionStorage.getItem("pfpLink"); {# Print to tour guide profile link #} document.getElementById('link').value = pfplink;
