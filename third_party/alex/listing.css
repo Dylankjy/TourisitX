@@ -32,6 +32,7 @@
 
 .listing-img {
   height: 200px;
+  background-size: cover
 }
 
 /* The Rectangle image displayed on the individual listing */

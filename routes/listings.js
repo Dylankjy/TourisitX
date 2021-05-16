@@ -150,11 +150,11 @@ router.get('/', (req, res)=>{
                 userId: 'sample',
             },
             order:
-                [['updatedAt', 'ASC']],
+                [['createdAt', 'ASC']],
         },
     )
         .then((items)=>{
-            const itemsArr = items.map((x)=>x['dataValues'])
+            var itemsArr = items.map((x)=>x['dataValues']).reverse()
             res.render('tourGuide/myListings.hbs', { datas: itemsArr })
         })
         .catch((err)=>{
@@ -353,7 +353,6 @@ router.post('/edit/image/:savedId', (req, res)=>{
     const v = new fileValidator(req.files['tourImage'])
     const imageResult = v.Initialize({ errorMessage: 'Please supply a valid Image' }).fileExists().sizeAllowed({ maxSize: 5000000 })
         .getResult()
-        // 5000000
 
     // Upload is successful
     if (imageResult == null) {
@@ -361,7 +360,17 @@ router.post('/edit/image/:savedId', (req, res)=>{
         let fileName = req.files['tourImage']['name']
         const saveFolder = 'savedImages/Listing'
         const savedName = storeImage(filePath = filePath, fileName = fileName, folder=saveFolder)
-        console.log(savedName)
+        console.log(`Added file is ${savedName}`)
+
+        Shop.findAll({ where: {
+            id: req.params.savedId,
+        } })
+        .then((items)=>{
+            var savedImageFile = items[0]["dataValues"]["tourImage"]
+            console.log(`Removed IMAGE FILE: ${savedImageFile}`)
+            fs.unlinkSync(`savedImages/Listing/${savedImageFile}`)
+        })
+
         Shop.update({
             tourImage: savedName,
         }, {
@@ -385,6 +394,16 @@ router.post('/edit/image/:savedId', (req, res)=>{
 
 
 router.get('/delete/:savedId', (req, res)=>{
+    // rmb to delete the images too
+    Shop.findAll({ where: {
+        id: req.params.savedId,
+    } })
+    .then((items)=>{
+        var savedImageFile = items[0]["dataValues"]["tourImage"]
+        console.log(`Delete listing and Removed IMAGE FILE: ${savedImageFile}`)
+        fs.unlinkSync(`savedImages/Listing/${savedImageFile}`)
+    })
+
     Shop.destroy({
         where: {
             id: req.params.savedId,
@@ -401,11 +420,11 @@ router.get('/delete/:savedId', (req, res)=>{
 router.get('/info/:id', (req, res)=>{
     const itemID = req.params.id
 
-    if (req.cookies.imageValError) {
-        const errMsg = req.cookies.imageValError
-    } else {
-        const errMsg = ''
-    }
+    // if (req.cookies.imageValError) {
+    var errMsg = req.cookies.imageValError || ''
+    // } else {
+    //     const errMsg = ''
+    // }
 
     Shop.findAll({ where: {
         id: itemID,
