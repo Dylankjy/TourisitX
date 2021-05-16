@@ -1,0 +1,27 @@
+<h1 class="title">Transaction History</h1>
+<table class="table is-fullwidth">
+    <tr>
+        <th>Date</th>
+        <th>Tour</th>
+        <th>Payee</th>
+        <th>Amount</th>
+        <th>Status</th>
+    </tr>
+    {{#each data.transactions}}
+    <tr>
+        <td>{{timestampParseISO this.date_paid }}</td>
+
+        <td>{{ this.tour_name }}</td>
+
+        <td>{{ this.cust_id }}</td>
+
+        <td>${{ this.earnings }}</td>
+
+        {{#ifEquals this.status true}}
+        <td class="has-text-success-dark"><i class="fas fa-check-circle"></i>&nbsp;Completed</td>
+        {{else}}
+        <td class="has-text-warning-dark"><i class="fas fa-clock"></i>&nbsp;Pending</td>
+        {{/ifEquals}}
+    </tr>
+    {{/each}}
+</table>
