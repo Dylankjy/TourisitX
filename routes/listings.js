@@ -15,7 +15,7 @@ const fileType = require('file-type')
 const path = require('path')
 const elasticSearch = require('elasticsearch')
 const io = require('socket.io')
-const fakeGenerator = require('../TMP/listingGenerator').generateFakeEntry
+const fakeGenerator = require('../app/listingGenerator').generateFakeEntry
 const formidableValidator = require('../app/validation')
 const { convert } = require('image-file-resize')
 
