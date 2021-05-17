@@ -31,16 +31,9 @@
 }
 
 .listing-img {
-  height: 200px;
+  height: 25em;
   background-size: cover
 }
-
-/* The Rectangle image displayed on the individual listing */
-/* .listing-img .img {
-    background-image: url('/static/night.jpg');
-    height: 100%;
-    width: 100%;
-} */
 
 .image-center-text {
   position: relative;
