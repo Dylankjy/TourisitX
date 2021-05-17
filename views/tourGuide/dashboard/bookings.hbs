@@ -1,0 +1,39 @@
+<h1 class="title">Transaction History</h1>
+<table class="table is-fullwidth">
+    <tr>
+        <th>Order Date</th>
+        <th>Booking Date</th>
+        <th>Tour</th>
+        <th>Customer</th>
+        <th>Status</th>
+    </tr>
+    {{#each data.transactions}}
+    <tr>
+        <td>{{timestampParseISO this.order_date }}</td>
+
+        <td>{{timestampParseISO this.book_datetime }}</td>
+
+        <td>{{ this.tour_name }}</td>
+
+        <td>{{ this.cust_id }}</td>
+
+        <td>TODO</td>
+
+        {{!-- TODO: Please change when Chowwie finalises the process steps. --}}
+        
+        {{!-- {{#ifEquals this.process_step 1}} --}}
+
+        {{!-- <td class="has-text-grey"><i class="fas fa-clock"></i>&nbsp;Awaiting customer requirements</td>
+
+        <td class="has-text-danger-dark"><i class="fas fa-exclamation-circle"></i>&nbsp;Submit tour agenda</td>
+
+        <td class="has-text-grey"><i class="fas fa-clock"></i>&nbsp;Pending customer feedback</td>
+
+        <td class="has-text-danger-dark"><i class="fas fa-exclamation-circle"></i>&nbsp;Revision required</td>
+
+        <td class="has-text-info-dark"><i class="fas fa-clock"></i>&nbsp;Pending tour completion</td>
+
+        <td class="has-text-success-dark"><i class="fas fa-tick"></i>&nbsp;Tour completed</td> --}}
+    </tr>
+    {{/each}}
+</table>

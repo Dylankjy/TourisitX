@@ -1,0 +1,164 @@
+<script src="/third_party/chartjs/chart.js"></script>
+
+<div class="box p-5">
+    <div class="heading">Quick Actions</div>
+    <span class="buttons">
+        <a class="button is-rounded is-light">
+            <span class="icon is-small">
+                <i class="fas fa-user"></i>
+            </span>
+            <span>View your profile</span>
+        </a>
+        <a class="button is-rounded is-success is-light">
+            <span class="icon is-small">
+                <i class="fas fa-plus"></i>
+            </span>
+            <span>New listing</span>
+        </a>
+        <a class="button is-rounded is-info is-light">
+            <span class="icon is-small">
+                <i class="fas fa-file-alt"></i>
+            </span>
+            <span>Generate report</span>
+        </a>
+    </span>
+</div>
+
+<div class="columns is-multiline">
+    <div class="column">
+        <div class="box">
+            <div class="heading">This month's earnings</div>
+            <div class="title">$100
+                <span class="tag
+                            is-danger is-light">
+                    $100</span>
+            </div>
+            <div class="level">
+                <div class="level-item">
+                    <div>
+                        <div class="heading">Average per tour</div>
+                        <div class="title is-5">$100</div>
+                    </div>
+                </div>
+                <div class="level-item">
+                    <div>
+                        <div class="heading">Average per month</div>
+                        <div class="title is-5">
+                            $100</div>
+                    </div>
+                </div>
+            </div>
+            <canvas id="incomeChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+    <div class="column">
+        <div class="box">
+            <div class="heading">This month's satisfaction</div>
+            <div class="title">100%
+                <span class="tag
+                            is-danger is-light">
+                    100%</span>
+            </div>
+            <canvas id="csatChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    const d = new Date()
+    const months = ["January", "February", "March", "April", "May", "June", 'July', 'August', 'September', 'October', 'November', 'December']
+    const current_month = d.getMonth()
+    var recent_months = []
+
+    for (i = 0; i < 6; i++) {
+        if (current_month - i < 0) {
+            recent_months.push(months[12 - i + 1])
+        } else {
+            recent_months.push(months[current_month - i])
+        }
+    }
+
+    var incomeChart = document.getElementById('incomeChart').getContext('2d');
+    var incomeChartData = new Chart(incomeChart, {
+        type: 'line',
+        data: {
+            labels: recent_months.reverse(),
+            datasets: [{
+                label: 'Earnings',
+                data: [],
+                backgroundColor: 'rgba(0, 145, 189, 0.2)',
+                borderWidth: 0
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: false,
+                        callback: function (value, index, values) {
+                            // Convert the number to a string and splite the string every 3 charaters from the end
+                            value = value.toString();
+                            value = value.split(/(?=(?:...)*$)/);
+
+                            // Convert the array to a string and format the output
+                            value = value.join('.');
+                            return '$' + value;
+                        }
+                    },
+                }]
+            },
+            elements: {
+                line: {
+                    cubicInterpolationMode: 'monotone'
+                }
+            },
+            tooltips: {
+                callbacks: {
+                    label: function (tooltipItem, data) {
+                        return data['labels'][tooltipItem['index']] + ': ' + '$' + data['datasets'][0]['data'][tooltipItem['index']];
+                    }
+                }
+            },
+        }
+    });
+
+    var csatChart = document.getElementById('csatChart').getContext('2d');
+    var csatChartData = new Chart(csatChart, {
+        type: 'line',
+        data: {
+            labels: recent_months,
+            datasets: [{
+                label: 'Satisfaction rate (%)',
+                data: [],
+                backgroundColor: 'rgba(224, 34, 85, 0.2)',
+                borderWidth: 0
+            }]
+        },
+        options: {
+            tooltips: {
+                callbacks: {
+                    label: function (tooltipItem, data) {
+                        return data['labels'][tooltipItem['index']] + ': ' + data['datasets'][0]['data'][tooltipItem['index']] + '%';
+                    }
+                }
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        max: 100,
+                        callback: function (value, index, values) {
+                            // Convert the number to a string and splite the string every 3 charaters from the end
+                            value = value.toString();
+                            value = value.split(/(?=(?:...)*$)/);
+
+                            // Convert the array to a string and format the output
+                            value = value.join('.');
+                            return value + '%';
+                        }
+                    }
+                }]
+            }
+        }
+    });
+</script>
