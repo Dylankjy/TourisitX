@@ -15,7 +15,7 @@ const fileType = require('file-type')
 const path = require('path')
 const elasticSearch = require('elasticsearch')
 const io = require('socket.io')
-const fakeGenerator = require('../TMP/listingGenerator').generateFakeEntry
+const fakeGenerator = require('../app/listingGenerator').generateFakeEntry
 const formidableValidator = require('../app/validation')
 const { convert } = require('image-file-resize')
 
@@ -23,6 +23,7 @@ const { convert } = require('image-file-resize')
 const router = express.Router()
 const { Shop } = require('../models')
 const { generateFakeEntry } = require('../TMP/listingGenerator')
+const elasticSearchHelper = require('../app/elasticSearch')
 
 
 const Validator = formidableValidator.Validator
@@ -150,16 +151,16 @@ router.get('/', (req, res)=>{
                 userId: 'sample',
             },
             order:
-                [['updatedAt', 'ASC']],
+                [['createdAt', 'ASC']],
         },
     )
-        .then((items)=>{
-            const itemsArr = items.map((x)=>x['dataValues'])
-            res.render('tourGuide/myListings.hbs', { datas: itemsArr })
-        })
-        .catch((err)=>{
-            console.log
-        })
+    .then((items)=>{
+        var itemsArr = items.map((x)=>x['dataValues']).reverse()
+        res.render('tourGuide/myListings.hbs', { datas: itemsArr })
+    })
+    .catch((err)=>{
+        console.log
+    })
 })
 
 
@@ -254,12 +255,20 @@ router.post('/create', (req, res)=>{
             tourImage: 'default.jpg',
             hidden: 'false',
         })
-            .catch((err)=>{
-                console.log(err)
+        .then(async (data)=>{
+            await axios.post('http://localhost:5000/listing/es-api/upload', {
+            "id": genId,
+            "name": req.fields.tourTitle,
+            "description": req.fields.tourDesc,
+            "image": req.fields.tourImage
             })
 
-        console.log('Inserted')
-        res.redirect(`/listing`)
+            console.log('Inserted')
+            res.redirect(`/listing`)
+        })
+        .catch((err)=>{
+                console.log(err)
+        })
     }
 })
 
@@ -339,11 +348,22 @@ router.post('/edit/:savedId', (req, res)=>{
             finalLocations: req.fields.finalLocations,
         }, {
             where: { id: req.params.savedId },
-        }).catch((err)=>{
-            console.log(err)
         })
+        .then(async (data)=>{
+            var doc = {
+                "id": req.params.savedId,
+                "name": req.fields.tourTitle,
+                "description": req.fields.tourDesc
+            }
+            console.log(doc["id"])
+        
+            await elasticSearchHelper.updateDoc(doc)
 
-        res.redirect(`/listing/info/${req.params.savedId}`)
+            res.redirect(`/listing/info/${req.params.savedId}`)
+        })
+        .catch((err)=>{
+            console.log(err)
+        })        
     }
 })
 
@@ -353,15 +373,26 @@ router.post('/edit/image/:savedId', (req, res)=>{
     const v = new fileValidator(req.files['tourImage'])
     const imageResult = v.Initialize({ errorMessage: 'Please supply a valid Image' }).fileExists().sizeAllowed({ maxSize: 5000000 })
         .getResult()
-        // 5000000
 
     // Upload is successful
     if (imageResult == null) {
         let filePath = req.files['tourImage']['path']
         let fileName = req.files['tourImage']['name']
         const saveFolder = 'savedImages/Listing'
-        const savedName = storeImage(filePath = filePath, fileName = fileName, folder=saveFolder)
-        console.log(savedName)
+        var savedName = storeImage(filePath = filePath, fileName = fileName, folder=saveFolder)
+        console.log(`Added file is ${savedName}`)
+
+        Shop.findAll({ where: {
+            id: req.params.savedId,
+        } })
+        .then((items)=>{
+            var savedImageFile = items[0]["dataValues"]["tourImage"]
+            if (savedImageFile != "default.jpg") {
+                console.log(`Removed IMAGE FILE: ${savedImageFile}`)
+                fs.unlinkSync(`savedImages/Listing/${savedImageFile}`)
+            }
+        })
+
         Shop.update({
             tourImage: savedName,
         }, {
@@ -369,7 +400,15 @@ router.post('/edit/image/:savedId', (req, res)=>{
         }).catch((err)=>{
             console.log(err)
         })
-            .then((data)=>{
+            .then(async (data)=>{
+                // Update elastic search
+                var doc = {
+                    "id": req.params.savedId,
+                    "image": savedName
+                }
+
+                await elasticSearchHelper.updateImage(doc)
+
                 res.redirect(`/listing/info/${req.params.savedId}`)
             })
             .catch((err)=> {
@@ -385,11 +424,27 @@ router.post('/edit/image/:savedId', (req, res)=>{
 
 
 router.get('/delete/:savedId', (req, res)=>{
+    // rmb to delete the images too
+    Shop.findAll({ where: {
+        id: req.params.savedId,
+    } })
+    .then((items)=>{
+        // Only delete image from local folder if it is NOT the default image
+        var savedImageFile = items[0]["dataValues"]["tourImage"]
+        if (savedImageFile != 'default.jpg') {
+            console.log(`Delete listing and Removed IMAGE FILE: ${savedImageFile}`)
+            fs.unlinkSync(`savedImages/Listing/${savedImageFile}`)
+        } 
+        
+    })
+
     Shop.destroy({
         where: {
             id: req.params.savedId,
         },
     }).then((data)=>{
+        // Delete from elastic search client
+        deleteDoc('products', req.params.savedId)
         res.send('Deleted!')
     }).catch((err)=>{
         console.log(err)
@@ -401,16 +456,16 @@ router.get('/delete/:savedId', (req, res)=>{
 router.get('/info/:id', (req, res)=>{
     const itemID = req.params.id
 
-    if (req.cookies.imageValError) {
-        const errMsg = req.cookies.imageValError
-    } else {
-        const errMsg = ''
-    }
+    // if (req.cookies.imageValError) {
+    var errMsg = req.cookies.imageValError || ''
+    // } else {
+    //     const errMsg = ''
+    // }
 
     Shop.findAll({ where: {
         id: itemID,
-    } }).then((items)=>{
-        const data = items[0]['dataValues']
+    } }).then(async (items)=>{
+        var data = await items[0]['dataValues']
         // Check here if data.userId = loggedIn user ID
         if (true) {
             // Manually set to true now.. while waiting for the validation library
@@ -585,11 +640,10 @@ router.get('/es-api/search', (req, res) => {
                     'name': searchText,
                 },
             },
-            'sort': ['_score'],
+            "sort" : ["_score"]
         },
     })
         .then((data)=>{
-            console.log('Ran')
             return res.json(data)
         })
         .catch((err)=>{
@@ -643,43 +697,45 @@ router.get('/es-api/dev/generateFakes', (req, res) => {
 })
 
 // docs is the array of documents to batch inset. index is the name of the ElasticSearch index to populate
-batchIndex = (docs, esIndex) => {
-    return new Promise((resolve, reject)=>{
-        const body = docs.flatMap((doc) => [{ index: { _index: esIndex } }, doc])
-        esClient.bulk({ refresh: true, body })
-            .then((d)=>{
-                resolve(d)
-            })
-            .catch((err)=>{
-                reject(err)
-            })
-    })
-}
+// batchIndex = (docs, esIndex) => {
+//     return new Promise((resolve, reject)=>{
+//         const body = docs.flatMap((doc) => [{ index: { _index: esIndex } }, doc])
+//         esClient.bulk({ refresh: true, body })
+//             .then((d)=>{
+//                 resolve(d)
+//             })
+//             .catch((err)=>{
+//                 reject(err)
+//             })
+//     })
+// }
 
 // To populate the elastic search index using the Shop Database
-router.get('/es-api/getFromShopDB', (req, res) => {
+router.get('/es-api/getFromShopDB', async (req, res) => {
+    await axios('http://localhost:5000/listing/es-api/delete')
+    await axios('http://localhost:5000/listing/es-api/create-index')
     // This array will contain all the JSON objects
     const docs = []
     // Specify the attributes to retrieve
-    Shop.findAll({ attributes: ['id', 'tourTitle', 'tourDesc'] })
+    Shop.findAll({ attributes: ['id', ['tourTitle', 'name'], ['tourDesc', 'description'], ['tourImage', 'image']] })
         .then((data)=>{
             data.forEach((doc)=>{
             // console.log(doc["Shop"]["dataValues"])
                 docs.push(doc['dataValues'])
             })
 
-            batchIndex(docs, 'products')
+            elasticSearchHelper.batchIndex(docs, 'products')
                 .then((data)=>{
                     res.json({ 'Message': 'Success', 'data': docs })
                 })
                 .catch((err)=>{
                     console.log(err)
-                    res.json({ 'Message': 'Failed' })
+                    res.json({ 'Message': 'Failed to populate ElasticSearch from SQL' })
                 })
         })
         .catch((err)=>{
             console.log(err)
-            res.json({ 'Message': 'Error' })
+            res.json({ 'Message': 'Error Querying from SQL' })
         })
 })
 
