@@ -1,0 +1,20 @@
+.small-hero-market {
+    padding: 20px;
+}
+
+#market-title {
+    color: #7645D9;
+}
+
+#market-banner {
+    text-align: left;
+}
+
+.market-searchbox {
+    margin-top: -1.5rem;
+    border-radius: 25px;
+}
+
+.market-listing-container {
+    margin-top: 10px;
+}

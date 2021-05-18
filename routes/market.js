@@ -4,16 +4,18 @@ const { Shop } = require('../models')
 const router = express.Router()
 
 router.get('/', (req, res) => {
-    const listings = []
+    var listings = []
     Shop.findAll({
         attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
         // limit: Set a limit on number of examples to retrieve
     })
-        .then((data)=>{
-            data.forEach((doc)=>{
+        .then(async (data)=>{
+            await data.forEach((doc)=>{
                 listings.push(doc['dataValues'])
             })
-            console.log(listings)
+            return listings
+            // res.render('marketplace.hbs', { listings: listings })
+        }).then((listings)=>{
             res.render('marketplace.hbs', { listings: listings })
         })
         .catch((err)=>{
