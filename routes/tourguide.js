@@ -114,6 +114,20 @@ router.get('/bookings', (req, res) => {
     res.render('tourguide/dashboard/bookings', metadata)
 })
 
+router.get('/bookings/:id', (req, res) => {
+    const metadata = {
+        meta: {
+            title: 'Bookings',
+            path: false,
+        },
+        nav: {
+            sidebarActive: 'bookings',
+        },
+        layout: 'tourguide',
+    }
+    res.render('tourguide/myJob', metadata)
+})
+
 router.get('/payments', (req, res) => {
     const metadata = {
         meta: {

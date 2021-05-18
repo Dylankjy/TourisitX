@@ -13,11 +13,14 @@
                         <li class="tab pl-3 pr-3 is-active" onclick="openTab(event,'Activity')">
                             <a>Activity</a>
                         </li>
+                        <li class="tab pl-3 pr-3" onclick="openTab(event,'Customize')">
+                            <a>Customize</a>
+                        </li>
                         <li class="tab pl-3 pr-3" onclick="openTab(event,'Details')">
                             <a>Tour Details</a>
                         </li>
-                        <li class="tab pl-3 pr-3" onclick="openTab(event,'Billing')">
-                            <a>Billing</a>
+                        <li class="tab pl-3 pr-3" onclick="openTab(event,'Payment')">
+                            <a>Payment</a>
                         </li>
                         <li class="tab pl-3 pr-3" onclick="openTab(event,'Req')">
                             <a>Requirements &amp; Requests</a>
@@ -39,12 +42,10 @@
                             <p>Current Step</p>
                             <!--START: steps-->
                             <div class="tags are-medium">
-                                <a href="#"><span class="tag is-link">Submit Requirements &nbsp;<i class="fas fa-arrow-right"></i></span></a>
-                                <a href="#"><span class="tag is-link is-hidden">Review Tour Plan &nbsp;<i class="fas fa-arrow-right"></i></span></a>
-                                <a href="#"><span class="tag is-link is-hidden">Make Payment &nbsp;<i class="fas fa-arrow-right"></i></span></a>
-                                <a href="#"><span class="tag is-link is-hidden">Declare that Tour is Complete &nbsp;<i class="fas fa-arrow-right"></i></span></a>
+                                <a href="#"><span class="tag is-link">Acknowledge Requirements &nbsp;<i class="fas fa-arrow-right"></i></span></a>
+                                <a href="#"><span class="tag is-link is-hidden">Submit Tour Plan &nbsp;<i class="fas fa-arrow-right"></i></span></a>
                                 <a href="#"><span class="tag is-link is-hidden">Leave a Review &nbsp;<i class="fas fa-arrow-right"></i></span></a>
-                                <span class="tag is-hidden">Awaiting Tour Guide Action</span>
+                                <span class="tag is-hidden">Awaiting Customer Action</span>
                             </div>
                             </div>
                             <!--END: steps-->
@@ -65,7 +66,7 @@
                                     <i class="fas fa-check"></i>
                                     </div>
                                     <div class="timeline-content">
-                                    <p class="has-text-weight-semibold">You booked this tour.
+                                    <p class="has-text-weight-semibold"><span class="has-text-primary">Customer</span> booked this tour.
                                     <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
                                     </div>
                                 </div>
@@ -75,8 +76,18 @@
                                     <i class="fas fa-check"></i>
                                     </div>
                                     <div class="timeline-content">
-                                    <p class="has-text-weight-semibold">You submitted your requirements.
+                                    <p class="has-text-weight-semibold"><span class="has-text-primary">Customer</span> submitted their requirements.
                                     <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
+                                    </div>
+                                </div>
+
+                                <div class="timeline-item">
+                                    <div class="timeline-marker is-icon has-background-grey has-text-white">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                    </div>
+                                    <div class="timeline-content pt-3">
+                                    <p class="button is-link is-inverted has-text-weight-semibold is-italic">
+                                        <i class="fas fa-chevron-right mr-2"></i> Acknowledge customer requirements.</p>
                                     </div>
                                 </div>
 
@@ -85,9 +96,18 @@
                                     <i class="fas fa-check"></i>
                                     </div>
                                     <div class="timeline-content">
-                                    <p class="has-text-weight-semibold"><span class="has-text-primary">Tour Guide</span> 
-                                        acknowledged your requirements.
+                                    <p class="has-text-weight-semibold">You acknowledged customer requirements.
                                     <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
+                                    </div>
+                                </div>
+
+                                <div class="timeline-item">
+                                    <div class="timeline-marker is-icon has-background-grey has-text-white">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                    </div>
+                                    <div class="timeline-content pt-3">
+                                    <p class="button is-link is-inverted has-text-weight-semibold is-italic">
+                                        <i class="fas fa-chevron-right mr-2"></i> Submit Tour Plan.</p>
                                     </div>
                                 </div>
 
@@ -100,8 +120,7 @@
                                     <i class="fas fa-check"></i>
                                     </div>
                                     <div class="timeline-content">
-                                    <p class="has-text-weight-semibold"><span class="has-text-primary">Tour Guide</span> 
-                                        posted a draft of the Tour Plan (#1).
+                                    <p class="has-text-weight-semibold">You posted a draft of the Tour Plan (#1).
                                     <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
 
                                     <!--Tour plan card-->
@@ -109,7 +128,7 @@
 
                                         <header class="card-header is-clickable" onclick="collapseCard(this)">
                                                 <p class="card-header-title has-text-centered has-text-weight-bold is-size-5">
-                                                Tour Plan (#1) </p>
+                                                Tour Plan (#1) <span class="tag is-danger is-light ml-2">Revision requested</span></p>
 
                                                 <span class=" card-header-icon icon is-large">
                                                     <i class="fas fa-angle-down" aria-hidden="true"></i>
@@ -119,7 +138,7 @@
                                         <div class="card-content is-hidden">
                                             <div class="content">
 
-                                            </p> Note: This is what the customer sees after they have selected request a revision. </p>
+                                            </p> Note: This is what the TG sees after cust selected request a revision. </p>
                                             <table class="table has-background-white-ter is-fullwidth">
                                                 <tr>
                                                     <th><i class="far fa-calendar"></i>&ensp;Date</th>
@@ -144,19 +163,6 @@
                                             </div>
                                         </div>
 
-                                        <footer class="card-footer p-4">
-                                            <div class="field is-grouped mt-2">
-                                            <div class="control">
-                                                <button class="button is-danger is-outlined" style="pointer-events: none;">Request a Revision
-                                                    <i class="fas fa-check ml-1"></i>
-                                                </button>
-                                            </div>
-                                            <div class="control">
-                                                <button class="button is-static">Approve Plan</button>
-                                            </div>
-                                        </div>
-                                        </footer>
-
                                     </div>
                                     <!--Tour plan card-->
 
@@ -168,7 +174,7 @@
                                     <i class="fas fa-check"></i>
                                     </div>
                                     <div class="timeline-content">
-                                    <p class="has-text-weight-semibold">You submitted a Revision Request (#1).
+                                    <p class="has-text-weight-semibold"><span class="has-text-primary">Customer</span> submitted a Revision Request (#1).
                                     <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
                                     </div>
                                 </div>
@@ -178,7 +184,7 @@
                                     <i class="fas fa-ellipsis-h"></i>
                                     </div>
                                     <div class="timeline-content">
-                                    <p class="has-text-weight-semibold"><span class="has-text-primary">Tour Guide</span> 
+                                    <p class="has-text-weight-semibold">You
                                         posted a draft of the Tour Plan (#2).
                                     <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
 
@@ -187,7 +193,7 @@
 
                                         <header class="card-header is-clickable" onclick="collapseCard(this)">
                                                 <p class="card-header-title has-text-centered has-text-weight-bold is-size-5">
-                                                Tour Plan (#2) </p>
+                                                Tour Plan (#2) <span class="tag is-warning is-light ml-2">Pending Feedback</span></p>
 
                                                 <span class=" card-header-icon icon is-large">
                                                     <i class="fas fa-angle-down" aria-hidden="true"></i>
@@ -197,7 +203,7 @@
                                         <div class="card-content is-hidden">
                                             <div class="content">
 
-                                            </p>This is what the customer sees when they are at this step. 
+                                            </p>This is what the TG sees when cust is at this step. 
                                             (Ignore this in the flow of this timeline) Insert plan from above here.</p>
                                             <table class="table has-background-white-ter is-fullwidth">
                                                 <tr>
@@ -222,17 +228,6 @@
 
                                             </div>
                                         </div>
-
-                                        <footer class="card-footer p-4">
-                                            <div class="field is-grouped mt-2">
-                                            <div class="control">
-                                                <button class="button is-danger">Request a Revision</button>
-                                            </div>
-                                            <div class="control">
-                                                <button class="button is-success">Approve Plan</button>
-                                            </div>
-                                        </div>
-                                        </footer>
                                         
                                     </div>
                                     <!--Tour plan card-->
@@ -241,11 +236,21 @@
                                 </div>
 
                                 <div class="timeline-item">
+                                    <div class="timeline-marker is-icon has-background-grey has-text-white">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                    </div>
+                                    <div class="timeline-content pt-3">
+                                    <p class="button is-link is-inverted has-text-weight-semibold is-italic">
+                                        <i class="fas fa-chevron-right mr-2"></i> Submit Tour Plan.</p>
+                                    </div>
+                                </div>
+
+                                <div class="timeline-item">
                                     <div class="timeline-marker is-icon has-background-success has-text-white">
                                     <i class="fas fa-check"></i>
                                     </div>
                                     <div class="timeline-content">
-                                    <p class="has-text-weight-semibold"><span class="has-text-primary">Tour Guide</span> 
+                                    <p class="has-text-weight-semibold">You
                                         posted a draft of the Tour Plan (#2).
                                     <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
 
@@ -254,7 +259,7 @@
 
                                         <header class="card-header is-clickable" onclick="collapseCard(this)">
                                                 <p class="card-header-title has-text-centered has-text-weight-bold is-size-5">
-                                                Tour Plan (#2) </p>
+                                                Tour Plan (#2) <span class="tag is-success is-light ml-2">Approved</span></p>
 
                                                 <span class=" card-header-icon icon is-large">
                                                     <i class="fas fa-angle-down" aria-hidden="true"></i>
@@ -264,7 +269,7 @@
                                         <div class="card-content is-hidden">
                                             <div class="content">
 
-                                            </p>This is what the customer sees after they have accepted. Insert plan from above here.</p>
+                                            </p>This is what the TG sees after customer approval. Insert plan from above here.</p>
                                             <table class="table has-background-white-ter is-fullwidth">
                                                 <tr>
                                                     <th><i class="far fa-calendar"></i>&ensp;Date</th>
@@ -289,20 +294,6 @@
                                             </div>
                                         </div>
 
-                                        <footer class="card-footer p-4">
-                                            <div class="field is-grouped mt-2">
-                                            <div class="control">
-                                                <button class="button is-static">Request a Revision
-                                                </button>
-                                            </div>
-                                            <div class="control">
-                                                <button class="button is-success is-outlined" style="pointer-events: none;">Approve Plan
-                                                    <i class="fas fa-check ml-1"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        </footer>
-
                                     </div>
                                     <!--Tour plan card-->
 
@@ -314,18 +305,8 @@
                                     <i class="fas fa-check"></i>
                                     </div>
                                     <div class="timeline-content">
-                                    <p class="has-text-weight-semibold">You approved Tour Plan (#2).
+                                    <p class="has-text-weight-semibold"><span class="has-text-primary">Customer</span> approved Tour Plan (#2).
                                     <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
-                                    </div>
-                                </div>
-
-                                <div class="timeline-item">
-                                    <div class="timeline-marker is-icon has-background-grey has-text-white">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                    </div>
-                                    <div class="timeline-content pt-3">
-                                    <p class="button is-link is-inverted has-text-weight-semibold is-italic">
-                                        <i class="fas fa-chevron-right mr-2"></i> Proceed to Payment.</p>
                                     </div>
                                 </div>
 
@@ -334,18 +315,8 @@
                                     <i class="fas fa-check"></i>
                                     </div>
                                     <div class="timeline-content">
-                                    <p class="has-text-weight-semibold">You made payment. You are now ready to go on your tour!
+                                    <p class="has-text-weight-semibold"><span class="has-text-primary">Customer</span> made payment. You are now ready to go on your tour!
                                     <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
-                                    </div>
-                                </div>
-
-                                <div class="timeline-item">
-                                    <div class="timeline-marker is-icon has-background-grey has-text-white">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                    </div>
-                                    <div class="timeline-content pt-3">
-                                    <p class="button is-link is-inverted has-text-weight-semibold is-italic">
-                                        <i class="fas fa-chevron-right mr-2"></i> Declare that the tour has been completed.</p>
                                     </div>
                                 </div>
 
@@ -354,7 +325,17 @@
                                     <i class="fas fa-check"></i>
                                     </div>
                                     <div class="timeline-content">
-                                    <p class="has-text-weight-semibold">You declared that your tour is complete.
+                                    <p class="has-text-weight-semibold"><span class="has-text-primary">Customer</span> declared that the tour is complete.
+                                    <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
+                                    </div>
+                                </div>
+
+                                <div class="timeline-item">
+                                    <div class="timeline-marker is-icon has-background-success has-text-white">
+                                    <i class="fas fa-check"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                    <p class="has-text-weight-semibold">Payment is transferred to you.
                                     <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
                                     </div>
                                 </div>
@@ -374,7 +355,7 @@
                                     <i class="far fa-thumbs-up"></i>
                                     </div>
                                     <div class="timeline-content">
-                                    <p class="has-text-weight-semibold"><span class="has-text-primary">Tour Guide</span> 
+                                    <p class="has-text-weight-semibold"><span class="has-text-primary">Customer</span> 
                                         left a review for you.
                                     <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
                                     <div class="has-background-white-ter ml-3 mt-3 p-4">
@@ -398,7 +379,7 @@
                                     </div>
                                     <div class="timeline-content">
                                     <p class="has-text-weight-semibold">You left a review for 
-                                        <span class="has-text-primary">Tour Guide</span>
+                                        <span class="has-text-primary">Customer</span>
                                     <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
                                     <div class="has-background-white-ter ml-3 mt-3 p-4">
                                         <div class="container">
@@ -428,6 +409,108 @@
                 </div>
                 <!--END: Activity Section-->
 
+                <!--START: Customize Section-->
+                <div id="Customize" class="content-tab" style="display:none;">
+                    <div class="box">
+                        <section class="section">
+                            <div class="container">
+                                <p class="has-text-centered is-size-4 has-text-weight-bold">Customize Tour Plan</p>
+                                <br>
+                                <!--form-->
+                                <div class="divider"><p class="has-text-weight-semibold">General</p></div>
+                                <form id='' class="form-horizontal" enctype="multipart/form-data" method="POST">
+                <fieldset>
+
+                    <div class='field'>
+                    <label class="label" for="tour-date">Tour Date</label>
+                    <div class='control'>
+                        <input class="input" type="date" placeholder="Date">
+                    </div>
+                    </div>
+
+                    <div class='field is-horizontal mb-5'>
+                        <div class='field-body'>
+                            <div class='field'>
+                    <label class="label" for="tour-starttime">Start Time</label>
+                    <div class='control'>
+                        <input class="input" type="time" placeholder="Start Time">
+                    </div>
+                </div>
+
+                    <div class='field'>
+                        <label class="label" for="tour-endtime">End Time</label>
+                        <div class='control'>
+                            <input class="input" type="time" placeholder="End Time">
+                        </div>
+                        </div>  
+                    </div>
+                    </div>
+
+                    <label class="label" for="tour-items">Tour itinerary</label>
+                    <div class="field has-addons">
+                        <div class="control is-expanded">
+                            <input class="input" type="text" placeholder="Activity">
+                        </div>
+                        <div class="control">
+                            <a id='addItemButton' class="button" onclick="AddItinerary();AppendtoItem()">
+                                Add Itinerary
+                            </a>
+                        </div>
+                    </div>
+                    <br>
+ 
+                    <div class='field'>
+                        <label class="label" for="tour-price">Number of Tour Participants</label>
+                        <div class='control'>
+                            <input class="input" type="number" placeholder="Number of Participants">           
+                        </div>
+                        </div>        
+                    </fieldset>
+                    
+
+                    <br>
+                    <div class="divider"><p class="has-text-weight-semibold">Pricing</p></div>
+                                
+                    
+                        <div class='field'>
+                        <label class="label" for="tour-price">Base Tour Price</label>
+                        <div class='control has-icons-left'>
+                            <input class="input" type="number" step="0.1" placeholder="Base Tour Price">
+                            <span class="icon is-small is-left">
+                                <i class="fas fa-dollar-sign"></i></span>
+                        </div>
+                        </div>  
+
+                        <div class="field has-addons">
+                            <p class="control has-icons-left">
+                                <input class="input" type="number" step="0.1" placeholder="Add-On">
+                                <span class="icon is-small is-left">
+                                <i class="fas fa-dollar-sign"></i></span>
+                            </p>
+                            <p class="control">
+                                <a class="button">
+                                <i class="fas fa-plus"></i>
+                                </a>
+                            </p>
+                            </div>
+                        
+
+                        <br>
+                        <div class="divider"><p class="has-text-weight-semibold">Others</p></div>
+                                <div class='field'>
+                        <label class="label" for="tour-price">Additional Information</label>
+                        <div class='control'>
+                            <textarea class="textarea" placeholder="e.g. Meet at.."></textarea>          
+                        </div>
+                        </div> 
+                                </form>
+                                <!--form-->
+                            </div>
+                        </section>
+                    </div>
+                </div>
+                <!--END: Details Section-->
+
                 <!--START: Details Section-->
                 <div id="Details" class="content-tab" style="display:none;">
                     <div class="box">
@@ -450,7 +533,7 @@
                                                     <th><i class="fas fa-user-friends"></i>&ensp;Number of Participants</th>
                                                     <td>Pax</td>
                                                 </tr>
-                                                <tr onclick="openTab(event,'Billing')" class="is-clickable">
+                                                <tr onclick="openTab(event,'Payment')" class="is-clickable">
                                                     <th><i class="fas fa-dollar-sign"></i>&ensp;Cost</th>
                                                     <td>Cost</td>
                                                 </tr>
@@ -489,40 +572,15 @@
                 </div>
                 <!--END: Details Section-->
 
-                <!--START: Billing Section-->
-                <div id="Billing" class="content-tab" style="display:none;">
-                    <!-- Paid and outstanding will be hidden for custom tours-->
-                    <div class="columns is-v-centered">
-                        <div class="column">
-                            <div class="box p-5">
-                                <p class="has-text-weight-bold is-size-5 has-text-success">Paid</p>
-                                <table class="table is-fullwidth">
-                                    <tr>
-                                        <th>Item</th>
-                                        <th>Price</th>
-                                    </tr>
-                                    <tr>
-                                        <td>Booking Fee</td>
-                                        <td>$20</td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="column">
-                            <div class="box p-5">
-                                <p class="has-text-weight-bold is-size-5 has-text-info">Outstanding</p>
-                                <p class="title has-text-centered">$174.30</p>
-                                <button class="button is-fullwidth is-success">Proceed to Payment</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="box" id="Billing_Overall">
+                <!--START: Payment Section-->
+                <div id="Payment" class="content-tab" style="display:none;">
+                    <div class="box">
                         <section class="section">
                             <div class="container">
                                 <div class="has-text-centered">
                                 <p class="has-text-weight-bold is-size-4">Tour Name</p>
                                 <p class="is-size-6">Overall Cost Breakdown</p>
-                                <span class="tag is-success is-light is-medium"><i class="fas fa-check mr-1"></i>Paid in Full</span>
+                                <span class="tag is-success is-light is-medium"><i class="fas fa-check mr-1"></i>Received in full</span>
                                 </div>
                                 <br>
                                 <table class="table is-fullwidth">
@@ -546,25 +604,16 @@
                                         <td>Extra Revisions (2)</td>
                                         <td>$10.00</td>
                                     </tr>
-                                    <tr>
-                                        <th>Subtotal</th>
-                                        <th>$185</th>
-                                    </tr>
-                                     <tr>
-                                        <th>Service Fee <span><i class="far fa-question-circle has-tooltip-multiline" 
-                                        data-tooltip="Tourisit takes a blah bla blah"></i></span></th>
-                                        <th>$9.30</th>
-                                    </tr>
                                     <tr class="has-background-white-ter has-text-weight-bold is-size-5">
                                         <th>Total</th>
-                                        <th>$194.30</th>
+                                        <th>$185.00</th>
                                     </tr>
                                 </table>
                             </div>
                         </section>
                     </div>
                 </div>
-                <!--END: Billing Section-->
+                <!--END: Payment Section-->
 
                 <!--START: Req Section-->
                 <div id="Req" class="content-tab" style="display:none;">
@@ -577,8 +626,7 @@
                                     <div class="card ml-3 mt-3 has-background-white-ter is-shadowless">
 
                                         <header class="card-header is-clickable" onclick="collapseCard(this)">
-                                                <p class="card-header-title has-text-centered has-text-weight-bold is-size-5">
-                                                Your Requirements</p>
+                                                <p class="card-header-title has-text-centered has-text-weight-bold is-size-5">Requirements</p>
                                                 <span class=" card-header-icon icon is-large">
                                                     <i class="fas fa-angle-down" aria-hidden="true"></i>
                                                 </span>
@@ -624,7 +672,7 @@
                 <div class="container mt-5">
                     <button class="button is-fullwidth has-text-weight-semibold is-rounded is-warning is-light">
                         <span class="icon"><i class="fas fa-comment-alt"></i></span>
-                        Chat with <span class="has-text-primary ml-1 has-text-weight-bold">Tour Guide</span>
+                        Chat with <span class="has-text-primary ml-1 has-text-weight-bold">Customer</span>
                     </button>
                     <br>
 
@@ -640,8 +688,8 @@
                         <p class="has-text-weight-bold is-size-5 mb-2 has-text-centered">Booking Details</p>
                         <table class="table is-fullwidth has-background-white-bis">
                             <tr>
-                                <th>Ordered from</th>
-                                <td class="has-text-link">Tour Guide</td>
+                                <th>Customer</th>
+                                <td class="has-text-link">Customer</td>
                             </tr>
                             <tr>
                                 <th>Total price</th>
@@ -656,8 +704,8 @@
                     <br>
 
                     <div class="mt-4 p-4 has-background-info-light is-light">
-                        <span class="has-text-weight-semibold">Have an issue with your tour?</span><br>
-                        Contact <a href="#">Customer Support</a>.
+                        <span class="has-text-weight-semibold">Have an issue with your booking?</span><br>
+                        Contact <a href="#">Support</a>.
                     </div>
 
                 </div>

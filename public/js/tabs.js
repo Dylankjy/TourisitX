@@ -9,3 +9,12 @@ openTab = (evt, tabName) => {
     document.getElementById(tabName).style.display = 'block'
     evt.currentTarget.className += ' is-active'
 }
+
+collapseCard = (thisCard) => {
+    const cardContent = thisCard.nextElementSibling
+    if (cardContent.classList.contains('is-hidden')) {
+        cardContent.classList.remove('is-hidden')
+    } else {
+        cardContent.classList.add('is-hidden')
+    }
+}
