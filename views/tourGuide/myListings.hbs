@@ -42,12 +42,7 @@
         {{else}}
 
         {{#each datas}}
-    
-            <div class='listing-banner'>
-                <a class='listing-link' href='/listing/info/{{this.id}}'>
-                    <p class='title is-5'>{{this.tourTitle}}</p>
-                </a>
-            </div>
+        {{>listingCardHorizontal}}
 
         {{/each}}
 

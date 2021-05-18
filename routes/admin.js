@@ -1,5 +1,7 @@
 const express = require('express')
 
+const { Shop } = require('../models')
+
 const router = express.Router()
 
 // Put all your routings below this line -----
@@ -92,34 +94,39 @@ router.get('/manage/staff', (req, res) => {
 })
 
 router.get('/manage/tours', (req, res) => {
-    const metadata = {
-        meta: {
-            title: 'Manage Tours',
-            path: false,
+    Shop.findAll(
+        {
+            where: {
+                // Set to empty now, but it should be replaced with the userID when authentication library is out
+                userId: 'sample',
+            },
+            order:
+                [['createdAt', 'ASC']],
         },
-        nav: {
-            sidebarActive: 'tourListings',
-        },
-        layout: 'admin',
-        listing: [
-            {
-                name: 'Test listing',
-                desc: 'This is a test listing',
-                place: 'Gardens by the Bay',
+    )
+    .then(async (data)=>{
+        var listings = []
+        await data.forEach((doc)=>{
+            listings.push(doc['dataValues'])
+        })
+
+        const metadata = {
+            meta: {
+                title: 'Manage Tours',
+                path: false,
             },
-            {
-                name: 'Test listing',
-                desc: 'This is a test listing',
-                place: 'Gardens by the Bay',
+            nav: {
+                sidebarActive: 'tourListings',
             },
-            {
-                name: 'Test listing',
-                desc: 'This is a test listing',
-                place: 'Gardens by the Bay',
-            },
-        ],
-    }
-    res.render('admin/listings', metadata)
+            layout: 'admin',
+            listing: listings
+        }
+        res.render('admin/listings', metadata)
+    })
+    .catch((err)=>{
+        console.log(err)
+        res.json({ 'Message': 'Failed' })
+    })
 })
 
 router.get('/payments', (req, res) => {
