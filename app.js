@@ -23,7 +23,7 @@ const routes = {
     market: require('./routes/market'),
     tourguide: require('./routes/tourguide'),
     user: require('./routes/user'),
-    support: require('./routes/support')
+    support: require('./routes/support'),
 }
 
 const app = express()
@@ -191,7 +191,7 @@ const webserver = () => {
     app.use('/admin', routes.admin)
 
     app.use('/', routes.support)
-  
+
     app.use('/tourguide', routes.tourguide)
 
     app.use('/marketplace', routes.market)
