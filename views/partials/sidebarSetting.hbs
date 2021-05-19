@@ -1,0 +1,11 @@
+<aside data-turbolinks-permanent class="column is-2">
+    <nav data-turbolinks-permanent class="menu">
+        <p class="menu-label">
+            ACCOUNT INFO
+        </p>
+        <ul class="menu-list">
+            <li><a href="/u/setting/general" {{#ifEquals nav.sidebarActive "general"}}class="is-active"{{/ifEquals}}><i class="fas fa-user-cog"></i>&ensp;General</a></li>
+            <li><a href="/u/setting/password" {{#ifEquals nav.sidebarActive "password"}}class="is-active"{{/ifEquals}}><i class="fas fa-key"></i>&ensp;Security</a></li>
+        </ul>
+    </nav>
+</aside>
