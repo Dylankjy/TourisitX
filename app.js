@@ -11,6 +11,7 @@ const expressSession = require('express-session')
 const axios = require('axios')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+const { Shop } = require('./models')
 
 // Routes for Express
 const routes = {
@@ -22,7 +23,7 @@ const routes = {
     market: require('./routes/market'),
     tourguide: require('./routes/tourguide'),
     user: require('./routes/user'),
-    support: require('./routes/support')
+    support: require('./routes/support'),
 }
 
 const app = express()
@@ -130,33 +131,53 @@ const speedLimiter = slowDown({
 const webserver = () => {
     // Define all the router stuff here
     app.get('/', (req, res)=>{
-        const metadata = {
-            meta: {
-                title: 'Home',
-                path: false,
-            },
-            nav: {
-                index: true,
-            },
-            listing: [
-                {
-                    tourTitle: 'Test listing one',
-                    tourDesc: 'This is a test listing',
-                    tourImage: 'default.jpg',
-                },
-                {
-                    tourTitle: 'Test listing two',
-                    tourDesc: 'This is a test listing two',
-                    tourImage: 'default.jpg',
-                },
-                {
-                    tourTitle: 'Test listing three',
-                    tourDesc: 'This is a test listing three',
-                    tourImage: 'default.jpg',
-                },
-            ],
-        }
-        res.render('index.hbs', metadata)
+        const listings = []
+        Shop.findAll({
+            attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
+            limit: 4,
+            order:
+                [['createdAt', 'ASC']],
+        })
+            .then(async (data)=>{
+                await data.forEach((doc)=>{
+                    listings.push(doc['dataValues'])
+                })
+
+                const metadata = {
+                    meta: {
+                        title: 'Home',
+                        path: false,
+                    },
+                    nav: {
+                        index: true,
+                    },
+                    listing: listings,
+                }
+                res.render('index.hbs', metadata)
+            })
+            .catch((err)=>{
+                console.log(err)
+                res.json({ 'Message': 'Failed' })
+            })
+    })
+
+
+    app.get('/wishlist', (req, res)=>{
+        const wishlist = []
+        Shop.findAll({
+            attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
+        })
+            .then(async (data)=>{
+                await data.forEach((doc)=>{
+                    wishlist.push(doc['dataValues'])
+                })
+
+                res.render('customer/wishlist.hbs', { wishlist: wishlist })
+            })
+            .catch((err)=>{
+                console.log(err)
+                res.json({ 'Message': 'Failed' })
+            })
     })
 
     app.use('/shop', routes.market)
@@ -170,7 +191,7 @@ const webserver = () => {
     app.use('/admin', routes.admin)
 
     app.use('/', routes.support)
-  
+
     app.use('/tourguide', routes.tourguide)
 
     app.use('/marketplace', routes.market)

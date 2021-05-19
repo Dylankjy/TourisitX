@@ -78,7 +78,7 @@ router.post('/helpdesk', (req, res) => {
     const v = new Validator(req.fields)
 
     // Doing this way so its cleaner. Can also directly call these into the removeNull() array
-    const typeResult = v.Initialize({name: 'type', errorMessage: 'Please select a choice'}).exists().getResult()
+    const typeResult = v.Initialize({ name: 'type', errorMessage: 'Please select a choice' }).exists().getResult()
 
     const contentResult = v.Initialize({ name: 'content', errorMessage: 'Please provide a brief description of problem' }).exists().getResult()
 
