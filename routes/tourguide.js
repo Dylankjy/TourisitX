@@ -29,8 +29,6 @@ const Validator = formidableValidator.Validator
 const fileValidator = formidableValidator.FileValidator
 
 
-
-
 imageToB64Callback = (filePath, fileType, callback) => {
     fs.readFile(filePath, (err, data) => {
         const base64 = Buffer.from(data).toString('base64')
@@ -132,7 +130,6 @@ emptyArray = (arr) => {
 }
 
 
-
 // Put all your routings below this line -----
 
 const exampleTransaction = {
@@ -169,7 +166,6 @@ router.get('/', (req, res) => {
 })
 
 
-
 router.get('/manage/listings', (req, res) => {
     Shop.findAll(
         {
@@ -181,28 +177,25 @@ router.get('/manage/listings', (req, res) => {
                 [['createdAt', 'ASC']],
         },
     )
-    .then((items)=>{
-        const itemsArr = items.map((x)=>x['dataValues']).reverse()
-        const metadata = {
-            meta: {
-                title: 'Manage listings',
-                path: false,
-            },
-            nav: {
-                sidebarActive: 'listings',
-            },
-            layout: 'tourguide',
-            listing: itemsArr,
-        }
-        res.render('tourguide/dashboard/listings', metadata)
-    })
-    .catch((err)=>{
-        console.log
-    })
+        .then((items)=>{
+            const itemsArr = items.map((x)=>x['dataValues']).reverse()
+            const metadata = {
+                meta: {
+                    title: 'Manage listings',
+                    path: false,
+                },
+                nav: {
+                    sidebarActive: 'listings',
+                },
+                layout: 'tourguide',
+                listing: itemsArr,
+            }
+            res.render('tourguide/dashboard/listings', metadata)
+        })
+        .catch((err)=>{
+            console.log
+        })
 })
-
-
-
 
 
 router.get('/manage/listings/archived', (req, res) => {
@@ -216,30 +209,26 @@ router.get('/manage/listings/archived', (req, res) => {
                 [['createdAt', 'ASC']],
         },
     )
-    .then((items)=>{
-        const itemsArr = items.map((x)=>x['dataValues']).reverse()
-        const metadata = {
-            meta: {
-                title: 'Manage listings',
-                path: false,
-            },
-            nav: {
-                sidebarActive: 'listings',
-                sidebarSubActive: 'listingsArchived',
-            },
-            layout: 'tourguide',
-            listing: itemsArr,
-        }
-        res.render('tourguide/dashboard/archived', metadata)
-    })
-    .catch((err)=>{
-        console.log
-    })
+        .then((items)=>{
+            const itemsArr = items.map((x)=>x['dataValues']).reverse()
+            const metadata = {
+                meta: {
+                    title: 'Manage listings',
+                    path: false,
+                },
+                nav: {
+                    sidebarActive: 'listings',
+                    sidebarSubActive: 'listingsArchived',
+                },
+                layout: 'tourguide',
+                listing: itemsArr,
+            }
+            res.render('tourguide/dashboard/archived', metadata)
+        })
+        .catch((err)=>{
+            console.log
+        })
 })
-
-
-
-
 
 
 router.get('/bookings', (req, res) => {
@@ -257,11 +246,6 @@ router.get('/bookings', (req, res) => {
 })
 
 
-
-
-
-
-
 router.get('/bookings/:id', (req, res) => {
     const metadata = {
         meta: {
@@ -275,11 +259,6 @@ router.get('/bookings/:id', (req, res) => {
     }
     res.render('tourguide/myJob', metadata)
 })
-
-
-
-
-
 
 
 router.get('/payments', (req, res) => {

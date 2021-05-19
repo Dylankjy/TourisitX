@@ -190,7 +190,6 @@ router.get('/info/:id', (req, res)=>{
 })
 
 
-
 // can we use shards? (Like how we did product card that time, pass in a json and will fill in the HTML template)
 // To create the listing
 router.get('/create', (req, res) => {
@@ -203,7 +202,7 @@ router.get('/create', (req, res) => {
         const storedValues = {}
     }
 
-    res.render('tourGuide/createListing.hbs', { validationErrors: req.cookies.validationErrors, layout: "tourGuide" })
+    res.render('tourGuide/createListing.hbs', { validationErrors: req.cookies.validationErrors, layout: 'tourGuide' })
 })
 
 

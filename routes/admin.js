@@ -104,29 +104,29 @@ router.get('/manage/tours', (req, res) => {
                 [['createdAt', 'ASC']],
         },
     )
-    .then(async (data)=>{
-        var listings = []
-        await data.forEach((doc)=>{
-            listings.push(doc['dataValues'])
-        })
+        .then(async (data)=>{
+            const listings = []
+            await data.forEach((doc)=>{
+                listings.push(doc['dataValues'])
+            })
 
-        const metadata = {
-            meta: {
-                title: 'Manage Tours',
-                path: false,
-            },
-            nav: {
-                sidebarActive: 'tourListings',
-            },
-            layout: 'admin',
-            listing: listings
-        }
-        res.render('admin/listings', metadata)
-    })
-    .catch((err)=>{
-        console.log(err)
-        res.json({ 'Message': 'Failed' })
-    })
+            const metadata = {
+                meta: {
+                    title: 'Manage Tours',
+                    path: false,
+                },
+                nav: {
+                    sidebarActive: 'tourListings',
+                },
+                layout: 'admin',
+                listing: listings,
+            }
+            res.render('admin/listings', metadata)
+        })
+        .catch((err)=>{
+            console.log(err)
+            res.json({ 'Message': 'Failed' })
+        })
 })
 
 router.get('/payments', (req, res) => {
