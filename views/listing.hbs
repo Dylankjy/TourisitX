@@ -3,7 +3,7 @@
 
 
 <section class='section'>
-    <a href='/listing'>
+    {{!-- <a href='/listing'>
         <button class='button is-danger is-lighted'>
             <span class='icon'>
                 <i class="fas fa-arrow-left"></i>
@@ -12,11 +12,21 @@
                 Back to Home
             </span>
         </button>
+    </a> --}}
+    <a href='/marketplace'>
+        <button class='button is-danger is-lighted'>
+            <span class='icon'>
+                <i class="fas fa-arrow-left"></i>
+            </span>
+            <span>
+                Marketplace
+            </span>
+        </button>
     </a>
 </section>
 
 
-<section class="section" style="padding-top: 5rem">
+<section class="section" style="padding-top: 0rem">
     <div class='container'>
 
         {{#if isOwner}}
