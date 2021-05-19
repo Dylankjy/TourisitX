@@ -28,10 +28,10 @@ router.get('/profile', (req, res) => {
             account_mode: 0,
             fb: 'https://www.facebook.com/',
             insta: 'https://www.instagram.com/',
-            li: 'https://www.linkedin.com/company/paul-immigrations/'
-        }
+            li: 'https://www.linkedin.com/company/paul-immigrations/',
+        },
     })
-});
+})
 
 router.get('/setting/general', (req, res) => {
     const metadata = {
@@ -53,12 +53,12 @@ router.get('/setting/general', (req, res) => {
             account_mode: 0,
             fb: 'https://www.facebook.com/',
             insta: 'https://www.instagram.com/',
-            li: 'https://www.linkedin.com/company/paul-immigrations/'
+            li: 'https://www.linkedin.com/company/paul-immigrations/',
 
-        }
+        },
     }
     res.render('users/general.hbs', metadata)
-});
+})
 
 router.get('/setting/password', (req, res) => {
     const metadata = {
