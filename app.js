@@ -164,7 +164,7 @@ const webserver = () => {
 
     app.use('/u', routes.user)
 
-    app.use('/booking', routes.booking)
+    app.use('/bookings', routes.booking)
 
     app.use('/admin', routes.admin)
 
