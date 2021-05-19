@@ -175,7 +175,7 @@ router.get('/create', (req, res) => {
         const storedValues = {}
     }
 
-    res.render('tourGuide/createListing.hbs', { validationErrors: req.cookies.validationErrors })
+    res.render('tourGuide/createListing.hbs', { validationErrors: req.cookies.validationErrors, layout: "tourGuide" })
 })
 
 
