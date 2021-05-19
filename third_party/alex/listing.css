@@ -43,5 +43,14 @@
 }
 
 .editable-img:hover {
-  filter: blur(1px);
+  filter: blur(0.2px);
+}
+
+
+.favourite-button {
+  background-color: rgba(255, 254, 254, 0.5);
+  border-radius: 8px;
+  padding: 7px;
+  position: absolute;
+  left: 85%;
 }

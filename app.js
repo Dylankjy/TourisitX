@@ -160,6 +160,25 @@ const webserver = () => {
         })
     })
 
+
+    app.get('/wishlist', (req, res)=>{
+        var wishlist = []
+        Shop.findAll({
+            attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage']
+        })
+        .then(async (data)=>{
+            await data.forEach((doc)=>{
+                wishlist.push(doc['dataValues'])
+            })
+
+            res.render('customer/wishlist.hbs', {wishlist: wishlist})
+        })
+        .catch((err)=>{
+            console.log(err)
+            res.json({ 'Message': 'Failed' })
+        })
+    })
+
     app.use('/shop', routes.market)
 
     app.use('/listing', routes.listings)
