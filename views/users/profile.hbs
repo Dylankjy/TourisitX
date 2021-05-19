@@ -9,7 +9,8 @@
 			</div>
 			<div class='column'>
 				<p class='title is-1 has-text-white'>
-					Harold Chan
+					{{ user.name }}
+
 					<span class='tag is-success'>
 						<i class='fas fa-check'></i>&ensp;Verified Guide
 					</span>
@@ -20,7 +21,7 @@
 
 				</p>
 				<p id='bioContainer' class='is-size-5 has-text-grey-lighter'>
-					Hide the Pain Harold
+					{{ user.bio }}
 					<span class='has-text-grey'>
 						<i onclick="$('#bioContainer').fadeOut('fast', () => { $('#bioEditFormContainer').slideDown() });" class='fa fa-edit'></i>
 					</span>
@@ -54,39 +55,25 @@
 				</a>
 
 				<div class='field is-grouped has-text-right mt-3'>
-					<a id='fb' href=''>
+					{{#if user.fb}}
+					<a id='fb' href='{{user.fb}}'>
 						<i class='fab fa-facebook-square fa-2x mr-3' style='color: #3B5998;'></i>
 					</a>
+					{{/if}}
 
-					<a id='fb' href=''>
+					{{#if user.insta}}
+					<a id='fb' href='{{user.insta}}'>
 						<i class='fab fa-instagram-square fa-2x mr-3' style='color: #DD2A7D;'></i>
 					</a>
+					{{/if}}
 
-					<a id='fb' href=''>
+					{{#if user.li}}
+					<a id='fb' href='{{user.li}}'>
 						<i class='fab fa-linkedin fa-2x' style='color: #0077B5;'></i>
 					</a>
+					{{/if}}
 				</div>
 			</div>
-		</div>
-	</div>
-</section>
-
-<section class='section'>
-	<div class='container'>
-		<div class='columns is-multiline'>
-
-		</div>
-	</div>
-</section>
-<section class='section'>
-	<div class='container'>
-		<!--Reviews as a Customer-->
-		<div>
-			<p class='has-text-weight-medium has-text-grey-dark'>Harold Chan as a Customer</p>
-		</div>
-
-		<!--Reviews as a tour guide-->
-		<div>
 		</div>
 	</div>
 </section>
