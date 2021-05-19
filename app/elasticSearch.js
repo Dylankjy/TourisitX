@@ -21,21 +21,21 @@ updateDoc = (doc) => {
     return new Promise((resolve, reject) =>{
         esClient.update({
             index: 'products',
-            id: doc["id"],
+            id: doc['id'],
             body: {
                 doc: {
-                    'name': doc["name"],
-                    'description': doc["description"]
+                    'name': doc['name'],
+                    'description': doc['description'],
                 },
             },
         })
-        .then((data)=>{
-            resolve(data)
-        })
-        .catch((err)=>{
-            console.log(err)
-            reject(err)
-        })
+            .then((data)=>{
+                resolve(data)
+            })
+            .catch((err)=>{
+                console.log(err)
+                reject(err)
+            })
     })
 }
 
@@ -44,21 +44,21 @@ updateImage = (doc) => {
     return new Promise((resolve, reject) =>{
         esClient.update({
             index: 'products',
-            id: doc["id"],
+            id: doc['id'],
             body: {
                 doc: {
-                    'image': doc["image"],
+                    'image': doc['image'],
                 },
             },
         })
-        .then((data)=>{
-            console.log("Updated ElasticSearch image name")
-            resolve(data)
-        })
-        .catch((err)=>{
-            console.log(err)
-            reject(err)
-        })
+            .then((data)=>{
+                console.log('Updated ElasticSearch image name')
+                resolve(data)
+            })
+            .catch((err)=>{
+                console.log(err)
+                reject(err)
+            })
     })
 }
 
@@ -66,15 +66,13 @@ updateImage = (doc) => {
 deleteDoc = async (index, id) => {
     await esClient.delete({
         index: index,
-        id: id
-    });
+        id: id,
+    })
 }
-
-
 
 
 module.exports = {
     batchIndex,
     updateDoc,
-    updateImage
+    updateImage,
 }

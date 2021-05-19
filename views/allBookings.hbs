@@ -1,0 +1,101 @@
+<link rel="stylesheet" href="/third_party/bulma/bulma-divider.css">
+<link rel="stylesheet" href="/third_party/bulma/bulma-badge.css">
+
+
+    <section class="section has-background-link-light is-small">
+        <div class="container">
+            <h1 class="is-size-1 has-text-weight-bold">Your Bookings</h1>
+            <h3 class="subtitle">List of all bookings you have made.</h3>
+        </div>
+    </section>
+
+        <div class="container mt-5">
+            <div class="box">
+                <div class="columns">
+                    <div class="column">
+                        <p class="subtitle has-text-weight-semibold">Upcoming Tours</p>
+                        <table class='table is-striped is-fullwidth'>
+                            <tr>
+                                <th>Date</th>
+                                <th>Tour</th>
+                            </tr>
+                            <tr>
+                                <td>5/5/21</td>
+                                <td><a href="#">Bishan Nightlife</a> 
+                                </td>
+                            </tr>
+                        </table>
+                    <p class="has-text-centered is-hidden">You have no Upcoming tours.</p>
+                    </div>
+                    <div class="divider is-vertical is-right"></div>
+                    <div class="column">
+                        <p class="subtitle has-text-weight-semibold">Required Action</p>
+                        <table class='table is-striped is-fullwidth'>
+                                <tr>
+                                    <th>Bishan Nightlife</th>
+                                    <td><a href="#"><span class="tag is-link">Submit Requirements &nbsp;<i class="fas fa-arrow-right"></i></span></a></td>
+                                </tr>
+                        </table>
+                            <p class="has-text-centered is-hidden">All kept up to speed.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <section class="section">
+        <div class="container">
+                <div class="has-text-centered is-hidden">Nothing to display here. <a href="#">Start your first tour with
+                    Tourisit today.</a></div>
+
+                    <!--tabs-->
+                    <div class="tabs is-toggle">
+                        <ul>
+                            <li class="is-active">
+                            <a><span>Current</span></a>
+                            </li>
+                            <li>
+                            <a><span>Completed</span></a>
+                            </li>
+                        </ul>
+                        </div>
+                    <!--tabs-->
+
+                    <!-- Card (todo: partial)-->
+                    <a href="/booking/id">
+                        <div class="box">
+                            <div class="columns">
+                                <div class="column is-one-fifth m-0" style="background-image: url('/static/sample-listing.jpg');">
+                                </div>
+                                <div class="column is-three-fifths m-0">
+                                    <p class="has-text-weight-bold is-size-4">Tour Name</p>
+                                    <p><span class="tag is-success is-light">Completed</span>
+                                </div>
+                                <div class="column is-one-fifth has-text-right">
+                                    <span class="icon is-large"><i class="fas fa-arrow-right"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <br>
+                    <!-- end: card --> 
+
+                    <!-- Card (todo: partial)-->
+                    <a href="/booking/id">
+                        <div class="box">
+                            <div class="columns">
+                                <div class="column is-one-fifth m-0" style="background-image: url('/static/sample-listing.jpg');">
+                                </div>
+                                <div class="column is-three-fifths m-0">
+                                    <p class="has-text-weight-bold is-size-4">Tour Name</p>
+                                    <p><span class="tag is-info is-light">Review Tour Plan</span>
+                                </div>
+                                <div class="column is-one-fifth has-text-right">
+                                    <span class="icon is-large"><i class="fas fa-arrow-right"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <br>
+                    <!-- end: card --> 
+        </div>
+    </section>
