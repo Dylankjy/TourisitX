@@ -153,13 +153,13 @@ router.get('/', (req, res)=>{
                 [['createdAt', 'ASC']],
         },
     )
-    .then((items)=>{
-        var itemsArr = items.map((x)=>x['dataValues']).reverse()
-        res.render('tourGuide/myListings.hbs', { datas: itemsArr })
-    })
-    .catch((err)=>{
-        console.log
-    })
+        .then((items)=>{
+            const itemsArr = items.map((x)=>x['dataValues']).reverse()
+            res.render('tourGuide/myListings.hbs', { datas: itemsArr })
+        })
+        .catch((err)=>{
+            console.log
+        })
 })
 
 
@@ -254,20 +254,20 @@ router.post('/create', (req, res)=>{
             tourImage: 'default.jpg',
             hidden: 'false',
         })
-        .then(async (data)=>{
-            await axios.post('http://localhost:5000/listing/es-api/upload', {
-            "id": genId,
-            "name": req.fields.tourTitle,
-            "description": req.fields.tourDesc,
-            "image": req.fields.tourImage
-            })
+            .then(async (data)=>{
+                await axios.post('http://localhost:5000/listing/es-api/upload', {
+                    'id': genId,
+                    'name': req.fields.tourTitle,
+                    'description': req.fields.tourDesc,
+                    'image': req.fields.tourImage,
+                })
 
-            console.log('Inserted')
-            res.redirect(`/listing`)
-        })
-        .catch((err)=>{
+                console.log('Inserted')
+                res.redirect(`/listing`)
+            })
+            .catch((err)=>{
                 console.log(err)
-        })
+            })
     }
 })
 
@@ -348,21 +348,21 @@ router.post('/edit/:savedId', (req, res)=>{
         }, {
             where: { id: req.params.savedId },
         })
-        .then(async (data)=>{
-            var doc = {
-                "id": req.params.savedId,
-                "name": req.fields.tourTitle,
-                "description": req.fields.tourDesc
-            }
-            console.log(doc["id"])
-        
-            await elasticSearchHelper.updateDoc(doc)
+            .then(async (data)=>{
+                const doc = {
+                    'id': req.params.savedId,
+                    'name': req.fields.tourTitle,
+                    'description': req.fields.tourDesc,
+                }
+                console.log(doc['id'])
 
-            res.redirect(`/listing/info/${req.params.savedId}`)
-        })
-        .catch((err)=>{
-            console.log(err)
-        })        
+                await elasticSearchHelper.updateDoc(doc)
+
+                res.redirect(`/listing/info/${req.params.savedId}`)
+            })
+            .catch((err)=>{
+                console.log(err)
+            })
     }
 })
 
@@ -378,19 +378,19 @@ router.post('/edit/image/:savedId', (req, res)=>{
         let filePath = req.files['tourImage']['path']
         let fileName = req.files['tourImage']['name']
         const saveFolder = 'savedImages/Listing'
-        var savedName = storeImage(filePath = filePath, fileName = fileName, folder=saveFolder)
+        const savedName = storeImage(filePath = filePath, fileName = fileName, folder=saveFolder)
         console.log(`Added file is ${savedName}`)
 
         Shop.findAll({ where: {
             id: req.params.savedId,
         } })
-        .then((items)=>{
-            var savedImageFile = items[0]["dataValues"]["tourImage"]
-            if (savedImageFile != "default.jpg") {
-                console.log(`Removed IMAGE FILE: ${savedImageFile}`)
-                fs.unlinkSync(`savedImages/Listing/${savedImageFile}`)
-            }
-        })
+            .then((items)=>{
+                const savedImageFile = items[0]['dataValues']['tourImage']
+                if (savedImageFile != 'default.jpg') {
+                    console.log(`Removed IMAGE FILE: ${savedImageFile}`)
+                    fs.unlinkSync(`savedImages/Listing/${savedImageFile}`)
+                }
+            })
 
         Shop.update({
             tourImage: savedName,
@@ -401,9 +401,9 @@ router.post('/edit/image/:savedId', (req, res)=>{
         })
             .then(async (data)=>{
                 // Update elastic search
-                var doc = {
-                    "id": req.params.savedId,
-                    "image": savedName
+                const doc = {
+                    'id': req.params.savedId,
+                    'image': savedName,
                 }
 
                 await elasticSearchHelper.updateImage(doc)
@@ -427,15 +427,14 @@ router.get('/delete/:savedId', (req, res)=>{
     Shop.findAll({ where: {
         id: req.params.savedId,
     } })
-    .then((items)=>{
+        .then((items)=>{
         // Only delete image from local folder if it is NOT the default image
-        var savedImageFile = items[0]["dataValues"]["tourImage"]
-        if (savedImageFile != 'default.jpg') {
-            console.log(`Delete listing and Removed IMAGE FILE: ${savedImageFile}`)
-            fs.unlinkSync(`savedImages/Listing/${savedImageFile}`)
-        } 
-        
-    })
+            const savedImageFile = items[0]['dataValues']['tourImage']
+            if (savedImageFile != 'default.jpg') {
+                console.log(`Delete listing and Removed IMAGE FILE: ${savedImageFile}`)
+                fs.unlinkSync(`savedImages/Listing/${savedImageFile}`)
+            }
+        })
 
     Shop.destroy({
         where: {
@@ -456,7 +455,7 @@ router.get('/info/:id', (req, res)=>{
     const itemID = req.params.id
 
     // if (req.cookies.imageValError) {
-    var errMsg = req.cookies.imageValError || ''
+    const errMsg = req.cookies.imageValError || ''
     // } else {
     //     const errMsg = ''
     // }
@@ -464,7 +463,7 @@ router.get('/info/:id', (req, res)=>{
     Shop.findAll({ where: {
         id: itemID,
     } }).then(async (items)=>{
-        var data = await items[0]['dataValues']
+        const data = await items[0]['dataValues']
         // Check here if data.userId = loggedIn user ID
         if (true) {
             // Manually set to true now.. while waiting for the validation library
@@ -639,7 +638,7 @@ router.get('/es-api/search', (req, res) => {
                     'name': searchText,
                 },
             },
-            "sort" : ["_score"]
+            'sort': ['_score'],
         },
     })
         .then((data)=>{
