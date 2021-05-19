@@ -1,54 +1,55 @@
-    <section class="section">
-        <div class="container">
-            <h1 class="is-size-3 has-text-weight-bold mt-6 has-text-centered is-vcentered">Support & Help</h1>
-        </div>
-    </section>
+<section class='section'>
+	<div class='container'>
+		<h1 class='is-size-3 has-text-weight-bold mt-6 has-text-centered is-vcentered'>Support & Help</h1>
+	</div>
+</section>
 
-    <div class="box" style="width: 50%; margin-left: 25%">
-        <form class="form-horizontal" method="POST">
-            
-            <fieldset>
-                <div class="field">
-                    <label class="label">What can we help you with?</label>
-                    <div class="select is-fullwidth">
-                        {{ form.support_type(id="support_type", type="select", class="select") }}
-                    </div>
-                </div>
-                <div class="field">
-                    <div class="control">
-                        {{ form.link(id="link", type="hidden", class="input") }}
-                    </div>
-                </div>
-                <div class="field">
-                    <label class="label">Message <label class="has-text-danger">*</label></label>
-                    <div class="control">
-                        {{ form.content(id="content", type="textarea", class="input", rows="5", style="height: 150px;") }}
-                    </div>
-                </div>
-                <div class="field has-text-centered mt-6">
-                    <div class="control">
-                        <input type='submit' value='Submit' id="supportbtn" name="supportbtn"
-                               class="button is-success is-medium" style="width:20%;">
-                    </div>
-                </div>
-            </fieldset>
-        </form>
-    </div>
+<div class='box' style='width: 50%; margin-left: 25%'>
+	<form class='form-horizontal' method='POST'>
+		<fieldset>
+			<div class='field'>
+				<label class='label'>What can we help you with?</label>
+				<div class='select is-fullwidth' name="type">
+					<select>
+						<option>General Enquiry</option>
+						<option>Report Tour Guide</option>
+                        <option>Apply for Verified</option>
+					</select>
+				</div>
+			</div>
+			<div class='field'>
+				<div class='control'>
+					<input class='input' type='hidden' id='link' name="link"/>
+				</div>
+			</div>
+			<div class='field'>
+				<label class='label'>Message <label class='has-text-danger'>*</label></label>
+				<div class='control'>
+					<textarea name="content" class='textarea' rows="5" style="height: 150px;"></textarea>
+				</div>
+			</div>
+			<div class='field has-text-centered mt-6'>
+				<div class='control'>
+					<input type='submit' value='Submit' id='supportbtn' name='supportbtn' class='button is-success is-medium' style='width:20%;' />
+				</div>
+			</div>
+		</fieldset>
+	</form>
+</div>
 
-    <div id="SuccessModal" class="modal is-active" style="display: none;">
-        <div class="modal-background"></div>
-        <div class="modal-card box" style="padding: 3em;">
-            <i class="far fa-check-circle fa-6x has-text-centered" style="color: limegreen;"></i>
-            <p class="title is-3 has-text-weight-semibold has-text-centered">Successfully submitted</p>
-            <p class="subtitle has-text-centered">We will get in touch with you via email</p>
-            <a href="{{ url_for('home') }}" class="button is-success is-fullwidth">
-                <i class="fas fa-home"></i>&ensp;Return to Homepage</a>
-        </div>
-    </div>
 
-    <script>
-        var pfplink = sessionStorage.getItem("pfpLink");
-        {# Print to tour guide profile link #}
-        document.getElementById('link').value = pfplink;
-    </script>
-{% endblock %}
+<div id='SuccessModal' class='modal is-active' style='display: none;'>
+	<div class='modal-background'></div>
+	<div class='modal-card box' style='padding: 3em;'>
+		<i class='far fa-check-circle fa-6x has-text-centered' style='color: limegreen;'></i>
+		<p class='title is-3 has-text-weight-semibold has-text-centered'>Successfully submitted</p>
+		<p class='subtitle has-text-centered'>We will get in touch with you via email</p>
+		<a href='/' class='button is-success is-fullwidth'>
+			<i class='fas fa-home'></i>&ensp;Return to Homepage</a>
+	</div>
+</div>
+
+
+<script>
+	var pfplink = sessionStorage.getItem("pfpLink"); {# Print to tour guide profile link #} document.getElementById('link').value = pfplink;
+</script>
