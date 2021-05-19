@@ -9,8 +9,32 @@ router.get('/profile', (req, res) => {
     res.render('users/profile.hbs')
 })
 
-router.get('/settings', (req, res) => {
-    res.render('users/setting.hbs')
+router.get('/setting/general', (req, res) => {
+    const metadata = {
+        meta: {
+            title: 'General Setting',
+            path: false,
+        },
+        nav: {
+            sidebarActive: '',
+        },
+        layout: 'setting',
+    }
+    res.render('users/general.hbs', metadata)
+})
+
+router.get('/setting/password', (req, res) => {
+    const metadata = {
+        meta: {
+            title: 'Password',
+            path: false,
+        },
+        nav: {
+            sidebarActive: '',
+        },
+        layout: 'setting',
+    }
+    res.render('users/password.hbs', metadata)
 })
 
 router.get('/messages', (req, res) => {
