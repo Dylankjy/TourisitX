@@ -24,7 +24,7 @@
 	{{/if}}
 {{/if}}
 
-<section class='section has-background-white' style='width:70%; margin-left: 15%;'>
+<section class='section has-background-white' style='width:70%;'>
 	<div class='container'>
 		<h2 class='is-size-3 has-text-weight-bold'>Account Settings</h2>
 		<h6>Change your profile and account settings</h6>
@@ -34,7 +34,7 @@
 <div class='container'>
 	<div class='columns'>
 		<!-- Content -->
-		<div class='box' style='width:75%; margin-left: 12.5%;'>
+		<div class='box' style='width:70%;'>
 			<div class='column'>
 				<!-- Update account settings -->
 				<form class='form-horizontal formfield' enctype='multipart/form-data' method='POST' id='editSettingForm'>
@@ -52,7 +52,7 @@
 						<div class='field'>
 							<label class='label has-text-weight-medium has-text-grey-dark' for='name'>Name</label>
 							<div class='control'>
-								<input class='input' type='text' style='height:50px;' />
+								<input class='input' type='text' style='height:50px;' value='{{user.name}}'>
 							</div>
 						</div>
 						<!-- Profile Image -->
@@ -80,14 +80,14 @@
 						<div class='field'>
 							<label class='label has-text-weight-medium has-text-grey-dark' for='email'>Email:</label>
 							<div class='control'>
-								<input class='input' type='text' style='height:50px;' />
+								<input class='input' type='text' style='height:50px;' value='{{user.email}}'/>
 							</div>
 						</div>
 						<!-- Phone Number -->
 						<div class='field'>
 							<label class='label has-text-weight-medium has-text-grey-dark' for='phone_number'>Phone Number:</label>
 							<div class='control'>
-								<input class='input' type='text' style='height:50px;' />
+								<input class='input' type='text' style='height:50px;' value='{{user.phone_number}}'/>
 							</div>
 						</div>
 
@@ -96,23 +96,23 @@
 						</h1>
 						<!-- Facebook -->
 						<div class='field'>
-							<label class='label has-text-weight-medium has-text-grey-dark' for='name'>Facebook</label>
+							<label class='label has-text-weight-medium has-text-grey-dark' for='fb'>Facebook</label>
 							<div class='control'>
-								<input class='input' type='text' style='height:50px;' />
+								<input class='input' type='text' style='height:50px;' value='{{user.fb}}'/>
 							</div>
 						</div>
 						<!-- Instagram -->
 						<div class='field'>
 							<label class='label has-text-weight-medium has-text-grey-dark' for='insta'>Instagram</label>
 							<div class='control'>
-								<input class='input' type='text' style='height:50px;' />
+								<input class='input' type='text' style='height:50px;' value='{{user.insta}}'/>
 							</div>
 						</div>
 						<!-- LinkedIn -->
 						<div class='field'>
 							<label class='label has-text-weight-medium has-text-grey-dark' for='linkedin'>LinkedIn</label>
 							<div class='control'>
-								<input class='input' type='text' style='height:50px;' />
+								<input class='input' type='text' style='height:50px;' value='{{user.li}}'/>
 							</div>
 						</div>
 						<div class='field is-pulled-right'>
