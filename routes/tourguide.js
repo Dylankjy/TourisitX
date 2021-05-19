@@ -123,7 +123,7 @@ router.get('/bookings/:id', (req, res) => {
         nav: {
             sidebarActive: 'bookings',
         },
-        layout: 'tourguide',
+        layout: 'main',
     }
     res.render('tourguide/myJob', metadata)
 })
