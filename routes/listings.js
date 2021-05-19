@@ -143,24 +143,52 @@ emptyArray = (arr) => {
 
 // Show the user all of their own listings
 router.get('/', (req, res)=>{
-    Shop.findAll(
-        {
-            where: {
-                // Set to empty now, but it should be replaced with the userID when authentication library is out
-                userId: 'sample',
-            },
-            order:
-                [['createdAt', 'ASC']],
-        },
-    )
-        .then((items)=>{
-            const itemsArr = items.map((x)=>x['dataValues']).reverse()
-            res.render('tourGuide/myListings.hbs', { datas: itemsArr })
-        })
-        .catch((err)=>{
-            console.log
-        })
+    // Shop.findAll(
+    //     {
+    //         where: {
+    //             // Set to empty now, but it should be replaced with the userID when authentication library is out
+    //             userId: 'sample',
+    //         },
+    //         order:
+    //             [['createdAt', 'ASC']],
+    //     },
+    // )
+    //     .then((items)=>{
+    //         const itemsArr = items.map((x)=>x['dataValues']).reverse()
+    //         res.render('tourGuide/myListings.hbs', { datas: itemsArr })
+    //     })
+    //     .catch((err)=>{
+    //         console.log
+    //     })
+    res.redirect('/tourguide/manage/listings')
 })
+
+
+// To get a specific listing
+router.get('/info/:id', (req, res)=>{
+    const itemID = req.params.id
+
+    // if (req.cookies.imageValError) {
+    const errMsg = req.cookies.imageValError || ''
+    // } else {
+    //     const errMsg = ''
+    // }
+
+    Shop.findAll({ where: {
+        id: itemID,
+    } }).then(async (items)=>{
+        const data = await items[0]['dataValues']
+        // Check here if data.userId = loggedIn user ID
+        if (true) {
+            // Manually set to true now.. while waiting for the validation library
+            owner = true
+        } else {
+            owner = false
+        }
+        res.render('listing.hbs', { data: data, isOwner: owner, errMsg: errMsg })
+    }).catch((err)=>console.log)
+})
+
 
 
 // can we use shards? (Like how we did product card that time, pass in a json and will fill in the HTML template)
@@ -447,32 +475,6 @@ router.get('/delete/:savedId', (req, res)=>{
     }).catch((err)=>{
         console.log(err)
     })
-})
-
-
-// To get a specific listing
-router.get('/info/:id', (req, res)=>{
-    const itemID = req.params.id
-
-    // if (req.cookies.imageValError) {
-    const errMsg = req.cookies.imageValError || ''
-    // } else {
-    //     const errMsg = ''
-    // }
-
-    Shop.findAll({ where: {
-        id: itemID,
-    } }).then(async (items)=>{
-        const data = await items[0]['dataValues']
-        // Check here if data.userId = loggedIn user ID
-        if (true) {
-            // Manually set to true now.. while waiting for the validation library
-            owner = true
-        } else {
-            owner = false
-        }
-        res.render('listing.hbs', { data: data, isOwner: owner, errMsg: errMsg })
-    }).catch((err)=>console.log)
 })
 
 
