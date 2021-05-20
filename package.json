@@ -34,7 +34,7 @@
     "express": "^4.17.1",
     "express-formidable": "^1.2.0",
     "express-handlebars": "^5.2.1",
-    "express-session": "^1.17.1",
+    "express-session": "^1.17.2",
     "express-slow-down": "^1.4.0",
     "express-validation": "^3.0.8",
     "file-type": "^16.4.0",
