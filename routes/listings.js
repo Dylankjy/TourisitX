@@ -23,7 +23,11 @@ const { convert } = require('image-file-resize')
 const router = express.Router()
 const { Shop } = require('../models')
 const elasticSearchHelper = require('../app/elasticSearch')
+// const esClient = elasticSearch.Client({
+//     host: 'http://47.241.14.108:9200',
+// })
 
+const esClient = require('../app/elasticSearch').esClient
 
 const Validator = formidableValidator.Validator
 const fileValidator = formidableValidator.FileValidator
@@ -494,9 +498,9 @@ router.get('/api/getImage/:id', (req, res)=>{
 
 // Elastic Search stuff
 
-const esClient = elasticSearch.Client({
-    host: 'http://localhost:9200',
-})
+// const esClient = elasticSearch.Client({
+//     host: 'http://localhost:9200',
+// })
 
 
 router.get('/es-api/create-index', (req, res)=>{
@@ -712,6 +716,35 @@ router.get('/es-api/dev/generateFakes', (req, res) => {
 // To populate the elastic search index using the Shop Database
 router.get('/es-api/getFromShopDB', async (req, res) => {
     await axios('http://localhost:5000/listing/es-api/delete')
+    await axios('http://localhost:5000/listing/es-api/create-index')
+    // This array will contain all the JSON objects
+    const docs = []
+    // Specify the attributes to retrieve
+    Shop.findAll({ attributes: ['id', ['tourTitle', 'name'], ['tourDesc', 'description'], ['tourImage', 'image']] })
+        .then((data)=>{
+            data.forEach((doc)=>{
+            // console.log(doc["Shop"]["dataValues"])
+                docs.push(doc['dataValues'])
+            })
+
+            elasticSearchHelper.batchIndex(docs, 'products')
+                .then((data)=>{
+                    res.json({ 'Message': 'Success', 'data': docs })
+                })
+                .catch((err)=>{
+                    console.log(err)
+                    res.json({ 'Message': 'Failed to populate ElasticSearch from SQL' })
+                })
+        })
+        .catch((err)=>{
+            console.log(err)
+            res.json({ 'Message': 'Error Querying from SQL' })
+        })
+})
+
+
+// To initialize the elastic search client for the first time
+router.get('/es-api/initFromDB', async (req, res) => {
     await axios('http://localhost:5000/listing/es-api/create-index')
     // This array will contain all the JSON objects
     const docs = []

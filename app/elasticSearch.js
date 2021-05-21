@@ -1,5 +1,5 @@
 const esClient = require('elasticsearch').Client({
-    host: 'http://localhost:9200',
+    host: 'http://47.241.14.108:9200'
 })
 
 // docs is the array of documents to batch inset. index is the name of the ElasticSearch index to populate
@@ -75,4 +75,5 @@ module.exports = {
     batchIndex,
     updateDoc,
     updateImage,
+    esClient
 }
