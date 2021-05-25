@@ -78,4 +78,7 @@ typings/
 # Ignore temporary folders that Alex creates
 tmp/
 TMP/
-config/
+
+# Ignore super secret stuff uwu
+config/config.json
+config/apikeys.json
