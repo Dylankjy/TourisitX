@@ -78,3 +78,4 @@ typings/
 # Ignore temporary folders that Alex creates
 tmp/
 TMP/
+config/
