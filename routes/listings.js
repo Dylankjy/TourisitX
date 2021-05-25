@@ -20,6 +20,9 @@ const formidableValidator = require('../app/validation')
 const { convert } = require('image-file-resize')
 const { nodeFetch } = require('node-fetch')
 
+// Config file
+const config = require('../config/apikeys.json')
+
 
 // Globals
 const router = express.Router()
@@ -399,17 +402,17 @@ router.post('/edit/:savedId', (req, res)=>{
     }
 })
 
-var TIH_API_KEY = "GgjNvD9p8MA6c3emVYknlImLc5cAdj7X"
+const TIH_API_KEY = config.secret.TIH_API_KEY
 
 router.get('/api/autocomplete/location', (req, res) => {
     console.log(req.query.typedLocation)
     axios.get(`https://tih-api.stb.gov.sg/map/v1/autocomplete/type/address?input=${req.query.typedLocation}&apikey=${TIH_API_KEY}`)
-    .then((data) => {
-        console.log(data["data"])
-        return res.json(data["data"])
-    }).catch((err)=>{
-        console.log(err)
-    })
+        .then((data) => {
+            console.log(data['data'])
+            return res.json(data['data'])
+        }).catch((err)=>{
+            console.log(err)
+        })
 })
 
 
