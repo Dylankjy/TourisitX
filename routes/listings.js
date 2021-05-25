@@ -32,7 +32,7 @@ const elasticSearchHelper = require('../app/elasticSearch')
 //     host: 'http://47.241.14.108:9200',
 // })
 
-var TIH_API_KEY = "GgjNvD9p8MA6c3emVYknlImLc5cAdj7X"
+const TIH_API_KEY = config.secret.TIH_API_KEY
 
 const esClient = require('../app/elasticSearch').esClient
 
@@ -404,17 +404,9 @@ router.post('/edit/:savedId', (req, res)=>{
     }
 })
 
-const TIH_API_KEY = config.secret.TIH_API_KEY
-
-
 router.get('/api/autocomplete/location', (req, res) => {
+    console.log(req.query.typedLocation)
     axios.get(`https://tih-api.stb.gov.sg/map/v1/autocomplete/type/address?input=${req.query.typedLocation}&apikey=${TIH_API_KEY}`)
-
-    .then((data) => {
-        return res.json(data["data"])
-    }).catch((err)=>{
-        console.log(err)
-    })
         .then((data) => {
             console.log(data['data'])
             return res.json(data['data'])
