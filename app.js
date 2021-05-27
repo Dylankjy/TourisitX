@@ -180,6 +180,8 @@ const webserver = () => {
             })
     })
 
+    app.use('/id', routes.auth)
+
     app.use('/shop', routes.market)
 
     app.use('/listing', routes.listings)
