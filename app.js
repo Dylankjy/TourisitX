@@ -7,11 +7,7 @@ const exphbs = require('express-handlebars')
 const cookieParser = require('cookie-parser')
 const formidable = require('express-formidable')
 const slowDown = require('express-slow-down')
-const expressSession = require('express-session')
 const axios = require('axios')
-const bodyParser = require('body-parser')
-const cors = require('cors')
-const { Shop } = require('./models')
 
 // Routes for Express
 const routes = {
@@ -43,6 +39,9 @@ app.use('/usercontent', express.static('storage'))
 app.set('view engine', 'hbs')
 
 // app.use(cors())
+
+// Models
+const { Shop } = require('./models')
 
 
 // Handlebars: Environment options
