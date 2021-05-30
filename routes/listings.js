@@ -166,7 +166,7 @@ router.get('/', (req, res)=>{
     // )
     //     .then((items)=>{
     //         const itemsArr = items.map((x)=>x['dataValues']).reverse()
-    //         res.render('tourGuide/myListings.hbs', { datas: itemsArr })
+    //         return res.render('tourGuide/myListings.hbs', { datas: itemsArr })
     //     })
     //     .catch((err)=>{
     //         console.log
@@ -196,7 +196,7 @@ router.get('/info/:id', (req, res)=>{
         } else {
             owner = false
         }
-        res.render('listing.hbs', { data: data, isOwner: owner, errMsg: errMsg })
+        return res.render('listing.hbs', { data: data, isOwner: owner, errMsg: errMsg })
     }).catch((err)=>console.log)
 })
 
@@ -204,7 +204,7 @@ router.get('/info/:id', (req, res)=>{
 // can we use shards? (Like how we did product card that time, pass in a json and will fill in the HTML template)
 // To create the listing
 router.get('/create', (req, res) => {
-    // res.render('create_listing.hbs', {validationErr: []})
+    // return res.render('create_listing.hbs', {validationErr: []})
     // If you have to re-render the page due to errors, there will be cookie storedValue and you use this
     // To use cookie as JSON in javascipt, must URIdecode() then JSON.parse() it
     if (req.cookies.storedValues) {
@@ -213,7 +213,7 @@ router.get('/create', (req, res) => {
         const storedValues = {}
     }
 
-    res.render('tourGuide/createListing.hbs', { validationErrors: req.cookies.validationErrors, layout: 'tourGuide' })
+    return res.render('tourGuide/createListing.hbs', { validationErrors: req.cookies.validationErrors, layout: 'tourGuide' })
 })
 
 
@@ -318,7 +318,7 @@ router.get('/edit/:savedId', (req, res)=>{
         // Validate that the user can edit the listing
         // if (userID == savedData["userId"])
         res.cookie('storedValues', JSON.stringify(savedData), { maxAge: 5000 })
-        res.render('tourGuide/editListing.hbs', { validationErrors: req.cookies.validationErrors })
+        return res.render('tourGuide/editListing.hbs', { validationErrors: req.cookies.validationErrors })
     }).catch((err)=>{
         console.log(err)
         res.send('No such listing exists!')

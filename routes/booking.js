@@ -9,16 +9,16 @@ const router = express.Router()
 // to-do: change app.js route to bookings for consistency
 
 router.get('/', (req, res) => {
-    res.render('allBookings.hbs')
+    return res.render('allBookings.hbs')
 })
 
 router.get('/:id', (req, res) => {
-    res.render('myBooking.hbs')
+    return res.render('myBooking.hbs')
 })
 
 // for testing purposes
 // router.get('/booknow', (req, res) => {
-//     res.render('partials/bookNowModal.hbs')
+//     return res.render('partials/bookNowModal.hbs')
 // })
 
 module.exports = router

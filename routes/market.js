@@ -14,9 +14,9 @@ router.get('/', (req, res) => {
                 listings.push(doc['dataValues'])
             })
             return listings
-            // res.render('marketplace.hbs', { listings: listings })
+            // return res.render('marketplace.hbs', { listings: listings })
         }).then((listings)=>{
-            res.render('marketplace.hbs', { listings: listings })
+            return res.render('marketplace.hbs', { listings: listings })
         })
         .catch((err)=>{
             console.log(err)

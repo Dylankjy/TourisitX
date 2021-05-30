@@ -153,7 +153,7 @@ const webserver = () => {
                     },
                     listing: listings,
                 }
-                res.render('index.hbs', metadata)
+                return res.render('index.hbs', metadata)
             })
             .catch((err)=>{
                 console.log(err)
@@ -172,7 +172,7 @@ const webserver = () => {
                     wishlist.push(doc['dataValues'])
                 })
 
-                res.render('customer/wishlist.hbs', { wishlist: wishlist })
+                return res.render('customer/wishlist.hbs', { wishlist: wishlist })
             })
             .catch((err)=>{
                 console.log(err)
@@ -208,7 +208,7 @@ const webserver = () => {
             nav: {},
         }
         res.status = 404
-        res.render('404', metadata)
+        return res.render('404', metadata)
     })
 
     app.listen(5000, (err) => {

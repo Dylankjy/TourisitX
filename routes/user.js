@@ -17,7 +17,7 @@ router.get('/profile', (req, res) => {
         },
         layout: '',
     }
-    res.render('users/profile.hbs', {
+    return res.render('users/profile.hbs', {
         user: {
             name: 'Harold Chan',
             password: 'password',
@@ -57,7 +57,7 @@ router.get('/setting/general', (req, res) => {
 
         },
     }
-    res.render('users/general.hbs', metadata)
+    return res.render('users/general.hbs', metadata)
 })
 
 router.get('/setting/password', (req, res) => {
@@ -71,7 +71,7 @@ router.get('/setting/password', (req, res) => {
         },
         layout: 'setting',
     }
-    res.render('users/password.hbs', metadata)
+    return res.render('users/password.hbs', metadata)
 })
 
 router.get('/messages', (req, res) => {
@@ -86,7 +86,7 @@ router.get('/messages', (req, res) => {
         },
         layout: 'chat',
     }
-    res.render('chat.hbs', metadata)
+    return res.render('chat.hbs', metadata)
 })
 
 

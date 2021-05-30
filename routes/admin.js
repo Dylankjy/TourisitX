@@ -56,7 +56,7 @@ router.get('/', (req, res) => {
         },
         layout: 'admin',
     }
-    res.render('admin/dashboard', metadata)
+    return res.render('admin/dashboard', metadata)
 })
 
 router.get('/manage/users', (req, res) => {
@@ -73,7 +73,7 @@ router.get('/manage/users', (req, res) => {
             users: { exampleUser, exampleUser2 },
         },
     }
-    res.render('admin/users', metadata)
+    return res.render('admin/users', metadata)
 })
 
 router.get('/manage/staff', (req, res) => {
@@ -90,7 +90,7 @@ router.get('/manage/staff', (req, res) => {
             users: { exampleUser, exampleUser2 },
         },
     }
-    res.render('admin/staff', metadata)
+    return res.render('admin/staff', metadata)
 })
 
 router.get('/manage/tours', (req, res) => {
@@ -121,7 +121,7 @@ router.get('/manage/tours', (req, res) => {
                 layout: 'admin',
                 listing: listings,
             }
-            res.render('admin/listings', metadata)
+            return res.render('admin/listings', metadata)
         })
         .catch((err)=>{
             console.log(err)
@@ -143,7 +143,7 @@ router.get('/payments', (req, res) => {
             transactions: { exampleTransaction, exampleTransaction2 },
         },
     }
-    res.render('admin/payments', metadata)
+    return res.render('admin/payments', metadata)
 })
 
 
@@ -158,7 +158,7 @@ router.get('/tickets', (req, res) => {
         },
         layout: 'admin',
     }
-    res.render('admin/tickets', metadata)
+    return res.render('admin/tickets', metadata)
 })
 
 module.exports = router

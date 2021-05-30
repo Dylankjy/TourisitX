@@ -162,7 +162,7 @@ router.get('/', (req, res) => {
         },
         layout: 'tourguide',
     }
-    res.render('tourguide/dashboard/dashboard', metadata)
+    return res.render('tourguide/dashboard/dashboard', metadata)
 })
 
 
@@ -190,7 +190,7 @@ router.get('/manage/listings', (req, res) => {
                 layout: 'tourguide',
                 listing: itemsArr,
             }
-            res.render('tourguide/dashboard/listings', metadata)
+            return res.render('tourguide/dashboard/listings', metadata)
         })
         .catch((err)=>{
             console.log
@@ -223,7 +223,7 @@ router.get('/manage/listings/archived', (req, res) => {
                 layout: 'tourguide',
                 listing: itemsArr,
             }
-            res.render('tourguide/dashboard/archived', metadata)
+            return res.render('tourguide/dashboard/archived', metadata)
         })
         .catch((err)=>{
             console.log
@@ -242,7 +242,7 @@ router.get('/bookings', (req, res) => {
         },
         layout: 'tourguide',
     }
-    res.render('tourguide/dashboard/bookings', metadata)
+    return res.render('tourguide/dashboard/bookings', metadata)
 })
 
 
@@ -257,7 +257,7 @@ router.get('/bookings/:id', (req, res) => {
         },
         layout: 'main',
     }
-    res.render('tourguide/myJob', metadata)
+    return res.render('tourguide/myJob', metadata)
 })
 
 
@@ -275,7 +275,7 @@ router.get('/payments', (req, res) => {
             transactions: { exampleTransaction, exampleTransaction2 },
         },
     }
-    res.render('tourguide/dashboard/payments', metadata)
+    return res.render('tourguide/dashboard/payments', metadata)
 })
 
 module.exports = router
