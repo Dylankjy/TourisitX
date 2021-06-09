@@ -23,7 +23,7 @@ router.get('/login', (req, res) => {
         },
         layout: 'auth',
     }
-    res.render('auth/login', metadata)
+    return res.render('auth/login', metadata)
 })
 
 router.get('/register', (req, res) => {
@@ -37,7 +37,7 @@ router.get('/register', (req, res) => {
         },
         layout: 'auth',
     }
-    res.render('auth/register', metadata)
+    return res.render('auth/register', metadata)
 })
 
 router.get('/recover', (req, res) => {
@@ -51,8 +51,7 @@ router.get('/recover', (req, res) => {
         },
         layout: 'auth',
     }
-    res.render('auth/recover', metadata)
+    return res.render('auth/recover', metadata)
 })
-
 
 module.exports = router

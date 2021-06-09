@@ -1,31 +1,37 @@
-<section class="hero is-medium is-success has-text-centered">
-  <div class="hero-body">
-    <p class="title">
-      ✨ Search for your Ideal Tour
-    </p>
-    <p class="subtitle is-4">
-        Browse new tours
-    </p>
+<link rel='stylesheet' href='../third_party/alex/market.css'>
+
+
+<section class="hero small-hero-market has-text-centered is-light">
+  <div class='columns'>
+      <div class='column is-6 is-offset-1' id='market-banner'>
+            <div class="hero-body">
+                <p class="title is-2">
+                Search for your Ideal Tour
+                </p>
+                <p class="subtitle is-4">
+                Browse new tours 
+                </p>
+            </div>
+      </div>
   </div>
 </section>
 
-<div class='container'>
-    <nav class='panel'>
-        <div class='panel-block'>
-            <p class="control has-icons-left">
-            <input class="input" type="text" placeholder="Search">
-            <span class="icon is-left">
-                <i class="fas fa-search" aria-hidden="true"></i>
-            </span>
-            </p>
-        </div>
-    </nav>
+
+
+<div class='container market-searchbox'>
+    <p class="control has-icons-left">
+    <input class="input" type="text" id='searchText' placeholder="Search">
+    <span class="icon is-left">
+        <i class="fas fa-search" aria-hidden="true"></i>
+    </span>
+    </p>
 </div>
 
 
+
 <main id="index-section" class="section">
-    <div class="container">
-        <div class="columns is-multiline is-variable is-5">
+    <div class="container market-listing-container">
+        <div class="columns is-multiline is-variable is-5" id='displayedListings'>
             {{#each listings}}
             {{>listingCard}}
             {{/each}}
@@ -33,3 +39,52 @@
     </div>
 </main>
 
+
+<script>
+    console.log('OK')
+    $(document).ready(()=>{
+        $('#searchText').on('keyup', ()=>{
+            if ($.trim($('#searchText').val())!= "") {
+                console.log("RUNNING THIS")
+                // Clear all the displayed choices
+                $("#displayedListings").empty()
+                fetch(`http://localhost:5000/listing/es-api/search?text=${$('#searchText').val()}`)
+                .then((res)=>{
+                    return res.json()
+                })
+                .then((data)=>{
+                    if (data["hits"]["hits"].length > 0) {
+                            data["hits"]["hits"].forEach((elem)=>{
+                            var d = elem["_source"]
+                            $("#displayedListings").append(`
+                                <div class="column is-one-quarter">
+                                    <a class="listing-clickable" href='/listing/info/${d.id}'>
+                                        <div class="box listing-image" style='background-image: url("/Listing/${d.image}")'>
+                                            <div>
+                                                <p class="content has-text-white">
+                                                    ${d.description}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <h3 class="title">${d.name}</h3>
+                                    </a>
+                                </div>
+                            `)
+                        })
+                    } else {
+                        $("#displayedListings").html('Can"t find')
+                    }
+                })
+                .catch((err)=>{
+                    console.log(err)
+                })
+            } else {
+                $("#displayedListings").html(`
+                    {{#each listings}}
+                    {{>listingCard}}
+                    {{/each}}
+                `)
+            }
+        })
+    })
+</script>

@@ -1,5 +1,7 @@
 const express = require('express')
 
+const { Shop } = require('../models')
+
 const router = express.Router()
 
 // Put all your routings below this line -----
@@ -54,7 +56,7 @@ router.get('/', (req, res) => {
         },
         layout: 'admin',
     }
-    res.render('admin/dashboard', metadata)
+    return res.render('admin/dashboard', metadata)
 })
 
 router.get('/manage/users', (req, res) => {
@@ -71,7 +73,7 @@ router.get('/manage/users', (req, res) => {
             users: { exampleUser, exampleUser2 },
         },
     }
-    res.render('admin/users', metadata)
+    return res.render('admin/users', metadata)
 })
 
 router.get('/manage/staff', (req, res) => {
@@ -88,38 +90,43 @@ router.get('/manage/staff', (req, res) => {
             users: { exampleUser, exampleUser2 },
         },
     }
-    res.render('admin/staff', metadata)
+    return res.render('admin/staff', metadata)
 })
 
 router.get('/manage/tours', (req, res) => {
-    const metadata = {
-        meta: {
-            title: 'Manage Tours',
-            path: false,
+    Shop.findAll(
+        {
+            where: {
+                // Set to empty now, but it should be replaced with the userID when authentication library is out
+                userId: 'sample',
+            },
+            order:
+                [['createdAt', 'ASC']],
         },
-        nav: {
-            sidebarActive: 'tourListings',
-        },
-        layout: 'admin',
-        listing: [
-            {
-                name: 'Test listing',
-                desc: 'This is a test listing',
-                place: 'Gardens by the Bay',
-            },
-            {
-                name: 'Test listing',
-                desc: 'This is a test listing',
-                place: 'Gardens by the Bay',
-            },
-            {
-                name: 'Test listing',
-                desc: 'This is a test listing',
-                place: 'Gardens by the Bay',
-            },
-        ],
-    }
-    res.render('admin/listings', metadata)
+    )
+        .then(async (data)=>{
+            const listings = []
+            await data.forEach((doc)=>{
+                listings.push(doc['dataValues'])
+            })
+
+            const metadata = {
+                meta: {
+                    title: 'Manage Tours',
+                    path: false,
+                },
+                nav: {
+                    sidebarActive: 'tourListings',
+                },
+                layout: 'admin',
+                listing: listings,
+            }
+            return res.render('admin/listings', metadata)
+        })
+        .catch((err)=>{
+            console.log(err)
+            res.json({ 'Message': 'Failed' })
+        })
 })
 
 router.get('/payments', (req, res) => {
@@ -136,7 +143,7 @@ router.get('/payments', (req, res) => {
             transactions: { exampleTransaction, exampleTransaction2 },
         },
     }
-    res.render('admin/payments', metadata)
+    return res.render('admin/payments', metadata)
 })
 
 
@@ -151,7 +158,7 @@ router.get('/tickets', (req, res) => {
         },
         layout: 'admin',
     }
-    res.render('admin/tickets', metadata)
+    return res.render('admin/tickets', metadata)
 })
 
 module.exports = router

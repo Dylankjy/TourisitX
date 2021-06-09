@@ -15,15 +15,26 @@ const fileType = require('file-type')
 const path = require('path')
 const elasticSearch = require('elasticsearch')
 const io = require('socket.io')
-const fakeGenerator = require('../TMP/listingGenerator').generateFakeEntry
+const { generateFakeEntry } = require('../app/listingGenerator').generateFakeEntry
 const formidableValidator = require('../app/validation')
 const { convert } = require('image-file-resize')
+const { nodeFetch } = require('node-fetch')
+
+// Config file
+const config = require('../config/apikeys.json')
+
 
 // Globals
 const router = express.Router()
 const { Shop } = require('../models')
-const { generateFakeEntry } = require('../TMP/listingGenerator')
+const elasticSearchHelper = require('../app/elasticSearch')
+// const esClient = elasticSearch.Client({
+//     host: 'http://47.241.14.108:9200',
+// })
 
+const TIH_API_KEY = config.secret.TIH_API_KEY
+
+const esClient = require('../app/elasticSearch').esClient
 
 const Validator = formidableValidator.Validator
 const fileValidator = formidableValidator.FileValidator
@@ -143,30 +154,57 @@ emptyArray = (arr) => {
 
 // Show the user all of their own listings
 router.get('/', (req, res)=>{
-    Shop.findAll(
-        {
-            where: {
-                // Set to empty now, but it should be replaced with the userID when authentication library is out
-                userId: 'sample',
-            },
-            order:
-                [['updatedAt', 'ASC']],
-        },
-    )
-        .then((items)=>{
-            const itemsArr = items.map((x)=>x['dataValues'])
-            res.render('tourGuide/myListings.hbs', { datas: itemsArr })
-        })
-        .catch((err)=>{
-            console.log
-        })
+    // Shop.findAll(
+    //     {
+    //         where: {
+    //             // Set to empty now, but it should be replaced with the userID when authentication library is out
+    //             userId: 'sample',
+    //         },
+    //         order:
+    //             [['createdAt', 'ASC']],
+    //     },
+    // )
+    //     .then((items)=>{
+    //         const itemsArr = items.map((x)=>x['dataValues']).reverse()
+    //         return res.render('tourGuide/myListings.hbs', { datas: itemsArr })
+    //     })
+    //     .catch((err)=>{
+    //         console.log
+    //     })
+    res.redirect('/tourguide/manage/listings')
+})
+
+
+// To get a specific listing
+router.get('/info/:id', (req, res)=>{
+    const itemID = req.params.id
+
+    // if (req.cookies.imageValError) {
+    const errMsg = req.cookies.imageValError || ''
+    // } else {
+    //     const errMsg = ''
+    // }
+
+    Shop.findAll({ where: {
+        id: itemID,
+    } }).then(async (items)=>{
+        const data = await items[0]['dataValues']
+        // Check here if data.userId = loggedIn user ID
+        if (true) {
+            // Manually set to true now.. while waiting for the validation library
+            owner = true
+        } else {
+            owner = false
+        }
+        return res.render('listing.hbs', { data: data, isOwner: owner, errMsg: errMsg })
+    }).catch((err)=>console.log)
 })
 
 
 // can we use shards? (Like how we did product card that time, pass in a json and will fill in the HTML template)
 // To create the listing
 router.get('/create', (req, res) => {
-    // res.render('create_listing.hbs', {validationErr: []})
+    // return res.render('create_listing.hbs', {validationErr: []})
     // If you have to re-render the page due to errors, there will be cookie storedValue and you use this
     // To use cookie as JSON in javascipt, must URIdecode() then JSON.parse() it
     if (req.cookies.storedValues) {
@@ -175,7 +213,7 @@ router.get('/create', (req, res) => {
         const storedValues = {}
     }
 
-    res.render('tourGuide/createListing.hbs', { validationErrors: req.cookies.validationErrors })
+    return res.render('tourGuide/createListing.hbs', { validationErrors: req.cookies.validationErrors, layout: 'tourGuide' })
 })
 
 
@@ -254,12 +292,20 @@ router.post('/create', (req, res)=>{
             tourImage: 'default.jpg',
             hidden: 'false',
         })
+            .then(async (data)=>{
+                await axios.post('http://localhost:5000/listing/es-api/upload', {
+                    'id': genId,
+                    'name': req.fields.tourTitle,
+                    'description': req.fields.tourDesc,
+                    'image': req.fields.tourImage,
+                })
+
+                console.log('Inserted')
+                res.redirect(`/listing`)
+            })
             .catch((err)=>{
                 console.log(err)
             })
-
-        console.log('Inserted')
-        res.redirect(`/listing`)
     }
 })
 
@@ -272,7 +318,7 @@ router.get('/edit/:savedId', (req, res)=>{
         // Validate that the user can edit the listing
         // if (userID == savedData["userId"])
         res.cookie('storedValues', JSON.stringify(savedData), { maxAge: 5000 })
-        res.render('tourGuide/editListing.hbs', { validationErrors: req.cookies.validationErrors })
+        return res.render('tourGuide/editListing.hbs', { validationErrors: req.cookies.validationErrors })
     }).catch((err)=>{
         console.log(err)
         res.send('No such listing exists!')
@@ -339,12 +385,34 @@ router.post('/edit/:savedId', (req, res)=>{
             finalLocations: req.fields.finalLocations,
         }, {
             where: { id: req.params.savedId },
+        })
+            .then(async (data)=>{
+                const doc = {
+                    'id': req.params.savedId,
+                    'name': req.fields.tourTitle,
+                    'description': req.fields.tourDesc,
+                }
+                console.log(doc['id'])
+
+                await elasticSearchHelper.updateDoc(doc)
+
+                res.redirect(`/listing/info/${req.params.savedId}`)
+            })
+            .catch((err)=>{
+                console.log(err)
+            })
+    }
+})
+
+router.get('/api/autocomplete/location', (req, res) => {
+    console.log(req.query.typedLocation)
+    axios.get(`https://tih-api.stb.gov.sg/map/v1/autocomplete/type/address?input=${req.query.typedLocation}&apikey=${TIH_API_KEY}`)
+        .then((data) => {
+            console.log(data['data'])
+            return res.json(data['data'])
         }).catch((err)=>{
             console.log(err)
         })
-
-        res.redirect(`/listing/info/${req.params.savedId}`)
-    }
 })
 
 
@@ -353,7 +421,6 @@ router.post('/edit/image/:savedId', (req, res)=>{
     const v = new fileValidator(req.files['tourImage'])
     const imageResult = v.Initialize({ errorMessage: 'Please supply a valid Image' }).fileExists().sizeAllowed({ maxSize: 5000000 })
         .getResult()
-        // 5000000
 
     // Upload is successful
     if (imageResult == null) {
@@ -361,7 +428,19 @@ router.post('/edit/image/:savedId', (req, res)=>{
         let fileName = req.files['tourImage']['name']
         const saveFolder = 'savedImages/Listing'
         const savedName = storeImage(filePath = filePath, fileName = fileName, folder=saveFolder)
-        console.log(savedName)
+        console.log(`Added file is ${savedName}`)
+
+        Shop.findAll({ where: {
+            id: req.params.savedId,
+        } })
+            .then((items)=>{
+                const savedImageFile = items[0]['dataValues']['tourImage']
+                if (savedImageFile != 'default.jpg') {
+                    console.log(`Removed IMAGE FILE: ${savedImageFile}`)
+                    fs.unlinkSync(`savedImages/Listing/${savedImageFile}`)
+                }
+            })
+
         Shop.update({
             tourImage: savedName,
         }, {
@@ -369,7 +448,15 @@ router.post('/edit/image/:savedId', (req, res)=>{
         }).catch((err)=>{
             console.log(err)
         })
-            .then((data)=>{
+            .then(async (data)=>{
+                // Update elastic search
+                const doc = {
+                    'id': req.params.savedId,
+                    'image': savedName,
+                }
+
+                await elasticSearchHelper.updateImage(doc)
+
                 res.redirect(`/listing/info/${req.params.savedId}`)
             })
             .catch((err)=> {
@@ -385,41 +472,30 @@ router.post('/edit/image/:savedId', (req, res)=>{
 
 
 router.get('/delete/:savedId', (req, res)=>{
+    // rmb to delete the images too
+    Shop.findAll({ where: {
+        id: req.params.savedId,
+    } })
+        .then((items)=>{
+        // Only delete image from local folder if it is NOT the default image
+            const savedImageFile = items[0]['dataValues']['tourImage']
+            if (savedImageFile != 'default.jpg') {
+                console.log(`Delete listing and Removed IMAGE FILE: ${savedImageFile}`)
+                fs.unlinkSync(`savedImages/Listing/${savedImageFile}`)
+            }
+        })
+
     Shop.destroy({
         where: {
             id: req.params.savedId,
         },
     }).then((data)=>{
+        // Delete from elastic search client
+        deleteDoc('products', req.params.savedId)
         res.send('Deleted!')
     }).catch((err)=>{
         console.log(err)
     })
-})
-
-
-// To get a specific listing
-router.get('/info/:id', (req, res)=>{
-    const itemID = req.params.id
-
-    if (req.cookies.imageValError) {
-        const errMsg = req.cookies.imageValError
-    } else {
-        const errMsg = ''
-    }
-
-    Shop.findAll({ where: {
-        id: itemID,
-    } }).then((items)=>{
-        const data = items[0]['dataValues']
-        // Check here if data.userId = loggedIn user ID
-        if (true) {
-            // Manually set to true now.. while waiting for the validation library
-            owner = true
-        } else {
-            owner = false
-        }
-        res.render('listing.hbs', { data: data, isOwner: owner, errMsg: errMsg })
-    }).catch((err)=>console.log)
 })
 
 
@@ -440,9 +516,9 @@ router.get('/api/getImage/:id', (req, res)=>{
 
 // Elastic Search stuff
 
-const esClient = elasticSearch.Client({
-    host: 'http://localhost:9200',
-})
+// const esClient = elasticSearch.Client({
+//     host: 'http://localhost:9200',
+// })
 
 
 router.get('/es-api/create-index', (req, res)=>{
@@ -589,7 +665,6 @@ router.get('/es-api/search', (req, res) => {
         },
     })
         .then((data)=>{
-            console.log('Ran')
             return res.json(data)
         })
         .catch((err)=>{
@@ -643,43 +718,74 @@ router.get('/es-api/dev/generateFakes', (req, res) => {
 })
 
 // docs is the array of documents to batch inset. index is the name of the ElasticSearch index to populate
-batchIndex = (docs, esIndex) => {
-    return new Promise((resolve, reject)=>{
-        const body = docs.flatMap((doc) => [{ index: { _index: esIndex } }, doc])
-        esClient.bulk({ refresh: true, body })
-            .then((d)=>{
-                resolve(d)
-            })
-            .catch((err)=>{
-                reject(err)
-            })
-    })
-}
+// batchIndex = (docs, esIndex) => {
+//     return new Promise((resolve, reject)=>{
+//         const body = docs.flatMap((doc) => [{ index: { _index: esIndex } }, doc])
+//         esClient.bulk({ refresh: true, body })
+//             .then((d)=>{
+//                 resolve(d)
+//             })
+//             .catch((err)=>{
+//                 reject(err)
+//             })
+//     })
+// }
 
 // To populate the elastic search index using the Shop Database
-router.get('/es-api/getFromShopDB', (req, res) => {
+router.get('/es-api/getFromShopDB', async (req, res) => {
+    await axios('http://localhost:5000/listing/es-api/delete')
+    await axios('http://localhost:5000/listing/es-api/create-index')
     // This array will contain all the JSON objects
     const docs = []
     // Specify the attributes to retrieve
-    Shop.findAll({ attributes: ['id', 'tourTitle', 'tourDesc'] })
+    Shop.findAll({ attributes: ['id', ['tourTitle', 'name'], ['tourDesc', 'description'], ['tourImage', 'image']] })
         .then((data)=>{
             data.forEach((doc)=>{
             // console.log(doc["Shop"]["dataValues"])
                 docs.push(doc['dataValues'])
             })
 
-            batchIndex(docs, 'products')
+            elasticSearchHelper.batchIndex(docs, 'products')
                 .then((data)=>{
                     res.json({ 'Message': 'Success', 'data': docs })
                 })
                 .catch((err)=>{
                     console.log(err)
-                    res.json({ 'Message': 'Failed' })
+                    res.json({ 'Message': 'Failed to populate ElasticSearch from SQL' })
                 })
         })
         .catch((err)=>{
             console.log(err)
-            res.json({ 'Message': 'Error' })
+            res.json({ 'Message': 'Error Querying from SQL' })
+        })
+})
+
+
+// To initialize the elastic search client for the first time
+router.get('/es-api/initFromDB', async (req, res) => {
+    await axios('http://localhost:5000/listing/es-api/create-index')
+    // This array will contain all the JSON objects
+    const docs = []
+    // Specify the attributes to retrieve
+    Shop.findAll({ attributes: ['id', ['tourTitle', 'name'], ['tourDesc', 'description'], ['tourImage', 'image']] })
+        .then((data)=>{
+            data.forEach((doc)=>{
+            // console.log(doc["Shop"]["dataValues"])
+                docs.push(doc['dataValues'])
+            })
+
+            elasticSearchHelper.batchIndex(docs, 'products')
+                .then((data)=>{
+                    res.json({ 'Message': 'Success', 'data': docs })
+                })
+                .catch((err)=>{
+                    console.log(err)
+                    res.json({ 'Message': 'Failed to populate ElasticSearch from SQL' })
+                })
+        })
+        .catch((err)=>{
+            console.log(err)
+            res.json({ 'Message': 'Error Querying from SQL' })
         })
 })
 

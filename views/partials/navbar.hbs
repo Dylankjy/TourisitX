@@ -17,12 +17,8 @@
                     href="/">
                     Home
                 </a>
-                <a class="navbar-item has-text-white is-family-secondary {{#if nav.index}}is-active has-text-bold{{/if}}"
-                    href="/users/profile">
-                    Profile
-                </a>
-                <a class="navbar-item has-text-white is-family-secondary {{#if nav.index}}is-active has-text-bold{{/if}}" href="/users/settings">
-                    Settings
+                <a class="navbar-item has-text-white is-family-secondary {{#if nav.index}}is-active has-text-bold{{/if}}" href="/helpdesk">
+                    Helpdesk
                 </a>
             </div>
             <div class="navbar-end">
@@ -49,13 +45,13 @@
                             <p class="has-text-weight-bold">Logged in as</p>
                             <p>{{ user.name }}</p>
                         </div>
-                        <a class="navbar-item" href='/users/{{ user._id }}'>
+                        <a class="navbar-item" href='/u/profile'>
                             Your profile
                         </a>
                         <a class="navbar-item" href='/bookings'>
                             Your bookings
                         </a>
-                        <a class="navbar-item" href='/settings'>
+                        <a class="navbar-item" href='/u/setting/general'>
                             Account settings
                         </a>
                         <hr class="navbar-divider">

@@ -96,10 +96,10 @@
                 </div>
                 <div class='column is-1'>
                     <div class="select is-info">
-                            <select id='tourDuration' name='tourDuration'>
-                                <option></option>
-                            </select>
-                        </div>
+                        <select id='tourDuration' name='tourDuration'>
+                            <option></option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class='column'>
@@ -637,7 +637,7 @@
 
 
     // TOUR LOCATION
-    var TIH_API_KEY = "GgjNvD9p8MA6c3emVYknlImLc5cAdj7X"
+
 
     updateSelectedLocationArray = () =>{
         currentLocation = $("#tourLocation").val()
@@ -789,7 +789,7 @@
 
             if (typedLocation.length > 4) {
                 // fetch data from the TIH API
-                fetch(`https://tih-api.stb.gov.sg/map/v1/autocomplete/type/address?input=${typedLocation}&apikey=${TIH_API_KEY}`)
+                fetch(`/listing/api/autocomplete/location?typedLocation=${typedLocation}`)
                 .then((res)=>{
                     return res.json()
                 }).then((data)=>{

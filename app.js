@@ -7,10 +7,7 @@ const exphbs = require('express-handlebars')
 const cookieParser = require('cookie-parser')
 const formidable = require('express-formidable')
 const slowDown = require('express-slow-down')
-const expressSession = require('express-session')
 const axios = require('axios')
-const bodyParser = require('body-parser')
-const cors = require('cors')
 
 // Routes for Express
 const routes = {
@@ -22,6 +19,7 @@ const routes = {
     market: require('./routes/market'),
     tourguide: require('./routes/tourguide'),
     user: require('./routes/user'),
+    support: require('./routes/support'),
 }
 
 const app = express()
@@ -41,6 +39,9 @@ app.use('/usercontent', express.static('storage'))
 app.set('view engine', 'hbs')
 
 // app.use(cors())
+
+// Models
+const { Shop } = require('./models')
 
 
 // Handlebars: Environment options
@@ -129,34 +130,56 @@ const speedLimiter = slowDown({
 const webserver = () => {
     // Define all the router stuff here
     app.get('/', (req, res)=>{
-        const metadata = {
-            meta: {
-                title: 'Home',
-                path: false,
-            },
-            nav: {
-                index: true,
-            },
-            listing: [
-                {
-                    tourTitle: 'Test listing one',
-                    tourDesc: 'This is a test listing',
-                    tourImage: 'default.jpg',
-                },
-                {
-                    tourTitle: 'Test listing two',
-                    tourDesc: 'This is a test listing two',
-                    tourImage: 'default.jpg',
-                },
-                {
-                    tourTitle: 'Test listing three',
-                    tourDesc: 'This is a test listing three',
-                    tourImage: 'default.jpg',
-                },
-            ],
-        }
-        res.render('index.hbs', metadata)
+        const listings = []
+        Shop.findAll({
+            attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
+            limit: 4,
+            order:
+                [['createdAt', 'ASC']],
+        })
+            .then(async (data)=>{
+                await data.forEach((doc)=>{
+                    listings.push(doc['dataValues'])
+                })
+
+                const metadata = {
+                    meta: {
+                        title: 'Home',
+                        path: false,
+                    },
+                    nav: {
+                        index: true,
+                    },
+                    listing: listings,
+                }
+                return res.render('index.hbs', metadata)
+            })
+            .catch((err)=>{
+                console.log(err)
+                res.json({ 'Message': 'Failed' })
+            })
     })
+
+
+    app.get('/wishlist', (req, res)=>{
+        const wishlist = []
+        Shop.findAll({
+            attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
+        })
+            .then(async (data)=>{
+                await data.forEach((doc)=>{
+                    wishlist.push(doc['dataValues'])
+                })
+
+                return res.render('customer/wishlist.hbs', { wishlist: wishlist })
+            })
+            .catch((err)=>{
+                console.log(err)
+                res.json({ 'Message': 'Failed' })
+            })
+    })
+
+    app.use('/id', routes.auth)
 
     app.use('/shop', routes.market)
 
@@ -166,7 +189,11 @@ const webserver = () => {
 
     app.use('/u', routes.user)
 
+    app.use('/bookings', routes.booking)
+
     app.use('/admin', routes.admin)
+
+    app.use('/', routes.support)
 
     app.use('/tourguide', routes.tourguide)
 
@@ -182,7 +209,7 @@ const webserver = () => {
             nav: {},
         }
         res.status = 404
-        res.render('404', metadata)
+        return res.render('404', metadata)
     })
 
     app.listen(5000, (err) => {

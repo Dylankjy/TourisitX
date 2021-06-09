@@ -1,0 +1,9 @@
+version: '2.0'
+services:
+  elasticSearch:
+    image: elasticsearch:7.12.1
+    environment:
+      - discovery.type=single-node
+    ports: 
+      - 9200:9200
+    network_mode: host

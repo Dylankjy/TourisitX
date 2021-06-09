@@ -1,0 +1,39 @@
+.small-hero-market {
+    padding: 20px;
+}
+
+#market-title {
+    color: #7645D9;
+    font-weight: bolder;
+}
+
+#market-banner {
+    text-align: left;
+}
+
+.market-searchbox {
+    margin-top: -1.5rem;
+    border-radius: 25px;
+}
+
+.market-listing-container {
+    margin-top: 10px;
+}
+
+
+
+
+.wishlist-banner {
+    padding: 50px;
+}
+
+.wishlist-title {
+    font-size: 40px;
+    color: whitesmoke;
+    text-align: center;
+    font-weight: bolder;
+}
+
+.is-danger-lighter {
+    background-color: rgb(248, 152, 152)
+}
