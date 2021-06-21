@@ -68,12 +68,12 @@ module.exports = (sequelize, DataTypes) => {
           },
 
           email_status: {
-               type: DataTypes.STRING,
+               type: DataTypes.BOOLEAN,
                allowNull: false,
           },
           
           phone_status: {
-               type: DataTypes.STRING,
+               type: DataTypes.BOOLEAN,
                allowNull: false,
           },
 
@@ -83,7 +83,7 @@ module.exports = (sequelize, DataTypes) => {
           },
 
           verified: {
-               type: DataTypes.STRING,
+               type: DataTypes.BOOLEAN,
                allowNull: false,
           },
 
