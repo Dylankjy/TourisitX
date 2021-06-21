@@ -41,7 +41,7 @@ app.set('view engine', 'hbs')
 // app.use(cors())
 
 // Models
-const { Shop } = require('./models')
+const { Shop, User, Session } = require('./models')
 
 
 // Handlebars: Environment options

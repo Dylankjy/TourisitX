@@ -1,3 +1,5 @@
+models = require('./')
+
 module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
 
@@ -24,12 +26,12 @@ module.exports = (sequelize, DataTypes) => {
 
         phone_number: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
 
         bio: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
 
         profile_img: {
@@ -38,33 +40,33 @@ module.exports = (sequelize, DataTypes) => {
         },
 
         registration_time: {
-            type: DataTypes.STRING,
+            type: DataTypes.DATE,
             allowNull: false,
         },
 
         stripe_id: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
 
         wishlist: {
-            type: DataTypes.ARRAY,
-            allowNull: false,
+            type: DataTypes.STRING,
+            allowNull: true,
         },
 
         fb: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
 
         insta: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
 
         li: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
 
         email_status: {
@@ -91,12 +93,17 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
-
     },
 
     {
         tableName: 'User',
     })
+
+    User.associate = models => {
+        User.hasMany(models.Session, {
+            onDelete: 'cascade',
+        })
+    }
 
     return User
 }
