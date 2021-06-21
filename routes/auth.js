@@ -3,10 +3,10 @@ const express = require('express')
 const router = express.Router()
 
 // Dependencies for authentication system
-require('../app/genkan/login')
-require('../app/genkan/logout')
-require('../app/genkan/register')
-require('../app/genkan/resetPassword')
+// require('../app/genkan/login')
+// require('../app/genkan/logout')
+// require('../app/genkan/register')
+// require('../app/genkan/resetPassword')
 
 // Put all your routings below this line -----
 

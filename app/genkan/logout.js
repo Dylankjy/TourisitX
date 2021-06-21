@@ -1,47 +1,33 @@
 // Load environment
-const config = require('../config')
+const config = require('../../config/genkan.json')
 
-// MongoDB
-const MongoClient = require('mongodb').MongoClient
-const { ObjectId } = require('bson')
-const url = config.mongo.url
-const dbName = config.mongo.database
-require('../db')
+logoutAccount = (sid, isAll, callback) => {
+    // Find account to get stored hashed
+    findDB('session', { 'sid': sid }, (result) => {
+        // If such session is found
+        if (result.length !== 1) {
+            return callback(false)
+        }
 
-MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
-    if (err) throw err
+        // Payload to update user's last seen in users collection
+        const UpdateLastSeenPayload = {
+            'lastseen_time': new Date(),
+        }
 
-    const db = client.db(dbName)
-    logoutAccount = (sid, isAll, callback) => {
-        // Find account to get stored hashed
-        findDB(db, 'sessions', { 'sid': sid }, (result) => {
-            // If such session is found
-            if (result.length !== 1) {
-                return callback(false)
-            }
-
-            // Payload to update user's last seen in users collection
-            const UpdateLastSeenPayload = {
-                $set: {
-                    'account.activity.lastSeen': new Date(),
-                },
-            }
-
-            if (isAll === false) {
-                deleteDB(db, 'sessions', { 'uid': result[0].uid }, () => {
-                    updateDB(db, config.mongo.collection, { '_uid': ObjectId(result[0].uid) }, UpdateLastSeenPayload, () => {
-                        return callback()
-                    })
-                })
-            }
-
-            // Update database
-            deleteManyDB(db, 'sessions', { 'sid': sid }, () => {
-                updateDB(db, config.mongo.collection, { '_uid': ObjectId(result[0].uid) }, UpdateLastSeenPayload, () => {
+        if (isAll === false) {
+            deleteDB('session', { 'userId': result[0].userId }, () => {
+                updateDB('user', { 'id': ObjectId(result[0].userId) }, UpdateLastSeenPayload, () => {
                     return callback()
                 })
             })
+        }
+
+        // Update database
+        deleteDB('session', { 'sid': sid }, () => {
+            updateDB('user', { 'id': ObjectId(result[0].userId) }, UpdateLastSeenPayload, () => {
+                return callback()
+            })
         })
-    }
-    module.exports = logoutAccount
-})
+    })
+}
+module.exports = logoutAccount

@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
         },
 
-        registration_time: {
+        lastseen_time: {
             type: DataTypes.DATE,
             allowNull: false,
         },
@@ -99,7 +99,7 @@ module.exports = (sequelize, DataTypes) => {
         tableName: 'User',
     })
 
-    User.associate = models => {
+    User.associate = (models) => {
         User.hasMany(models.Session, {
             onDelete: 'cascade',
         })

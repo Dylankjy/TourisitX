@@ -1,15 +1,8 @@
 // Load environment
-const config = require('../config')
-// Name of theme used in configuration
-const theme = `genkan-theme-${config.genkan.theme}`
-
-// MongoDB
-const MongoClient = require('mongodb').MongoClient
-const url = config.mongo.url
-const dbName = config.mongo.database
-require('../db')
+const config = require('../../config/genkan.json')
 
 // UUID & Hashing
+const uuid = require('uuid')
 const sha512 = require('hash-anything').sha512
 const bcrypt = require('bcrypt')
 const saltRounds = 12
@@ -36,90 +29,91 @@ const fs = require('fs')
 const confirmEmailSource = fs.readFileSync(`node_modules/${theme}/mail/confirmation.hbs`, 'utf8')
 const confirmEmailTemplate = Handlebars.compile(confirmEmailSource)
 
-MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
-    const db = client.db(dbName)
-    newAccount = (email, password, callback) => {
+newAccount = (name, email, password, callback) => {
     // Check for duplicate accounts
-        findDB(db, config.mongo.collection, { 'email': email }, (result) => {
-            // Reject if duplicate
-            if (result.length !== 0) {
-                return callback(false)
-            }
-
-            // SHA512 Hashing
-            const hashedPasswordSHA512 = sha512({
-                a: password,
-                b: email + config.genkan.secretKey,
-            })
-
-            // Bcrypt Hashing
-            const hashedPasswordSHA512Bcrypt = bcrypt.hashSync(hashedPasswordSHA512, saltRounds)
-
-            // Generate email confirmation token
-            const emailConfirmationToken = tokenGenerator()
-
-            const NewUserSchema = {
-                'email': email,
-                'password': hashedPasswordSHA512Bcrypt,
-                'account': {
-                    'activity': {
-                        'created': new Date(),
-                        'lastSeen': null,
-                    },
-                    'type': 'STANDARD',
-                    'suspended': false,
-                    'emailVerified': false,
-                },
-                'tokens': {
-                    'emailConfirmation': emailConfirmationToken,
-                },
-            }
-
-            // Insert new user into database
-            insertDB(db, config.mongo.collection, NewUserSchema, () => {
-                callback(true)
-                sendConfirmationEmail(email, emailConfirmationToken)
-            })
-        })
-    }
-
-    sendConfirmationEmail = (email, token) => {
-        // Compile from email template
-        const data = {
-            receiver: email,
-            url: `https://${config.webserver.genkanDomain}/confirm?confirmation=${token}`,
+    findDB('user', { 'email': email }, (result) => {
+        // Reject if duplicate
+        if (result.length !== 0) {
+            return callback(false)
         }
-        const message = confirmEmailTemplate(data)
 
-        // send email
-        transporter.sendMail({
-            from: config.smtp.mailFromAddress,
-            to: email,
-            subject: config.smtp.customisation.confirmation.subject,
-            html: message,
+        // SHA512 Hashing
+        const hashedPasswordSHA512 = sha512({
+            a: password,
+            b: email + config.genkan.secretKey,
         })
+
+        // Bcrypt Hashing
+        const hashedPasswordSHA512Bcrypt = bcrypt.hashSync(hashedPasswordSHA512, saltRounds)
+
+        // Generate email confirmation token
+        const emailConfirmationToken = tokenGenerator()
+
+        const NewUserSchema = {
+            'id': uuid.v1(),
+            'name': name,
+            'email': email,
+            'password': hashedPasswordSHA512Bcrypt,
+            'profile_img': '', // TODO: Add binary of Profile Image
+            'lastseen_time': new Date(),
+            'email_status': false,
+            'phone_status': false,
+            'account_type': 'USER',
+            'verified': false,
+            'ip_address': '', // TODO: Add IP Address mechanism
+        }
+
+        const TokenSchema = {
+            'token': emailConfirmationToken,
+            'type': 'EMAIL',
+        }
+
+        // Insert new user into database
+        insertDB('user', NewUserSchema, () => {
+            callback(true)
+            sendConfirmationEmail(email, emailConfirmationToken)
+        })
+
+        // Insert new email confirmation token into database
+        insertDB('token', TokenSchema, () => {/* Do nothing */})
+    })
+}
+
+sendConfirmationEmail = (email, token) => {
+    // Compile from email template
+    const data = {
+        receiver: email,
+        url: `https://${config.webserver.genkanDomain}/confirm?confirmation=${token}`,
     }
+    const message = confirmEmailTemplate(data)
 
-    confirmEmail = (token, callback) => {
-        findDB(db, config.mongo.collection, { 'tokens.emailConfirmation': token }, (result) => {
-            if (result.length !== 1) {
-                return callback(false)
-            }
-            const AccountActivatePayload = {
-                $unset: {
-                    'tokens.emailConfirmation': 1,
-                },
-                $set: {
-                    'account.emailVerified': true,
-                },
-            }
+    // send email
+    transporter.sendMail({
+        from: config.smtp.mailFromAddress,
+        to: email,
+        subject: config.smtp.customisation.confirmation.subject,
+        html: message,
+    })
+}
 
-            updateDB(db, config.mongo.collection, { 'tokens.emailConfirmation': token }, AccountActivatePayload, () => {
-                callback(true)
+confirmEmail = (token, callback) => {
+    findDB('token', { 'token': token }, (result) => {
+        if (result.length !== 1) {
+            return callback(false)
+        }
+        const AccountActivatePayload = {
+            'email_status': true,
+        }
+
+        // Delete token from database
+        deleteDB('token', { 'tokens.emailConfirmation': token }, () => {
+            // Set email_status to true in User Table
+            updateDB('user', AccountActivatePayload, () => {
+                return callback(true)
             })
         })
-    }
+    })
+}
 
-    module.exports = newAccount
-    module.exports = confirmEmail
-})
+module.exports = newAccount
+module.exports = confirmEmail
