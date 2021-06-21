@@ -18,12 +18,23 @@ const io = require('socket.io')
 const { generateFakeEntry } = require('../app/listingGenerator').generateFakeEntry
 const formidableValidator = require('../app/validation')
 const { convert } = require('image-file-resize')
+const { nodeFetch } = require('node-fetch')
+
+// Config file
+const config = require('../config/apikeys.json')
+
 
 // Globals
 const router = express.Router()
 const { Shop } = require('../models')
 const elasticSearchHelper = require('../app/elasticSearch')
+// const esClient = elasticSearch.Client({
+//     host: 'http://47.241.14.108:9200',
+// })
 
+const TIH_API_KEY = config.secret.TIH_API_KEY
+
+const esClient = require('../app/elasticSearch').esClient
 
 const Validator = formidableValidator.Validator
 const fileValidator = formidableValidator.FileValidator
@@ -155,7 +166,7 @@ router.get('/', (req, res)=>{
     // )
     //     .then((items)=>{
     //         const itemsArr = items.map((x)=>x['dataValues']).reverse()
-    //         res.render('tourGuide/myListings.hbs', { datas: itemsArr })
+    //         return res.render('tourGuide/myListings.hbs', { datas: itemsArr })
     //     })
     //     .catch((err)=>{
     //         console.log
@@ -185,7 +196,7 @@ router.get('/info/:id', (req, res)=>{
         } else {
             owner = false
         }
-        res.render('listing.hbs', { data: data, isOwner: owner, errMsg: errMsg })
+        return res.render('listing.hbs', { data: data, isOwner: owner, errMsg: errMsg })
     }).catch((err)=>console.log)
 })
 
@@ -193,7 +204,7 @@ router.get('/info/:id', (req, res)=>{
 // can we use shards? (Like how we did product card that time, pass in a json and will fill in the HTML template)
 // To create the listing
 router.get('/create', (req, res) => {
-    // res.render('create_listing.hbs', {validationErr: []})
+    // return res.render('create_listing.hbs', {validationErr: []})
     // If you have to re-render the page due to errors, there will be cookie storedValue and you use this
     // To use cookie as JSON in javascipt, must URIdecode() then JSON.parse() it
     if (req.cookies.storedValues) {
@@ -202,7 +213,7 @@ router.get('/create', (req, res) => {
         const storedValues = {}
     }
 
-    res.render('tourGuide/createListing.hbs', { validationErrors: req.cookies.validationErrors, layout: 'tourGuide' })
+    return res.render('tourGuide/createListing.hbs', { validationErrors: req.cookies.validationErrors, layout: 'tourGuide' })
 })
 
 
@@ -307,7 +318,7 @@ router.get('/edit/:savedId', (req, res)=>{
         // Validate that the user can edit the listing
         // if (userID == savedData["userId"])
         res.cookie('storedValues', JSON.stringify(savedData), { maxAge: 5000 })
-        res.render('tourGuide/editListing.hbs', { validationErrors: req.cookies.validationErrors })
+        return res.render('tourGuide/editListing.hbs', { validationErrors: req.cookies.validationErrors })
     }).catch((err)=>{
         console.log(err)
         res.send('No such listing exists!')
@@ -391,6 +402,17 @@ router.post('/edit/:savedId', (req, res)=>{
                 console.log(err)
             })
     }
+})
+
+router.get('/api/autocomplete/location', (req, res) => {
+    console.log(req.query.typedLocation)
+    axios.get(`https://tih-api.stb.gov.sg/map/v1/autocomplete/type/address?input=${req.query.typedLocation}&apikey=${TIH_API_KEY}`)
+        .then((data) => {
+            console.log(data['data'])
+            return res.json(data['data'])
+        }).catch((err)=>{
+            console.log(err)
+        })
 })
 
 
@@ -494,9 +516,9 @@ router.get('/api/getImage/:id', (req, res)=>{
 
 // Elastic Search stuff
 
-const esClient = elasticSearch.Client({
-    host: 'http://localhost:9200',
-})
+// const esClient = elasticSearch.Client({
+//     host: 'http://localhost:9200',
+// })
 
 
 router.get('/es-api/create-index', (req, res)=>{
@@ -712,6 +734,35 @@ router.get('/es-api/dev/generateFakes', (req, res) => {
 // To populate the elastic search index using the Shop Database
 router.get('/es-api/getFromShopDB', async (req, res) => {
     await axios('http://localhost:5000/listing/es-api/delete')
+    await axios('http://localhost:5000/listing/es-api/create-index')
+    // This array will contain all the JSON objects
+    const docs = []
+    // Specify the attributes to retrieve
+    Shop.findAll({ attributes: ['id', ['tourTitle', 'name'], ['tourDesc', 'description'], ['tourImage', 'image']] })
+        .then((data)=>{
+            data.forEach((doc)=>{
+            // console.log(doc["Shop"]["dataValues"])
+                docs.push(doc['dataValues'])
+            })
+
+            elasticSearchHelper.batchIndex(docs, 'products')
+                .then((data)=>{
+                    res.json({ 'Message': 'Success', 'data': docs })
+                })
+                .catch((err)=>{
+                    console.log(err)
+                    res.json({ 'Message': 'Failed to populate ElasticSearch from SQL' })
+                })
+        })
+        .catch((err)=>{
+            console.log(err)
+            res.json({ 'Message': 'Error Querying from SQL' })
+        })
+})
+
+
+// To initialize the elastic search client for the first time
+router.get('/es-api/initFromDB', async (req, res) => {
     await axios('http://localhost:5000/listing/es-api/create-index')
     // This array will contain all the JSON objects
     const docs = []

@@ -1,5 +1,8 @@
+// Config file
+const config = require('../config/apikeys.json')
+
 const esClient = require('elasticsearch').Client({
-    host: 'http://localhost:9200',
+    host: `http://${config.elasticSearch.IP_ADDRESS}:${config.elasticSearch.PORT}`,
 })
 
 // docs is the array of documents to batch inset. index is the name of the ElasticSearch index to populate
@@ -75,4 +78,5 @@ module.exports = {
     batchIndex,
     updateDoc,
     updateImage,
+    esClient,
 }

@@ -1,0 +1,9 @@
+{
+    "secret": {
+        "TIH_API_KEY": null,
+        "SENDGRID_KEY": null
+    },
+    "elasticSearch": {
+        "IP_ADDRESS": null
+    }
+}

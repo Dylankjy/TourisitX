@@ -69,7 +69,7 @@ class Validator {
 
 // router.get('/', (req, res) => { ... }
 router.get('/helpdesk', (req, res) => {
-    res.render('support.hbs')
+    return res.render('support.hbs')
 })
 
 router.post('/helpdesk', (req, res) => {
@@ -117,7 +117,7 @@ router.post('/helpdesk', (req, res) => {
 })
 
 router.get('/helpdesk-success', (req, res) => {
-    res.render('support-success.hbs')
+    return res.render('support-success.hbs')
 })
 
 module.exports = router

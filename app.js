@@ -7,11 +7,7 @@ const exphbs = require('express-handlebars')
 const cookieParser = require('cookie-parser')
 const formidable = require('express-formidable')
 const slowDown = require('express-slow-down')
-const expressSession = require('express-session')
 const axios = require('axios')
-const bodyParser = require('body-parser')
-const cors = require('cors')
-const { Shop } = require('./models')
 
 // Routes for Express
 const routes = {
@@ -43,6 +39,9 @@ app.use('/usercontent', express.static('storage'))
 app.set('view engine', 'hbs')
 
 // app.use(cors())
+
+// Models
+const { Shop } = require('./models')
 
 
 // Handlebars: Environment options
@@ -153,7 +152,7 @@ const webserver = () => {
                     },
                     listing: listings,
                 }
-                res.render('index.hbs', metadata)
+                return res.render('index.hbs', metadata)
             })
             .catch((err)=>{
                 console.log(err)
@@ -172,13 +171,15 @@ const webserver = () => {
                     wishlist.push(doc['dataValues'])
                 })
 
-                res.render('customer/wishlist.hbs', { wishlist: wishlist })
+                return res.render('customer/wishlist.hbs', { wishlist: wishlist })
             })
             .catch((err)=>{
                 console.log(err)
                 res.json({ 'Message': 'Failed' })
             })
     })
+
+    app.use('/id', routes.auth)
 
     app.use('/shop', routes.market)
 
@@ -206,7 +207,7 @@ const webserver = () => {
             nav: {},
         }
         res.status = 404
-        res.render('404', metadata)
+        return res.render('404', metadata)
     })
 
     app.listen(5000, (err) => {
