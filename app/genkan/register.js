@@ -12,7 +12,7 @@ require('../db')
 // UUID & Hashing
 const sha512 = require('hash-anything').sha512
 const bcrypt = require('bcrypt')
-const saltRounds = 10
+const saltRounds = 12
 
 // Token Generator
 const tokenGenerator = require('./tokenGenerator')
@@ -40,7 +40,7 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
     const db = client.db(dbName)
     newAccount = (email, password, callback) => {
     // Check for duplicate accounts
-        findDB(db, 'users', { 'email': email }, (result) => {
+        findDB(db, config.mongo.collection, { 'email': email }, (result) => {
             // Reject if duplicate
             if (result.length !== 0) {
                 return callback(false)
@@ -76,7 +76,7 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
             }
 
             // Insert new user into database
-            insertDB(db, 'users', NewUserSchema, () => {
+            insertDB(db, config.mongo.collection, NewUserSchema, () => {
                 callback(true)
                 sendConfirmationEmail(email, emailConfirmationToken)
             })
@@ -84,10 +84,10 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
     }
 
     sendConfirmationEmail = (email, token) => {
-    // Compile from email template
+        // Compile from email template
         const data = {
             receiver: email,
-            url: `https://id.hakkou.app/register?confirmation=${token}`,
+            url: `https://${config.webserver.genkanDomain}/confirm?confirmation=${token}`,
         }
         const message = confirmEmailTemplate(data)
 
@@ -95,13 +95,13 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
         transporter.sendMail({
             from: config.smtp.mailFromAddress,
             to: email,
-            subject: 'Confirm your HakkouID',
+            subject: config.smtp.customisation.confirmation.subject,
             html: message,
         })
     }
 
     confirmEmail = (token, callback) => {
-        findDB(db, 'users', { 'tokens.emailConfirmation': token }, (result) => {
+        findDB(db, config.mongo.collection, { 'tokens.emailConfirmation': token }, (result) => {
             if (result.length !== 1) {
                 return callback(false)
             }
@@ -114,7 +114,7 @@ MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
                 },
             }
 
-            updateDB(db, 'users', { 'tokens.emailConfirmation': token }, AccountActivatePayload, () => {
+            updateDB(db, config.mongo.collection, { 'tokens.emailConfirmation': token }, AccountActivatePayload, () => {
                 callback(true)
             })
         })
