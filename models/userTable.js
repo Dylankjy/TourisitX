@@ -99,7 +99,7 @@ module.exports = (sequelize, DataTypes) => {
         tableName: 'User',
     })
 
-    User.associate = models => {
+    User.associate = (models) => {
         User.hasMany(models.Session, {
             onDelete: 'cascade',
         })
