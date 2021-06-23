@@ -1,82 +1,89 @@
-module.exports = (sequelize, DataTypes) =>{
-    const Shop = sequelize.define('Shop', {
+const { Model } = require('sequelize')
+module.exports = (sequelize, DataTypes) => {
+    class Shop extends Model {
+        //
+    }
 
-        id: {
-            allowNull: false,
-            primaryKey: true,
-            type: DataTypes.UUID,
+    Shop.init(
+        {
+            id: {
+                type: DataTypes.UUID,
+                primaryKey: true,
+                allowNull: false,
+            },
+
+            userId: {
+                allowNull: false,
+                type: DataTypes.UUID,
+            },
+
+            tourTitle: {
+                type: DataTypes.STRING(64),
+                allowNull: false,
+            },
+
+            tourDesc: {
+                type: DataTypes.STRING(256),
+                allowNull: false,
+            },
+
+            tourDuration: {
+                type: DataTypes.STRING(32),
+                allowNull: false,
+            },
+
+            finalTimings: {
+                type: DataTypes.STRING(64),
+                allowNull: false,
+            },
+
+            finalDays: {
+                type: DataTypes.STRING(128),
+                allowNull: false,
+            },
+
+            finalItinerary: {
+                type: DataTypes.STRING(256),
+                allowNull: false,
+            },
+
+            finalLocations: {
+                type: DataTypes.STRING(128),
+                allowNull: false,
+            },
+
+            tourImage: {
+                type: DataTypes.STRING(64),
+                allowNull: false,
+            },
+
+            tourPax: {
+                type: DataTypes.STRING(4),
+                allowNull: false,
+            },
+
+            tourRevision: {
+                type: DataTypes.STRING(4),
+                allowNull: false,
+            },
+
+            tourPrice: {
+                type: DataTypes.STRING(8),
+                allowNull: false,
+            },
+
+            hidden: {
+                type: DataTypes.STRING(8),
+                allowNull: false,
+            },
+
         },
 
-        userId: {
-            allowNull: false,
-            type: DataTypes.UUID,
+        {
+            sequelize,
+            tableName: 'Shop',
         },
-
-        tourTitle: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-
-        tourDesc: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-
-        tourDuration: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-
-        finalTimings: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-
-        finalDays: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-
-        finalItinerary: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-
-        finalLocations: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-
-        tourImage: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-
-        tourPax: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-
-        tourRevision: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-
-        tourPrice: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-
-        hidden: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-
-    },
-
-    {
-        tableName: 'Shop',
-    })
+    )
 
     return Shop
 }
