@@ -35,12 +35,14 @@ module.exports = (sequelize, DataTypes) => {
 
             bio: {
                 type: DataTypes.STRING(64),
-                allowNull: true,
+                allowNull: false,
+                defaultValue: 'Your friendly tourisit user',
             },
 
             profile_img: {
                 type: DataTypes.STRING(64),
                 allowNull: false,
+                defaultValue: 'TODO', // TODO: Please set this to the value of the default profile picture.
             },
 
             lastseen_time: {
@@ -76,16 +78,19 @@ module.exports = (sequelize, DataTypes) => {
             email_status: {
                 type: DataTypes.BOOLEAN,
                 allowNull: false,
+                defaultValue: false,
             },
 
             phone_status: {
                 type: DataTypes.BOOLEAN,
                 allowNull: false,
+                defaultValue: false,
             },
 
             is_admin: {
                 type: DataTypes.BOOLEAN,
                 allowNull: false,
+                defaultValue: false,
                 // validate: {
                 //     isIn: [[0, 1]],
                 // },
@@ -93,11 +98,13 @@ module.exports = (sequelize, DataTypes) => {
 
             is_tourguide: {
                 type: DataTypes.BOOLEAN,
+                defaultValue: false,
             },
 
             verified: {
                 type: DataTypes.BOOLEAN,
                 allowNull: false,
+                defaultValue: false,
             },
 
             ip_address: {
