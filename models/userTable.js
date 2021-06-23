@@ -1,107 +1,127 @@
-models = require('./')
+const { Model } = require('sequelize')
 
 module.exports = (sequelize, DataTypes) => {
-    const User = sequelize.define('User', {
+    class User extends Model {
+        //
+    }
 
-        id: {
-            allowNull: false,
-            primaryKey: true,
-            type: DataTypes.UUID,
+    User.init(
+        {
+            id: {
+                allowNull: false,
+                primaryKey: true,
+                type: DataTypes.UUID,
+            },
+
+            name: {
+                allowNull: false,
+                type: DataTypes.STRING(16),
+            },
+
+            password: {
+                type: DataTypes.STRING(64),
+                allowNull: false,
+            },
+
+            email: {
+                type: DataTypes.STRING(32),
+                allowNull: false,
+            },
+
+            phone_number: {
+                type: DataTypes.STRING(8),
+                allowNull: true,
+            },
+
+            bio: {
+                type: DataTypes.STRING(64),
+                allowNull: true,
+            },
+
+            profile_img: {
+                type: DataTypes.STRING(64),
+                allowNull: false,
+            },
+
+            lastseen_time: {
+                type: DataTypes.DATE,
+                allowNull: false,
+            },
+
+            stripe_id: {
+                type: DataTypes.STRING(128),
+                allowNull: true,
+            },
+
+            wishlist: {
+                type: DataTypes.STRING(512),
+                allowNull: true,
+            },
+
+            fb: {
+                type: DataTypes.STRING(32),
+                allowNull: true,
+            },
+
+            insta: {
+                type: DataTypes.STRING(32),
+                allowNull: true,
+            },
+
+            li: {
+                type: DataTypes.STRING(32),
+                allowNull: true,
+            },
+
+            email_status: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+            },
+
+            phone_status: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+            },
+
+            is_admin: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                // validate: {
+                //     isIn: [[0, 1]],
+                // },
+            },
+
+            is_tourguide: {
+                type: DataTypes.BOOLEAN,
+            },
+
+            verified: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+            },
+
+            ip_address: {
+                type: DataTypes.STRING(16),
+                allowNull: false,
+            },
         },
 
-        name: {
-            allowNull: false,
-            type: DataTypes.STRING,
+        { /* hon hon french bread */
+            sequelize,
+            tableName: 'User',
+            modelName: 'User',
         },
-
-        password: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-
-        email: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-
-        phone_number: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
-
-        bio: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
-
-        profile_img: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-
-        lastseen_time: {
-            type: DataTypes.DATE,
-            allowNull: false,
-        },
-
-        stripe_id: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
-
-        wishlist: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
-
-        fb: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
-
-        insta: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
-
-        li: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
-
-        email_status: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-        },
-
-        phone_status: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-        },
-
-        account_type: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-
-        verified: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-        },
-
-        ip_address: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-    },
-
-    {
-        tableName: 'User',
-    })
+    )
 
     User.associate = (models) => {
         User.hasMany(models.Session, {
             onDelete: 'cascade',
+            foreignKey: 'userId',
+        })
+
+        User.hasMany(models.Token, {
+            onDelete: 'cascade',
+            foreignKey: 'userId',
         })
     }
 
