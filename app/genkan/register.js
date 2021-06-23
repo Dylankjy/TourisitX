@@ -25,9 +25,10 @@ const transporter = nodemailer.createTransport({
 const Handlebars = require('handlebars')
 
 // Email Template
-const fs = require('fs')
-const confirmEmailSource = fs.readFileSync(`node_modules/${theme}/mail/confirmation.hbs`, 'utf8')
-const confirmEmailTemplate = Handlebars.compile(confirmEmailSource)
+// TODO: Enable this when the email templates are done
+// const fs = require('fs')
+// const confirmEmailSource = fs.readFileSync(`node_modules/${theme}/mail/confirmation.hbs`, 'utf8')
+// const confirmEmailTemplate = Handlebars.compile(confirmEmailSource)
 
 newAccount = (name, email, password, callback) => {
     // Check for duplicate accounts
@@ -71,7 +72,8 @@ newAccount = (name, email, password, callback) => {
         // Insert new user into database
         insertDB('user', NewUserSchema, () => {
             callback(true)
-            sendConfirmationEmail(email, emailConfirmationToken)
+            // TODO: Enable this when the email templates are done
+            // sendConfirmationEmail(email, emailConfirmationToken)
         })
 
         // Insert new email confirmation token into database
