@@ -20,6 +20,9 @@ const transporter = nodemailer.createTransport({
     },
 })
 
+// Database operations
+require('../db')
+
 // Handlebars
 const Handlebars = require('handlebars')
 
@@ -39,6 +42,7 @@ sendResetPasswordEmail = (email, callback) => {
         const SetTokenPayload = {
             'token': token,
             'type': 'PASSWD',
+            'userId': result[0].dataValues.id,
         }
 
         insertDB('token', SetTokenPayload, () => {
@@ -82,12 +86,23 @@ resetPassword = (resetPasswordToken, newPassword, callback) => {
             'password': hashedPasswordSHA512Bcrypt,
         }
 
-        deleteDB('token', { token: resetPasswordToken })
-
-        updateDB('user', { 'id': result.userId }, SetPasswordPayload, () => {
-            callback(true)
+        // Deletes every single generated token of PASSWD of the user.
+        // In the situation where the user generates more than one reset token.
+        deleteDB('token', { 'userId': result[0].dataValues.userId, 'type': 'PASSWD' }, () => {
+            // Update the password in the user table.
+            updateDB('user', { 'id': result[0].dataValues.userId }, SetPasswordPayload, () => {
+                return callback(true)
+            })
         })
     })
 }
+
+// sendResetPasswordEmail('john.seedapple123@gmail.com', () => {
+//     console.log('OK')
+// })
+
+// resetPassword('354734dd794b346594ddb5b614984df27f2b43c30a50f9d18d7bfbdbd763f3441d68636e7ef2dfb5bd5b1a27cfce62783b408dd491de085c79306742fb356041', 'HelloWorld#1a3', () => {
+//     console.log('OK')
+// })
 
 module.exports = resetPassword
