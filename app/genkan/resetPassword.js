@@ -31,7 +31,7 @@ const Handlebars = require('handlebars')
 // const pwdResetEmailSource = fs.readFileSync(`node_modules/${theme}/mail/pwdreset.hbs`, 'utf8')
 // const pwdResetEmailTemplate = Handlebars.compile(pwdResetEmailSource)
 
-sendResetPasswordEmail = (email, callback) => {
+const sendResetPasswordEmail = (email, callback) => {
     findDB('user', { 'email': email }, (result) => {
         if (result.length !== 1) {
             return callback(false)
@@ -67,7 +67,7 @@ sendResetPasswordEmail = (email, callback) => {
     })
 }
 
-resetPassword = (resetPasswordToken, newPassword, callback) => {
+const resetPassword = (resetPasswordToken, newPassword, callback) => {
     findDB('token', { token: resetPasswordToken, type: 'PASSWD' }, (result) => {
         if (result.length !== 1) {
             return callback(false)
@@ -105,4 +105,5 @@ resetPassword = (resetPasswordToken, newPassword, callback) => {
 //     console.log('OK')
 // })
 
+module.exports = sendResetPasswordEmail
 module.exports = resetPassword

@@ -11,7 +11,7 @@ const tokenGenerator = require('./tokenGenerator')
 // Database operations
 require('../db')
 
-loginAccount = (email, password, callback) => {
+const loginAccount = (email, password, callback) => {
     // SHA512 Hashing
     const incomingHashedPasswordSHA512 = sha512({
         a: password,
@@ -55,7 +55,7 @@ loginAccount = (email, password, callback) => {
 
 // loginAccount('john.seedapple123@gmail.com', 'Apples#@09812')
 
-// isLoggedin = (sid, callback) => {
+// const isLoggedin = (sid, callback) => {
 //     if (sid === undefined) {
 //         return callback(false)
 //     }

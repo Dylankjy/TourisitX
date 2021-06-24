@@ -33,7 +33,7 @@ const Handlebars = require('handlebars')
 // const confirmEmailSource = fs.readFileSync(`node_modules/${theme}/mail/confirmation.hbs`, 'utf8')
 // const confirmEmailTemplate = Handlebars.compile(confirmEmailSource)
 
-newAccount = (name, email, password, callback) => {
+const newAccount = (name, email, password, callback) => {
     // Check for duplicate accounts
     findDB('user', { 'email': email }, (result) => {
         // Reject if duplicate
@@ -87,7 +87,7 @@ newAccount = (name, email, password, callback) => {
 
 // newAccount('John Appleseed', 'john.seedapple123@gmail.com', 'Apples#@09812', () => {})
 
-sendConfirmationEmail = (email, token) => {
+const sendConfirmationEmail = (email, token) => {
     // Compile from email template
     const data = {
         receiver: email,
@@ -104,7 +104,7 @@ sendConfirmationEmail = (email, token) => {
     })
 }
 
-confirmEmail = (token, callback) => {
+const confirmEmail = (token, callback) => {
     findDB('token', { 'token': token, 'type': 'EMAIL' }, (result) => {
         // console.log(result[0].dataValues)
         if (result.length !== 1) {

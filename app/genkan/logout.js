@@ -4,7 +4,7 @@ const config = require('../../config/genkan.json')
 // Database operations
 require('../db')
 
-logoutAccount = (sid, isAll, callback) => {
+const logoutAccount = (sid, isAll, callback) => {
     // Find account to get stored hashed
     findDB('session', { 'sessionId': sid }, (result) => {
         // If such session is found
