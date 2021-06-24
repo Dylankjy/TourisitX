@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
                 primaryKey: true,
                 type: DataTypes.UUID,
             },
-    
+
             type: {
                 allowNull: false,
                 type: DataTypes.STRING(16),
@@ -34,5 +34,4 @@ module.exports = (sequelize, DataTypes) => {
     // }
 
     return Token
-
 }
