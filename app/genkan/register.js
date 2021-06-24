@@ -21,6 +21,9 @@ const transporter = nodemailer.createTransport({
     },
 })
 
+// Database operations
+require('../db')
+
 // Handlebars
 const Handlebars = require('handlebars')
 
@@ -50,39 +53,39 @@ newAccount = (name, email, password, callback) => {
         // Generate email confirmation token
         const emailConfirmationToken = tokenGenerator()
 
-        const generatedId = uuid.v1()
+
+        // Generate userId
+        const userId = uuid.v1()
 
         const NewUserSchema = {
-            'id': generatedId,
+            'id': userId,
             'name': name,
             'email': email,
             'password': hashedPasswordSHA512Bcrypt,
-            'profile_img': '', // TODO: Add binary of Profile Image
             'lastseen_time': new Date(),
-            'email_status': false,
-            'phone_status': false,
-            'account_type': 'USER',
-            'verified': false,
             'ip_address': '', // TODO: Add IP Address mechanism
         }
 
         const TokenSchema = {
             'token': emailConfirmationToken,
             'type': 'EMAIL',
-            'userId': generatedId
+            'userId': userId,
         }
 
         // Insert new user into database
         insertDB('user', NewUserSchema, () => {
-            callback(true)
+            // Insert new email confirmation token into database
+            insertDB('token', TokenSchema, (a) => {
             // TODO: Enable this when the email templates are done
             // sendConfirmationEmail(email, emailConfirmationToken)
+                // console.log(a)
+                return callback(true)
+            })
         })
-
-        // Insert new email confirmation token into database
-        insertDB('token', TokenSchema, () => {/* Do nothing */})
     })
 }
+
+// newAccount('John Appleseed', 'john.seedapple123@gmail.com', 'Apples#@09812', () => {})
 
 sendConfirmationEmail = (email, token) => {
     // Compile from email template
@@ -102,7 +105,8 @@ sendConfirmationEmail = (email, token) => {
 }
 
 confirmEmail = (token, callback) => {
-    findDB('token', { 'token': token }, (result) => {
+    findDB('token', { 'token': token, 'type': 'EMAIL' }, (result) => {
+        // console.log(result[0].dataValues)
         if (result.length !== 1) {
             return callback(false)
         }
@@ -111,14 +115,18 @@ confirmEmail = (token, callback) => {
         }
 
         // Delete token from database
-        deleteDB('token', { 'tokens.emailConfirmation': token }, () => {
+        deleteDB('token', { 'token': token, 'type': 'EMAIL' }, () => {
             // Set email_status to true in User Table
-            updateDB('user', AccountActivatePayload, () => {
+            updateDB('user', { id: result[0].dataValues.userId }, AccountActivatePayload, () => {
                 return callback(true)
             })
         })
     })
 }
+
+// confirmEmail('b0a64ba09f61353ed7f23a2bfb635d06d2103dc18782b63912584f280a85530689525f619527dad1b6f2ee7de88282c23ab18bf7a61fa61ab6dc9286c1dc058b', () => {
+//     console.log('Confirmed')
+// })
 
 module.exports = newAccount
 module.exports = confirmEmail
