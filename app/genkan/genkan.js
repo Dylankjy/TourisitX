@@ -14,7 +14,7 @@ const getUserByID = (uid, callback) => {
 
 const getUserBySession = (sid, callback) => {
     findDB('session', { 'sessionId': sid }, (sessionResult) => {
-        if (result.length !== 1) {
+        if (sessionResult.length !== 1) {
             return callback(null)
         }
 
