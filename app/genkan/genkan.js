@@ -28,5 +28,22 @@ const getUserBySession = (sid, callback) => {
     })
 }
 
+const getUserBySessionDangerous = (sid, callback) => {
+    findDB('session', { 'sessionId': sid }, (sessionResult) => {
+        if (sessionResult.length !== 1) {
+            return callback(null)
+        }
+
+        getUserByID(sessionResult[0].dataValues.userId, (userResult) => {
+            return callback(userResult)
+        })
+    })
+}
+
+// getUserBySession('d237a174694b00af29a22c7db8cb4974d8c4754656b913879452b433f4624d38947d17a31cb8bad396b7307e3d1683c99c5a76f1748e3f8b8fe8398b7801658e', (result) => {
+//     console.log(result)
+// })
+
 module.exports = getUserByID
 module.exports = getUserBySession
+module.exports = getUserBySessionDangerous
