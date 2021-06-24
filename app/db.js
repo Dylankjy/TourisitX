@@ -8,16 +8,12 @@ governor = (table) => {
     switch (table.toLowerCase()) {
     case 'shop':
         return Shop
-        break
     case 'user':
         return User
-        break
     case 'session':
         return Session
-        break
     case 'token':
         return Token
-        break
     default:
         throw new Error('Invalid table selection execution in wrapper. Have you added it to the governor?')
     }
