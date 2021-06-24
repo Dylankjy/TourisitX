@@ -24,9 +24,9 @@ const transporter = nodemailer.createTransport({
 const Handlebars = require('handlebars')
 
 // Email Template
-const fs = require('fs')
-const pwdResetEmailSource = fs.readFileSync(`node_modules/${theme}/mail/pwdreset.hbs`, 'utf8')
-const pwdResetEmailTemplate = Handlebars.compile(pwdResetEmailSource)
+// const fs = require('fs')
+// const pwdResetEmailSource = fs.readFileSync(`node_modules/${theme}/mail/pwdreset.hbs`, 'utf8')
+// const pwdResetEmailTemplate = Handlebars.compile(pwdResetEmailSource)
 
 sendResetPasswordEmail = (email, callback) => {
     findDB('user', { 'email': email }, (result) => {
@@ -43,19 +43,20 @@ sendResetPasswordEmail = (email, callback) => {
 
         insertDB('token', SetTokenPayload, () => {
             // Compile from email template
-            const data = {
-                receiver: email,
-                url: `https://${config.webserver.genkanDomain}/reset?token=${token}`,
-            }
-            const message = pwdResetEmailTemplate(data)
+            // TODO: Renable this when emails are working.
+            // const data = {
+            //     receiver: email,
+            //     url: `https://${config.webserver.genkanDomain}/reset?token=${token}`,
+            // }
+            // const message = pwdResetEmailTemplate(data)
 
-            // send email
-            transporter.sendMail({
-                from: config.smtp.mailFromAddress,
-                to: email,
-                subject: config.smtp.customisation.resetPassword.subject,
-                html: message,
-            })
+            // // send email
+            // transporter.sendMail({
+            //     from: config.smtp.mailFromAddress,
+            //     to: email,
+            //     subject: config.smtp.customisation.resetPassword.subject,
+            //     html: message,
+            // })
 
             return callback(true)
         })
