@@ -41,7 +41,7 @@ app.set('view engine', 'hbs')
 // app.use(cors())
 
 // Models
-const { Shop, User, Session } = require('./models')
+const { Shop, User, Session, Token } = require('./models')
 
 
 // Handlebars: Environment options
@@ -218,6 +218,13 @@ const webserver = () => {
 
 
 db.sequelize.sync().then((req) => {
+    Token.create({
+        token: "blah",
+        type: "another",
+        userId: "4b5e7130-d443-11eb-b614-8328640d28a8"
+    }).then((data)=>{
+        console.log(data)
+    }).catch(err=>console.log(err))
     webserver()
 }).catch(console.log)
 
