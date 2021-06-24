@@ -53,40 +53,6 @@ const loginAccount = (email, password, callback) => {
     })
 }
 
-// loginAccount('john.seedapple123@gmail.com', 'Apples#@09812')
-
-// const isLoggedin = (sid, callback) => {
-//     if (sid === undefined) {
-//         return callback(false)
-//     }
-
-//     findDB(db, 'sessions', { 'sid': sid }, (result) => {
-//         if (result.length !== 1) {
-//             return callback(false)
-//         }
-
-//         // Get time difference between last accessed date and current date
-//         const timeNow = new Date()
-//         const storedDate = new Date(result[0].timestamp)
-//         const diffTime = Math.abs(timeNow - storedDate)
-//         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
-//         if (diffDays > 31) {
-//             deleteDB(db, 'sessions', { 'sid': sid }, () => {
-//                 return callback(false)
-//             })
-//         }
-
-//         const UpdateTimestampPayload = {
-//             $set: {
-//                 'timestamp': (new Date()).toISOString(),
-//             },
-//         }
-
-//         updateDB(db, 'sessions', { 'sid': sid }, UpdateTimestampPayload, () => {
-//             callback(true)
-//         })
-//     })
-// }
+// loginAccount('john.seedapple123@gmail.com', 'HelloWorld#1a3', () => { })
 
 module.exports = loginAccount
