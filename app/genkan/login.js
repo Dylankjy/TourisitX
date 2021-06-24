@@ -53,7 +53,7 @@ loginAccount = (email, password, callback) => {
     })
 }
 
-loginAccount('john.seedapple123@gmail.com', 'Apples#@09812')
+// loginAccount('john.seedapple123@gmail.com', 'Apples#@09812')
 
 // isLoggedin = (sid, callback) => {
 //     if (sid === undefined) {
