@@ -44,7 +44,7 @@ newAccount = (name, email, password, callback) => {
         // SHA512 Hashing
         const hashedPasswordSHA512 = sha512({
             a: password,
-            b: email + config.genkan.secretKey,
+            b: config.genkan.secretKey,
         })
 
         // Bcrypt Hashing

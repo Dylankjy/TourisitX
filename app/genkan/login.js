@@ -15,7 +15,7 @@ loginAccount = (email, password, callback) => {
     // SHA512 Hashing
     const incomingHashedPasswordSHA512 = sha512({
         a: password,
-        b: email + config.genkan.secretKey,
+        b: config.genkan.secretKey,
     })
 
     // Find account to get stored hashed

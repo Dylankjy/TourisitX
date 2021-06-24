@@ -72,7 +72,7 @@ resetPassword = (resetPasswordToken, newPassword, callback) => {
         // SHA512 Hashing
         const hashedPasswordSHA512 = sha512({
             a: newPassword,
-            b: result[0].email + config.genkan.secretKey,
+            b: config.genkan.secretKey,
         })
 
         // Bcrypt Hashing
