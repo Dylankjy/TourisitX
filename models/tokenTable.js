@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
             token: {
                 allowNull: false,
                 primaryKey: true,
-                type: DataTypes.UUID,
+                type: DataTypes.STRING(512),
             },
 
             type: {
