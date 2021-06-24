@@ -29,7 +29,7 @@ const Handlebars = require('handlebars')
 
 // Email Template
 const fs = require('fs')
-const pwdResetEmailSource = fs.readFileSync(`../../node_modules/${config.genkan.theme}/mail/pwdreset.hbs`, 'utf8')
+const pwdResetEmailSource = fs.readFileSync(`node_modules/${config.genkan.theme}/mail/pwdreset.hbs`, 'utf8')
 const pwdResetEmailTemplate = Handlebars.compile(pwdResetEmailSource)
 
 const sendResetPasswordEmail = (email, callback) => {

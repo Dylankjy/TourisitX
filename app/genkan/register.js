@@ -30,7 +30,7 @@ const Handlebars = require('handlebars')
 
 // Email Template
 const fs = require('fs')
-const confirmEmailSource = fs.readFileSync(`../../node_modules/${config.genkan.theme}/mail/confirmation.hbs`, 'utf8')
+const confirmEmailSource = fs.readFileSync(`node_modules/${config.genkan.theme}/mail/confirmation.hbs`, 'utf8')
 const confirmEmailTemplate = Handlebars.compile(confirmEmailSource)
 
 const newAccount = (name, email, password, callback) => {
