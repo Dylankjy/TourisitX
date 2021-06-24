@@ -1,5 +1,3 @@
-const { Session, User } = require('../../models')
-
 // Load environment
 const config = require('../../config/genkan.json')
 
@@ -10,6 +8,8 @@ const bcrypt = require('bcrypt')
 // Token Generator
 const tokenGenerator = require('./tokenGenerator')
 
+// Database operations
+require('../db')
 
 loginAccount = (email, password, callback) => {
     // SHA512 Hashing
@@ -25,7 +25,7 @@ loginAccount = (email, password, callback) => {
             return callback(false)
         }
         // Compare whether incoming is the same as stored
-        if (bcrypt.compareSync(incomingHashedPasswordSHA512, result[0].password)) {
+        if (bcrypt.compareSync(incomingHashedPasswordSHA512, result[0].dataValues.password)) {
             // Generate a random token for SID
             const sid = tokenGenerator()
 
@@ -33,9 +33,6 @@ loginAccount = (email, password, callback) => {
             const SessionSchema = {
                 'userId': result[0].id,
                 'sessionId': sid,
-                // Why is this in ISOString you ask? Because some stinky reason, MongoDB returns a completely empty object when attempting to .find().
-                'timestamp': (new Date()).toISOString(),
-                'createdTimestamp': new Date(),
             }
 
             // Payload to update user's last seen in users collection
@@ -55,6 +52,8 @@ loginAccount = (email, password, callback) => {
         }
     })
 }
+
+loginAccount('john.seedapple123@gmail.com', 'Apples#@09812')
 
 // isLoggedin = (sid, callback) => {
 //     if (sid === undefined) {
