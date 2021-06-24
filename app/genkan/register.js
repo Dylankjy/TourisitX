@@ -50,8 +50,10 @@ newAccount = (name, email, password, callback) => {
         // Generate email confirmation token
         const emailConfirmationToken = tokenGenerator()
 
+        const generatedId = uuid.v1()
+
         const NewUserSchema = {
-            'id': uuid.v1(),
+            'id': generatedId,
             'name': name,
             'email': email,
             'password': hashedPasswordSHA512Bcrypt,
@@ -67,6 +69,7 @@ newAccount = (name, email, password, callback) => {
         const TokenSchema = {
             'token': emailConfirmationToken,
             'type': 'EMAIL',
+            'userId': generatedId
         }
 
         // Insert new user into database
