@@ -19,6 +19,10 @@ const getUserBySession = (sid, callback) => {
         }
 
         getUserByID(sessionResult[0].dataValues.userId, (userResult) => {
+            // Remove sensitive information
+            delete userResult.password
+            delete userResult.ip_address
+            delete userResult.stripe_id
             return callback(userResult)
         })
     })
