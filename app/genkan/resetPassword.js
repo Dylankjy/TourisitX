@@ -1,5 +1,6 @@
 // Load environment
 const config = require('../../config/genkan.json')
+const apikeys = require('../../config/apikeys.json')
 
 // UUID & Hashing
 const sha512 = require('hash-anything').sha512
@@ -16,7 +17,7 @@ const transporter = nodemailer.createTransport({
     port: config.smtp.port,
     auth: {
         user: config.smtp.username,
-        pass: config.smtp.password,
+        pass: apikeys.secret.SENDGRID_KEY,
     },
 })
 
@@ -27,9 +28,9 @@ require('../db')
 const Handlebars = require('handlebars')
 
 // Email Template
-// const fs = require('fs')
-// const pwdResetEmailSource = fs.readFileSync(`node_modules/${theme}/mail/pwdreset.hbs`, 'utf8')
-// const pwdResetEmailTemplate = Handlebars.compile(pwdResetEmailSource)
+const fs = require('fs')
+const pwdResetEmailSource = fs.readFileSync(`../../node_modules/${config.genkan.theme}/mail/pwdreset.hbs`, 'utf8')
+const pwdResetEmailTemplate = Handlebars.compile(pwdResetEmailSource)
 
 const sendResetPasswordEmail = (email, callback) => {
     findDB('user', { 'email': email }, (result) => {
@@ -47,20 +48,19 @@ const sendResetPasswordEmail = (email, callback) => {
 
         insertDB('token', SetTokenPayload, () => {
             // Compile from email template
-            // TODO: Renable this when emails are working.
-            // const data = {
-            //     receiver: email,
-            //     url: `https://${config.webserver.genkanDomain}/reset?token=${token}`,
-            // }
-            // const message = pwdResetEmailTemplate(data)
+            const data = {
+                receiver: email,
+                url: `https://tourisit.tanuki.works/reset?token=${token}`,
+            }
+            const message = pwdResetEmailTemplate(data)
 
-            // // send email
-            // transporter.sendMail({
-            //     from: config.smtp.mailFromAddress,
-            //     to: email,
-            //     subject: config.smtp.customisation.resetPassword.subject,
-            //     html: message,
-            // })
+            // send email
+            transporter.sendMail({
+                from: config.smtp.mailFromAddress,
+                to: email,
+                subject: config.smtp.customisation.resetPassword.subject,
+                html: message,
+            })
 
             return callback(true)
         })

@@ -1,5 +1,6 @@
 // Load environment
 const config = require('../../config/genkan.json')
+const apikeys = require('../../config/apikeys.json')
 
 // UUID & Hashing
 const uuid = require('uuid')
@@ -17,7 +18,7 @@ const transporter = nodemailer.createTransport({
     port: config.smtp.port,
     auth: {
         user: config.smtp.username,
-        pass: config.smtp.password,
+        pass: apikeys.secret.SENDGRID_KEY,
     },
 })
 
@@ -28,10 +29,9 @@ require('../db')
 const Handlebars = require('handlebars')
 
 // Email Template
-// TODO: Enable this when the email templates are done
-// const fs = require('fs')
-// const confirmEmailSource = fs.readFileSync(`node_modules/${theme}/mail/confirmation.hbs`, 'utf8')
-// const confirmEmailTemplate = Handlebars.compile(confirmEmailSource)
+const fs = require('fs')
+const confirmEmailSource = fs.readFileSync(`../../node_modules/${config.genkan.theme}/mail/confirmation.hbs`, 'utf8')
+const confirmEmailTemplate = Handlebars.compile(confirmEmailSource)
 
 const newAccount = (name, email, password, callback) => {
     // Check for duplicate accounts
@@ -76,9 +76,7 @@ const newAccount = (name, email, password, callback) => {
         insertDB('user', NewUserSchema, () => {
             // Insert new email confirmation token into database
             insertDB('token', TokenSchema, (a) => {
-            // TODO: Enable this when the email templates are done
-            // sendConfirmationEmail(email, emailConfirmationToken)
-                // console.log(a)
+                sendConfirmationEmail(email, emailConfirmationToken)
                 return callback(true)
             })
         })
@@ -91,7 +89,7 @@ const sendConfirmationEmail = (email, token) => {
     // Compile from email template
     const data = {
         receiver: email,
-        url: `https://${config.webserver.genkanDomain}/confirm?confirmation=${token}`,
+        url: `https://tourisit.tanuki.works/confirm?confirmation=${token}`,
     }
     const message = confirmEmailTemplate(data)
 
