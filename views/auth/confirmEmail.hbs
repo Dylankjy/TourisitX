@@ -1,0 +1,39 @@
+{{#if userEmailAddress}}
+<div id="emailConfirmation">
+    <h2 class="title is-3">Almost done!</h2>
+    <p id="loginSuccessText" class="subtitle is-6">Please verify your email</p>
+    <div id="tooFastEmail" class="notification is-danger" style="display: none;">
+        Resending emails too quickly.
+    </div>
+    <p>
+        We have sent to a verification link to <b>{{ userEmailAddress }}</b>. Please click on it to verify your
+        account with your email.<br><br>Afterwards, you may start using your account.
+    </p>
+    {{!-- <br> --}}
+    {{!-- <button id="resendEmailButton" class="button is-light">
+        <i class="fas fa-paper-plane"></i>&ensp;Resend Email
+    </button> --}}
+</div>
+{{/if}}
+
+{{#ifEquals notifs "OK_EMAIL_CONFIRMED"}}
+<div>
+    <h2 class="title is-3">All good to go!</h2>
+    <p id="loginSuccessText" class="subtitle is-6">Thank you for verifying your email.</p>
+    <p>
+        You may now login to your account.
+    </p>
+    <a href="/login" class="button is-light"><i class="fas fa-arrow-right"></i>&nbsp;Login</a>
+</div>
+{{/ifEquals}}
+
+{{#ifEquals notifs "ERR_EMAIL_TOKEN_INVALID"}}
+<div>
+    <h2 class="title is-3">Something went wrong.</h2>
+    <p id="loginSuccessText" class="subtitle is-6">This email confirmation link doesn't seem valid.</p>
+    <p>
+        Please check that you are using the most recently sent email confirmation link.
+    </p>
+    <a href="/signup" class="button is-light"><i class="fas fa-arrow-left"></i>&nbsp;Back to sign up</a>
+</div>
+{{/ifEquals}}

@@ -2,11 +2,39 @@
     <div class="box p-6 is-glass-white">
         <h2 class="title is-2">Welcome back</h2>
         <p class="subtitle">Sign in to your Tourisit ID</p>
-        <form>
+        {{#ifEquals notifs "OK_EMAIL_CONFIRMED"}}
+        <div id="emailConfirmed" class="notification is-success">
+            Your email has been verified.
+        </div>
+        {{/ifEquals}}
+        {{#ifEquals notifs "OK_PWD_RESET"}}
+        <div class="notification is-success">
+            You may now login with your new password.
+        </div>
+        {{/ifEquals}}
+        {{#ifEquals notifs "ERR_CREDS_INVALID"}}
+        <div id="badLogin" class="notification is-danger">
+            Email or password is incorrect.
+        </div>
+        {{/ifEquals}}
+        {{#ifEquals notifs "ERR_TOKEN_INVALID"}}
+        <div id="badLogin" class="notification is-danger">
+            Password reset link is either invalid or expired.
+            <br>
+            Please request for a new one.
+        </div>
+        {{/ifEquals}}
+        {{#ifEquals notifs "ERR_ALREADY_LOGGEDOUT"}}
+        <div id="badLogin" class="notification is-danger">
+            Already logged out.
+        </div>
+        {{/ifEquals}}
+        <form method="POST">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
             <div class="field">
                 <label class="label">Email</label>
                 <div class="control has-icons-left has-icons-right">
-                    <input class="input" type="text" placeholder="lee@example.com">
+                    <input name="email" class="input" type="email" placeholder="lee@example.com">
                     <span class="icon is-small is-left">
                         <i class="fas fa-user"></i>
                     </span>
@@ -15,7 +43,7 @@
             <div class="field mt-3">
                 <label class="label">Password</label>
                 <div class="control has-icons-left has-icons-right">
-                    <input class="input" type="text" placeholder="••••••••••••">
+                    <input name="password" class="input" type="password" placeholder="••••••••••••">
                     <span class="icon is-small is-left">
                         <i class="fas fa-key"></i>
                     </span>
@@ -31,7 +59,7 @@
         </form>
     </div>
     <div class="has-text-centered has-text-dark">
-                <p><i class="fas fa-user-plus"></i>&ensp;New to Tourisit?&ensp;<b><a href="/id/register">Join now</a></b>
+        <p><i class="fas fa-user-plus"></i>&ensp;New to Tourisit?&ensp;<b><a href="/id/register">Join now</a></b>
         </p>
 
 

@@ -2,11 +2,21 @@
     <div class="box p-6 is-glass-white">
         <h2 class="title is-2">Hello, welcome!</h2>
         <p class="subtitle">Create a Tourisit ID</p>
-        <form>
+        <form method="POST">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <div class="field">
+                <label class="label">Full Name</label>
+                <div class="control has-icons-left has-icons-right">
+                    <input class="input" type="text" placeholder="Harold Lee">
+                    <span class="icon is-small is-left">
+                        <i class="fas fa-user"></i>
+                    </span>
+                </div>
+            </div>
             <div class="field">
                 <label class="label">Email</label>
                 <div class="control has-icons-left has-icons-right">
-                    <input class="input" type="text" placeholder="lee@example.com">
+                    <input name="email" class="input" type="email" placeholder="lee@example.com">
                     <span class="icon is-small is-left">
                         <i class="fas fa-user"></i>
                     </span>
@@ -15,7 +25,7 @@
             <div class="field mt-3">
                 <label class="label">Password</label>
                 <div class="control has-icons-left has-icons-right">
-                    <input class="input" type="text" placeholder="••••••••••••">
+                    <input name="password" id="newPassword" class="input" type="password" placeholder="••••••••••••">
                     <span class="icon is-small is-left">
                         <i class="fas fa-key"></i>
                     </span>

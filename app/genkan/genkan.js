@@ -5,14 +5,14 @@
 // Database operations
 require('../db')
 
-const getUserByID = (uid, callback) => {
+getUserByID = (uid, callback) => {
     findDB('user', { 'id': uid }, (userResult) => {
         return callback(userResult[0].dataValues)
     })
 }
 
 
-const getUserBySession = (sid, callback) => {
+getUserBySession = (sid, callback) => {
     findDB('session', { 'sessionId': sid }, (sessionResult) => {
         if (sessionResult.length !== 1) {
             return callback(null)
@@ -28,7 +28,7 @@ const getUserBySession = (sid, callback) => {
     })
 }
 
-const getUserBySessionDangerous = (sid, callback) => {
+getUserBySessionDangerous = (sid, callback) => {
     findDB('session', { 'sessionId': sid }, (sessionResult) => {
         if (sessionResult.length !== 1) {
             return callback(null)
@@ -40,7 +40,7 @@ const getUserBySessionDangerous = (sid, callback) => {
     })
 }
 
-const isLoggedin = (sid, callback) => {
+isLoggedin = (sid, callback) => {
     if (sid === undefined) {
         return callback(false)
     }
