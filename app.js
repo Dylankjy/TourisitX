@@ -29,7 +29,7 @@ const app = express()
 
 // Need this in order to render the css and images
 app.use('/', express.static('public'))
-app.use('/', express.static('savedImages'))
+app.use('/static', express.static('storage'))
 app.use('/third_party', express.static('third_party'))
 app.use('/usercontent', express.static('storage'))
 
