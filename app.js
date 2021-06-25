@@ -7,7 +7,6 @@ const exphbs = require('express-handlebars')
 const cookieParser = require('cookie-parser')
 const formidable = require('express-formidable')
 const slowDown = require('express-slow-down')
-const axios = require('axios')
 
 // Routes for Express
 const routes = {
@@ -20,11 +19,10 @@ const routes = {
     tourguide: require('./routes/tourguide'),
     user: require('./routes/user'),
     support: require('./routes/support'),
+    index: require('./routes/index'),
 }
 
 const app = express()
-
-const db = require('./models')
 
 // Express Additional Options
 // Express: Public Directory
@@ -37,12 +35,6 @@ app.use('/usercontent', express.static('storage'))
 
 // Handlebars: Render engine
 app.set('view engine', 'hbs')
-
-// app.use(cors())
-
-// Models
-const { Shop, User, Session } = require('./models')
-
 
 // Handlebars: Environment options
 app.engine('hbs', exphbs({
@@ -93,30 +85,8 @@ app.set('views', [`views`])
 // cookieParser: Secret key for signing
 app.use(cookieParser('Please change this when in production use'))
 
-
-// app.use(expressSession({
-//     secret: config.app.secretKey,
-//     saveUninitialized: false,
-//     resave: false
-// }))
-
-// cookieParser: Cookie schema
-// const CookieOptions = {
-//     httpOnly: true,
-//     secure: true,
-//     signed: true,
-//     domain: `.${config.webserver.domain}`,
-// }
-
-// app.use(bodyParser.urlencoded({extended: true}))
-// app.use(bodyParser.json())
-// app.use(bodyParser.raw())
-
 // Formidable: For POST data accessing
 app.use(formidable())
-
-// Express-validator: For validating POST data
-
 
 // Slowdown: For Rate limiting
 const speedLimiter = slowDown({
@@ -128,57 +98,6 @@ const speedLimiter = slowDown({
 
 // Express: Routes
 const webserver = () => {
-    // Define all the router stuff here
-    app.get('/', (req, res)=>{
-        const listings = []
-        Shop.findAll({
-            attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
-            limit: 4,
-            order:
-                [['createdAt', 'ASC']],
-        })
-            .then(async (data)=>{
-                await data.forEach((doc)=>{
-                    listings.push(doc['dataValues'])
-                })
-
-                const metadata = {
-                    meta: {
-                        title: 'Home',
-                        path: false,
-                    },
-                    nav: {
-                        index: true,
-                    },
-                    listing: listings,
-                }
-                return res.render('index.hbs', metadata)
-            })
-            .catch((err)=>{
-                console.log(err)
-                res.json({ 'Message': 'Failed' })
-            })
-    })
-
-
-    app.get('/wishlist', (req, res)=>{
-        const wishlist = []
-        Shop.findAll({
-            attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
-        })
-            .then(async (data)=>{
-                await data.forEach((doc)=>{
-                    wishlist.push(doc['dataValues'])
-                })
-
-                return res.render('customer/wishlist.hbs', { wishlist: wishlist })
-            })
-            .catch((err)=>{
-                console.log(err)
-                res.json({ 'Message': 'Failed' })
-            })
-    })
-
     app.use('/id', routes.auth)
 
     app.use('/shop', routes.market)
@@ -192,6 +111,8 @@ const webserver = () => {
     app.use('/admin', routes.admin)
 
     app.use('/', routes.support)
+
+    app.use('/', routes.index)
 
     app.use('/tourguide', routes.tourguide)
 
