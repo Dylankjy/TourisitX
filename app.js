@@ -5,7 +5,7 @@ const dateFormat = require('dateformat')
 const express = require('express')
 const exphbs = require('express-handlebars')
 const cookieParser = require('cookie-parser')
-const formidable = require('express-formidable')
+// const formidable = require('express-formidable')
 const slowDown = require('express-slow-down')
 const axios = require('axios')
 
@@ -113,7 +113,10 @@ app.use(cookieParser('Please change this when in production use'))
 // app.use(bodyParser.raw())
 
 // Formidable: For POST data accessing
-app.use(formidable())
+// THIS IS DISABLED AS IT INTERFERES WITH POST PROCESSING FOR GENKAN
+// IF YOU REQUIRE THIS MODULE, PLEASE INCLUDE IT INSIDE YOUR ROUTING FILES
+// -- Dylan UwU
+// app.use(formidable())
 
 // Express-validator: For validating POST data
 
