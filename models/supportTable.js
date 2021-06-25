@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
 
                uid: {
                     allowNull: false,
-                    type: DataTypes.STRING(16),
+                    type: DataTypes.UUID,
                },
 
                u_email: {
@@ -29,8 +29,8 @@ module.exports = (sequelize, DataTypes) => {
                },
 
                content: {
-                    type: DataTypes.STRING(8),
-                    allowNull: true,
+                    type: DataTypes.STRING(64),
+                    allowNull: false,
                },
 
                link: {
