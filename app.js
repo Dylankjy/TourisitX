@@ -137,8 +137,6 @@ const webserver = () => {
     })
 }
 
-
-db.sequelize.sync().then((req) => {
+require('./models').sequelize.sync().then((req) => {
     webserver()
 }).catch(console.log)
-
