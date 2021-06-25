@@ -32,7 +32,7 @@ const fs = require('fs')
 const pwdResetEmailSource = fs.readFileSync(`node_modules/${config.genkan.theme}/mail/pwdreset.hbs`, 'utf8')
 const pwdResetEmailTemplate = Handlebars.compile(pwdResetEmailSource)
 
-const sendResetPasswordEmail = (email, callback) => {
+sendResetPasswordEmail = (email, callback) => {
     findDB('user', { 'email': email }, (result) => {
         if (result.length !== 1) {
             return callback(false)
@@ -67,7 +67,7 @@ const sendResetPasswordEmail = (email, callback) => {
     })
 }
 
-const resetPassword = (resetPasswordToken, newPassword, callback) => {
+resetPassword = (resetPasswordToken, newPassword, callback) => {
     findDB('token', { token: resetPasswordToken, type: 'PASSWD' }, (result) => {
         if (result.length !== 1) {
             return callback(false)
@@ -105,5 +105,4 @@ const resetPassword = (resetPasswordToken, newPassword, callback) => {
 //     console.log('OK')
 // })
 
-module.exports = sendResetPasswordEmail
 module.exports = resetPassword

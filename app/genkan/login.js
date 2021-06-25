@@ -11,7 +11,7 @@ const tokenGenerator = require('./tokenGenerator')
 // Database operations
 require('../db')
 
-const loginAccount = (email, password, callback) => {
+loginAccount = (email, password, callback) => {
     // SHA512 Hashing
     const incomingHashedPasswordSHA512 = sha512({
         a: password,

@@ -33,7 +33,7 @@ const fs = require('fs')
 const confirmEmailSource = fs.readFileSync(`node_modules/${config.genkan.theme}/mail/confirmation.hbs`, 'utf8')
 const confirmEmailTemplate = Handlebars.compile(confirmEmailSource)
 
-const newAccount = (name, email, password, callback) => {
+newAccount = (name, email, password, callback) => {
     // Check for duplicate accounts
     findDB('user', { 'email': email }, (result) => {
         // Reject if duplicate
@@ -85,7 +85,7 @@ const newAccount = (name, email, password, callback) => {
 
 // newAccount('John Appleseed', 'john.seedapple123@gmail.com', 'Apples#@09812', () => {})
 
-const sendConfirmationEmail = (email, token) => {
+sendConfirmationEmail = (email, token) => {
     // Compile from email template
     const data = {
         receiver: email,
@@ -102,7 +102,7 @@ const sendConfirmationEmail = (email, token) => {
     })
 }
 
-const confirmEmail = (token, callback) => {
+confirmEmail = (token, callback) => {
     findDB('token', { 'token': token, 'type': 'EMAIL' }, (result) => {
         // console.log(result[0].dataValues)
         if (result.length !== 1) {
