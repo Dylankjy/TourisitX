@@ -5,7 +5,7 @@ const dateFormat = require('dateformat')
 const express = require('express')
 const exphbs = require('express-handlebars')
 const cookieParser = require('cookie-parser')
-const formidable = require('express-formidable')
+// const formidable = require('express-formidable')
 const slowDown = require('express-slow-down')
 
 // Routes for Express
@@ -86,7 +86,10 @@ app.set('views', [`views`])
 app.use(cookieParser('Please change this when in production use'))
 
 // Formidable: For POST data accessing
-app.use(formidable())
+// THIS IS DISABLED AS IT INTERFERES WITH POST PROCESSING FOR GENKAN
+// IF YOU REQUIRE THIS MODULE, PLEASE INCLUDE IT INSIDE YOUR ROUTING FILES
+// -- Dylan UwU
+// app.use(formidable())
 
 // Slowdown: For Rate limiting
 const speedLimiter = slowDown({
@@ -103,6 +106,8 @@ const webserver = () => {
     app.use('/shop', routes.market)
 
     app.use('/listing', routes.listings)
+
+    app.use('/id', routes.auth)
 
     app.use('/u', routes.user)
 

@@ -1,0 +1,34 @@
+<div class="container">
+    {{#ifEquals notifs "OK_EMAIL_SENT"}}
+        <div id="resetPasswordAck">
+            <h2 class="title is-3">Email sent</h2>
+            <p>You will receive an email containing the
+                password reset link if the email exists in our records.</p>
+        </div>
+        {{else}}
+    <div class="box p-6 is-glass-white">
+        <h2 class="title is-2">Help I'm locked out!</h2>
+        <p class="subtitle">Recover your account</p>
+        
+        <form method="POST">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <div class="field">
+                <label class="label">Email</label>
+                <div class="control has-icons-left has-icons-right">
+                    <input name="email" class="input" type="email" placeholder="lee@example.com">
+                    <span class="icon is-small is-left">
+                        <i class="fas fa-user"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="field">
+                <button class="button is-primary has-text-weight-medium" type="submit"><i
+                        class="fas fa-arrow-right"></i>&ensp;Continue</button>
+            </div>
+        </form>
+    </div>
+    <p class="has-text-centered">
+        <a class="has-text-danger" href="/id/login"><i class="fas fa-long-arrow-alt-left"></i>&ensp;Login instead</a>
+    </p>
+    {{/ifEquals}}
+</div>
