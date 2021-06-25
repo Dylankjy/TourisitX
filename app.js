@@ -82,9 +82,6 @@ app.engine('hbs', exphbs({
 // Handlebars: Views folder
 app.set('views', [`views`])
 
-// cookieParser: Secret key for signing
-app.use(cookieParser('Please change this when in production use'))
-
 // Formidable: For POST data accessing
 // THIS IS DISABLED AS IT INTERFERES WITH POST PROCESSING FOR GENKAN
 // IF YOU REQUIRE THIS MODULE, PLEASE INCLUDE IT INSIDE YOUR ROUTING FILES
