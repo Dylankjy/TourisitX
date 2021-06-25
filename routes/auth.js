@@ -2,6 +2,12 @@ const express = require('express')
 
 const router = express.Router()
 
+const cookieParser = require('cookie-parser')
+
+// cookieParser: Secret key for signing
+// Uses genkan's secret key to sign cookies
+router.use(cookieParser(require('../config/genkan.json').genkan.secretKey))
+
 // BodyParser
 router.use(express.urlencoded({ extended: true }))
 
@@ -11,6 +17,27 @@ router.use(express.urlencoded({ extended: true }))
 // Csurf: CSRF protection
 const csrf = require('csurf')
 router.use(csrf({ cookie: true }))
+
+// cookieParser: Cookie schema for sessions
+const SessionCookieOptions = {
+    httpOnly: true,
+    secure: true,
+    signed: true,
+    // domain: `.${config.webserver.cookieDomain}`,
+    maxAge: 7890000,
+    path: '/',
+}
+
+// cookieParser: Cookie schema for notifications
+const NotificationCookieOptions = {
+    httpOnly: true,
+    secure: true,
+    signed: true,
+    // domain: `.${config.webserver.cookieDomain}`,
+    maxAge: 5000,
+    path: '/',
+}
+
 
 // Dependencies for authentication system
 require('../app/genkan/login')
@@ -26,7 +53,7 @@ require('../app/genkan/genkan') // This is the API
 router.get('/register', (req, res) => {
     isLoggedin(req.signedCookies.sid, (result) => {
         if (result === true) {
-            return res.redirect(config.genkan.redirect.afterLogin)
+            return res.redirect('/?loggedin=true')
         }
         res.render('auth/register', { notifs: req.signedCookies.notifs, csrfToken: req.csrfToken() })
     })
@@ -35,8 +62,10 @@ router.get('/register', (req, res) => {
 router.post('/register', (req, res) => {
     isLoggedin(req.signedCookies.sid, (result) => {
         if (result === true) {
-            return res.redirect(config.genkan.redirect.afterLogin)
+            return res.redirect('/?loggedin=true')
         }
+
+        const name = req.body.username
         const email = req.body.email.toLowerCase().replace(/\s+/g, '')
         const password = req.body.password
 
@@ -45,17 +74,17 @@ router.post('/register', (req, res) => {
         // Data validations
         if (emailRegex.test(email) === false || password.length < 8) return
 
-        newAccount(email, password, (result) => {
+        newAccount(name, email, password, (result) => {
             if (result === false) {
                 console.log('Duplicate account')
                 res.cookie('notifs', 'ERR_DUP_EMAIL', NotificationCookieOptions)
-                return res.redirect('/signup')
+                return res.redirect('/id/signup')
             }
 
             console.log('Account creation OK')
 
             res.cookie('preData', email, NotificationCookieOptions)
-            return res.redirect('/confirm')
+            return res.redirect('/id/confirm')
         })
     })
 })
@@ -70,13 +99,13 @@ router.post('/recover', (req, res) => {
     sendResetPasswordEmail(email, () => {
         res.cookie('notifs', 'OK_EMAIL_SENT', NotificationCookieOptions)
         console.log('Recovery email sent.')
-        return res.redirect('/recover')
+        return res.redirect('/id/recover')
     })
 })
 
 router.get('/reset', (req, res) => {
     if (req.query.token === undefined) {
-        return res.redirect('/recover')
+        return res.redirect('/id/recover')
     }
 
     return res.render('auth/changePassword', { csrfToken: req.csrfToken() })
@@ -90,33 +119,34 @@ router.post('/reset', (req, res) => {
     resetPassword(req.query.token, req.body.password, (result) => {
         if (result === false) {
             res.cookie('notifs', 'ERR_TOKEN_INVALID', NotificationCookieOptions)
-            return res.redirect('/login')
+            return res.redirect('/id/login')
         }
 
         res.cookie('notifs', 'OK_PWD_RESET', NotificationCookieOptions)
-        return res.redirect('/login')
+        return res.redirect('/id/login')
     })
 })
 
 router.get('/confirm', (req, res) => {
     isLoggedin(req.signedCookies.sid, (result) => {
         if (result === true) {
-            return res.redirect(config.genkan.redirect.afterLogin)
-        }
-        // If user isn't supposed to be on this page (possible directory traversal)
-        if (req.signedCookies.preData === undefined) {
-            return res.redirect('/login')
+            return res.redirect('/?loggedin=true')
         }
 
         // Check if user is wanting to do an email confirmation
         if (req.query.token !== undefined) {
-            confirmEmail(req.query.token, (result) => {
+            return confirmEmail(req.query.token, (result) => {
                 if (result === false) {
                     return res.render('auth/confirmEmail', { notifs: 'ERR_EMAIL_TOKEN_INVALID' })
                 }
 
                 return res.render('auth/confirmEmail', { notifs: 'OK_EMAIL_CONFIRMED', csrfToken: req.csrfToken() })
             })
+        }
+
+        // If user isn't supposed to be on this page (possible directory traversal)
+        if (req.signedCookies.preData === undefined) {
+            return res.redirect('/id/login')
         }
 
         // Else give them the email confirmation page
@@ -127,7 +157,7 @@ router.get('/confirm', (req, res) => {
 router.get('/login', (req, res) => {
     isLoggedin(req.signedCookies.sid, (result) => {
         if (result === true) {
-            return res.redirect(config.genkan.redirect.afterLogin)
+            return res.redirect('/?loggedin=true')
         }
         res.render('auth/login', { notifs: req.signedCookies.notifs, csrfToken: req.csrfToken() })
     })
@@ -136,7 +166,7 @@ router.get('/login', (req, res) => {
 router.post('/login', (req, res) => {
     isLoggedin(req.signedCookies.sid, (result) => {
         if (result === true) {
-            return res.redirect(config.genkan.redirect.afterLogin)
+            return res.redirect('/?loggedin=true')
         }
         const email = req.body.email.toLowerCase().replace(/\s+/g, '')
         const password = req.body.password
@@ -145,12 +175,16 @@ router.post('/login', (req, res) => {
             if (result === false) {
                 console.log('Failed to login')
                 res.cookie('notifs', 'ERR_CREDS_INVALID', NotificationCookieOptions)
-                return res.redirect('/login')
+                return res.redirect('/id/login')
+            }
+            if (result === 'EMAIL_NOT_VERIFIED') {
+                res.cookie('preData', email, NotificationCookieOptions)
+                return res.redirect('/id/confirm')
             }
 
             console.log('Login OK')
             res.cookie('sid', result, SessionCookieOptions)
-            return res.redirect(config.genkan.redirect.afterLogin)
+            return res.redirect('/?loggedin=true')
         })
     })
 })
@@ -159,7 +193,7 @@ router.get('/logout', (req, res) => {
     isLoggedin(req.signedCookies.sid, (result) => {
         if (result === false) {
             res.cookie('notifs', 'ERR_ALREADY_LOGGEDOUT', NotificationCookieOptions)
-            return res.redirect('/login')
+            return res.redirect('/id/login')
         }
         res.render('auth/logout', { csrfToken: req.csrfToken() })
     })
@@ -167,7 +201,7 @@ router.get('/logout', (req, res) => {
 
 router.post('/logout', (req, res) => {
     // By default, do not sign out of all devices
-    signoutType = false
+    let signoutType = false
 
     if (req.body.logoutOf == 'ALL') {
         signoutType = true
@@ -175,7 +209,7 @@ router.post('/logout', (req, res) => {
 
     logoutAccount(req.signedCookies.sid, signoutType, () => {
         res.clearCookie('sid', SessionCookieOptions)
-        return res.redirect(config.genkan.redirect.afterSignout)
+        return res.redirect('/?loggedout=true')
     })
 })
 
