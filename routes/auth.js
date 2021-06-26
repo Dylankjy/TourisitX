@@ -51,11 +51,24 @@ require('../app/genkan/genkan') // This is the API
 // router.get('/', (req, res) => { ... }
 
 router.get('/register', (req, res) => {
+    const metadata = {
+        meta: {
+            title: 'Register',
+            path: false,
+        },
+        nav: {
+            register: true,
+        },
+        layout: 'auth',
+        notifs: req.signedCookies.notifs,
+        csrfToken: req.csrfToken(),
+    }
+
     isLoggedin(req.signedCookies.sid, (result) => {
         if (result === true) {
             return res.redirect('/?loggedin=true')
         }
-        res.render('auth/register', { notifs: req.signedCookies.notifs, csrfToken: req.csrfToken() })
+        res.render('auth/register', metadata)
     })
 })
 
@@ -90,7 +103,20 @@ router.post('/register', (req, res) => {
 })
 
 router.get('/recover', (req, res) => {
-    res.render('auth/recoverAccount', { notifs: req.signedCookies.notifs, csrfToken: req.csrfToken() })
+    const metadata = {
+        meta: {
+            title: 'Recover Account',
+            path: false,
+        },
+        nav: {
+            register: true,
+        },
+        layout: 'auth',
+        notifs: req.signedCookies.notifs,
+        csrfToken: req.csrfToken(),
+    }
+
+    res.render('auth/recoverAccount', metadata)
 })
 
 router.post('/recover', (req, res) => {
@@ -104,11 +130,24 @@ router.post('/recover', (req, res) => {
 })
 
 router.get('/reset', (req, res) => {
+    const metadata = {
+        meta: {
+            title: 'Reset Password',
+            path: false,
+        },
+        nav: {
+            register: true,
+        },
+        layout: 'auth',
+        notifs: req.signedCookies.notifs,
+        csrfToken: req.csrfToken(),
+    }
+
     if (req.query.token === undefined) {
         return res.redirect('/id/recover')
     }
 
-    return res.render('auth/changePassword', { csrfToken: req.csrfToken() })
+    return res.render('auth/changePassword', metadata)
 })
 
 router.post('/reset', (req, res) => {
@@ -128,6 +167,19 @@ router.post('/reset', (req, res) => {
 })
 
 router.get('/confirm', (req, res) => {
+    const metadata = {
+        meta: {
+            title: 'Verify Email Address',
+            path: false,
+        },
+        nav: {
+            register: true,
+        },
+        layout: 'auth',
+        notifs: req.signedCookies.notifs,
+        csrfToken: req.csrfToken(),
+    }
+
     isLoggedin(req.signedCookies.sid, (result) => {
         if (result === true) {
             return res.redirect('/?loggedin=true')
@@ -137,10 +189,10 @@ router.get('/confirm', (req, res) => {
         if (req.query.token !== undefined) {
             return confirmEmail(req.query.token, (result) => {
                 if (result === false) {
-                    return res.render('auth/confirmEmail', { notifs: 'ERR_EMAIL_TOKEN_INVALID' })
+                    return res.render('auth/confirmEmail', { notifs: 'ERR_EMAIL_TOKEN_INVALID', metadata })
                 }
 
-                return res.render('auth/confirmEmail', { notifs: 'OK_EMAIL_CONFIRMED', csrfToken: req.csrfToken() })
+                return res.render('auth/confirmEmail', { notifs: 'OK_EMAIL_CONFIRMED', metadata })
             })
         }
 
@@ -155,11 +207,24 @@ router.get('/confirm', (req, res) => {
 })
 
 router.get('/login', (req, res) => {
+    const metadata = {
+        meta: {
+            title: 'Login',
+            path: false,
+        },
+        nav: {
+            register: true,
+        },
+        layout: 'auth',
+        notifs: req.signedCookies.notifs,
+        csrfToken: req.csrfToken(),
+    }
+
     isLoggedin(req.signedCookies.sid, (result) => {
         if (result === true) {
             return res.redirect('/?loggedin=true')
         }
-        res.render('auth/login', { notifs: req.signedCookies.notifs, csrfToken: req.csrfToken() })
+        res.render('auth/login', metadata)
     })
 })
 
@@ -190,12 +255,25 @@ router.post('/login', (req, res) => {
 })
 
 router.get('/logout', (req, res) => {
+    const metadata = {
+        meta: {
+            title: 'Logout',
+            path: false,
+        },
+        nav: {
+            register: true,
+        },
+        layout: 'auth',
+        notifs: req.signedCookies.notifs,
+        csrfToken: req.csrfToken(),
+    }
+
     isLoggedin(req.signedCookies.sid, (result) => {
         if (result === false) {
             res.cookie('notifs', 'ERR_ALREADY_LOGGEDOUT', NotificationCookieOptions)
             return res.redirect('/id/login')
         }
-        res.render('auth/logout', { csrfToken: req.csrfToken() })
+        res.render('auth/logout', metadata)
     })
 })
 
