@@ -5,7 +5,11 @@ const uuid = require('uuid')
 const path = require('path')
 const { generateFakeEntry } = require('../app/listingGenerator').generateFakeEntry
 const formidableValidator = require('../app/validation')
+const formidable = require('express-formidable')
+const cookieParser = require('cookie-parser')
 const { convert } = require('image-file-resize')
+
+const genkan = require('../app/genkan/genkan')
 
 // Config file
 const config = require('../config/apikeys.json')
@@ -27,6 +31,10 @@ const Validator = formidableValidator.Validator
 const fileValidator = formidableValidator.FileValidator
 
 const savedImageFolder = './storage/listings'
+
+
+router.use(formidable())
+router.use(cookieParser('Please change this when in production use'))
 // bin\elasticsearch.bat
 
 // Will convert Image to base64.
@@ -140,23 +148,6 @@ emptyArray = (arr) => {
 
 // Show the user all of their own listings
 router.get('/', (req, res)=>{
-    // Shop.findAll(
-    //     {
-    //         where: {
-    //             // Set to empty now, but it should be replaced with the userID when authentication library is out
-    //             userId: 'sample',
-    //         },
-    //         order:
-    //             [['createdAt', 'ASC']],
-    //     },
-    // )
-    //     .then((items)=>{
-    //         const itemsArr = items.map((x)=>x['dataValues']).reverse()
-    //         return res.render('tourGuide/myListings.hbs', { datas: itemsArr })
-    //     })
-    //     .catch((err)=>{
-    //         console.log
-    //     })
     res.redirect('/tourguide/manage/listings')
 })
 
@@ -167,14 +158,13 @@ router.get('/info/:id', (req, res)=>{
 
     // if (req.cookies.imageValError) {
     const errMsg = req.cookies.imageValError || ''
-    // } else {
-    //     const errMsg = ''
-    // }
 
     Shop.findAll({ where: {
         id: itemID,
     } }).then(async (items)=>{
         const data = await items[0]['dataValues']
+        console.log(req.signedCookies.sid)
+        
         // Check here if data.userId = loggedIn user ID
         if (true) {
             // Manually set to true now.. while waiting for the validation library
@@ -303,8 +293,13 @@ router.get('/edit/:savedId', (req, res)=>{
         const savedData = items[0]['dataValues']
         // Validate that the user can edit the listing
         // if (userID == savedData["userId"])
-        res.cookie('storedValues', JSON.stringify(savedData), { maxAge: 5000 })
-        return res.render('tourGuide/editListing.hbs', { validationErrors: req.cookies.validationErrors })
+        if (true) {
+            res.cookie('storedValues', JSON.stringify(savedData), { maxAge: 5000 })
+            return res.render('tourGuide/editListing.hbs', { validationErrors: req.cookies.validationErrors })
+        } else {
+            res.send("No perms")
+        }
+        
     }).catch((err)=>{
         console.log(err)
         res.send('No such listing exists!')
@@ -478,7 +473,7 @@ router.get('/delete/:savedId', (req, res)=>{
     }).then((data)=>{
         // Delete from elastic search client
         deleteDoc('products', req.params.savedId)
-        res.send('Deleted!')
+        res.redirect("/tourguide/manage/listings")
     }).catch((err)=>{
         console.log(err)
     })
@@ -505,6 +500,21 @@ router.get('/api/getImage/:id', (req, res)=>{
 // const esClient = elasticSearch.Client({
 //     host: 'http://localhost:9200',
 // })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 router.get('/es-api/create-index', (req, res)=>{
@@ -776,25 +786,25 @@ router.get('/es-api/initFromDB', async (req, res) => {
 })
 
 
-esClient.search({
-    index: 'products',
-    body: {
-        query: {
-            fuzzy: {
-                description: {
-                    value: 'sing',
-                    fuzziness: 5,
-                },
-            },
-        },
-    },
-})
-    .then((data)=>{
-        console.log(data['hits']['hits'])
-    })
-    .catch((err)=>{
-        console.log('Ther eis nothign')
-    })
+// esClient.search({
+//     index: 'products',
+//     body: {
+//         query: {
+//             fuzzy: {
+//                 description: {
+//                     value: 'sing',
+//                     fuzziness: 5,
+//                 },
+//             },
+//         },
+//     },
+// })
+//     .then((data)=>{
+//         console.log(data['hits']['hits'])
+//     })
+//     .catch((err)=>{
+//         console.log('Ther eis nothign')
+//     })
 
 
 module.exports = router

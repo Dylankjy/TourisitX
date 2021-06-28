@@ -36,15 +36,6 @@ app.use('/usercontent', express.static('storage'))
 // Handlebars: Render engine
 app.set('view engine', 'hbs')
 
-<<<<<<< HEAD
-// app.use(cors())
-
-// Models
-const { Shop, User, Session, Token } = require('./models')
-
-
-=======
->>>>>>> 33c60e36b8f122ee64e434667e81d43cc4c4c67b
 // Handlebars: Environment options
 app.engine('hbs', exphbs({
     defaultLayout: 'main',
@@ -109,7 +100,7 @@ const speedLimiter = slowDown({
 const webserver = () => {
     app.use('/id', routes.auth)
 
-    app.use('/shop', routes.market)
+    // app.use('/shop', routes.market)
 
     app.use('/listing', routes.listings)
 
@@ -148,18 +139,6 @@ const webserver = () => {
     })
 }
 
-<<<<<<< HEAD
-
-db.sequelize.sync().then((req) => {
-    Token.create({
-        token: "blah",
-        type: "another",
-        userId: "4b5e7130-d443-11eb-b614-8328640d28a8"
-    }).then((data)=>{
-        console.log(data)
-    }).catch(err=>console.log(err))
-=======
 require('./models').sequelize.sync().then((req) => {
->>>>>>> 33c60e36b8f122ee64e434667e81d43cc4c4c67b
     webserver()
 }).catch(console.log)

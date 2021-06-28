@@ -1,7 +1,9 @@
 const express = require('express')
+const formidable = require('express-formidable')
 const { Shop } = require('../models')
 
 const router = express.Router()
+router.use(formidable())
 
 router.get('/', (req, res) => {
     const listings = []

@@ -126,5 +126,9 @@ confirmEmail = (token, callback) => {
 //     console.log('Confirmed')
 // })
 
+// newAccount("test", "test@tester.com", "test", ()=>{
+//     console.log("Done")
+// })
+
 module.exports = newAccount
 module.exports = confirmEmail
