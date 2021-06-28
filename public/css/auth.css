@@ -1,3 +1,7 @@
+body {
+    height: 100%;
+}
+
 .background-auth {
     background: url('/static/auth/bg.jpg');
     background-size: cover;

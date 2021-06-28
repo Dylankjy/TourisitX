@@ -82,3 +82,6 @@ TMP/
 # Ignore super secret stuff uwu
 config/config.json
 config/apikeys.json
+
+# Ignore user generated images
+storage/

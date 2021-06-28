@@ -1,24 +1,11 @@
-const { urlencoded } = require('body-parser')
 const express = require('express')
-const formidable = require('express-formidable')
-const bodyParser = require('body-parser')
-const { route } = require('./admin')
-const ExpressFormidable = require('express-formidable')
 const fs = require('fs')
-const fsPromise = require('fs/promises')
-const exphbs = require('express-handlebars')
-const expressSession = require('express-session')
-const cors = require('cors')
 const { default: axios } = require('axios')
 const uuid = require('uuid')
-const fileType = require('file-type')
 const path = require('path')
-const elasticSearch = require('elasticsearch')
-const io = require('socket.io')
 const { generateFakeEntry } = require('../app/listingGenerator').generateFakeEntry
 const formidableValidator = require('../app/validation')
 const { convert } = require('image-file-resize')
-const { nodeFetch } = require('node-fetch')
 
 // Config file
 const config = require('../config/apikeys.json')
@@ -38,10 +25,9 @@ const esClient = require('../app/elasticSearch').esClient
 
 const Validator = formidableValidator.Validator
 const fileValidator = formidableValidator.FileValidator
+
+const savedImageFolder = './storage/listings'
 // bin\elasticsearch.bat
-
-// router.use(formidable())
-
 
 // Will convert Image to base64.
 
@@ -426,7 +412,7 @@ router.post('/edit/image/:savedId', (req, res)=>{
     if (imageResult == null) {
         let filePath = req.files['tourImage']['path']
         let fileName = req.files['tourImage']['name']
-        const saveFolder = 'savedImages/Listing'
+        const saveFolder = savedImageFolder
         const savedName = storeImage(filePath = filePath, fileName = fileName, folder=saveFolder)
         console.log(`Added file is ${savedName}`)
 
@@ -437,7 +423,7 @@ router.post('/edit/image/:savedId', (req, res)=>{
                 const savedImageFile = items[0]['dataValues']['tourImage']
                 if (savedImageFile != 'default.jpg') {
                     console.log(`Removed IMAGE FILE: ${savedImageFile}`)
-                    fs.unlinkSync(`savedImages/Listing/${savedImageFile}`)
+                    fs.unlinkSync(`${savedImageFolder}/${savedImageFile}`)
                 }
             })
 
@@ -481,7 +467,7 @@ router.get('/delete/:savedId', (req, res)=>{
             const savedImageFile = items[0]['dataValues']['tourImage']
             if (savedImageFile != 'default.jpg') {
                 console.log(`Delete listing and Removed IMAGE FILE: ${savedImageFile}`)
-                fs.unlinkSync(`savedImages/Listing/${savedImageFile}`)
+                fs.unlinkSync(`${savedImageFolder}/${savedImageFile}`)
             }
         })
 
@@ -790,25 +776,25 @@ router.get('/es-api/initFromDB', async (req, res) => {
 })
 
 
-// esClient.search({
-//     index: "products",
-//     body: {
-//         query: {
-//             fuzzy : {
-//                 description: {
-//                     value: "sing",
-//                     fuzziness: 5
-//                 }
-//             }
-//         },
-//     }
-// })
-// .then((data)=>{
-//     console.log(data["hits"]["hits"])
-// })
-// .catch((err)=>{
-//     console.log("Ther eis nothign")
-// })
+esClient.search({
+    index: 'products',
+    body: {
+        query: {
+            fuzzy: {
+                description: {
+                    value: 'sing',
+                    fuzziness: 5,
+                },
+            },
+        },
+    },
+})
+    .then((data)=>{
+        console.log(data['hits']['hits'])
+    })
+    .catch((err)=>{
+        console.log('Ther eis nothign')
+    })
 
 
 module.exports = router
