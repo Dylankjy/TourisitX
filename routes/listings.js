@@ -9,11 +9,12 @@ const formidable = require('express-formidable')
 const cookieParser = require('cookie-parser')
 const { convert } = require('image-file-resize')
 
-const genkan = require('../app/genkan/genkan')
+// const genkan = require('../app/genkan/genkan')
 
 // Config file
 const config = require('../config/apikeys.json')
 
+console.dir(Object.keys(require('../app/genkan/genkan.js')))
 
 // Globals
 const router = express.Router()
@@ -148,6 +149,9 @@ emptyArray = (arr) => {
 
 // Show the user all of their own listings
 router.get('/', (req, res)=>{
+    var sid = req.signedCookies.sid
+    var u = genkan.getUserBySession(sid)
+    console.log(u)
     res.redirect('/tourguide/manage/listings')
 })
 
@@ -163,7 +167,6 @@ router.get('/info/:id', (req, res)=>{
         id: itemID,
     } }).then(async (items)=>{
         const data = await items[0]['dataValues']
-        console.log(req.signedCookies.sid)
         
         // Check here if data.userId = loggedIn user ID
         if (true) {

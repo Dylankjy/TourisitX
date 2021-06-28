@@ -17,6 +17,8 @@ getUserByID = (uid, callback) => {
 }
 
 
+
+
 getUserBySession = (sid, callback) => {
     findDB('session', { 'sessionId': sid }, (sessionResult) => {
         if (sessionResult.length !== 1) {
