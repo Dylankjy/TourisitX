@@ -5,6 +5,11 @@
 // Database operations
 require('../db')
 
+// UUID & Hashing
+const sha512 = require('hash-anything').sha512
+const bcrypt = require('bcrypt')
+const saltRounds = 12
+
 getUserByID = (uid, callback) => {
     findDB('user', { 'id': uid }, (userResult) => {
         return callback(userResult[0].dataValues)
@@ -56,6 +61,31 @@ isLoggedin = (sid, callback) => {
 
         updateDB('user', { 'id': result[0].dataValues.userId }, UpdateLastSeenPayload, () => {
             callback(true)
+        })
+    })
+}
+
+setPassword = (sid, newPassword, callback) => {
+    getUserBySession(sid, (userObject) => {
+        if (status === null) {
+            return callback(false)
+        }
+
+        // SHA512 Hashing
+        const hashedPasswordSHA512 = sha512({
+            a: newPassword,
+            b: config.genkan.secretKey,
+        })
+
+        // Bcrypt Hashing
+        const hashedPasswordSHA512Bcrypt = bcrypt.hashSync(hashedPasswordSHA512, saltRounds)
+
+        const UpdatePasswordPayload = {
+            'password': hashedPasswordSHA512Bcrypt,
+        }
+
+        updateDB('user', { 'id': userObject.dataValues.id }, UpdatePasswordPayload, (status) => {
+            return callback(true)
         })
     })
 }
