@@ -35,6 +35,24 @@ getUserBySession = (sid, callback) => {
     })
 }
 
+getUserBySessionAsync = (sid) => {
+    return new Promise((res, rej)=>{
+        findDB('session', { 'sessionId': sid }, (sessionResult) => {
+            if (sessionResult.length !== 1) {
+                rej(null)
+            }
+    
+            getUserByID(sessionResult[0].dataValues.userId, (userResult) => {
+                // Remove sensitive information
+                delete userResult.password
+                delete userResult.ip_address
+                delete userResult.stripe_id
+                res(userResult)
+            })
+        })            
+    })
+}
+
 getUserBySessionDangerous = (sid, callback) => {
     findDB('session', { 'sessionId': sid }, (sessionResult) => {
         if (sessionResult.length !== 1) {
@@ -63,6 +81,28 @@ isLoggedin = (sid, callback) => {
 
         updateDB('user', { 'id': result[0].dataValues.userId }, UpdateLastSeenPayload, () => {
             callback(true)
+        })
+    })
+}
+
+isLoggedinAsync = (sid) => {
+    return new Promise((res, rej)=>{
+        if (sid === undefined) {
+            rej(false)
+        }
+    
+        findDB('session', { 'sessionId': sid }, (result) => {
+            if (result.length !== 1) {
+                rej(false)
+            }
+    
+            const UpdateLastSeenPayload = {
+                'lastseen_time': (new Date()).toISOString(),
+            }
+    
+            updateDB('user', { 'id': result[0].dataValues.userId }, UpdateLastSeenPayload, () => {
+                res(true)
+            })
         })
     })
 }
@@ -100,8 +140,20 @@ setPassword = (sid, newPassword, callback) => {
 //     console.log(result)
 // })
 
-module.exports = getUserByID
-module.exports = getUserBySession
-module.exports = getUserBySessionDangerous
-module.exports = isLoggedin
-module.exports = setPassword
+// module.exports = getUserByID
+// module.exports = getUserBySession
+// module.exports = getUserBySessionDangerous
+// module.exports = isLoggedin
+// module.exports = setPassword
+
+module.exports = {
+    getUserByID,
+    getUserBySession,
+    getUserBySessionAsync,
+    getUserBySessionDangerous,
+    isLoggedin,
+    isLoggedinAsync,
+    setPassword
+}
+
+

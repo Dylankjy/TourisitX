@@ -1,5 +1,20 @@
-router.get('/es-api/create-index', (req, res)=>{
-    const searchText = req.query.text
+const express = require('express')
+const formidable = require("express-formidable");
+
+const { generateFakeEntry } =
+  require("../app/listingGenerator").generateFakeEntry;
+
+const { default: axios } = require("axios");
+const { Shop } = require("../models");
+
+const esClient = require("../app/elasticSearch").esClient;
+const elasticSearchHelper = require("../app/elasticSearch");
+
+const router = express.Router();
+
+router.use(formidable());
+
+router.get('/create-index', (req, res)=>{
     esClient.indices.create({
         index: 'products',
         id: req.fields.id,
@@ -64,7 +79,7 @@ router.get('/es-api/create-index', (req, res)=>{
 })
 
 
-router.post('/es-api/upload', (req, res) => {
+router.post('/upload', (req, res) => {
     esClient.index({
         index: 'products',
         // Need to define the ID here so you can update using ID
@@ -90,7 +105,7 @@ router.post('/es-api/upload', (req, res) => {
 })
 
 
-router.post('/es-api/update', (req, res) => {
+router.post('/update', (req, res) => {
     esClient.update({
         index: 'products',
         id: req.fields.id,
@@ -113,7 +128,7 @@ router.post('/es-api/update', (req, res) => {
 })
 
 
-router.get('/es-api/delete', (req, res) => {
+router.get('/delete', (req, res) => {
     esClient.indices.delete({
         index: 'products',
     })
@@ -127,7 +142,7 @@ router.get('/es-api/delete', (req, res) => {
 })
 
 
-router.get('/es-api/search', (req, res) => {
+router.get('/search', (req, res) => {
     const searchText = req.query.text
     esClient.search({
         index: 'products',
@@ -151,7 +166,7 @@ router.get('/es-api/search', (req, res) => {
 })
 
 
-router.get('/es-api/suggest', (req, res) => {
+router.get('/suggest', (req, res) => {
     const searchText = req.query.text
     esClient.search({
         index: 'products',
@@ -175,7 +190,7 @@ router.get('/es-api/suggest', (req, res) => {
 
 
 // To generate fake entries to test out elastic search
-router.get('/es-api/dev/generateFakes', (req, res) => {
+router.get('/dev/generateFakes', (req, res) => {
     const noToGenerate = req.query.num
     const fakes = []
     for (let i = 0; i <= noToGenerate; i ++) {
@@ -194,24 +209,10 @@ router.get('/es-api/dev/generateFakes', (req, res) => {
         })
 })
 
-// docs is the array of documents to batch inset. index is the name of the ElasticSearch index to populate
-// batchIndex = (docs, esIndex) => {
-//     return new Promise((resolve, reject)=>{
-//         const body = docs.flatMap((doc) => [{ index: { _index: esIndex } }, doc])
-//         esClient.bulk({ refresh: true, body })
-//             .then((d)=>{
-//                 resolve(d)
-//             })
-//             .catch((err)=>{
-//                 reject(err)
-//             })
-//     })
-// }
-
 // To populate the elastic search index using the Shop Database
-router.get('/es-api/getFromShopDB', async (req, res) => {
-    await axios('http://localhost:5000/listing/es-api/delete')
-    await axios('http://localhost:5000/listing/es-api/create-index')
+router.get('/getFromShopDB', async (req, res) => {
+    await axios('http://localhost:5000/es-api/delete')
+    await axios('http://localhost:5000/es-api/create-index')
     // This array will contain all the JSON objects
     const docs = []
     // Specify the attributes to retrieve
@@ -239,8 +240,8 @@ router.get('/es-api/getFromShopDB', async (req, res) => {
 
 
 // To initialize the elastic search client for the first time
-router.get('/es-api/initFromDB', async (req, res) => {
-    await axios('http://localhost:5000/listing/es-api/create-index')
+router.get('/initFromDB', async (req, res) => {
+    await axios('http://localhost:5000/es-api/create-index')
     // This array will contain all the JSON objects
     const docs = []
     // Specify the attributes to retrieve
@@ -265,3 +266,6 @@ router.get('/es-api/initFromDB', async (req, res) => {
             res.json({ 'Message': 'Error Querying from SQL' })
         })
 })
+
+
+module.exports = router

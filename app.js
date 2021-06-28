@@ -15,6 +15,7 @@ const routes = {
     auth: require('./routes/auth'),
     booking: require('./routes/booking'),
     listings: require('./routes/listings'),
+    esApi: require('./routes/esApi'),
     market: require('./routes/market'),
     tourguide: require('./routes/tourguide'),
     user: require('./routes/user'),
@@ -65,7 +66,8 @@ app.engine('hbs', exphbs({
 
         readArrWithReplace: (value, options) =>{
             let arr = value.split(',')
-            arr = arr.map((e)=>e.replace(';!;', ','))
+            arr = arr.map((e)=>e.replaceAll(';!;', ','))
+            // arr = arr.map((e)=>e.replace(';!;', ','))
             return arr
         },
 
@@ -80,6 +82,24 @@ app.engine('hbs', exphbs({
         timestampParseISO: (value) => {
             return dateFormat(value, 'dS mmmm yyyy, HH:MM:ss')
         },
+
+        // Check if listing is hidden
+        evalBoolean: (value) => {
+            return value == "true"
+        },
+
+        iteminWishList: (item, wishlist) => {
+            if (wishlist == null || wishlist == "") {
+                return false
+            }
+
+            wishlist = wishlist.split(';!;')
+            if (wishlist.includes(item)) {
+                return true
+            } else {
+                return false
+            }
+        }
     },
 }))
 
@@ -123,6 +143,8 @@ const webserver = () => {
     app.use('/tourguide', routes.tourguide)
 
     app.use('/marketplace', routes.market)
+
+    app.use('/es-api', routes.esApi)
 
     // Don't put any more routes after this block, cuz they will get 404'ed
     app.get('*', (req, res) => {

@@ -9,6 +9,10 @@ router.get('/', (req, res) => {
     const listings = []
     Shop.findAll({
         attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
+        where: {
+            // Only return non hidden listings
+            hidden: "false"
+        }
         // limit: Set a limit on number of examples to retrieve
     })
         .then(async (data)=>{
