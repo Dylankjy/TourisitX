@@ -98,8 +98,10 @@ setPassword = (sid, newPassword, callback) => {
 //     console.log(result)
 // })
 
-module.exports = getUserByID
-module.exports = getUserBySession
-module.exports = getUserBySessionDangerous
-module.exports = isLoggedin
-module.exports = setPassword
+module.exports = {
+    getUserByID,
+    getUserBySession,
+    getUserBySessionDangerous,
+    isLoggedin,
+    setPassword,
+}
