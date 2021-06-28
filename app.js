@@ -26,7 +26,7 @@ const app = express()
 
 // cookieParser: Secret key for signing
 // Uses genkan's secret key to sign cookies
-app.use(cookieParser(require('../config/genkan.json').genkan.secretKey))
+app.use(cookieParser(require('./config/genkan.json').genkan.secretKey))
 
 // Express Additional Options
 // Express: Public Directory
