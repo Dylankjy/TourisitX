@@ -8,10 +8,6 @@ const cookieParser = require('cookie-parser')
 // const formidable = require('express-formidable')
 const slowDown = require('express-slow-down')
 
-// cookieParser: Secret key for signing
-// Uses genkan's secret key to sign cookies
-app.use(cookieParser(require('../config/genkan.json').genkan.secretKey))
-
 // Routes for Express
 const routes = {
     admin: require('./routes/admin'),
@@ -27,6 +23,10 @@ const routes = {
 }
 
 const app = express()
+
+// cookieParser: Secret key for signing
+// Uses genkan's secret key to sign cookies
+app.use(cookieParser(require('../config/genkan.json').genkan.secretKey))
 
 // Express Additional Options
 // Express: Public Directory
