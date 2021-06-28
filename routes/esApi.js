@@ -1,18 +1,18 @@
 const express = require('express')
-const formidable = require("express-formidable");
+const formidable = require('express-formidable')
 
 const { generateFakeEntry } =
-  require("../app/listingGenerator").generateFakeEntry;
+  require('../app/listingGenerator').generateFakeEntry
 
-const { default: axios } = require("axios");
-const { Shop } = require("../models");
+const { default: axios } = require('axios')
+const { Shop } = require('../models')
 
-const esClient = require("../app/elasticSearch").esClient;
-const elasticSearchHelper = require("../app/elasticSearch");
+const esClient = require('../app/elasticSearch').esClient
+const elasticSearchHelper = require('../app/elasticSearch')
 
-const router = express.Router();
+const router = express.Router()
 
-router.use(formidable());
+router.use(formidable())
 
 router.get('/create-index', (req, res)=>{
     esClient.indices.create({

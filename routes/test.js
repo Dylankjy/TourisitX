@@ -1,4 +1,4 @@
-const { emptyArray } = require("../app/helpers");
+const { emptyArray } = require('../app/helpers')
 
 
 x = []

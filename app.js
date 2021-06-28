@@ -85,11 +85,11 @@ app.engine('hbs', exphbs({
 
         // Check if listing is hidden
         evalBoolean: (value) => {
-            return value == "true"
+            return value == 'true'
         },
 
         iteminWishList: (item, wishlist) => {
-            if (wishlist == null || wishlist == "") {
+            if (wishlist == null || wishlist == '') {
                 return false
             }
 
@@ -99,7 +99,7 @@ app.engine('hbs', exphbs({
             } else {
                 return false
             }
-        }
+        },
     },
 }))
 

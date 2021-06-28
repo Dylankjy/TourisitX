@@ -1,7 +1,7 @@
-const genkan = require("../app/genkan/genkan");
-const { Shop, User } = require('../models');
+const genkan = require('../app/genkan/genkan')
+const { Shop, User } = require('../models')
 const sequelize = require('sequelize')
-const { requireLogin, requirePermission, removeNull, emptyArray, removeFromArray } = require("../app/helpers")
+const { requireLogin, requirePermission, removeNull, emptyArray, removeFromArray } = require('../app/helpers')
 const express = require('express')
 
 const router = express.Router()
@@ -39,19 +39,19 @@ router.get('/', (req, res)=>{
 
 
 router.get('/wishlist', async (req, res) => {
-    var sid = req.signedCookies.sid;
+    const sid = req.signedCookies.sid
 
     if (sid == undefined) {
-        return requireLogin(res);
+        return requireLogin(res)
     }
 
     if ((await genkan.isLoggedinAsync(sid)) == false) {
         // Redirect to login page
-        return requireLogin(res);
+        return requireLogin(res)
     }
 
-    var userData = await genkan.getUserBySessionAsync(sid);
-    var userWishlistArr = removeNull(userData.wishlist.split(";!;"))
+    const userData = await genkan.getUserBySessionAsync(sid)
+    const userWishlistArr = removeNull(userData.wishlist.split(';!;'))
 
     // if (emptyArray(userWishlistArr)) {
     //     return res.render('customer/wishlist', { wishlist: [], message:  })
@@ -60,11 +60,11 @@ router.get('/wishlist', async (req, res) => {
     Shop.findAll({
         attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
         where: {
-            id: userWishlistArr
-        }
+            id: userWishlistArr,
+        },
     })
         .then(async (data)=>{
-            var wishlist = []
+            const wishlist = []
             await data.forEach((doc)=>{
                 wishlist.push(doc['dataValues'])
             })

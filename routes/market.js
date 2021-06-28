@@ -11,8 +11,8 @@ router.get('/', (req, res) => {
         attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
         where: {
             // Only return non hidden listings
-            hidden: "false"
-        }
+            hidden: 'false',
+        },
         // limit: Set a limit on number of examples to retrieve
     })
         .then(async (data)=>{
