@@ -104,3 +104,4 @@ module.exports = getUserByID
 module.exports = getUserBySession
 module.exports = getUserBySessionDangerous
 module.exports = isLoggedin
+module.exports = setPassword
