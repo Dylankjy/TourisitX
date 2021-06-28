@@ -2,12 +2,6 @@ const express = require('express')
 
 const router = express.Router()
 
-const cookieParser = require('cookie-parser')
-
-// cookieParser: Secret key for signing
-// Uses genkan's secret key to sign cookies
-router.use(cookieParser(require('../config/genkan.json').genkan.secretKey))
-
 // BodyParser
 router.use(express.urlencoded({ extended: true }))
 
