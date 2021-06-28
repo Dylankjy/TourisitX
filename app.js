@@ -20,6 +20,7 @@ const routes = {
     user: require('./routes/user'),
     support: require('./routes/support'),
     index: require('./routes/index'),
+    chat: require('./routes/chat'),
 }
 
 const app = express()
@@ -111,6 +112,8 @@ const webserver = () => {
     app.use('/id', routes.auth)
 
     app.use('/u', routes.user)
+
+    app.use('/u', routes.chat)
 
     app.use('/bookings', routes.booking)
 
