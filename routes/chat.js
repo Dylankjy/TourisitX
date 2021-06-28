@@ -1,11 +1,20 @@
 
 const express = require('express')
 
+// Express.js
+const app = express()
 const router = express.Router()
 
-// Put all your routings below this line -----
+// Socket.io injection read from app.js
+const io = app.get('io')
 
-// router.get('/', (req, res) => { ... }
+// place this middleware before any other route definitions
+// makes io available as req.io in all request handlers
+app.use((req, res, next) => {
+    req.io = io
+    next()
+})
+
 
 router.get('/messages', (req, res) => {
     const metadata = {
