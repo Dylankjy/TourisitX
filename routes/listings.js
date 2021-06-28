@@ -10,6 +10,8 @@ const genkan = require("../app/genkan/genkan");
 const cookieParser = require("cookie-parser");
 const { convert } = require("image-file-resize");
 
+const { requireLogin, requirePermission, removeNull, emptyArray, removeFromArray } = require("../app/helpers")
+
 // Config file
 const config = require("../config/apikeys.json");
 
@@ -130,30 +132,9 @@ storeImage = (filePath, fileName, folder) => {
   return savedName;
 };
 
-removeNull = (arr) => {
-  return arr.filter((n) => n);
-};
 
-emptyArray = (arr) => {
-  return arr.filter((n) => n).length == 0;
-};
 
-removeFromArray = (val, arr) => {
-    return arr.filter((elem)=>{
-        return elem != val
-    });
-}
 
-// Takes in a response from router. Message to show users if they are not logged in
-requireLogin = (res) => {
-  console.log("Pls log in");
-  res.redirect('/id/login')
-};
-
-// Message to show users if they lack permission (I.e Not the owner of the listing)
-requirePermission = (res) =>{
-    res.send("No perms")
-}
 
 // Put all your routings below this line -----
 
@@ -745,7 +726,7 @@ router.get('/:id/unfavourite', async (req, res) => {
 
     var userWishlist = userData.wishlist
     var userWishlistArr = userData.wishlist.split(";!;")
-    
+
     updatedUserWishList = removeFromArray(itemID, userWishlistArr)
     updatedUserWishList = updatedUserWishList.join(";!;")
 
@@ -753,8 +734,7 @@ router.get('/:id/unfavourite', async (req, res) => {
         wishlist: updatedUserWishList
     }, {
         where: {id: userId}
-    }).then((data)=>{
-        console.log(`RETURNED DATA IS ${data}`)
+    }).then(()=>{
         res.redirect(`/listing/info/${itemID}`)
     })
 })
