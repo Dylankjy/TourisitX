@@ -1,6 +1,8 @@
 const { static } = require('express')
 const express = require('express')
-const genkan = require('app/genkan/genkan')
+const { User } = require('../models');
+const sequelize = require('sequelize')
+const genkan = require('../app/genkan/genkan')
 
 
 const router = express.Router()
@@ -37,6 +39,14 @@ router.get('/profile', (req, res) => {
 
 router.get('/setting/general',async (req, res) => {
     var sid = req.signedCookies.sid
+    if (sid == undefined) {
+        return requireLogin(res);
+    }
+
+    if ((await genkan.isLoggedinAsync(sid)) == false) {
+        return requireLogin(res);
+    }
+
     var user = await genkan.getUserBySessionAsync(sid)
     const metadata = {
         meta: {
