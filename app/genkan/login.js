@@ -19,8 +19,8 @@ loginAccount = (email, password, callback) => {
     })
 
     // Find account to get stored hashed
-    findDB('user', { 'email': email }, (result) => {
-        // If no account found
+    findDB('user', { email: email }, (result) => {
+    // If no account found
         if (result.length !== 1) {
             return callback(false)
         }
@@ -30,24 +30,29 @@ loginAccount = (email, password, callback) => {
         }
 
         // Compare whether incoming is the same as stored
-        if (bcrypt.compareSync(incomingHashedPasswordSHA512, result[0].dataValues.password)) {
+        if (
+            bcrypt.compareSync(
+                incomingHashedPasswordSHA512,
+                result[0].dataValues.password,
+            )
+        ) {
             // Generate a random token for SID
             const sid = tokenGenerator()
 
             // Schema for sessions in session collection
             const SessionSchema = {
-                'userId': result[0].id,
-                'sessionId': sid,
+                userId: result[0].id,
+                sessionId: sid,
             }
 
             // Payload to update user's last seen in users collection
             const UpdateLastSeenPayload = {
-                'lastseen_time': new Date(),
+                lastseen_time: new Date(),
             }
 
             // Update database
             insertDB('session', SessionSchema, () => {
-                updateDB('user', { 'email': email }, UpdateLastSeenPayload, () => {
+                updateDB('user', { email: email }, UpdateLastSeenPayload, () => {
                     return callback(sid)
                 })
             })

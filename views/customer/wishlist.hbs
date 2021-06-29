@@ -4,6 +4,19 @@
     <p class='wishlist-title'>Wishlist 💕</p>
 </section>
 
+{{#if (emptyArr wishlist)}}
+<div class='section has-text-centered'>
+    <p class='subtitle is-4'>
+        Wishlist is currently empty
+    </p>
+    <a class="button is-warning" href='/marketplace'>
+        <span class="icon is-small">
+            <i class="fas fa-cart-plus"></i>
+        </span>
+        <span>Browse Tours</span>
+    </a>
+</div>
+{{else}}
 <div class='section'>
     <div class='container'>
         <div class='box'>
@@ -15,4 +28,5 @@
         </div>
     </div>
 </div>
+{{/if}}
 

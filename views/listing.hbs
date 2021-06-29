@@ -38,7 +38,8 @@
         {{>editableImage}}
 
         {{else}}
-        <div class='listing-img' style='background: url("/Listing/{{data.tourImage}}") center; background-size: cover;'></div>
+        <div class='listing-img' style='background: url("/static/listings/{{data.tourImage}}") center; background-size: cover;'></div>
+
         {{/if}}
 
         <div class='box' img='content-box'>
@@ -122,68 +123,81 @@
             
             <br><br>
             <div class='container'>
-                {{#if false}}
-                <button class='button mr-4 is-success is-outlined'>
+                {{#if isOwner}}
+                <a class='button mr-4 is-dark' href='/listing/edit/{{data.id}}'>
                     <span class='icon'>
-                        <i class="fas fa-shopping-cart"></i>
+                        <i class="fas fa-edit"></i>
                     </span>
                     <span>
-                        Purchase
+                        Edit Listing
                     </span>
-                </button>
-                
-                <button class='button mr-4 is-danger is-outlined'>
-                    <span class='icon'>
-                        <i class="fas fa-heart"></i>
-                    </span>
-                    <span>
-                        Add to favourite
-                    </span>
-                </button>
-
-                {{else}}
-                <a href='/listing/edit/{{data.id}}'>
-                    <button class='button mr-4 is-dark'>
-                            <span class='icon'>
-                                <i class="fas fa-edit"></i>
-                            </span>
-                            <span>
-                                Edit Listing
-                            </span>
-                    </button>
                 </a>
 
                 <!-- Check if hidden or not -->
-                {{#if true}}
-                <button class='button mr-4 is-danger is-light'>
-                    <span class='icon'>
-                        <i class="fas fa-eye-slash"></i>
-                    </span>
-                    <span>
-                        Hide Listing
-                    </span>
-                </button>
-                {{else}}
-                <button class='button mr-4 is-success is-light'>
+                {{#if (evalBoolean data.hidden)}}
+                <a class='button mr-4 is-success is-light' href='/listing/unhide/{{data.id}}'>
                     <span class='icon'>
                         <i class="fas fa-eye"></i>
                     </span>
                     <span>
                         Unhide Listing
                     </span>
-                </button>
+                </a>
+                {{else}}
+
+                <a class='button mr-4 is-danger is-light' href='/listing/hide/{{data.id}}'>
+                    <span class='icon'>
+                        <i class="fas fa-eye-slash"></i>
+                    </span>
+                    <span>
+                        Hide Listing
+                    </span>
+                </a>
+                
                 {{/if}}
 
-                <a href="/listing/delete/{{data.id}}">
-                <button class='button mr-4 is-danger is-light'>
+                <a class='button mr-4 is-danger is-light' href="/listing/delete/{{data.id}}">
                     <span class='icon'>
                         <i class="fas fa-trash"></i>
                     </span>
                     <span>
                         Delete Listing
                     </span>
-                </button>
                 </a>
+
+                {{else}}
+                <a class='button mr-4 is-success is-outlined' href="/listing/{{data.id}}/purchase">
+                    <span class='icon'>
+                        <i class="fas fa-shopping-cart"></i>
+                    </span>
+                    <span>
+                        Purchase
+                    </span>
+                </a>
+
+                {{#if (iteminWishList data.id wishlistArr )}}
+                <a class='button mr-4 is-danger is-outlined' href="/listing/{{data.id}}/unfavourite">
+                    <span class='icon'>
+                        <i class="fas fa-heart-broken"></i>
+                    </span>
+                    <span>
+                        Remove from favourite
+                    </span>
+                </a>
+
+                {{else}}
+                <a class='button mr-4 is-danger is-outlined' href="/listing/{{data.id}}/favourite">
+                    <span class='icon'>
+                        <i class="fas fa-heart"></i>
+                    </span>
+                    <span>
+                        Add to favourite
+                    </span>
+                </a>
+                
+                {{/if}}
+
+                
                 {{/if}}
         </div>
     </div>

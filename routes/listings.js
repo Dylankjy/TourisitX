@@ -3,17 +3,21 @@ const fs = require('fs')
 const { default: axios } = require('axios')
 const uuid = require('uuid')
 const path = require('path')
-const { generateFakeEntry } = require('../app/listingGenerator').generateFakeEntry
+
 const formidableValidator = require('../app/validation')
+const formidable = require('express-formidable')
+const genkan = require('../app/genkan/genkan')
+const cookieParser = require('cookie-parser')
 const { convert } = require('image-file-resize')
+
+const { requireLogin, requirePermission, removeNull, emptyArray, removeFromArray } = require('../app/helpers')
 
 // Config file
 const config = require('../config/apikeys.json')
 
-
 // Globals
 const router = express.Router()
-const { Shop } = require('../models')
+const { Shop, User } = require('../models')
 const elasticSearchHelper = require('../app/elasticSearch')
 // const esClient = elasticSearch.Client({
 //     host: 'http://47.241.14.108:9200',
@@ -27,6 +31,9 @@ const Validator = formidableValidator.Validator
 const fileValidator = formidableValidator.FileValidator
 
 const savedImageFolder = './storage/listings'
+
+router.use(formidable())
+router.use(cookieParser('Please change this when in production use'))
 // bin\elasticsearch.bat
 
 // Will convert Image to base64.
@@ -43,7 +50,7 @@ imageToB64Callback = (filePath, fileType, callback) => {
         const formattedSrc = `data:image/${fileType};base64, ${base64}`
 
         callback(formattedSrc)
-        // console.log(base64)
+    // console.log(base64)
     })
 }
 
@@ -65,7 +72,6 @@ imageToB64Promise = (filePath, fileType) => {
     })
 }
 
-
 // Get and save the B64 encoded image using callback
 // getImage = (req, callback) => {
 //     const filePath = req.files['resume']['path']
@@ -82,36 +88,36 @@ imageToB64Promise = (filePath, fileType) => {
 getImage = (req, callback) => {
     const filePath = req.files['resume']['path']
     const fileType = req.files['resume']['type']
-    imageToB64Promise(filePath, fileType).then((data) => {
-        // Do all your database stuff here also
-        // fs.writeFile(toPath, data, err=>{if (err) throw err})
-    }).catch((err) => {
-        console.log(err)
-    })
+    imageToB64Promise(filePath, fileType)
+        .then((data) => {
+            // Do all your database stuff here also
+            // fs.writeFile(toPath, data, err=>{if (err) throw err})
+        })
+        .catch((err) => {
+            console.log(err)
+        })
 }
 
-
 resizeImage = (file, width, height, type) => {
-    return new Promise((resolve, reject) =>{
+    return new Promise((resolve, reject) => {
         convert({
             file: file,
             width: width,
             height: height,
             type: type,
         })
-            .then((data)=>{
+            .then((data) => {
                 resolve(data)
             })
-            .catch((err)=>{
+            .catch((err) => {
                 reject(err)
             })
     })
 }
 
-
 // To save image to specified folder. A UUID will be given as name
 // filePath -- received path; fileName - name of local file; folder - folder to save image to
-storeImage = (filePath, fileName, folder) =>{
+storeImage = (filePath, fileName, folder) => {
     const imgName = uuid.v4()
 
     const fileExt = path.extname(fileName)
@@ -127,70 +133,83 @@ storeImage = (filePath, fileName, folder) =>{
 }
 
 
-removeNull = (arr) => {
-    return arr.filter((n) => n)
-}
-
-emptyArray = (arr) => {
-    return arr.filter((n) => n).length == 0
-}
-
-
 // Put all your routings below this line -----
 
 // Show the user all of their own listings
-router.get('/', (req, res)=>{
-    // Shop.findAll(
-    //     {
-    //         where: {
-    //             // Set to empty now, but it should be replaced with the userID when authentication library is out
-    //             userId: 'sample',
-    //         },
-    //         order:
-    //             [['createdAt', 'ASC']],
-    //     },
-    // )
-    //     .then((items)=>{
-    //         const itemsArr = items.map((x)=>x['dataValues']).reverse()
-    //         return res.render('tourGuide/myListings.hbs', { datas: itemsArr })
-    //     })
-    //     .catch((err)=>{
-    //         console.log
-    //     })
+router.get('/', (req, res) => {
     res.redirect('/tourguide/manage/listings')
 })
 
-
 // To get a specific listing
-router.get('/info/:id', (req, res)=>{
+router.get('/info/:id', (req, res) => {
     const itemID = req.params.id
 
-    // if (req.cookies.imageValError) {
-    const errMsg = req.cookies.imageValError || ''
-    // } else {
-    //     const errMsg = ''
-    // }
+    Shop.findAll({
+        where: {
+            id: itemID,
+        },
+    })
+        .then(async (items) => {
+            const data = await items[0]['dataValues']
+            const sid = req.signedCookies.sid
 
-    Shop.findAll({ where: {
-        id: itemID,
-    } }).then(async (items)=>{
-        const data = await items[0]['dataValues']
-        // Check here if data.userId = loggedIn user ID
-        if (true) {
-            // Manually set to true now.. while waiting for the validation library
-            owner = true
-        } else {
-            owner = false
-        }
-        return res.render('listing.hbs', { data: data, isOwner: owner, errMsg: errMsg })
-    }).catch((err)=>console.log)
+            // If person is not logged in
+            if (sid == undefined) {
+                return res.render('listing.hbs', {
+                    data: data,
+                    isOwner: false,
+                })
+            } else {
+                // Check if session is up to date. Else, require person to reloggin
+                if ((await genkan.isLoggedinAsync(sid)) == false) {
+                // Redirect to login page
+                    return requireLogin(res)
+                }
+
+                // If user is logged in and has a valid session
+                const userData = await genkan.getUserBySessionAsync(sid)
+                const userWishlist = userData.wishlist
+                // var userWishlistArr = userWishlist.split(';!;')
+
+                // Check if user is the owner of the current listing being browsed
+                const isOwner = userData.id == data.userId
+                if (isOwner) {
+                // Manually set to true now.. while waiting for the validation library
+                    owner = true
+                    const errMsg = req.cookies.imageValError || ''
+                    return res.render('listing.hbs', {
+                        data: data,
+                        isOwner: owner,
+                        errMsg: errMsg,
+                        wishlistArr: userWishlist,
+                    })
+                } else {
+                    owner = false
+                    return res.render('listing.hbs', {
+                        data: data,
+                        isOwner: owner,
+                        wishlistArr: userWishlist,
+                    })
+                }
+            }
+        })
+        .catch((err) => console.log)
 })
-
 
 // can we use shards? (Like how we did product card that time, pass in a json and will fill in the HTML template)
 // To create the listing
-router.get('/create', (req, res) => {
-    // return res.render('create_listing.hbs', {validationErr: []})
+router.get('/create', async (req, res) => {
+    const sid = req.signedCookies.sid
+
+    if (sid == undefined) {
+        return requireLogin(res)
+    }
+
+    if ((await genkan.isLoggedinAsync(sid)) == false) {
+    // Redirect to login page
+        return requireLogin(res)
+    }
+
     // If you have to re-render the page due to errors, there will be cookie storedValue and you use this
     // To use cookie as JSON in javascipt, must URIdecode() then JSON.parse() it
     if (req.cookies.storedValues) {
@@ -199,45 +218,109 @@ router.get('/create', (req, res) => {
         const storedValues = {}
     }
 
-    return res.render('tourGuide/createListing.hbs', { validationErrors: req.cookies.validationErrors, layout: 'tourGuide' })
+    return res.render('tourGuide/createListing.hbs', {
+        validationErrors: req.cookies.validationErrors,
+        layout: 'tourGuide',
+    })
 })
 
-
 // To create the listing
-router.post('/create', (req, res)=>{
+router.post('/create', async (req, res) => {
     res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
+
+    const sid = req.signedCookies.sid
+    if ((await genkan.isLoggedinAsync(sid)) == false) {
+    // Redirect to login page
+        return requireLogin(res)
+    }
+
+    const userData = await genkan.getUserBySessionAsync(sid)
 
     const v = new Validator(req.fields)
 
     // Doing this way so its cleaner. Can also directly call these into the removeNull() array
-    const nameResult = v.Initialize({ name: 'tourTitle', errorMessage: 'Tour Title must be min 5 characters long' }).exists().isLength({ min: 5 })
+    const nameResult = v
+        .Initialize({
+            name: 'tourTitle',
+            errorMessage: 'Tour Title must be min 5 characters long',
+        })
+        .exists()
+        .isLength({ min: 5 })
         .getResult()
 
-    const descResult = v.Initialize({ name: 'tourDesc', errorMessage: 'Please enter a Tour description' }).exists()
+    const descResult = v
+        .Initialize({
+            name: 'tourDesc',
+            errorMessage: 'Please enter a Tour description',
+        })
+        .exists()
         .getResult()
 
-    const durationResult = v.Initialize({ name: 'tourDuration', errorMessage: 'Please enter a Tour Duration' }).exists()
+    const durationResult = v
+        .Initialize({
+            name: 'tourDuration',
+            errorMessage: 'Please enter a Tour Duration',
+        })
+        .exists()
         .getResult()
 
-    const timingResult = v.Initialize({ name: 'finalTimings', errorMessage: 'Please provide a Tour Timing' }).exists()
+    const timingResult = v
+        .Initialize({
+            name: 'finalTimings',
+            errorMessage: 'Please provide a Tour Timing',
+        })
+        .exists()
         .getResult()
 
-    const dayResult = v.Initialize({ name: 'finalDays', errorMessage: 'Please provide a Tour Day' }).exists()
+    const dayResult = v
+        .Initialize({
+            name: 'finalDays',
+            errorMessage: 'Please provide a Tour Day',
+        })
+        .exists()
         .getResult()
 
-    const itineraryResult = v.Initialize({ name: 'finalItinerary', errorMessage: 'Please create a Tour Itinerary' }).exists()
+    const itineraryResult = v
+        .Initialize({
+            name: 'finalItinerary',
+            errorMessage: 'Please create a Tour Itinerary',
+        })
+        .exists()
         .getResult()
 
-    const locationResult = v.Initialize({ name: 'finalLocations', errorMessage: 'Please provide at least one location' }).exists()
+    const locationResult = v
+        .Initialize({
+            name: 'finalLocations',
+            errorMessage: 'Please provide at least one location',
+        })
+        .exists()
         .getResult()
 
-    const priceResult = v.Initialize({ name: 'tourPrice', errorMessage: 'Tour price must be more than $0' }).exists().isValue({ min: 1 })
+    const priceResult = v
+        .Initialize({
+            name: 'tourPrice',
+            errorMessage: 'Tour price must be more than $0',
+        })
+        .exists()
+        .isValue({ min: 1 })
         .getResult()
 
-    const paxResult = v.Initialize({ name: 'tourPax', errorMessage: 'Tour Pax must be at least 1' }).exists().isValue({ min: 1 })
+    const paxResult = v
+        .Initialize({
+            name: 'tourPax',
+            errorMessage: 'Tour Pax must be at least 1',
+        })
+        .exists()
+        .isValue({ min: 1 })
         .getResult()
 
-    const revResult = v.Initialize({ name: 'tourRevision', errorMessage: 'Tour Revision cannot be negative' }).exists().isValue({ min: 0 })
+    const revResult = v
+        .Initialize({
+            name: 'tourRevision',
+            errorMessage: 'Tour Revision cannot be negative',
+        })
+        .exists()
+        .isValue({ min: 0 })
         .getResult()
 
     // Initialize Image Validator using req.files
@@ -246,14 +329,26 @@ router.post('/create', (req, res)=>{
     // .getResult()
 
     // Evaluate the files and fields data separately
-    const validationErrors = removeNull([nameResult, descResult, durationResult, timingResult, dayResult, itineraryResult, locationResult, priceResult, paxResult, revResult])
+    const validationErrors = removeNull([
+        nameResult,
+        descResult,
+        durationResult,
+        timingResult,
+        dayResult,
+        itineraryResult,
+        locationResult,
+        priceResult,
+        paxResult,
+        revResult,
+    ])
 
     // If there are errors, re-render the create listing page with the valid error messages
     if (!emptyArray(validationErrors)) {
         res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
         res.redirect(`/listing/create`)
-    } else { // If successful
-        // Remove cookies for stored form values + validation errors
+    } else {
+    // If successful
+    // Remove cookies for stored form values + validation errors
         res.clearCookie('validationErrors')
         res.clearCookie('storedValues')
         res.clearCookie('savedImageName')
@@ -264,7 +359,7 @@ router.post('/create', (req, res)=>{
             // You create the uuid when you initialize the create listing
             id: genId,
             // Replace with actual usesrID once the auth library is out
-            userId: 'sample',
+            userId: userData.id,
             tourTitle: req.fields.tourTitle,
             tourDesc: req.fields.tourDesc,
             tourDuration: req.fields.tourDuration,
@@ -278,77 +373,160 @@ router.post('/create', (req, res)=>{
             tourImage: 'default.jpg',
             hidden: 'false',
         })
-            .then(async (data)=>{
-                await axios.post('http://localhost:5000/listing/es-api/upload', {
-                    'id': genId,
-                    'name': req.fields.tourTitle,
-                    'description': req.fields.tourDesc,
-                    'image': req.fields.tourImage,
+            .then(async (data) => {
+                await axios.post('http://localhost:5000/es-api/upload', {
+                    id: genId,
+                    name: req.fields.tourTitle,
+                    description: req.fields.tourDesc,
+                    image: req.fields.tourImage,
                 })
 
                 console.log('Inserted')
                 res.redirect(`/listing`)
             })
-            .catch((err)=>{
+            .catch((err) => {
                 console.log(err)
             })
     }
 })
 
+router.get('/edit/:savedId', async (req, res) => {
+    const sid = req.signedCookies.sid
+    if ((await genkan.isLoggedinAsync(sid)) == false) {
+    // Redirect to login page
+        return requireLogin(res)
+    }
 
-router.get('/edit/:savedId', (req, res)=>{
-    Shop.findAll({ where: {
-        id: req.params.savedId,
-    } }).then((items)=>{
-        const savedData = items[0]['dataValues']
-        // Validate that the user can edit the listing
-        // if (userID == savedData["userId"])
-        res.cookie('storedValues', JSON.stringify(savedData), { maxAge: 5000 })
-        return res.render('tourGuide/editListing.hbs', { validationErrors: req.cookies.validationErrors })
-    }).catch((err)=>{
-        console.log(err)
-        res.send('No such listing exists!')
+    const userData = await genkan.getUserBySessionAsync(sid)
+    Shop.findAll({
+        where: {
+            id: req.params.savedId,
+        },
     })
+        .then((items) => {
+            const savedData = items[0]['dataValues']
+            // Validate that the user can edit the listing
+            // if (userID == savedData["userId"])
+            const isOwner = userData.id == savedData['userId']
+            if (isOwner) {
+                res.cookie('storedValues', JSON.stringify(savedData), { maxAge: 5000 })
+                return res.render('tourGuide/editListing.hbs', {
+                    validationErrors: req.cookies.validationErrors,
+                })
+            } else {
+                // Will return "No perms" screen
+                return requirePermission()
+            }
+        })
+        .catch((err) => {
+            console.log(err)
+            res.send('No such listing exists!')
+        })
 })
 
 // To edit the listing
-router.post('/edit/:savedId', (req, res)=>{
+router.post('/edit/:savedId', (req, res) => {
     res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
 
     const v = new Validator(req.fields)
 
     // Doing this way so its cleaner. Can also directly call these into the removeNull() array
-    const nameResult = v.Initialize({ name: 'tourTitle', errorMessage: 'Tour Title must be min 5 characters long' }).exists().isLength({ min: 5 })
+    const nameResult = v
+        .Initialize({
+            name: 'tourTitle',
+            errorMessage: 'Tour Title must be min 5 characters long',
+        })
+        .exists()
+        .isLength({ min: 5 })
         .getResult()
 
-    const descResult = v.Initialize({ name: 'tourDesc', errorMessage: 'Please enter a Tour description' }).exists()
+    const descResult = v
+        .Initialize({
+            name: 'tourDesc',
+            errorMessage: 'Please enter a Tour description',
+        })
+        .exists()
         .getResult()
 
-    const durationResult = v.Initialize({ name: 'tourDuration', errorMessage: 'Please enter a Tour Duration' }).exists()
+    const durationResult = v
+        .Initialize({
+            name: 'tourDuration',
+            errorMessage: 'Please enter a Tour Duration',
+        })
+        .exists()
         .getResult()
 
-    const timingResult = v.Initialize({ name: 'finalTimings', errorMessage: 'Please provide a Tour Timing' }).exists()
+    const timingResult = v
+        .Initialize({
+            name: 'finalTimings',
+            errorMessage: 'Please provide a Tour Timing',
+        })
+        .exists()
         .getResult()
 
-    const dayResult = v.Initialize({ name: 'finalDays', errorMessage: 'Please provide a Tour Day' }).exists()
+    const dayResult = v
+        .Initialize({
+            name: 'finalDays',
+            errorMessage: 'Please provide a Tour Day',
+        })
+        .exists()
         .getResult()
 
-    const itineraryResult = v.Initialize({ name: 'finalItinerary', errorMessage: 'Please create a Tour Itinerary' }).exists()
+    const itineraryResult = v
+        .Initialize({
+            name: 'finalItinerary',
+            errorMessage: 'Please create a Tour Itinerary',
+        })
+        .exists()
         .getResult()
 
-    const locationResult = v.Initialize({ name: 'finalLocations', errorMessage: 'Please provide at least one location' }).exists()
+    const locationResult = v
+        .Initialize({
+            name: 'finalLocations',
+            errorMessage: 'Please provide at least one location',
+        })
+        .exists()
         .getResult()
 
-    const priceResult = v.Initialize({ name: 'tourPrice', errorMessage: 'Tour price must be more than $0' }).exists().isValue({ min: 1 })
+    const priceResult = v
+        .Initialize({
+            name: 'tourPrice',
+            errorMessage: 'Tour price must be more than $0',
+        })
+        .exists()
+        .isValue({ min: 1 })
         .getResult()
 
-    const paxResult = v.Initialize({ name: 'tourPax', errorMessage: 'Tour Pax must be at least 1' }).exists().isValue({ min: 1 })
+    const paxResult = v
+        .Initialize({
+            name: 'tourPax',
+            errorMessage: 'Tour Pax must be at least 1',
+        })
+        .exists()
+        .isValue({ min: 1 })
         .getResult()
 
-    const revResult = v.Initialize({ name: 'tourRevision', errorMessage: 'Tour Revision cannot be negative' }).exists().isValue({ min: 0 })
+    const revResult = v
+        .Initialize({
+            name: 'tourRevision',
+            errorMessage: 'Tour Revision cannot be negative',
+        })
+        .exists()
+        .isValue({ min: 0 })
         .getResult()
 
-    const validationErrors = removeNull([nameResult, descResult, durationResult, timingResult, dayResult, itineraryResult, locationResult, priceResult, paxResult, revResult])
+    const validationErrors = removeNull([
+        nameResult,
+        descResult,
+        durationResult,
+        timingResult,
+        dayResult,
+        itineraryResult,
+        locationResult,
+        priceResult,
+        paxResult,
+        revResult,
+    ])
 
     if (!emptyArray(validationErrors)) {
         res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
@@ -358,25 +536,28 @@ router.post('/edit/:savedId', (req, res)=>{
         res.clearCookie('storedValues')
         res.clearCookie('savedImageName')
 
-        Shop.update({
-            tourTitle: req.fields.tourTitle,
-            tourDesc: req.fields.tourDesc,
-            tourDuration: req.fields.tourDuration,
-            tourPrice: req.fields.tourPrice,
-            tourPax: req.fields.tourPax,
-            tourRevision: req.fields.tourRevision,
-            finalTimings: req.fields.finalTimings,
-            finalDays: req.fields.finalDays,
-            finalItinerary: req.fields.finalItinerary,
-            finalLocations: req.fields.finalLocations,
-        }, {
-            where: { id: req.params.savedId },
-        })
-            .then(async (data)=>{
+        Shop.update(
+            {
+                tourTitle: req.fields.tourTitle,
+                tourDesc: req.fields.tourDesc,
+                tourDuration: req.fields.tourDuration,
+                tourPrice: req.fields.tourPrice,
+                tourPax: req.fields.tourPax,
+                tourRevision: req.fields.tourRevision,
+                finalTimings: req.fields.finalTimings,
+                finalDays: req.fields.finalDays,
+                finalItinerary: req.fields.finalItinerary,
+                finalLocations: req.fields.finalLocations,
+            },
+            {
+                where: { id: req.params.savedId },
+            },
+        )
+            .then(async (data) => {
                 const doc = {
-                    'id': req.params.savedId,
-                    'name': req.fields.tourTitle,
-                    'description': req.fields.tourDesc,
+                    id: req.params.savedId,
+                    name: req.fields.tourTitle,
+                    description: req.fields.tourDesc,
                 }
                 console.log(doc['id'])
 
@@ -384,28 +565,205 @@ router.post('/edit/:savedId', (req, res)=>{
 
                 res.redirect(`/listing/info/${req.params.savedId}`)
             })
-            .catch((err)=>{
+            .catch((err) => {
                 console.log(err)
             })
     }
 })
 
-router.get('/api/autocomplete/location', (req, res) => {
-    console.log(req.query.typedLocation)
-    axios.get(`https://tih-api.stb.gov.sg/map/v1/autocomplete/type/address?input=${req.query.typedLocation}&apikey=${TIH_API_KEY}`)
-        .then((data) => {
-            console.log(data['data'])
-            return res.json(data['data'])
+
+router.get('/hide/:id', (req, res)=>{
+    const itemID = req.params.id
+    Shop.update(
+        {
+            hidden: 'true',
+        },
+        {
+            where: { id: itemID },
+        },
+    )
+        .then(()=>{
+            deleteDoc('products', itemID)
+            res.redirect(`/listing/info/${itemID}`)
+        })
+})
+
+
+router.get('/unhide/:id', (req, res)=>{
+    const itemID = req.params.id
+    Shop.update(
+        {
+            hidden: 'false',
+        },
+        {
+            where: { id: itemID },
+        },
+    )
+        .then(()=>{
+            Shop.findAll({
+                attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
+                where: { id: itemID },
+            }).then(async (data)=>{
+                doc = data[0]['dataValues']
+                console.log('REINSERTING')
+                await axios.post('http://localhost:5000/es-api/upload', {
+                    id: doc.id,
+                    name: doc.tourTitle,
+                    description: doc.tourDesc,
+                    image: doc.tourImage,
+                })
+                console.log('REINSERTING SUCCESS')
+                res.redirect(`/listing/info/${itemID}`)
+            }).catch((err)=>{
+                console.log('Error Inserting to ES')
+                console.log(err)
+            })
         }).catch((err)=>{
+            console.log('Error updating DB')
             console.log(err)
         })
 })
 
 
-router.post('/edit/image/:savedId', (req, res)=>{
+router.get('/:id/purchase', async (req, res) => {
+    const itemID = req.params.id
+
+    const sid = req.signedCookies.sid
+
+    if (sid == undefined) {
+        return requireLogin(res)
+    }
+
+    if ((await genkan.isLoggedinAsync(sid)) == false) {
+        // Redirect to login page
+        return requireLogin(res)
+    }
+
+    // Replace wth res.redirect()
+    res.send('Redirect to purchase page')
+
+    // var userData = await genkan.getUserBySessionAsync(sid);
+
+    // var listingOwner = await Shop.findAll({
+    //     attributes: ['userId'],
+    //     where: { id: itemID },
+    // })
+
+    // var ownerId = listingOwner[0]["dataValues"]["userId"]
+})
+
+
+router.get('/:id/favourite', async (req, res) => {
+    const itemID = req.params.id
+
+    const sid = req.signedCookies.sid
+
+    if (sid == undefined) {
+        return requireLogin(res)
+    }
+
+    if ((await genkan.isLoggedinAsync(sid)) == false) {
+        // Redirect to login page
+        return requireLogin(res)
+    }
+
+    const userData = await genkan.getUserBySessionAsync(sid)
+    const userId = userData.id
+    const userWishlist = userData.wishlist
+    if (userWishlist == null || userWishlist == '') {
+        User.update({
+            wishlist: itemID + ';!;',
+        }, {
+            where: { id: userId },
+        }).then((data)=>{
+            console.log(data)
+            return res.redirect(`/listing/info/${itemID}`)
+        })
+    } else {
+        const userWishlistArr = userWishlist.split(';!;')
+
+        // If item already in wishlist, don't have to proceed.
+        if (userWishlistArr.includes(itemID)) {
+            res.redirect(`/listing/info/${itemID}`)
+        }
+
+        User.update({
+            wishlist: userWishlist + itemID + ';!;',
+        }, {
+            where: { id: userId },
+        }).then((data)=>{
+            console.log(data)
+            res.redirect(`/listing/info/${itemID}`)
+        })
+    }
+})
+
+
+router.get('/:id/unfavourite', async (req, res) => {
+    const itemID = req.params.id
+
+    const sid = req.signedCookies.sid
+
+    if (sid == undefined) {
+        return requireLogin(res)
+    }
+
+    if ((await genkan.isLoggedinAsync(sid)) == false) {
+        // Redirect to login page
+        return requireLogin(res)
+    }
+
+    const userData = await genkan.getUserBySessionAsync(sid)
+    const userId = userData.id
+
+    const userWishlist = userData.wishlist
+    const userWishlistArr = userData.wishlist.split(';!;')
+
+    updatedUserWishList = removeFromArray(itemID, userWishlistArr)
+    updatedUserWishList = updatedUserWishList.join(';!;')
+
+    User.update({
+        wishlist: updatedUserWishList,
+    }, {
+        where: { id: userId },
+    }).then(()=>{
+        res.redirect(`/listing/info/${itemID}`)
+    })
+})
+
+
+router.get('/tt', async (req, res)=>{
+    const sid = req.signedCookies.sid
+
+    const userData = await genkan.getUserBySessionAsync(sid)
+    const userId = userData.id
+    const userWishlist = userData.wishlist
+    const userWishlistArr = userWishlist.split(';!;')
+})
+
+
+router.get('/api/autocomplete/location', (req, res) => {
+    console.log(req.query.typedLocation)
+    axios
+        .get(
+            `https://tih-api.stb.gov.sg/map/v1/autocomplete/type/address?input=${req.query.typedLocation}&apikey=${TIH_API_KEY}`,
+        )
+        .then((data) => {
+            console.log(data['data'])
+            return res.json(data['data'])
+        })
+        .catch((err) => {
+            console.log(err)
+        })
+})
+
+router.post('/edit/image/:savedId', (req, res) => {
     console.log('Image edited')
     const v = new fileValidator(req.files['tourImage'])
-    const imageResult = v.Initialize({ errorMessage: 'Please supply a valid Image' }).fileExists().sizeAllowed({ maxSize: 5000000 })
+    const imageResult = v
+        .Initialize({ errorMessage: 'Please supply a valid Image' })
+        .fileExists()
+        .sizeAllowed({ maxSize: 5000000 })
         .getResult()
 
     // Upload is successful
@@ -413,39 +771,48 @@ router.post('/edit/image/:savedId', (req, res)=>{
         let filePath = req.files['tourImage']['path']
         let fileName = req.files['tourImage']['name']
         const saveFolder = savedImageFolder
-        const savedName = storeImage(filePath = filePath, fileName = fileName, folder=saveFolder)
+        const savedName = storeImage(
+            (filePath = filePath),
+            (fileName = fileName),
+            (folder = saveFolder),
+        )
         console.log(`Added file is ${savedName}`)
 
-        Shop.findAll({ where: {
-            id: req.params.savedId,
-        } })
-            .then((items)=>{
-                const savedImageFile = items[0]['dataValues']['tourImage']
-                if (savedImageFile != 'default.jpg') {
-                    console.log(`Removed IMAGE FILE: ${savedImageFile}`)
-                    fs.unlinkSync(`${savedImageFolder}/${savedImageFile}`)
-                }
-            })
-
-        Shop.update({
-            tourImage: savedName,
-        }, {
-            where: { id: req.params.savedId },
-        }).catch((err)=>{
-            console.log(err)
+        Shop.findAll({
+            where: {
+                id: req.params.savedId,
+            },
+        }).then((items) => {
+            const savedImageFile = items[0]['dataValues']['tourImage']
+            if (savedImageFile != 'default.jpg') {
+                console.log(`Removed IMAGE FILE: ${savedImageFile}`)
+                fs.unlinkSync(`${savedImageFolder}/${savedImageFile}`)
+            }
         })
-            .then(async (data)=>{
+
+        Shop.update(
+            {
+                tourImage: savedName,
+            },
+            {
+                where: { id: req.params.savedId },
+            },
+        )
+            .catch((err) => {
+                console.log(err)
+            })
+            .then(async (data) => {
                 // Update elastic search
                 const doc = {
-                    'id': req.params.savedId,
-                    'image': savedName,
+                    id: req.params.savedId,
+                    image: savedName,
                 }
 
                 await elasticSearchHelper.updateImage(doc)
 
                 res.redirect(`/listing/info/${req.params.savedId}`)
             })
-            .catch((err)=> {
+            .catch((err) => {
                 console.log(err)
             })
     } else {
@@ -456,345 +823,52 @@ router.post('/edit/image/:savedId', (req, res)=>{
     }
 })
 
-
-router.get('/delete/:savedId', (req, res)=>{
+router.get('/delete/:savedId', (req, res) => {
     // rmb to delete the images too
-    Shop.findAll({ where: {
-        id: req.params.savedId,
-    } })
-        .then((items)=>{
-        // Only delete image from local folder if it is NOT the default image
-            const savedImageFile = items[0]['dataValues']['tourImage']
-            if (savedImageFile != 'default.jpg') {
-                console.log(`Delete listing and Removed IMAGE FILE: ${savedImageFile}`)
-                fs.unlinkSync(`${savedImageFolder}/${savedImageFile}`)
-            }
-        })
+    Shop.findAll({
+        where: {
+            id: req.params.savedId,
+        },
+    }).then((items) => {
+    // Only delete image from local folder if it is NOT the default image
+        const savedImageFile = items[0]['dataValues']['tourImage']
+        if (savedImageFile != 'default.jpg') {
+            console.log(`Delete listing and Removed IMAGE FILE: ${savedImageFile}`)
+            fs.unlinkSync(`${savedImageFolder}/${savedImageFile}`)
+        }
+    })
 
     Shop.destroy({
         where: {
             id: req.params.savedId,
         },
-    }).then((data)=>{
-        // Delete from elastic search client
-        deleteDoc('products', req.params.savedId)
-        res.send('Deleted!')
-    }).catch((err)=>{
-        console.log(err)
     })
+        .then((data) => {
+            // Delete from elastic search client
+            deleteDoc('products', req.params.savedId)
+            res.redirect('/tourguide/manage/listings')
+        })
+        .catch((err) => {
+            console.log(err)
+        })
 })
-
 
 // fs.writeFile('this.html', "What is this", (err) =>{
 //     if (err) throw err
 // })
 
-router.get('/api/getImage/:id', (req, res)=>{
+router.get('/api/getImage/:id', (req, res) => {
     const itemID = req.params.id
 
-    Shop.findAll({ where: {
-        id: itemID,
-    } }).then((items)=>{
-        res.json(items[0]['tourImage'])
-    }).catch((err)=>console.log)
-})
-
-
-// Elastic Search stuff
-
-// const esClient = elasticSearch.Client({
-//     host: 'http://localhost:9200',
-// })
-
-
-router.get('/es-api/create-index', (req, res)=>{
-    const searchText = req.query.text
-    esClient.indices.create({
-        index: 'products',
-        id: req.fields.id,
-        body: {
-            'settings': {
-                // SPECIFY ALL THE CUSTOM FILTERS AND ANALYZERS HERE
-                'analysis': {
-                    // Specify custom filters here
-                    'filter': {
-                        // Will generate n-grams from the words {E.g "shirt --> "sh", "shi", "shir", "shirt"}
-                        'autocomplete_filter': {
-                            'type': 'ngram',
-                            'min_gram': '3',
-                            'max_gram': '4',
-                        },
-                    },
-                    // Specify custom analyzers here
-                    'analyzer': {
-                        'autocomplete': {
-                            'filter': ['lowercase', 'autocomplete_filter'],
-                            'type': 'custom',
-                            'tokenizer': 'whitespace',
-                        },
-                    },
-                },
-            },
-            // Define the mappings here
-            'mappings': {
-                // Define the field mapppings here
-                'properties': {
-                    'name': {
-                        'type': 'text',
-                        // Define the custom analyzers here (This is run everytime a new data is added)
-                        'analyzer': 'autocomplete',
-                    },
-                    'description': {
-                        'type': 'text',
-                        'index': 'false',
-                    },
-                    'image': {
-                        'type': 'text',
-                        'index': 'false',
-                    },
-                },
-            },
-            // 'index':{
-            //     "similarity": {
-            //         "name_similarity": {
-            //             "type": ""
-            //         }
-            //     }
-            // }
+    Shop.findAll({
+        where: {
+            id: itemID,
         },
     })
-        .then((data)=>{
-            return res.json({ 'Message': 'Indexing Successful' })
+        .then((items) => {
+            res.json(items[0]['tourImage'])
         })
-        .catch((err)=>{
-            console.log(err)
-            return res.status(500).json({ 'Message': 'Error' })
-        })
+        .catch((err) => console.log)
 })
-
-
-router.post('/es-api/upload', (req, res) => {
-    esClient.index({
-        index: 'products',
-        // Need to define the ID here so you can update using ID
-        id: req.fields.id,
-        body: {
-            'name': req.fields.name,
-            // "id": req.fields.id,
-            'description': req.fields.description,
-            'image': req.fields.image,
-            // "suggest": {
-            //     input: req.fields.name.split(' '),
-            // },
-            // "output": req.fields.name
-        },
-    })
-        .then((data)=>{
-            console.log('Indexed!')
-            return res.json({ 'Message': 'Indexing successful' })
-        })
-        .catch((err)=>{
-            console.log(err)
-        })
-})
-
-
-router.post('/es-api/update', (req, res) => {
-    esClient.update({
-        index: 'products',
-        id: req.fields.id,
-        body: {
-            doc: {
-                'name': req.fields.name,
-                // "id": req.fields.id,
-                'description': req.fields.description,
-                'image': req.fields.image,
-            },
-        },
-    })
-        .then((data)=>{
-            console.log('Updated!')
-            return res.json({ 'Message': 'Update successful' })
-        })
-        .catch((err)=>{
-            console.log(err)
-        })
-})
-
-
-router.get('/es-api/delete', (req, res) => {
-    esClient.indices.delete({
-        index: 'products',
-    })
-        .then((data)=>{
-            console.log('Deleted!')
-            return res.json({ 'Message': 'Delete successful' })
-        })
-        .catch((err)=>{
-            console.log(err)
-        })
-})
-
-
-router.get('/es-api/search', (req, res) => {
-    const searchText = req.query.text
-    esClient.search({
-        index: 'products',
-        body: {
-            'query': {
-                'match': {
-                    // Specify the 'name' field to be matched against the searchText
-                    'name': searchText,
-                },
-            },
-            'sort': ['_score'],
-        },
-    })
-        .then((data)=>{
-            return res.json(data)
-        })
-        .catch((err)=>{
-            console.log(err)
-            return res.status(500).json({ 'Message': 'Error' })
-        })
-})
-
-
-router.get('/es-api/suggest', (req, res) => {
-    const searchText = req.query.text
-    esClient.search({
-        index: 'products',
-        body: {
-            suggest: {
-                gotsuggest: {
-                    text: searchText,
-                    term: { field: 'name' },
-                },
-            },
-        },
-    })
-        .then((data)=>{
-            console.log('Ran suggester')
-            return res.json(data)
-        })
-        .catch((err)=>{
-            return res.status(500).json({ 'Message': 'Error' })
-        })
-})
-
-
-// To generate fake entries to test out elastic search
-router.get('/es-api/dev/generateFakes', (req, res) => {
-    const noToGenerate = req.query.num
-    const fakes = []
-    for (let i = 0; i <= noToGenerate; i ++) {
-        fakes.push(generateFakeEntry())
-    }
-
-    const body = fakes.flatMap((doc) => [{ index: { _index: 'products' } }, doc])
-    esClient.bulk({ refresh: true, body })
-        .then((d)=>{
-            console.log(d)
-            res.json({ 'Message': 'Success' })
-        })
-        .catch((err)=>{
-            console.log(err)
-            res.json(err)
-        })
-})
-
-// docs is the array of documents to batch inset. index is the name of the ElasticSearch index to populate
-// batchIndex = (docs, esIndex) => {
-//     return new Promise((resolve, reject)=>{
-//         const body = docs.flatMap((doc) => [{ index: { _index: esIndex } }, doc])
-//         esClient.bulk({ refresh: true, body })
-//             .then((d)=>{
-//                 resolve(d)
-//             })
-//             .catch((err)=>{
-//                 reject(err)
-//             })
-//     })
-// }
-
-// To populate the elastic search index using the Shop Database
-router.get('/es-api/getFromShopDB', async (req, res) => {
-    await axios('http://localhost:5000/listing/es-api/delete')
-    await axios('http://localhost:5000/listing/es-api/create-index')
-    // This array will contain all the JSON objects
-    const docs = []
-    // Specify the attributes to retrieve
-    Shop.findAll({ attributes: ['id', ['tourTitle', 'name'], ['tourDesc', 'description'], ['tourImage', 'image']] })
-        .then((data)=>{
-            data.forEach((doc)=>{
-            // console.log(doc["Shop"]["dataValues"])
-                docs.push(doc['dataValues'])
-            })
-
-            elasticSearchHelper.batchIndex(docs, 'products')
-                .then((data)=>{
-                    res.json({ 'Message': 'Success', 'data': docs })
-                })
-                .catch((err)=>{
-                    console.log(err)
-                    res.json({ 'Message': 'Failed to populate ElasticSearch from SQL' })
-                })
-        })
-        .catch((err)=>{
-            console.log(err)
-            res.json({ 'Message': 'Error Querying from SQL' })
-        })
-})
-
-
-// To initialize the elastic search client for the first time
-router.get('/es-api/initFromDB', async (req, res) => {
-    await axios('http://localhost:5000/listing/es-api/create-index')
-    // This array will contain all the JSON objects
-    const docs = []
-    // Specify the attributes to retrieve
-    Shop.findAll({ attributes: ['id', ['tourTitle', 'name'], ['tourDesc', 'description'], ['tourImage', 'image']] })
-        .then((data)=>{
-            data.forEach((doc)=>{
-            // console.log(doc["Shop"]["dataValues"])
-                docs.push(doc['dataValues'])
-            })
-
-            elasticSearchHelper.batchIndex(docs, 'products')
-                .then((data)=>{
-                    res.json({ 'Message': 'Success', 'data': docs })
-                })
-                .catch((err)=>{
-                    console.log(err)
-                    res.json({ 'Message': 'Failed to populate ElasticSearch from SQL' })
-                })
-        })
-        .catch((err)=>{
-            console.log(err)
-            res.json({ 'Message': 'Error Querying from SQL' })
-        })
-})
-
-
-esClient.search({
-    index: 'products',
-    body: {
-        query: {
-            fuzzy: {
-                description: {
-                    value: 'sing',
-                    fuzziness: 5,
-                },
-            },
-        },
-    },
-})
-    .then((data)=>{
-        console.log(data['hits']['hits'])
-    })
-    .catch((err)=>{
-        console.log('Ther eis nothign')
-    })
-
 
 module.exports = router
