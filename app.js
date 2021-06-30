@@ -21,9 +21,14 @@ const routes = {
     user: require('./routes/user'),
     support: require('./routes/support'),
     index: require('./routes/index'),
+    chat: require('./routes/chat'),
 }
 
 const app = express()
+// Socket.io Injection
+const server = require('http').Server(app)
+const io = require('socket.io')(server)
+app.set('io', io)
 
 // cookieParser: Secret key for signing
 // Uses genkan's secret key to sign cookies
@@ -132,6 +137,8 @@ const webserver = () => {
 
     app.use('/u', routes.user)
 
+    app.use('/u', routes.chat)
+
     app.use('/bookings', routes.booking)
 
     app.use('/admin', routes.admin)
@@ -159,7 +166,7 @@ const webserver = () => {
         return res.render('404', metadata)
     })
 
-    app.listen(5000, (err) => {
+    server.listen(5000, (err) => {
         if (err) throw log.error(err)
         console.log(`Web server listening on port 5000 | http://localhost:5000`)
     })
