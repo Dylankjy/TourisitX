@@ -6,7 +6,7 @@ const express = require('express')
 const exphbs = require('express-handlebars')
 const cookieParser = require('cookie-parser')
 // const formidable = require('express-formidable')
-const slowDown = require('express-slow-down')
+const RateLimit = require('express-rate-limit')
 
 // Routes for Express
 const routes = {
@@ -113,12 +113,12 @@ app.set('views', [`views`])
 // app.use(formidable())
 
 // Slowdown: For Rate limiting
-const speedLimiter = slowDown({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    delayAfter: 100, // allow 100 requests per 15 minutes, then...
-    delayMs: 500, // begin adding 500ms of delay per request above 100:
+const limiter = new RateLimit({
+    windowMs: 1*60*1000,
+    max: 60,
 })
-// app.use(speedLimiter)
+
+app.use(limiter)
 
 // Express: Routes
 const webserver = () => {
