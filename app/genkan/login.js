@@ -12,10 +12,6 @@ const tokenGenerator = require('./tokenGenerator')
 require('../db')
 
 loginAccount = (email, password, callback) => {
-    if (password === 'nologin') {
-        return callback('SERVICE_ACCOUNT_UNAUTHORISED')
-    }
-
     // SHA512 Hashing
     const incomingHashedPasswordSHA512 = sha512({
         a: password,
