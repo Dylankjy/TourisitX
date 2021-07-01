@@ -29,10 +29,6 @@ loginAccount = (email, password, callback) => {
             return callback(false)
         }
 
-        if (result[0].dataValues.email_status === false) {
-            return callback('EMAIL_NOT_VERIFIED')
-        }
-
         // Compare whether incoming is the same as stored
         if (
             bcrypt.compareSync(
@@ -40,6 +36,10 @@ loginAccount = (email, password, callback) => {
                 result[0].dataValues.password,
             )
         ) {
+            if (result[0].dataValues.email_status === false) {
+                return callback('EMAIL_NOT_VERIFIED')
+            }
+
             // Generate a random token for SID
             const sid = tokenGenerator()
 
