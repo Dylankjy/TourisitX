@@ -60,16 +60,16 @@ router.get('/profile', (req, res) => {
 })
 
 router.get('/setting/general', async (req, res) => {
-    var sid = req.signedCookies.sid
+    const sid = req.signedCookies.sid
     if (sid == undefined) {
-        return requireLogin(res);
+        return requireLogin(res)
     }
 
     if ((await genkan.isLoggedinAsync(sid)) == false) {
-        return requireLogin(res);
+        return requireLogin(res)
     }
 
-    var user = await genkan.getUserBySessionAsync(sid)
+    const user = await genkan.getUserBySessionAsync(sid)
     const metadata = {
         meta: {
             title: 'General Setting',
@@ -86,16 +86,16 @@ router.get('/setting/general', async (req, res) => {
 
 router.post('/setting/general', async (req, res) => {
     const v = new Validator(req.fields)
-    var sid = req.signedCookies.sid
+    const sid = req.signedCookies.sid
     if (sid == undefined) {
-        return requireLogin(res);
+        return requireLogin(res)
     }
     if ((await genkan.isLoggedinAsync(sid)) == false) {
-        return requireLogin(res);
+        return requireLogin(res)
     }
 
-    var user = await genkan.getUserBySessionAsync(sid)
-    
+    const user = await genkan.getUserBySessionAsync(sid)
+
     // Doing this way so its cleaner. Can also directly call these into the removeNull() array
     const nameResult = v
         .Initialize({
@@ -248,9 +248,6 @@ router.post('/setting/general', async (req, res) => {
     updateDB('user', { 'id': user.id }, AccDetails, () => {
     })
 })
-
-
-
 
 
 router.get('/setting/password', (req, res) => {
