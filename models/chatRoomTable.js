@@ -18,6 +18,11 @@ module.exports = (sequelize, DataTypes) => {
                 primaryKey: true,
                 type: DataTypes.STRING,
             },
+
+            bookingId: {
+                allowNull: true,
+                type: DataTypes.UUID,
+            },
         },
 
         { /* hon hon french bread */
