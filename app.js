@@ -1,3 +1,12 @@
+// System Integrity check
+// This checks the database to ensure it contains the needed objects for the system to function correctly.
+// At no point should this piece of code be disabled or commented out.
+const integrityCheck = require('./app/systemIntegrity/checks')
+integrityCheck.check().catch((err) => {
+    throw err
+})
+
+
 // Module imports
 const dateFormat = require('dateformat')
 
