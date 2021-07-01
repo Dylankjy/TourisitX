@@ -2,7 +2,7 @@
 // 僕はSequelizeが嫌いなので、このコードは僕のGPAについてに必要です。自殺させていただけないでしょうかなああああ？？？
 
 // SQLize imports
-const { Shop, User, Session, Token } = require('../models')
+const { Shop, User, Session, Token, ChatRoom, ChatMessages } = require('../models')
 
 governor = (table) => {
     switch (table.toLowerCase()) {
@@ -14,6 +14,10 @@ governor = (table) => {
         return Session
     case 'token':
         return Token
+    case 'chatRoom':
+        return ChatRoom
+    case 'chatMessages':
+        return ChatMessages
     default:
         throw new Error('Invalid table selection execution in wrapper. Have you added it to the governor?')
     }
