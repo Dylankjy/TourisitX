@@ -19,22 +19,22 @@ module.exports = (sequelize, DataTypes) => {
             },
 
             u_email: {
-                type: DataTypes.STRING(64),
+                type: DataTypes.STRING(254),
                 allowNull: false,
             },
 
             support_type: {
-                type: DataTypes.STRING(32),
+                type: DataTypes.STRING(64),
                 allowNull: false,
             },
 
             content: {
-                type: DataTypes.STRING(64),
+                type: DataTypes.STRING(254),
                 allowNull: false,
             },
 
             link: {
-                type: DataTypes.STRING(64),
+                type: DataTypes.STRING(254),
                 allowNull: true,
             },
 
