@@ -29,6 +29,11 @@
             Unable to log out since you aren't logged in.
         </div>
         {{/ifEquals}}
+        {{#ifEquals notifs "ERR_NOLOGIN_PRESENT"}}
+        <div id="badLogin" class="notification is-danger">
+            Logging into a system object is not allowed.
+        </div>
+        {{/ifEquals}}
         <form method="POST">
             <input type="hidden" name="_csrf" value="{{csrfToken}}">
             <div class="field">
