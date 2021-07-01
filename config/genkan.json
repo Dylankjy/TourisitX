@@ -1,0 +1,21 @@
+{
+  "genkan": {
+    "secretKey": "2c61fbcfc8bfbde4b69914737d1652ea9ef9d607ba8e1d1d5b9855a3424ddc73bd711cfac0c197233c786a973c667698087f156ff11712e5177b6a5738cf4e56",
+    "theme": "genkan-theme-uchi"
+  },
+  "smtp": {
+    "server": "smtp.sendgrid.net",
+    "port": 587,
+    "username": "apikey",
+    "password": "NOT USED - CHECK apikeys.json",
+    "mailFromAddress": "tourisit@tanuki.works",
+    "customisation": {
+      "confirmation": {
+        "subject": "Confirm your email address - Tourisit"
+      },
+      "resetPassword": {
+        "subject": "Password reset - Tourisit"
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+<div class="container">
+    <div class="box p-6 is-glass-white">
+        <h4 class="subtitle is-6 has-text-centered has-text-weight-bold">Logout</h4>
+        <p class="has-text-centered mb-4">Where would you like to logout from?</p>
+        <form id="logoutForm" method="POST">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <input type="hidden" id="input-logoutOf" name="logoutOf" value="DEVICE_ONLY">
+            <span class="buttons has-text-centered is-centered">
+                <a onclick="$('#logoutForm').submit()" class="button is-dark"><i class="fas fa-mobile"></i>&ensp;This
+                    device</a>
+                <a onclick="$('#input-logoutOf').val('ALL'); $('#logoutForm').submit()"
+                    class="button is-danger is-dark"><i class="fas fa-laptop-house"></i>&ensp;All devices</a>
+            </span>
+        </form>
+        <hr>
+        <div class="has-text-centered">
+            <span>
+                <a class="has-text-danger-dark" onclick="window.history.back()"><i
+                        class="fas fa-long-arrow-alt-left"></i>&ensp;Cancel</a>
+            </span>
+        </div>
+    </div>
+</div>

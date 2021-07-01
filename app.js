@@ -5,9 +5,8 @@ const dateFormat = require('dateformat')
 const express = require('express')
 const exphbs = require('express-handlebars')
 const cookieParser = require('cookie-parser')
-const formidable = require('express-formidable')
-const slowDown = require('express-slow-down')
-const axios = require('axios')
+// const formidable = require('express-formidable')
+const RateLimit = require('express-rate-limit')
 
 // Routes for Express
 const routes = {
@@ -16,33 +15,31 @@ const routes = {
     auth: require('./routes/auth'),
     booking: require('./routes/booking'),
     listings: require('./routes/listings'),
+    esApi: require('./routes/esApi'),
     market: require('./routes/market'),
     tourguide: require('./routes/tourguide'),
     user: require('./routes/user'),
     support: require('./routes/support'),
+    index: require('./routes/index'),
 }
 
 const app = express()
 
-const db = require('./models')
+// cookieParser: Secret key for signing
+// Uses genkan's secret key to sign cookies
+app.use(cookieParser(require('./config/genkan.json').genkan.secretKey))
 
 // Express Additional Options
 // Express: Public Directory
 
 // Need this in order to render the css and images
 app.use('/', express.static('public'))
-app.use('/', express.static('savedImages'))
+app.use('/static', express.static('storage'))
 app.use('/third_party', express.static('third_party'))
 app.use('/usercontent', express.static('storage'))
 
 // Handlebars: Render engine
 app.set('view engine', 'hbs')
-
-// app.use(cors())
-
-// Models
-const { Shop, User, Session } = require('./models')
-
 
 // Handlebars: Environment options
 app.engine('hbs', exphbs({
@@ -69,7 +66,8 @@ app.engine('hbs', exphbs({
 
         readArrWithReplace: (value, options) =>{
             let arr = value.split(',')
-            arr = arr.map((e)=>e.replace(';!;', ','))
+            arr = arr.map((e)=>e.replaceAll(';!;', ','))
+            // arr = arr.map((e)=>e.replace(';!;', ','))
             return arr
         },
 
@@ -84,106 +82,53 @@ app.engine('hbs', exphbs({
         timestampParseISO: (value) => {
             return dateFormat(value, 'dS mmmm yyyy, HH:MM:ss')
         },
+
+        // Check if listing is hidden
+        evalBoolean: (value) => {
+            return value == 'true'
+        },
+
+        iteminWishList: (item, wishlist) => {
+            if (wishlist == null || wishlist == '') {
+                return false
+            }
+
+            wishlist = wishlist.split(';!;')
+            if (wishlist.includes(item)) {
+                return true
+            } else {
+                return false
+            }
+        },
     },
 }))
 
 // Handlebars: Views folder
 app.set('views', [`views`])
 
-// cookieParser: Secret key for signing
-app.use(cookieParser('Please change this when in production use'))
-
-
-// app.use(expressSession({
-//     secret: config.app.secretKey,
-//     saveUninitialized: false,
-//     resave: false
-// }))
-
-// cookieParser: Cookie schema
-// const CookieOptions = {
-//     httpOnly: true,
-//     secure: true,
-//     signed: true,
-//     domain: `.${config.webserver.domain}`,
-// }
-
-// app.use(bodyParser.urlencoded({extended: true}))
-// app.use(bodyParser.json())
-// app.use(bodyParser.raw())
-
 // Formidable: For POST data accessing
-app.use(formidable())
-
-// Express-validator: For validating POST data
-
+// THIS IS DISABLED AS IT INTERFERES WITH POST PROCESSING FOR GENKAN
+// IF YOU REQUIRE THIS MODULE, PLEASE INCLUDE IT INSIDE YOUR ROUTING FILES
+// -- Dylan UwU
+// app.use(formidable())
 
 // Slowdown: For Rate limiting
-const speedLimiter = slowDown({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    delayAfter: 100, // allow 100 requests per 15 minutes, then...
-    delayMs: 500, // begin adding 500ms of delay per request above 100:
+const limiter = new RateLimit({
+    windowMs: 1*60*1000,
+    max: 60,
 })
-// app.use(speedLimiter)
+
+app.use(limiter)
 
 // Express: Routes
 const webserver = () => {
-    // Define all the router stuff here
-    app.get('/', (req, res)=>{
-        const listings = []
-        Shop.findAll({
-            attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
-            limit: 4,
-            order:
-                [['createdAt', 'ASC']],
-        })
-            .then(async (data)=>{
-                await data.forEach((doc)=>{
-                    listings.push(doc['dataValues'])
-                })
-
-                const metadata = {
-                    meta: {
-                        title: 'Home',
-                        path: false,
-                    },
-                    nav: {
-                        index: true,
-                    },
-                    listing: listings,
-                }
-                return res.render('index.hbs', metadata)
-            })
-            .catch((err)=>{
-                console.log(err)
-                res.json({ 'Message': 'Failed' })
-            })
-    })
-
-
-    app.get('/wishlist', (req, res)=>{
-        const wishlist = []
-        Shop.findAll({
-            attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
-        })
-            .then(async (data)=>{
-                await data.forEach((doc)=>{
-                    wishlist.push(doc['dataValues'])
-                })
-
-                return res.render('customer/wishlist.hbs', { wishlist: wishlist })
-            })
-            .catch((err)=>{
-                console.log(err)
-                res.json({ 'Message': 'Failed' })
-            })
-    })
-
     app.use('/id', routes.auth)
 
-    app.use('/shop', routes.market)
+    // app.use('/shop', routes.market)
 
     app.use('/listing', routes.listings)
+
+    app.use('/id', routes.auth)
 
     app.use('/u', routes.user)
 
@@ -193,9 +138,13 @@ const webserver = () => {
 
     app.use('/', routes.support)
 
+    app.use('/', routes.index)
+
     app.use('/tourguide', routes.tourguide)
 
     app.use('/marketplace', routes.market)
+
+    app.use('/es-api', routes.esApi)
 
     // Don't put any more routes after this block, cuz they will get 404'ed
     app.get('*', (req, res) => {
@@ -216,8 +165,6 @@ const webserver = () => {
     })
 }
 
-
-db.sequelize.sync().then((req) => {
+require('./models').sequelize.sync().then((req) => {
     webserver()
 }).catch(console.log)
-

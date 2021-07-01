@@ -9,9 +9,9 @@ module.exports = (sequelize, DataTypes) => {
             token: {
                 allowNull: false,
                 primaryKey: true,
-                type: DataTypes.UUID,
+                type: DataTypes.STRING(512),
             },
-    
+
             type: {
                 allowNull: false,
                 type: DataTypes.STRING(16),
@@ -25,14 +25,5 @@ module.exports = (sequelize, DataTypes) => {
         },
     )
 
-    // Token.associate = (models) => {
-    //     Token.belongsTo(models.User, {
-    //         foreignKey: {
-    //             allowNull: false,
-    //         },
-    //     })
-    // }
-
     return Token
-
 }
