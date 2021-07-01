@@ -14,9 +14,9 @@ governor = (table) => {
         return Session
     case 'token':
         return Token
-    case 'chatRoom':
+    case 'chatroom':
         return ChatRoom
-    case 'chatMessages':
+    case 'chatmessages':
         return ChatMessages
     default:
         throw new Error('Invalid table selection execution in wrapper. Have you added it to the governor?')
