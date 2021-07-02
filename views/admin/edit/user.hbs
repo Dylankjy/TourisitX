@@ -1,0 +1,121 @@
+<div class='container'>
+    <div class="box p-5">
+        <small>Editing user:</small>
+        <h2 class="title is-2">{{data.user.name}}</h2>
+        <p class="subtitle is-5 has-text-grey-light">UUID: {{data.user.id}}</p>
+        <hr>
+        <div class="heading">Administrative Actions</div>
+        <span class="buttons">
+            <a class="button is-rounded is-light" href='/listing/create'>
+                <span class="icon is-small">
+                    <i class="fas fa-envelope-open-text"></i>
+                </span>
+                <span>Send password recovery email</span>
+            </a>
+            <a class="button is-rounded is-danger is-light">
+                <span class="icon is-small">
+                    <i class="fas fa-ban"></i>
+                </span>
+                <span>Ban User</span>
+            </a>
+            <a class="button is-rounded is-danger">
+                <span class="icon is-small">
+                    <i class="fas fa-user-slash"></i>
+                </span>
+                <span>Delete User</span>
+            </a>
+        </span>
+    </div>
+
+    <div class='box p-5'>
+        <h4 class="title">Account Settings</h4>
+        <!-- Update account settings -->
+        <form class='form-horizontal formfield' enctype='multipart/form-data' method='POST' id='editSettingForm'
+            target="/u/setting/general">
+
+            <fieldset>
+                <!-- Account Mode -->
+                <div class='field'>
+                    <label class='has-text-weight-medium has-text-grey-dark' for='account_mode'>Tour Guide
+                        Mode:</label> &nbsp;
+                    <input class='switch is-rounded' id='account_mode' type='checkbox' name='account_mode' />
+                    <!-- Empty label -->
+                    <label class='has-text-weight-medium has-text-grey-dark' for='account_mode'></label>
+                </div>
+                <!-- Name -->
+                <div class='field'>
+                    <label class='label has-text-weight-medium has-text-grey-dark' for='name'>Name</label>
+                    <div class='control'>
+                        <input class='input' type='text' name='name' value='{{data.user.name}}'>
+                    </div>
+                </div>
+                {{!-- <!-- Profile Image -->
+                <div class='field' id='pfp-input'>
+                    <label class='label has-text-weight-medium has-text-grey-dark' for='name'>Profile Image
+                    </label>
+                    <div class='file has-name'>
+                        <label class='file-label'>
+                            <input class='file-input' type='file' name='resume' />
+                            <span class='file-cta'>
+                                <span class='file-icon'>
+                                    <i class='fas fa-upload'></i>
+                                </span>
+                                <span class='file-label'>
+                                    Choose a file…
+                                </span>
+                            </span>
+                            <span class='file-name'>
+                                No file chosen
+                            </span>
+                        </label>
+                    </div>
+                </div> --}}
+
+                <!-- Email -->
+                <div class='field'>
+                    <label class='label has-text-weight-medium has-text-grey-dark' for='email'>Email</label>
+                    <div class='control'>
+                        <input class='input' type='text' name="email" value='{{data.user.email}}' />
+                    </div>
+                </div>
+                <!-- Phone Number -->
+                <div class='field'>
+                    <label class='label has-text-weight-medium has-text-grey-dark' for='phone_number'>Phone
+                        Number</label>
+                    <div class='control'>
+                        <input class='input' type='text' name="phone_number" value='{{data.user.phone_number}}' />
+                    </div>
+                </div>
+                <hr>
+                <h1 class='title is-4 has-text-left pb-4'>Social Networks</h1>
+                <!-- Facebook -->
+                <div class='field'>
+                    <label class='label has-text-weight-medium has-text-grey-dark' for='fb'>Facebook</label>
+                    <div class='control'>
+                        <input class='input' type='text' name="fb" value='{{data.user.fb}}' />
+                    </div>
+                </div>
+                <!-- Instagram -->
+                <div class='field'>
+                    <label class='label has-text-weight-medium has-text-grey-dark' for='insta'>Instagram</label>
+                    <div class='control'>
+                        <input class='input' type='text' name="insta" value='{{data.user.insta}}' />
+                    </div>
+                </div>
+                <!-- LinkedIn -->
+                <div class='field'>
+                    <label class='label has-text-weight-medium has-text-grey-dark' for='linkedin'>LinkedIn</label>
+                    <div class='control'>
+                        <input class='input' type='text' name="li" value='{{data.user.li}}' />
+                    </div>
+                </div>
+                <div class='field'>
+                    <div class='control'>
+                        <input type='submit' value='Save Changes' id='submit-setting' name='submit-setting'
+                            class='button is-success' />
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>

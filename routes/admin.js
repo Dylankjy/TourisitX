@@ -7,6 +7,9 @@ const router = express.Router()
 // Database operations
 require('../app/db')
 
+// Genkan API
+const genkan = require('../app/genkan/genkan')
+
 // Put all your routings below this line -----
 
 // router.get('/', (req, res) => { ... }
@@ -116,6 +119,32 @@ router.get('/manage/staff', (req, res) => {
         return res.render('admin/staff', metadata)
     }).catch((err) => {
         throw err
+    })
+})
+
+router.get('/manage/users/edit/:userId', (req, res) => {
+    const targetUserId = req.params.userId
+
+    genkan.getUserByID(targetUserId, (user) => {
+        if (user === null) {
+            return res.render('404', { layout: 'admin' })
+        }
+
+        const metadata = {
+            meta: {
+                title: 'Edit User: ' + user.name,
+                path: false,
+            },
+            nav: {
+                sidebarActive: 'users',
+            },
+            layout: 'admin',
+            data: {
+                user: user,
+            },
+        }
+
+        res.render('admin/edit/user', metadata)
     })
 })
 
