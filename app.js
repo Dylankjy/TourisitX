@@ -3,7 +3,8 @@
 // At no point should this piece of code be disabled or commented out.
 const integrityCheck = require('./app/systemIntegrity/checks')
 integrityCheck.check().catch((err) => {
-    throw err
+    console.error(err)
+    process.exit(0)
 })
 
 
