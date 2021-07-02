@@ -15,3 +15,32 @@
     </tr>
     {{/each}}
 </table>
+
+<nav class="pagination is-centered" role="navigation" aria-label="pagination">
+    {{#ifNotEquals data.pagination.current data.pagination.firstPage }}
+    <a class="pagination-previous" href="?page={{data.pagination.previous}}">Previous</a>
+    {{/ifNotEquals}}
+
+    {{#ifNotEquals data.pagination.current data.pagination.lastPage }}
+    <a class="pagination-next" href="?page={{data.pagination.next}}">Next page</a>
+    {{/ifNotEquals}}
+    <ul class="pagination-list">
+        {{#ifNotEquals data.pagination.current data.pagination.firstPage }}
+        {{#ifNotEquals data.pagination.previous data.pagination.firstPage }}
+        <li><a class="pagination-link" href="?page={{data.pagination.firstPage}}">{{data.pagination.firstPage}}</a></li>
+        <li><span class="pagination-ellipsis">&hellip;</span></li>
+        {{/ifNotEquals}}
+        <li><a class="pagination-link" href="?page={{data.pagination.previous}}">{{data.pagination.previous}}</a></li>
+        {{/ifNotEquals}}
+
+        <li><a class="pagination-link is-current" aria-current="page">{{data.pagination.current}}</a></li>
+
+        {{#ifNotEquals data.pagination.current data.pagination.lastPage }}
+        {{#ifNotEquals data.pagination.next data.pagination.lastPage }}
+        <li><a class="pagination-link" href="?page={{data.pagination.next}}">{{data.pagination.next}}</a></li>
+        <li><span class="pagination-ellipsis">&hellip;</span></li>
+        {{/ifNotEquals}}
+        <li><a class="pagination-link" href="?page={{data.pagination.lastPage}}">{{data.pagination.lastPage}}</a></li>
+        {{/ifNotEquals}}
+    </ul>
+</nav>
