@@ -69,9 +69,9 @@ router.get('/manage/users', (req, res) => {
 
     const pageNo = parseInt(req.query.page)
 
-    User.findAll({ where: { 'is_admin': false }, limit: 10, offset: 0 + ((pageNo - 1) * 10) }).then( async (users) => {
+    User.findAll({ where: { 'is_admin': false }, limit: 15, offset: 0 + ((pageNo - 1) * 15) }).then( async (users) => {
         const userObjects = users.map((users) => users.dataValues)
-        const totalNumberOfPages = Math.floor(await User.count({ where: { 'is_admin': false } }) / 10)
+        const totalNumberOfPages = Math.floor(await User.count({ where: { 'is_admin': false } }) / 15)
 
         const metadata = {
             meta: {
@@ -107,9 +107,9 @@ router.get('/manage/staff', (req, res) => {
 
     const pageNo = parseInt(req.query.page)
 
-    User.findAll({ where: { 'is_admin': true }, limit: 10, offset: 0 + ((pageNo - 1) * 10) }).then(async (users) => {
+    User.findAll({ where: { 'is_admin': true }, limit: 15, offset: 0 + ((pageNo - 1) * 15) }).then(async (users) => {
         const userObjects = users.map((users) => users.dataValues)
-        const totalNumberOfPages = Math.floor(await User.count({ where: { 'is_admin': true } }) / 10)
+        const totalNumberOfPages = Math.floor(await User.count({ where: { 'is_admin': true } }) / 15)
 
         const metadata = {
             meta: {
