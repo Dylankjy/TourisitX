@@ -11,7 +11,7 @@
     </tr>
     {{#each data.users}}
     <tr>
-        <td><a href="/admin/manage/user/{{this.id}}">{{ this.name }}</a></td>
+        <td><a href="/admin/manage/users/edit/{{this.id}}">{{ this.name }}</a></td>
 
         {{#ifEquals this.email_status true}}
         <td><i class="fas fa-check"></i></td>
