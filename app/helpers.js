@@ -36,7 +36,7 @@ getUserfromSid = async (sid) => {
         return requireLogin(res)
     }
 
-    var userData = await genkan.getUserBySessionAsync(sid)
+    const userData = await genkan.getUserBySessionAsync(sid)
     return userData
 }
 
@@ -46,5 +46,5 @@ module.exports = {
     requirePermission,
     removeNull,
     emptyArray,
-    removeFromArray
+    removeFromArray,
 }
