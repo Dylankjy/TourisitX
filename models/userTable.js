@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
             },
 
             email: {
-                type: DataTypes.STRING(32),
+                type: DataTypes.STRING(254),
                 allowNull: false,
             },
 
@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
             },
 
             bio: {
-                type: DataTypes.STRING(64),
+                type: DataTypes.STRING(254),
                 allowNull: false,
                 defaultValue: 'Your friendly tourisit user',
             },
@@ -61,17 +61,17 @@ module.exports = (sequelize, DataTypes) => {
             },
 
             fb: {
-                type: DataTypes.STRING(32),
+                type: DataTypes.STRING(64),
                 allowNull: true,
             },
 
             insta: {
-                type: DataTypes.STRING(32),
+                type: DataTypes.STRING(64),
                 allowNull: true,
             },
 
             li: {
-                type: DataTypes.STRING(32),
+                type: DataTypes.STRING(64),
                 allowNull: true,
             },
 
