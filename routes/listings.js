@@ -382,12 +382,12 @@ router.post('/create', async (req, res) => {
                 id: genId,
                 name: req.fields.tourTitle,
                 description: req.fields.tourDesc,
-                image: "default.jpg",
+                image: 'default.jpg',
             })
         })
-        .catch((err) => {
-            console.log(err)
-        })
+            .catch((err) => {
+                console.log(err)
+            })
 
         console.log('INSERTED')
         res.redirect(`/listing`)
@@ -831,7 +831,7 @@ router.post('/edit/image/:savedId', (req, res) => {
 })
 
 router.get('/delete/:savedId', async (req, res) => {
-    var itemID = req.params.savedId
+    const itemID = req.params.savedId
     const sid = req.signedCookies.sid
     if (sid == null) {
         return requireLogin(res)
@@ -841,17 +841,17 @@ router.get('/delete/:savedId', async (req, res) => {
         return requireLogin(res)
     }
 
-    var userData = await genkan.getUserBySessionAsync(sid)
+    const userData = await genkan.getUserBySessionAsync(sid)
 
-    var listingOwner = await Shop.findAll({
+    const listingOwner = await Shop.findAll({
         attributes: ['userId'],
         where: { id: itemID },
     })
 
-    var ownerId = listingOwner[0]["dataValues"]["userId"]
+    const ownerId = listingOwner[0]['dataValues']['userId']
 
     if (ownerId != userData.id) {
-        console.log("NO PERM TO DELETE")
+        console.log('NO PERM TO DELETE')
         return res.redirect(`/listing/info/${req.params.savedId}`)
     }
 
@@ -862,12 +862,12 @@ router.get('/delete/:savedId', async (req, res) => {
         },
     }).then((items) => {
         // If logged in user is not the owner, no permission to delete
-            // Only delete image from local folder if it is NOT the default image
-            const savedImageFile = items[0]['dataValues']['tourImage']
-            if (savedImageFile != 'default.jpg') {
-                console.log(`Delete listing and Removed IMAGE FILE: ${savedImageFile}`)
-                fs.unlinkSync(`${savedImageFolder}/${savedImageFile}`)
-            }    
+        // Only delete image from local folder if it is NOT the default image
+        const savedImageFile = items[0]['dataValues']['tourImage']
+        if (savedImageFile != 'default.jpg') {
+            console.log(`Delete listing and Removed IMAGE FILE: ${savedImageFile}`)
+            fs.unlinkSync(`${savedImageFolder}/${savedImageFile}`)
+        }
     })
 
 

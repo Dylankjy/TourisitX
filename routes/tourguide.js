@@ -81,7 +81,7 @@ router.get('/manage/listings', async (req, res) => {
         where: {
             // Set to empty now, but it should be replaced with the userID when authentication library is out
             userId: userData.id,
-            hidden: "false"
+            hidden: 'false',
         },
         order: [['createdAt', 'ASC']],
     })
@@ -121,7 +121,7 @@ router.get('/manage/listings/archived', async (req, res) => {
         where: {
             // Set to empty now, but it should be replaced with the userID when authentication library is out
             userId: userData.id,
-            hidden: "true"
+            hidden: 'true',
         },
         order: [['createdAt', 'ASC']],
     })
