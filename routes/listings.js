@@ -647,7 +647,18 @@ router.get('/:id/purchase', async (req, res) => {
     }
 
     // Replace wth res.redirect()
-    res.send('Redirect to purchase page')
+    // res.send('Redirect to purchase page')
+    Shop.findAll({
+        where: {
+            id: itemID,
+        },
+    })
+        .then(async (items) => {
+            const data = await items[0]['dataValues']
+            console.log(data)
+            const customPrice = (data['tourPrice'] / 10).toFixed(2)
+            return res.render('partials/bookNowModal.hbs', { listing: data, customPrice: customPrice })
+        }).catch((err) => console.log)
 
     // var userData = await genkan.getUserBySessionAsync(sid);
 

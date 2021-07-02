@@ -1,6 +1,13 @@
 <link rel="stylesheet" href="/third_party/bulma/bulma-divider.css">
 <link rel="stylesheet" href="/third_party/bulma/bulma-tooltip.css">
 
+{{!-- <link rel="stylesheet" href="/third_party/jquery-ui/jquery-ui.min.css"> --}}
+<script src="/third_party/jquery/jquery.min.js"></script>
+{{!-- <script src="/third_party/jquery-ui/jquery-ui.js"></script> --}}
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+<script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
 
 <div class="modal is-active" id="bookNowModal">
   <div class="modal-background" onclick="$('#bookNowModal').fadeOut('fast');"></div>
@@ -8,22 +15,20 @@
       <div class="box">
           <div class="container">
     <!--Customise tour-->
-    <form class="form" id="custom_form" method="POST">
+    <form class="form" id="custom_form" method="POST" action="">
         <button class="button is-medium is-fullwidth is-success" type="submit" name="CustomiseTour"
                 value="CustomiseTour">
-            Customise Tour
+            Customise Tour for ${{customPrice}}
         </button>
+    </form>
 
         <button class="button is-white is-pulled-right has-tooltip-multiline has-tooltip-left"
-                data-tooltip="Pay an extra Customisation fee of ${{custom_fee}} to Customise this tour to fit your needs.
-        To start the process, the Customisation fee is paid upfront. 
-        Once the tour plan is tailored and perfect for you, the remaining fees are paid. This tour comes 
-        with {{ item.tour_revisions }} free revisions, such that you may request additional changes if the tour plan is
-        unsatisfactory.">
+                data-tooltip="Pay a fee of ${{customPrice}} upfront to customise this tour. 
+                This tour comes with {{ listing.tourRevision }} free revisions, so that changes may be requested if the tour plan is 
+                unsatisfactory. Each extra revision request will cost ${{customPrice}}. Remaining fees will be charged after the tour plan is finalised.">
             <i class="far fa-question-circle"></i>
         </button>
 
-    </form>
     <!-- end: customise tour-->
     <br>
     <div class="divider has-text-centered">OR</div>
@@ -32,29 +37,26 @@
 
                         <div class='field'>
                             <label class="label">Select Date</label>
-                            <input class="input" type="date" placeholder="Date">
+                            <input class="dateField input" type="text" id="datepicker">
                         </div>
 
                         <div class="field">
                             <label class="label">Select Time</label>
-                            <div>
-                                <input class="input" type="time" placeholder="Time">
+                            <div class="select">
+                                <select id="TimeField">
+                                    {{!-- {{#each listing.finalTimings}} --}}
+                                    {{!-- <option>{{this}}</option> --}}
+                                    {{!-- {{/each}} --}}
+                                </select>
                             </div>
 
-                            <!-- This is checked by default. Is a hidden radio button -->
-                            <input type='radio' id='book_timeslot_hidden' value="None" name='book_timeslot'
-                                   checked='checked' style='display:none'>
-                            <!--<input class="input" type="time" placeholder="">-->
                         </div>
 
                         <div class='field'>
                             <div class='control is-expanded'>
                             <label class="label">Number of Participants</label>
                             <div class="select">
-                                <select>
-                                    <option>1</option>
-                                    <option>2</option>
-                                </select>
+                                <select id="PaxField"></select>
                             </div>
                             </div>
                         </div>
@@ -80,13 +82,9 @@
                         </div>
                     </form>
                     <p class="is-grey has-text-centered mt-2">Not sure if this tour is for you?
-                    <form id="chat_form" method="POST"
-                          class="has-text-centered">
-                        <button class="button is-text has-text-link" type="submit" name="ChatFirst"
-                                value="ChatFirst" style="text-decoration:none;">
-                            Chat with Tour Guide first.
-                        </button>
-                    </form>
+                    <br>
+                    {{!-- create chat room --}}
+                    <a href="/u/messages">Chat with Tour Guide first.</a>
                     </p>
     <!-- end: Booking form-->
     </div>
@@ -94,3 +92,87 @@
   </div>
   <button class="modal-close is-large" aria-label="close" onclick="$('#bookNowModal').fadeOut('fast');"></button>
 </div>
+
+<div id="finalDays" class="is-hidden">
+    {{listing.finalDays}}
+</div>
+
+<div id="tourPax" class="is-hidden">
+    {{listing.tourPax}}
+</div>
+
+<div id="finalTimings" class="">
+    {{listing.finalTimings}}
+</div>
+
+<script>
+    $(".dateField").datepicker({ 
+        minDate: 1,
+        maxDate: 90,
+        beforeShowDay: filterDays,
+        dateFormat: 'dd/mm/yy'});
+    const finalDays = document.getElementById('finalDays').innerText
+
+    function filterDays(date){
+        switch (date.getDay()){
+            case 0:
+                if (finalDays.includes('Sunday'))
+                    return [true, "", ""]
+                else
+                    return [false, "", ""]
+                break;
+            case 1:
+                if (finalDays.includes('Monday'))
+                    return [true, "", ""]
+                else
+                    return [false, "", ""]
+                break;
+            case 2:
+                if (finalDays.includes('Tuesday'))
+                    return [true, "", ""]
+                else
+                    return [false, "", ""]
+                break;
+            case 3:
+                if (finalDays.includes('Wednesday'))
+                    return [true, "", ""]
+                else
+                    return [false, "", ""]
+                break;
+            case 4:
+                if (finalDays.includes('Thursday'))
+                    return [true, "", ""]
+                else
+                    return [false, "", ""]
+                break;
+            case 5:
+                if (finalDays.includes('Friday'))
+                    return [true, "", ""]
+                else
+                    return [false, "", ""]
+                break;
+            case 6:
+                if (finalDays.includes('Saturday'))
+                    return [true, "", ""]
+                else
+                    return [false, "", ""]
+                break;
+
+        }
+    }
+
+    var tourPax = document.getElementById('tourPax').innerText 
+    var PaxOptions = ""
+    for (var i=1; i<=tourPax; i++){
+        PaxOptions += "<option>"+i+"</option>"
+    }
+    $("select#PaxField").html(PaxOptions)
+
+    var finalTimings = document.getElementById('finalTimings').innerText 
+    var timingsArray = finalTimings.split(',')
+    var timeOptions = ""
+    for (var i=0; i<timingsArray.length;i++){
+        timeOptions += "<option>"+timingsArray[i]+"</option>"
+    }
+    $("select#TimeField").html(timeOptions)
+</script>
