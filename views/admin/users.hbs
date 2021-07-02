@@ -3,6 +3,7 @@
     <tr>
         <th>Username</th>
         <th>Email status</th>
+        <th>Phone status</th>
         <th>Registration date</th>
         <th>Last login</th>
         <th>Account Mode</th>
@@ -18,9 +19,15 @@
         <td><i class="fas fa-times"></i></td>
         {{/ifEquals}}
 
-        <td>{{timestampParseISO this.registration_time }}</td>
+        {{#ifEquals this.phone_status true}}
+        <td><i class="fas fa-check"></i></td>
+        {{else}}
+        <td><i class="fas fa-times"></i></td>
+        {{/ifEquals}}
 
-        <td>{{timestampParseISO this.last_seen_time }}</td>
+        <td>{{timestampParseISO this.createdAt }}</td>
+
+        <td>{{timestampParseISO this.lastseen_time }}</td>
 
         {{#ifEquals this.account_mode 1}}
         <td>Tour Guide</td>
