@@ -38,13 +38,13 @@
 
                         <div class='field'>
                             <label class="label">Select Date</label>
-                            <input class="dateField input" type="text" id="datepicker">
+                            <input class="dateField input" type="text" id="datepicker" name="tourDate">
                         </div>
 
                         <div class="field">
                             <label class="label">Select Time</label>
                             <div class="select">
-                                <select id="TimeField">
+                                <select id="TimeField" name="tourTime">
                                 </select>
                             </div>
 
@@ -54,7 +54,7 @@
                             <div class='control is-expanded'>
                             <label class="label">Number of Participants</label>
                             <div class="select">
-                                <select id="PaxField"></select>
+                                <select id="PaxField" name="tourPax"></select>
                             </div>
                             </div>
                         </div>
@@ -62,7 +62,7 @@
                         <div class="field">
                             <div class="control">
                                 <label class="checkbox">
-                                    <input type="checkbox">
+                                    <input type="checkbox" name="bookTOC">
                                     I agree to the <a class="has-tooltip-multiline has-text-centered has-tooltip-danger"
                                                       href="#"
                                                       data-tooltip="There should not be more than 8 people in a group. Safe distancing measures should be adhered to at all times.">

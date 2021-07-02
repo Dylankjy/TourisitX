@@ -655,7 +655,6 @@ router.get('/:id/purchase', async (req, res) => {
     })
         .then(async (items) => {
             const data = await items[0]['dataValues']
-            console.log(data)
             const customPrice = (data['tourPrice'] / 10).toFixed(2)
             return res.render('bookNow.hbs', { listing: data, customPrice: customPrice })
         }).catch((err) => console.log)
@@ -668,6 +667,158 @@ router.get('/:id/purchase', async (req, res) => {
     // })
 
     // var ownerId = listingOwner[0]["dataValues"]["userId"]
+})
+
+
+router.post('/:id/purchase', async (req, res) => {
+    console.log(req.fields)
+    res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
+    const tourID = req.params.id
+    const sid = req.signedCookies.sid
+
+    if (sid == null) {
+        return requireLogin(res)
+    }
+
+    if ((await genkan.isLoggedinAsync(sid)) == false) {
+    // Redirect to login page
+        return requireLogin(res)
+    }
+
+    const userData = await genkan.getUserBySessionAsync(sid)
+    Shop.findAll({
+        where: {
+            id: tourID,
+        },
+    })
+        .then(async (items) => {
+            const listing = await items[0]['dataValues']
+
+            const v = new Validator(req.fields)
+
+            // Doing this way so its cleaner. Can also directly call these into the removeNull() array
+            const tourDateResult = v
+                .Initialize({
+                    name: 'tourDate',
+                    errorMessage: 'Please select a tour date.',
+                })
+                .exists()
+                .getResult()
+
+            const tourTimeResult = v
+                .Initialize({
+                    name: 'tourTime',
+                    errorMessage: 'Please select a tour time.',
+                })
+                .exists()
+                .getResult()
+
+            const bookPaxResult = v
+                .Initialize({
+                    name: 'tourPax',
+                    errorMessage: 'Please select number of participants.',
+                })
+                .exists()
+                .getResult()
+
+            const bookTOCResult = v
+                .Initialize({
+                    name: 'bookTOC',
+                    errorMessage: 'Please approve the Terms & Conditions.',
+                })
+                .exists()
+                .getResult()
+
+            // // Evaluate the files and fields data separately
+            const validationErrors = removeNull([
+                tourDateResult,
+                tourTimeResult,
+                bookPaxResult,
+                bookTOCResult,
+            ])
+
+            // If there are errors, re-render the create listing page with the valid error messages
+            if (!emptyArray(validationErrors)) {
+                res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
+                res.redirect(`/listing/${tourID}/purchase`)
+            } else {
+                // If successful
+                // Remove cookies for stored form values + validation errors
+                res.clearCookie('validationErrors')
+                res.clearCookie('storedValues')
+
+                const genId = uuid.v4()
+
+                // console.log(listing)
+
+                // const rawTourDate = req.fields.tourDate
+                // const darr = rawTourDate.split('/')
+
+                // const rawTourTime = req.fields.tourTimeResult
+                // const timeArr = rawTourTime.split(' - ')
+                // for (i=0; i<timeArr.length;i++) {
+                //     timeArr[i] += timeArr[i].split(':')
+                // }
+                // console.log(timeArr)
+                // const dobj = new Date(parseInt(darr[2]), parseInt(darr[0]), parseInt(darr[1]))
+                // console.log(dobj)
+
+                const sampleBook = {
+                    bookId: genId,
+                    custId: userData.id,
+                    tgId: listing.userId,
+                    listingId: listing.id,
+                    chatId: 'chatId123',
+                    orderDateTime: Date.now().toISOString(),
+                    tourStart: 'no',
+                    tourEnd: 'yes',
+                    bookPax: req.fields.tourPax,
+                    bookDuration: listing.tourDuration,
+                    bookBaseprice: listing.tourPrice,
+                    bookCharges: [],
+                    processStep: 0,
+                    revisions: listing.tourRevision,
+                    addInfo: '',
+                    custRequests: [],
+                    completed: 0,
+                    approved: 1,
+                }
+                console.log(sampleBook)
+
+
+                // Shop.create({
+                //     // You create the uuid when you initialize the create listing
+                //     id: genId,
+                //     // Replace with actual usesrID once the auth library is out
+                //     userId: userData.id,
+                //     tourTitle: req.fields.tourTitle,
+                //     tourDesc: req.fields.tourDesc,
+                //     tourDuration: req.fields.tourDuration,
+                //     tourPrice: req.fields.tourPrice,
+                //     tourPax: req.fields.tourPax,
+                //     tourRevision: req.fields.tourRevision,
+                //     finalTimings: req.fields.finalTimings,
+                //     finalDays: req.fields.finalDays,
+                //     finalItinerary: req.fields.finalItinerary,
+                //     finalLocations: req.fields.finalLocations,
+                //     tourImage: 'default.jpg',
+                //     hidden: 'false',
+                // }).then(async (data) => {
+                //     await axios.post('http://localhost:5000/es-api/upload', {
+                //         id: genId,
+                //         name: req.fields.tourTitle,
+                //         description: req.fields.tourDesc,
+                //         image: 'default.jpg',
+                //     })
+                // })
+                //     .catch((err) => {
+                //         console.log(err)
+                //     })
+
+                // console.log('INSERTED')
+                res.redirect(`/bookings`)
+            }
+        }).catch((err) => console.log)
 })
 
 
