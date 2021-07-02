@@ -11,24 +11,6 @@ require('../app/db')
 
 // router.get('/', (req, res) => { ... }
 
-const exampleUser = {
-    name: 'Takahashi Taro',
-    email_status: true,
-    registration_time: new Date('2011-10-05T14:48:00.000Z'),
-    last_seen_time: new Date('2011-10-05T14:48:00.000Z'),
-    account_mode: 1,
-    ip_address: '10.0.0.10',
-}
-
-const exampleUser2 = {
-    name: 'Niho Yoshiko',
-    email_status: true,
-    registration_time: new Date('2011-10-05T14:48:00.000Z'),
-    last_seen_time: new Date('2011-10-05T14:48:00.000Z'),
-    account_mode: 0,
-    ip_address: '10.0.0.10',
-}
-
 const exampleTransaction = {
     date_paid: new Date('2011-10-05T14:48:00.000Z'),
     tour_name: 'Sex on the beach',
