@@ -1,3 +1,13 @@
+// System Integrity check
+// This checks the database to ensure it contains the needed objects for the system to function correctly.
+// At no point should this piece of code be disabled or commented out.
+const integrityCheck = require('./app/systemIntegrity/checks')
+integrityCheck.check().catch((err) => {
+    console.error(err)
+    process.exit(0)
+})
+
+
 // Module imports
 const dateFormat = require('dateformat')
 
@@ -6,7 +16,7 @@ const express = require('express')
 const exphbs = require('express-handlebars')
 const cookieParser = require('cookie-parser')
 // const formidable = require('express-formidable')
-const slowDown = require('express-slow-down')
+const RateLimit = require('express-rate-limit')
 
 // Routes for Express
 const routes = {
@@ -113,12 +123,12 @@ app.set('views', [`views`])
 // app.use(formidable())
 
 // Slowdown: For Rate limiting
-const speedLimiter = slowDown({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    delayAfter: 100, // allow 100 requests per 15 minutes, then...
-    delayMs: 500, // begin adding 500ms of delay per request above 100:
+const limiter = new RateLimit({
+    windowMs: 1*60*1000,
+    max: 60,
 })
-// app.use(speedLimiter)
+
+app.use(limiter)
 
 // Express: Routes
 const webserver = () => {
