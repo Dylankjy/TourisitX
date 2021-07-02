@@ -12,6 +12,10 @@ const saltRounds = 12
 
 getUserByID = (uid, callback) => {
     findDB('user', { 'id': uid }, (userResult) => {
+        if (userResult.length !== 1) {
+            return callback(null)
+        }
+
         return callback(userResult[0].dataValues)
     })
 }
