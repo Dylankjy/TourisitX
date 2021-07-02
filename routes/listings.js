@@ -24,6 +24,10 @@ const elasticSearchHelper = require('../app/elasticSearch')
 // })
 
 const TIH_API_KEY = config.secret.TIH_API_KEY
+const STRIPE_PUBLIC_KEY = config.stripe.STRIPE_PUBLIC_KEY
+const STRIPE_SECRET_KEY = config.stripe.STRIPE_SECRET_KEY
+
+const stripe = require('stripe')(STRIPE_SECRET_KEY)
 
 const esClient = require('../app/elasticSearch').esClient
 
@@ -645,6 +649,7 @@ router.get('/:id/purchase', async (req, res) => {
         // Redirect to login page
         return requireLogin(res)
     }
+
 
     // Replace wth res.redirect()
     res.send('Redirect to purchase page')
