@@ -1,8 +1,11 @@
 const express = require('express')
 
-const { Shop } = require('../models')
+const { Shop, User } = require('../models')
 
 const router = express.Router()
+
+// Database operations
+require('../app/db')
 
 // Put all your routings below this line -----
 
@@ -60,37 +63,78 @@ router.get('/', (req, res) => {
 })
 
 router.get('/manage/users', (req, res) => {
-    const metadata = {
-        meta: {
-            title: 'Manage Users',
-            path: false,
-        },
-        nav: {
-            sidebarActive: 'users',
-        },
-        layout: 'admin',
-        data: {
-            users: { exampleUser, exampleUser2 },
-        },
+    if (req.query.page === undefined) {
+        return res.redirect('?page=1')
     }
-    return res.render('admin/users', metadata)
+
+    const pageNo = parseInt(req.query.page)
+
+    User.findAll({ where: { 'is_admin': false }, limit: 10, offset: 0 + ((pageNo - 1) * 10) }).then( async (users) => {
+        const userObjects = users.map((users) => users.dataValues)
+        const totalNumberOfPages = Math.floor(await User.count({ where: { 'is_admin': false } }) / 10)
+
+        const metadata = {
+            meta: {
+                title: 'Manage Users',
+                path: false,
+            },
+            nav: {
+                sidebarActive: 'users',
+            },
+            layout: 'admin',
+            data: {
+                users: userObjects,
+                pagination: {
+                    firstPage: 1,
+                    lastPage: totalNumberOfPages + 1,
+                    previous: pageNo - 1,
+                    current: pageNo,
+                    next: pageNo + 1,
+                },
+            },
+        }
+
+        return res.render('admin/users', metadata)
+    }).catch((err) => {
+        throw err
+    })
 })
 
 router.get('/manage/staff', (req, res) => {
-    const metadata = {
-        meta: {
-            title: 'Manage Staff',
-            path: false,
-        },
-        nav: {
-            sidebarActive: 'staff',
-        },
-        layout: 'admin',
-        data: {
-            users: { exampleUser, exampleUser2 },
-        },
+    if (req.query.page === undefined) {
+        return res.redirect('?page=1')
     }
-    return res.render('admin/staff', metadata)
+
+    const pageNo = parseInt(req.query.page)
+
+    User.findAll({ where: { 'is_admin': true }, limit: 10, offset: 0 + ((pageNo - 1) * 10) }).then(async (users) => {
+        const userObjects = users.map((users) => users.dataValues)
+        const totalNumberOfPages = Math.floor(await User.count({ where: { 'is_admin': true } }) / 10)
+
+        const metadata = {
+            meta: {
+                title: 'Manage Staff',
+                path: false,
+            },
+            nav: {
+                sidebarActive: 'staff',
+            },
+            layout: 'admin',
+            data: {
+                users: userObjects,
+                pagination: {
+                    firstPage: 1,
+                    lastPage: totalNumberOfPages + 1,
+                    previous: pageNo - 1,
+                    current: pageNo,
+                    next: pageNo + 1,
+                },
+            },
+        }
+        return res.render('admin/staff', metadata)
+    }).catch((err) => {
+        throw err
+    })
 })
 
 router.get('/manage/tours', (req, res) => {
