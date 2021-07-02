@@ -25,7 +25,7 @@ const SystemUserSchema = {
 
 const systemUserObject = () => {
     return new Promise((res)=>{
-        findDB('user', SystemUserSchema, (result) => {
+        findDB('user', { 'id': '00000000-0000-0000-0000-000000000000' }, (result) => {
             if (result.length === 1) {
                 return res(0)
             }
