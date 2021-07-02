@@ -6,7 +6,7 @@ requireLogin = (res) => {
 
 // Message to show users if they lack permission (I.e Not the owner of the listing)
 requirePermission = (res) =>{
-    res.send('No perms')
+    return res.send('No perms')
 }
 
 // remove all null elements
@@ -27,10 +27,24 @@ removeFromArray = (val, arr) => {
 }
 
 
+getUserfromSid = async (sid) => {
+    if (sid == null) {
+        return requireLogin(res)
+    }
+    if ((await genkan.isLoggedinAsync(sid)) == false) {
+    // Redirect to login page
+        return requireLogin(res)
+    }
+
+    var userData = await genkan.getUserBySessionAsync(sid)
+    return userData
+}
+
+
 module.exports = {
     requireLogin,
     requirePermission,
     removeNull,
     emptyArray,
-    removeFromArray,
+    removeFromArray
 }
