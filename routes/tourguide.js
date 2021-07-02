@@ -67,6 +67,9 @@ router.get('/', (req, res) => {
 
 router.get('/manage/listings', async (req, res) => {
     const sid = req.signedCookies.sid
+    if (sid == null) {
+        return requireLogin(res)
+    }
     if ((await genkan.isLoggedinAsync(sid)) == false) {
     // Redirect to login page
         return res.send('Pls login')
@@ -78,6 +81,7 @@ router.get('/manage/listings', async (req, res) => {
         where: {
             // Set to empty now, but it should be replaced with the userID when authentication library is out
             userId: userData.id,
+            hidden: "false"
         },
         order: [['createdAt', 'ASC']],
     })
@@ -101,11 +105,23 @@ router.get('/manage/listings', async (req, res) => {
         })
 })
 
-router.get('/manage/listings/archived', (req, res) => {
+router.get('/manage/listings/archived', async (req, res) => {
+    const sid = req.signedCookies.sid
+    if (sid == null) {
+        return requireLogin(res)
+    }
+    if ((await genkan.isLoggedinAsync(sid)) == false) {
+    // Redirect to login page
+        return res.send('Pls login')
+    }
+
+    const userData = await genkan.getUserBySessionAsync(sid)
+
     Shop.findAll({
         where: {
             // Set to empty now, but it should be replaced with the userID when authentication library is out
-            userId: 'sample',
+            userId: userData.id,
+            hidden: "true"
         },
         order: [['createdAt', 'ASC']],
     })
