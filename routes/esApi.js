@@ -86,7 +86,7 @@ router.post('/upload', (req, res) => {
         id: req.fields.id,
         body: {
             'name': req.fields.name,
-            // "id": req.fields.id,
+            'id': req.fields.id,
             'description': req.fields.description,
             'image': req.fields.image,
             // "suggest": {
