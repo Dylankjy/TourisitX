@@ -33,7 +33,7 @@ const fileValidator = formidableValidator.FileValidator
 const savedImageFolder = './storage/listings'
 
 router.use(formidable())
-router.use(cookieParser('Please change this when in production use'))
+router.use(cookieParser(require('../config/genkan.json').genkan.secretKey))
 // bin\elasticsearch.bat
 
 // Will convert Image to base64.
