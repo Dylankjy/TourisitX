@@ -9,20 +9,21 @@
 <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 
-<div class="modal is-active" id="bookNowModal">
-  <div class="modal-background" onclick="$('#bookNowModal').fadeOut('fast');"></div>
-  <div class="modal-content">
-      <div class="box">
-          <div class="container">
+<section class="section">
+        <div class="container">
+            <a href="/listing/info/{{ listing.id }}">
+                <i class="fas fa-arrow-left"></i> Back to {{ listing.tourTitle }}
+            </a>
+        </div>
+        <div class="columns is-centered">
+            <div class="column is-two-fifths">
+                <div class="container box">
     <!--Customise tour-->
-    <form class="form" id="custom_form" method="POST" action="">
-        <button class="button is-medium is-fullwidth is-success" type="submit" name="CustomiseTour"
-                value="CustomiseTour">
+        <button class="button is-medium is-fullwidth is-success" onclick="$('#RequireModal').fadeIn('fast')">
             Customise Tour for ${{customPrice}}
         </button>
-    </form>
 
-        <button class="button is-white is-pulled-right has-tooltip-multiline has-tooltip-left"
+        <button class="button is-white is-pulled-right has-tooltip-multiline has-tooltip-right"
                 data-tooltip="Pay a fee of ${{customPrice}} upfront to customise this tour. 
                 This tour comes with {{ listing.tourRevision }} free revisions, so that changes may be requested if the tour plan is 
                 unsatisfactory. Each extra revision request will cost ${{customPrice}}. Remaining fees will be charged after the tour plan is finalised.">
@@ -33,7 +34,7 @@
     <br>
     <div class="divider has-text-centered">OR</div>
     <!--Booking form-->
-    <form id="book_form" method="POST">
+    <form id="book_form" method="POST" action="#">
 
                         <div class='field'>
                             <label class="label">Select Date</label>
@@ -44,9 +45,6 @@
                             <label class="label">Select Time</label>
                             <div class="select">
                                 <select id="TimeField">
-                                    {{!-- {{#each listing.finalTimings}} --}}
-                                    {{!-- <option>{{this}}</option> --}}
-                                    {{!-- {{/each}} --}}
                                 </select>
                             </div>
 
@@ -87,11 +85,12 @@
                     <a href="/u/messages">Chat with Tour Guide first.</a>
                     </p>
     <!-- end: Booking form-->
-    </div>
-    </div>
-  </div>
-  <button class="modal-close is-large" aria-label="close" onclick="$('#bookNowModal').fadeOut('fast');"></button>
 </div>
+</div>
+</div>
+</section>
+
+{{>requirementsModal}}
 
 <div id="finalDays" class="is-hidden">
     {{listing.finalDays}}
@@ -101,7 +100,7 @@
     {{listing.tourPax}}
 </div>
 
-<div id="finalTimings" class="">
+<div id="finalTimings" class="is-hidden">
     {{listing.finalTimings}}
 </div>
 

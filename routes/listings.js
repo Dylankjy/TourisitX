@@ -657,7 +657,7 @@ router.get('/:id/purchase', async (req, res) => {
             const data = await items[0]['dataValues']
             console.log(data)
             const customPrice = (data['tourPrice'] / 10).toFixed(2)
-            return res.render('partials/bookNowModal.hbs', { listing: data, customPrice: customPrice })
+            return res.render('bookNow.hbs', { listing: data, customPrice: customPrice })
         }).catch((err) => console.log)
 
     // var userData = await genkan.getUserBySessionAsync(sid);

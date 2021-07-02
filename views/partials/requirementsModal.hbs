@@ -1,0 +1,19 @@
+<div class="modal is-active" id="RequireModal" style="display:none;">
+        <div class="modal-background" onclick="$('#RequireModal').fadeOut('fast');"></div>
+        <div class="modal-content">
+            <div class="box has-text-centered">
+                <br>
+                <p class="is-size-5 has-text-weight-bold">Let's Personalise Your Experience!</p>
+                <p>What would you like to customise?</p>
+                <form id="req_form" method="POST" action="#">
+                    <div class="field">
+                        <textarea class="textarea" placeholder="I want to add.."></textarea>
+                    </div>
+                    <div class="field is-grouped is-grouped-centered mt-5">
+                            <button class="button is-fullwidth is-info" type="submit" onclick="$('#RequireModal').fadeOut('fast');">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <button class="modal-close is-large" aria-label="close" onclick="$('#RequireModal').fadeOut('fast');"></button>
+    </div>
