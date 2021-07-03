@@ -18,7 +18,6 @@ const genkan = require('./app/genkan/genkan')
 const express = require('express')
 const exphbs = require('express-handlebars')
 const cookieParser = require('cookie-parser')
-// const formidable = require('express-formidable')
 const RateLimit = require('express-rate-limit')
 
 // Routes for Express
