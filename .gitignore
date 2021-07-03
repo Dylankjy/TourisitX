@@ -85,3 +85,6 @@ config/apikeys.json
 
 # Ignore user generated images
 storage/
+
+# Stupid apple shit
+.DS_STORE
