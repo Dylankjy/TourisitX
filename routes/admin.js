@@ -275,7 +275,7 @@ router.post('/manage/users/edit/:userId', (req, res) => {
         }).then((data) => {
             if (data.length !== 0) {
                 res.cookie('notifs', `ERR_DUPLICATEEMAIL然シテ${req.fields.name}`, NotificationCookieOptions)
-                return res.redirect('/admin/manage/users/edit/' + targetUserId)
+                return res.redirect('/admin/manage/users/edit/' + user.id)
             }
 
             if (user.is_admin === true) {
