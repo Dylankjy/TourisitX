@@ -75,7 +75,7 @@ router.post('/register', (req, res) => {
         const name = req.body.username
         const email = req.body.email.toLowerCase().replace(/\s+/g, '')
         const password = req.body.password
-        const ipAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+        const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress
 
         const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
