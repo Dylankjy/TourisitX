@@ -68,7 +68,7 @@ const adminAuthorisationRequired = (req, res, next) => {
 const loginRequired = (req, res, next) => {
     genkan.isLoggedin(req.signedCookies.sid, (result) => {
         if (result !== true) {
-            res.status = 401 
+            res.status = 401
             return res.redirect(302, '/id/login?required=1')
         }
 
