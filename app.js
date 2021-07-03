@@ -54,6 +54,9 @@ const adminAuthorisationRequired = (req, res, next) => {
                     path: false,
                 },
                 nav: {},
+                data: {
+                    currentUser: req.currentUser,
+                },
             }
             res.status = 403
             return res.render('403', metadata)
@@ -238,6 +241,9 @@ const webserver = () => {
                 path: false,
             },
             nav: {},
+            data: {
+                currentUser: req.currentUser,
+            },
         }
         res.status = 404
         return res.render('404', metadata)
