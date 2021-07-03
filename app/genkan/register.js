@@ -33,7 +33,7 @@ const fs = require('fs')
 const confirmEmailSource = fs.readFileSync(`node_modules/${config.genkan.theme}/mail/confirmation.hbs`, 'utf8')
 const confirmEmailTemplate = Handlebars.compile(confirmEmailSource)
 
-newAccount = (name, email, password, callback) => {
+newAccount = (name, email, password, ip, callback) => {
     // Check for duplicate accounts
     findDB('user', { 'email': email }, (result) => {
         // Reject if duplicate
@@ -63,7 +63,7 @@ newAccount = (name, email, password, callback) => {
             'email': email,
             'password': hashedPasswordSHA512Bcrypt,
             'lastseen_time': new Date(),
-            'ip_address': '', // TODO: Add IP Address mechanism
+            'ip_address': ip,
         }
 
         const TokenSchema = {
