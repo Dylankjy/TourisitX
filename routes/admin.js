@@ -58,6 +58,9 @@ router.get('/', (req, res) => {
             sidebarActive: 'dashboard',
         },
         layout: 'admin',
+        data: {
+            currentUser: req.currentUser,
+        },
     }
     return res.render('admin/dashboard', metadata)
 })
@@ -87,6 +90,7 @@ router.get('/manage/users', (req, res) => {
             },
             layout: 'admin',
             data: {
+                currentUser: req.currentUser,
                 updatedMessage: {
                     updatedUser: notifsData[1],
                     status: notifsData[0],
@@ -135,6 +139,7 @@ router.get('/manage/staff', (req, res) => {
             },
             layout: 'admin',
             data: {
+                currentUser: req.currentUser,
                 updatedMessage: {
                     updatedUser: notifsData[1] || undefined,
                     status: notifsData[0],
@@ -179,6 +184,7 @@ router.get('/manage/users/edit/:userId', (req, res) => {
             layout: 'admin',
             data: {
                 user: user,
+                currentUser: req.currentUser,
                 updatedMessage: {
                     updatedUser: notifsData[1] || undefined,
                     status: notifsData[0],
@@ -326,6 +332,9 @@ router.get('/manage/tours', (req, res) => {
                 },
                 layout: 'admin',
                 listing: listings,
+                data: {
+                    currentUser: req.currentUser,
+                },
             }
             return res.render('admin/listings', metadata)
         })
@@ -346,6 +355,7 @@ router.get('/payments', (req, res) => {
         },
         layout: 'admin',
         data: {
+            currentUser: req.currentUser,
             transactions: { exampleTransaction, exampleTransaction2 },
         },
     }
@@ -363,6 +373,9 @@ router.get('/tickets', (req, res) => {
             sidebarActive: 'tickets',
         },
         layout: 'admin',
+        data: {
+            currentUser: req.currentUser,
+        },
     }
     return res.render('admin/tickets', metadata)
 })
