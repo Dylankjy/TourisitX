@@ -82,7 +82,10 @@ isLoggedin = (sid, callback) => {
         }
 
         updateDB('user', { 'id': result[0].dataValues.userId }, UpdateLastSeenPayload, () => {
-            callback(true)
+            return callback(true)
+        })
+    })
+}
         })
     })
 }
