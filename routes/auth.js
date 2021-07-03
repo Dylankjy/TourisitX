@@ -184,10 +184,12 @@ router.get('/confirm', (req, res) => {
         if (req.query.token !== undefined) {
             return confirmEmail(req.query.token, (result) => {
                 if (result === false) {
-                    return res.render('auth/confirmEmail', { notifs: 'ERR_EMAIL_TOKEN_INVALID', metadata })
+                    metadata.notifs = 'ERR_EMAIL_TOKEN_INVALID'
+                    return res.render('auth/confirmEmail', metadata)
                 }
 
-                return res.render('auth/confirmEmail', { notifs: 'OK_EMAIL_CONFIRMED', metadata })
+                metadata.notifs = 'OK_EMAIL_CONFIRMED'
+                return res.render('auth/confirmEmail', metadata)
             })
         }
 
@@ -196,8 +198,10 @@ router.get('/confirm', (req, res) => {
             return res.redirect('/id/login')
         }
 
+        metadata.userEmailAddress = req.signedCookies.preData
+
         // Else give them the email confirmation page
-        return res.render('auth/confirmEmail', { userEmailAddress: req.signedCookies.preData })
+        return res.render('auth/confirmEmail', metadata)
     })
 })
 
