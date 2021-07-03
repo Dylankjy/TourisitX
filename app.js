@@ -11,6 +11,9 @@ integrityCheck.check().catch((err) => {
 // Module imports
 const dateFormat = require('dateformat')
 
+// Genkan API
+const genkan = require('./app/genkan/genkan')
+
 // Express related modules
 const express = require('express')
 const exphbs = require('express-handlebars')
@@ -50,6 +53,26 @@ app.use('/usercontent', express.static('storage'))
 
 // Handlebars: Render engine
 app.set('view engine', 'hbs')
+
+// Middleware
+// Block all pages if not admin
+const adminAuthorisationRequired = (req, res, next) => {
+    genkan.isAdmin(req.signedCookies.sid, (result) => {
+        if (result !== true) {
+            const metadata = {
+                meta: {
+                    title: '403',
+                    path: false,
+                },
+                nav: {},
+            }
+            res.status = 403
+            return res.render('403', metadata)
+        }
+
+        return next()
+    })
+}
 
 // Handlebars: Environment options
 app.engine('hbs', exphbs({
@@ -168,7 +191,7 @@ const webserver = () => {
 
     app.use('/bookings', routes.booking)
 
-    app.use('/admin', routes.admin)
+    app.use('/admin', adminAuthorisationRequired, routes.admin)
 
     app.use('/', routes.support)
 
