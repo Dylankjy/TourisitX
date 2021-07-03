@@ -59,10 +59,6 @@ class Validator {
             this.result = false
             return this
         }
-        if (!this.data[this.name]) {
-            this.result = true
-            return this
-        }
         return this
     }
     // Returns the JSON result of the validation

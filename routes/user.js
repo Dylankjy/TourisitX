@@ -115,19 +115,38 @@ router.post('/setting/general', async (req, res) => {
 
     const fbResult = v
         .Initialize({ name: 'fb', errorMessage: 'Invalid Facebook link' })
-        .contains('facebook.com')
         .getResult()
+        
 
     const instaResult = v
         .Initialize({ name: 'insta', errorMessage: 'Invalid Instagram link' })
-        .contains('instagram.com')
         .getResult()
 
     const liResult = v
         .Initialize({ name: 'li', errorMessage: 'Invalid LinkedIn link' })
-        .contains('linkedin.com/in')
         .getResult()
 
+    if (fb == '') {
+    }
+    else {
+        v.Initialize({ name: 'fb', errorMessage: 'Invalid Facebook link' })
+            .contains('facebook.com')
+            .getResult()
+    }
+    if (insta == '') {
+    }
+    else {
+        v.Initialize({ name: 'insta', errorMessage: 'Invalid Instagram link' })
+            .contains('instagram.com')
+            .getResult()
+    }
+    if (li == '') {
+    }
+    else {
+        v.Initialize({ name: 'li', errorMessage: 'Invalid LinkedIn link' })
+            .contains('linkedin.com/in')
+            .getResult()
+    }
     const settingErrors = removeNull([nameResult, phoneResult, fbResult, instaResult, liResult])
 
     if (!emptyArray(settingErrors)) {
