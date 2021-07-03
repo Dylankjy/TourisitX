@@ -11,7 +11,7 @@ const tokenGenerator = require('./tokenGenerator')
 // Database operations
 require('../db')
 
-loginAccount = (email, password, callback) => {
+loginAccount = (email, password, ip, callback) => {
     // SHA512 Hashing
     const incomingHashedPasswordSHA512 = sha512({
         a: password,
@@ -47,7 +47,8 @@ loginAccount = (email, password, callback) => {
 
             // Payload to update user's last seen in users collection
             const UpdateLastSeenPayload = {
-                lastseen_time: new Date(),
+                'ip_address': ip,
+                'lastseen_time': new Date(),
             }
 
             // Update database
