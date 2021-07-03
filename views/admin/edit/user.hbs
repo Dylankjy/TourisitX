@@ -1,0 +1,193 @@
+<div class='container'>
+    <p class="pb-5"><a href="/admin/manage/{{data.previousPage}}"><i class="fas fa-arrow-left"></i>&ensp;Return to
+            {{data.previousPage}} management</a></p>
+
+    {{#ifEquals data.updatedMessage.status 'ERR_DUPLICATEEMAIL'}}
+    <div id="updateMessage" class="notification is-danger is-light">
+        <p><i class="fas fa-times"></i>&ensp;Provided email is already in use by another TourisitID.</p>
+    </div>
+    <script>
+        setTimeout(() => {
+            $('#updateMessage').slideUp()
+        }, 5000)
+    </script>
+    {{/ifEquals}}
+
+    <div class="box p-5">
+        <small>Editing user:</small>
+        <h2 class="title is-2">{{data.user.name}}</h2>
+        <p class="subtitle is-5 has-text-grey-light">UUID: {{data.user.id}}</p>
+        {{#unless data.readonly}}
+        <hr>
+        <div class="heading">Administrative Actions</div>
+        <span class="buttons">
+            <form id="adminActionsForm" method='POST'>
+                <input type='hidden' id="editingPortion" name='editingPortion' value="ADMIN_ACTIONS">
+                <input type='hidden' id="actionDo" name='actionDo' value="null">
+
+                {{#ifNotEquals data.user.email_status true}}
+                <a onclick="$('#actionDo').val('CONFIRM_EMAIL'); $('#adminActionsForm').submit()"
+                    class="button is-rounded is-success is-light">
+                    <span class="icon is-small">
+                        <i class="fas fa-check"></i>
+                    </span>
+                    <span>Confirm email</span>
+                </a>
+                {{/ifNotEquals}}
+                <a onclick="$('#actionDo').val('SEND_RECOVERY_EMAIL'); $('#adminActionsForm').submit()"
+                    class="button is-rounded is-light">
+                    <span class="icon is-small">
+                        <i class="fas fa-envelope-open-text"></i>
+                    </span>
+                    <span>Send password recovery email</span>
+                </a>
+                {{!-- <a onclick="$('#actionDo').val('BAN_USER'); $('#adminActionsForm').submit()"
+                    class="button is-rounded is-danger is-light">
+                    <span class="icon is-small">
+                        <i class="fas fa-ban"></i>
+                    </span>
+                    <span>Ban User</span>
+                </a> --}}
+                <a onclick="$('#deleteAccountConfirmationModal').fadeIn('fast')" class="button is-rounded is-danger">
+                    <span class="icon is-small">
+                        <i class="fas fa-user-slash"></i>
+                    </span>
+                    <span>Delete User</span>
+                </a>
+
+                <div id="deleteAccountConfirmationModal" class="modal is-active" style="display: none;">
+                    <div class="modal-background"></div>
+                    <div class="modal-content">
+                        <div class="box p-6">
+                            <h1 class="title">Delete Account</h1>
+                            <p class="subtitle">Turn '{{data.user.name}}' into a ghost</p>
+                            <p>You are about to delete a user account. <span class="has-text-danger">This action is
+                                    irreversible.</span></p>
+                            <br>
+                            <a onclick="$('#actionDo').val('DELETE_USER'); $('#adminActionsForm').submit()"
+                                class="button is-danger"><i class="fas fa-arrow-right"></i>&ensp;Commit action</a>
+                            <a onclick="$('#deleteAccountConfirmationModal').fadeOut('fast')" class="button is-light"><i
+                                    class="fas fa-times"></i>&ensp;Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </span>
+        {{else}}
+        <p><b>What is this account for?</b></p>
+        {{data.user.bio}}
+        {{/unless}}
+    </div>
+
+    {{#unless data.readonly}}
+    <div class='box p-5'>
+        <h4 class="title">Account Settings</h4>
+        <!-- Update account settings -->
+        <form method='POST'>
+            <input type='hidden' name='editingPortion' value="ACC_INFO">
+            <fieldset>
+                <!-- Account Mode -->
+                <div class='field'>
+                    <label class='has-text-weight-medium has-text-grey-dark' for='account_mode'>Tour Guide
+                        Mode:</label> &nbsp;
+                    <input class='switch is-rounded' id='account_mode' type='checkbox' name='account_mode' />
+                    <!-- Empty label -->
+                    <label class='has-text-weight-medium has-text-grey-dark' for='account_mode'></label>
+                </div>
+                <!-- Name -->
+                <div class='field'>
+                    <label class='label has-text-weight-medium has-text-grey-dark' for='name'>Name</label>
+                    <div class='control'>
+                        <input class='input' type='text' name='name' value='{{data.user.name}}' required>
+                    </div>
+                </div>
+                <!-- Bio -->
+                <div class='field'>
+                    <label class='label has-text-weight-medium has-text-grey-dark' for='name'>Bio</label>
+                    <div class='control'>
+                        <input class='input' type='text' name='bio' value='{{data.user.bio}}'>
+                    </div>
+                </div>
+                {{!--
+                <!-- Profile Image -->
+                <div class='field' id='pfp-input'>
+                    <label class='label has-text-weight-medium has-text-grey-dark' for='name'>Profile Image
+                    </label>
+                    <div class='file has-name'>
+                        <label class='file-label'>
+                            <input class='file-input' type='file' name='resume' />
+                            <span class='file-cta'>
+                                <span class='file-icon'>
+                                    <i class='fas fa-upload'></i>
+                                </span>
+                                <span class='file-label'>
+                                    Choose a file…
+                                </span>
+                            </span>
+                            <span class='file-name'>
+                                No file chosen
+                            </span>
+                        </label>
+                    </div>
+                </div> --}}
+
+                <!-- Email -->
+                <div class='field'>
+                    <label class='label has-text-weight-medium has-text-grey-dark' for='email'>Email</label>
+                    <div class='control'>
+                        <input class='input' type='text' name="email" value='{{data.user.email}}' required>
+                    </div>
+                </div>
+                <!-- Phone Number -->
+                <div class='field'>
+                    <label class='label has-text-weight-medium has-text-grey-dark' for='phone_number'>Phone
+                        Number</label>
+                    <div class='control'>
+                        <input class='input' type='text' name="phone_number" maxlength="8"
+                            value='{{data.user.phone_number}}' />
+                    </div>
+                </div>
+                <hr>
+                <h1 class='title is-4 has-text-left pb-4'>Social Networks</h1>
+                <!-- Facebook -->
+                <div class='field'>
+                    <label class='label has-text-weight-medium has-text-grey-dark' for='fb'>Facebook</label>
+                    <div class='control'>
+                        <input class='input' type="url" name="fb" value='{{data.user.fb}}'>
+                    </div>
+                </div>
+                <!-- Instagram -->
+                <div class='field'>
+                    <label class='label has-text-weight-medium has-text-grey-dark' for='insta'>Instagram</label>
+                    <div class='control'>
+                        <input class='input' type='url' name="insta" value='{{data.user.insta}}' />
+                    </div>
+                </div>
+                <!-- LinkedIn -->
+                <div class='field'>
+                    <label class='label has-text-weight-medium has-text-grey-dark' for='linkedin'>LinkedIn</label>
+                    <div class='control'>
+                        <input class='input' type='url' name="li" value='{{data.user.li}}'>
+                    </div>
+                </div>
+                <div class='field pt-5'>
+                    <div class='control'>
+                        <button class="button is-dark" type="submit"><i class="fas fa-save"></i>&nbsp;Commit
+                            changes</button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    {{else}}
+    <div class="box p-5">
+        <h4 class="title">System Object Account</h4>
+        <p>This user is a System Object, responsible for governing Tourisit's backend.</p>
+        {{#ifEquals data.user.id '00000000-0000-0000-0000-000000000002'}}
+        <p>Editing this user account's settings is not allowed.</p>
+        {{else}}
+        <p>Logging into, and editing this user account's settings is not allowed.</p>
+        {{/ifEquals}}
+    </div>
+    {{/unless}}
+</div>

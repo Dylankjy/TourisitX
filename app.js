@@ -65,6 +65,30 @@ app.engine('hbs', exphbs({
             }
         },
 
+        ifNotEquals(a, b, options) {
+            if (a !== b) {
+                return options.fn(this)
+            } else {
+                return options.inverse(this)
+            }
+        },
+
+        ifBigger(a, b, options) {
+            if (a > b) {
+                return options.fn(this)
+            } else {
+                return options.inverse(this)
+            }
+        },
+
+        ifSmaller(a, b, options) {
+            if (a < b) {
+                return options.fn(this)
+            } else {
+                return options.inverse(this)
+            }
+        },
+
         haveErr: (value, options) =>{
             // Removes all null values and boolean (true if not empty, false if empty)
             return value.filter((n) => n).length != 0
