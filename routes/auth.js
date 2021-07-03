@@ -213,6 +213,7 @@ router.get('/login', (req, res) => {
         layout: 'auth',
         notifs: req.signedCookies.notifs,
         csrfToken: req.csrfToken(),
+        loginToContinue: req.query.required,
     }
 
     isLoggedin(req.signedCookies.sid, (result) => {
