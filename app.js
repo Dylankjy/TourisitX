@@ -73,6 +73,19 @@ const adminAuthorisationRequired = (req, res, next) => {
     })
 }
 
+
+// Block if not logged in
+const loginRequired = (req, res, next) => {
+    genkan.isLoggedin(req.signedCookies.sid, (result) => {
+        if (result !== true) {
+            res.status = 401 
+            return res.redirect(302, '/id/login?required=1')
+        }
+
+        return next()
+    })
+}
+
 // Handlebars: Environment options
 app.engine('hbs', exphbs({
     defaultLayout: 'main',
@@ -188,7 +201,7 @@ const webserver = () => {
 
     app.use('/u', routes.user)
 
-    app.use('/bookings', routes.booking)
+    app.use('/bookings', loginRequired, routes.booking)
 
     app.use('/admin', adminAuthorisationRequired, routes.admin)
 
@@ -196,7 +209,7 @@ const webserver = () => {
 
     app.use('/', routes.index)
 
-    app.use('/tourguide', routes.tourguide)
+    app.use('/tourguide', loginRequired, routes.tourguide)
 
     app.use('/marketplace', routes.market)
 
