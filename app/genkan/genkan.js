@@ -101,8 +101,8 @@ isAdmin = (sid, callback) => {
             'lastseen_time': (new Date()).toISOString(),
         }
 
-        findDB('user', { 'id': result[0].dataValues.userId, 'is_admin': true }, (result) => {
-            if (result.length !== 0) {
+        findDB('user', { 'id': result[0].dataValues.userId, 'is_admin': true }, (user) => {
+            if (user.length !== 1) {
                 return callback(false)
             }
 
