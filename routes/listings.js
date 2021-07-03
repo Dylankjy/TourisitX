@@ -790,10 +790,134 @@ router.post('/:id/purchase', async (req, res) => {
                     bookDuration: listing.tourDuration,
                     bookBaseprice: listing.tourPrice,
                     bookCharges: '',
-                    processStep: 0,
+                    // processStep: 0, set to 4 for now until approval & payment system is in place
+                    processStep: 4,
                     revisions: listing.tourRevision,
                     addInfo: '',
                     custRequests: '',
+                    completed: 0,
+                    approved: 1,
+                }).then(async (data) => {
+                    ChatRoom.create({
+                        chatId: genId2,
+                        participants: userData.id + ',' + listing.userId,
+                        bookingId: genId1,
+                    })
+                }).catch((err) => {
+                    console.log(err)
+                })
+
+                console.log('Inserted')
+                res.redirect(`/bookings`)
+            }
+        }).catch((err) => console.log)
+})
+
+
+router.post('/:id/purchase/customise', async (req, res) => {
+    console.log(req.fields)
+    res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
+    const tourID = req.params.id
+    const sid = req.signedCookies.sid
+
+    if (sid == null) {
+        return requireLogin(res)
+    }
+
+    if ((await genkan.isLoggedinAsync(sid)) == false) {
+    // Redirect to login page
+        return requireLogin(res)
+    }
+
+    const userData = await genkan.getUserBySessionAsync(sid)
+    Shop.findAll({
+        where: {
+            id: tourID,
+        },
+    })
+        .then(async (items) => {
+            const listing = await items[0]['dataValues']
+
+            const v = new Validator(req.fields)
+
+            // Doing this way so its cleaner. Can also directly call these into the removeNull() array
+            const reqTextResult = v
+                .Initialize({
+                    name: 'reqText',
+                    errorMessage: 'Please fill in the requirements for your customised tour.',
+                })
+                .exists()
+                .getResult()
+
+            const tourDateResult = v
+                .Initialize({
+                    name: 'tourDate',
+                    errorMessage: 'Please select a tour date.',
+                })
+                .exists()
+                .getResult()
+
+            const bookPaxResult = v
+                .Initialize({
+                    name: 'tourPax',
+                    errorMessage: 'Please select number of participants.',
+                })
+                .exists()
+                .getResult()
+
+            const bookTOCResult = v
+                .Initialize({
+                    name: 'bookTOC',
+                    errorMessage: 'Please agree to the Terms & Conditions before booking a tour.',
+                })
+                .exists()
+                .getResult()
+
+            // // Evaluate the files and fields data separately
+            const validationErrors = removeNull([
+                reqTextResult,
+                tourDateResult,
+                bookPaxResult,
+                bookTOCResult,
+            ])
+
+            // If there are errors, re-render the create listing page with the valid error messages
+            if (!emptyArray(validationErrors)) {
+                res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
+                res.redirect(`/listing/${tourID}/purchase`)
+            } else {
+                // If successful
+                // Remove cookies for stored form values + validation errors
+                res.clearCookie('validationErrors')
+                res.clearCookie('storedValues')
+                const genId1 = uuid.v4()
+                const genId2 = uuid.v4()
+
+                const rawTourDate = req.fields.tourDate
+                const darr = rawTourDate.split('/')
+                const startTour = new Date(parseInt(darr[2]), parseInt(darr[1])-1, parseInt(darr[0])).toISOString()
+                const endTour = new Date(parseInt(darr[2]), parseInt(darr[1])-1, parseInt(darr[0])).toISOString()
+                const orderDateTime = new Date().toISOString()
+                const customPrice = (listing['tourPrice'] / 10).toFixed(2)
+
+                Booking.create({
+                    bookId: genId1,
+                    custId: userData.id,
+                    tgId: listing.userId,
+                    listingId: listing.id,
+                    chatId: genId2,
+                    orderDatetime: orderDateTime,
+                    tourStart: startTour,
+                    tourEnd: endTour,
+                    bookPax: req.fields.tourPax,
+                    bookDuration: 0,
+                    bookBaseprice: listing.tourPrice,
+                    bookCharges: customPrice,
+                    // processStep: 0, set to 4 for now until approval & payment system is in place
+                    processStep: 1,
+                    revisions: listing.tourRevision,
+                    addInfo: '',
+                    custRequests: req.fields.reqText,
                     completed: 0,
                     approved: 1,
                 }).then(async (data) => {

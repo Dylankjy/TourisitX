@@ -1,22 +1,50 @@
 <div class="modal is-active" id="RequireModal" style="display:none;">
         <div class="modal-background" onclick="$('#RequireModal').fadeOut('fast');"></div>
         <div class="modal-content">
-            <div class="box has-text-centered pt-1">
+            <div class="box pt-1">
 
                 <div class="has-text-right is-size-4 mt-0 p-0">
                     <i class="fas fa-times-circle" onclick="$('#RequireModal').fadeOut('fast');" style="cursor: pointer;"></i>
                 </div>
 
+                <div class="has-text-centered mb-0">
                 <p class="is-size-5 has-text-weight-bold">Let's Personalise Your Experience!</p>
-                <p>What would you like to customise?</p>
+                <p class="has-text-weight-bold">What would you like to customise?</p>
+                </div>
 
                 <form id="req_form" method="POST" action="/listing/{{listing.id}}/purchase/customise">
 
                     <div class="field">
-                        <textarea class="textarea" placeholder="I want to add.."></textarea>
+                        <textarea class="textarea" placeholder="I want to add.." name="reqText"></textarea>
                     </div>
 
-                    <div class="field is-grouped is-grouped-centered mt-5">
+                    <div class='field'>
+                            <label class="label">Select Date</label>
+                            <input class="dateField input" type="text" id="datepicker2" name="tourDate">
+                        </div>
+
+                    <div class='field'>
+                            <div class='control is-expanded'>
+                            <label class="label">Number of Participants</label>
+                            <div class="select">
+                                <select id="PaxField" name="tourPax"></select>
+                            </div>
+                            </div>
+                        </div>
+                    
+                    <div class="field">
+                            <div class="control">
+                                <label class="checkbox">
+                                    <input type="checkbox" name="bookTOC">&ensp;
+                                    I agree to the <a class="has-tooltip-multiline has-text-centered has-tooltip-danger"
+                                                      href="#"
+                                                      data-tooltip="There should not be more than 8 people in a group. Safe distancing measures should be adhered to at all times.">
+                                     terms and conditions.</a>
+                                </label>
+                            </div>
+                        </div>
+
+                    <div class="field is-grouped is-grouped-centered mt-5 mb-5">
                             <button class="button is-fullwidth is-info" type="submit" onclick="$('#RequireModal').fadeOut('fast');">Submit</button>
                     </div>
 
