@@ -14,7 +14,7 @@
 {{#ifEquals data.updatedMessage.status 'ERR_UPDATEDUSER'}}
 <div id="updateMessage" class="notification is-danger">
     <p><b><i class="fas fa-exclamation-triangle"></i>&ensp;Something went wrong</b></p>
-    <p>{{data.updatedMessage.updatedUser}} could not be updated. The error is as follows:</p>
+    <p>'{{data.updatedMessage.updatedUser}}' could not be updated. The error is as follows:</p>
     <code>
       {{data.updatedMessage.err}}
   </code>
