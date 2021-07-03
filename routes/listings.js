@@ -33,7 +33,7 @@ const fileValidator = formidableValidator.FileValidator
 const savedImageFolder = './storage/listings'
 
 router.use(formidable())
-router.use(cookieParser('Please change this when in production use'))
+router.use(cookieParser(require('../config/genkan.json').genkan.secretKey))
 // bin\elasticsearch.bat
 
 // Will convert Image to base64.
@@ -229,6 +229,11 @@ router.post('/create', async (req, res) => {
     res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
 
     const sid = req.signedCookies.sid
+
+    if (sid == null) {
+        return requireLogin(res)
+    }
+
     if ((await genkan.isLoggedinAsync(sid)) == false) {
     // Redirect to login page
         return requireLogin(res)
@@ -372,27 +377,29 @@ router.post('/create', async (req, res) => {
             finalLocations: req.fields.finalLocations,
             tourImage: 'default.jpg',
             hidden: 'false',
-        })
-            .then(async (data) => {
-                await axios.post('http://localhost:5000/es-api/upload', {
-                    id: genId,
-                    name: req.fields.tourTitle,
-                    description: req.fields.tourDesc,
-                    image: req.fields.tourImage,
-                })
-
-                console.log('Inserted')
-                res.redirect(`/listing`)
+        }).then(async (data) => {
+            await axios.post('http://localhost:5000/es-api/upload', {
+                id: genId,
+                name: req.fields.tourTitle,
+                description: req.fields.tourDesc,
+                image: 'default.jpg',
             })
+        })
             .catch((err) => {
                 console.log(err)
             })
+
+        console.log('INSERTED')
+        res.redirect(`/listing`)
     }
 })
 
 router.get('/edit/:savedId', async (req, res) => {
     const sid = req.signedCookies.sid
-    if ((await genkan.isLoggedinAsync(sid)) == false) {
+    if (sid == null) {
+        return requireLogin(res)
+    }
+    if ((await genkan.isLoggedinAsync(sid)) == false ) {
     // Redirect to login page
         return requireLogin(res)
     }
@@ -415,7 +422,7 @@ router.get('/edit/:savedId', async (req, res) => {
                 })
             } else {
                 // Will return "No perms" screen
-                return requirePermission()
+                return requirePermission(res)
             }
         })
         .catch((err) => {
@@ -823,14 +830,39 @@ router.post('/edit/image/:savedId', (req, res) => {
     }
 })
 
-router.get('/delete/:savedId', (req, res) => {
+router.get('/delete/:savedId', async (req, res) => {
+    const itemID = req.params.savedId
+    const sid = req.signedCookies.sid
+    if (sid == null) {
+        return requireLogin(res)
+    }
+    if ((await genkan.isLoggedinAsync(sid)) == false) {
+    // Redirect to login page
+        return requireLogin(res)
+    }
+
+    const userData = await genkan.getUserBySessionAsync(sid)
+
+    const listingOwner = await Shop.findAll({
+        attributes: ['userId'],
+        where: { id: itemID },
+    })
+
+    const ownerId = listingOwner[0]['dataValues']['userId']
+
+    if (ownerId != userData.id) {
+        console.log('NO PERM TO DELETE')
+        return res.redirect(`/listing/info/${req.params.savedId}`)
+    }
+
     // rmb to delete the images too
     Shop.findAll({
         where: {
             id: req.params.savedId,
         },
     }).then((items) => {
-    // Only delete image from local folder if it is NOT the default image
+        // If logged in user is not the owner, no permission to delete
+        // Only delete image from local folder if it is NOT the default image
         const savedImageFile = items[0]['dataValues']['tourImage']
         if (savedImageFile != 'default.jpg') {
             console.log(`Delete listing and Removed IMAGE FILE: ${savedImageFile}`)
@@ -838,19 +870,18 @@ router.get('/delete/:savedId', (req, res) => {
         }
     })
 
+
     Shop.destroy({
         where: {
             id: req.params.savedId,
         },
+    }).then((data) => {
+        // Delete from elastic search client
+        deleteDoc('products', req.params.savedId)
+        res.redirect('/tourguide/manage/listings')
+    }).catch((err) => {
+        console.log(err)
     })
-        .then((data) => {
-            // Delete from elastic search client
-            deleteDoc('products', req.params.savedId)
-            res.redirect('/tourguide/manage/listings')
-        })
-        .catch((err) => {
-            console.log(err)
-        })
 })
 
 // fs.writeFile('this.html', "What is this", (err) =>{

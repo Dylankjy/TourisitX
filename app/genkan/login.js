@@ -11,7 +11,7 @@ const tokenGenerator = require('./tokenGenerator')
 // Database operations
 require('../db')
 
-loginAccount = (email, password, callback) => {
+loginAccount = (email, password, ip, callback) => {
     // SHA512 Hashing
     const incomingHashedPasswordSHA512 = sha512({
         a: password,
@@ -25,10 +25,6 @@ loginAccount = (email, password, callback) => {
             return callback(false)
         }
 
-        if (result[0].dataValues.email_status === false) {
-            return callback('EMAIL_NOT_VERIFIED')
-        }
-
         // Compare whether incoming is the same as stored
         if (
             bcrypt.compareSync(
@@ -36,6 +32,10 @@ loginAccount = (email, password, callback) => {
                 result[0].dataValues.password,
             )
         ) {
+            if (result[0].dataValues.email_status === false) {
+                return callback('EMAIL_NOT_VERIFIED')
+            }
+
             // Generate a random token for SID
             const sid = tokenGenerator()
 
@@ -47,7 +47,8 @@ loginAccount = (email, password, callback) => {
 
             // Payload to update user's last seen in users collection
             const UpdateLastSeenPayload = {
-                lastseen_time: new Date(),
+                'ip_address': ip,
+                'lastseen_time': new Date(),
             }
 
             // Update database
