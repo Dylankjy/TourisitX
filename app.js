@@ -202,7 +202,7 @@ app.set('views', [`views`])
 // Slowdown: For Rate limiting
 const limiter = new RateLimit({
     windowMs: 1*60*1000,
-    max: 60,
+    max: 120,
 })
 
 app.use(limiter)
