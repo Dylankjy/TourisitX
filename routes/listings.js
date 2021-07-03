@@ -17,7 +17,7 @@ const config = require('../config/apikeys.json')
 
 // Globals
 const router = express.Router()
-const { Shop, User } = require('../models')
+const { Shop, User, Booking, ChatRoom } = require('../models')
 const elasticSearchHelper = require('../app/elasticSearch')
 // const esClient = elasticSearch.Client({
 //     host: 'http://47.241.14.108:9200',
@@ -26,6 +26,7 @@ const elasticSearchHelper = require('../app/elasticSearch')
 const TIH_API_KEY = config.secret.TIH_API_KEY
 
 const esClient = require('../app/elasticSearch').esClient
+const chatRoomTable = require('../models/chatRoomTable')
 
 const Validator = formidableValidator.Validator
 const fileValidator = formidableValidator.FileValidator
@@ -746,76 +747,63 @@ router.post('/:id/purchase', async (req, res) => {
                 // Remove cookies for stored form values + validation errors
                 res.clearCookie('validationErrors')
                 res.clearCookie('storedValues')
+                const genId1 = uuid.v4()
+                const genId2 = uuid.v4()
 
-                const genId = uuid.v4()
+                const rawTourDate = req.fields.tourDate
+                const darr = rawTourDate.split('/')
 
-                // console.log(listing)
+                const rawTourTime = req.fields.tourTime
+                const timeArr = rawTourTime.split(' - ')
+                const startTimeArr = timeArr[0].split(':')
+                const endTimeArr = timeArr[1].split(':')
+                formatTime = (arr) => {
+                    if (arr[1].slice(-2) == 'PM' && parseInt(arr[0])<12) {
+                        arr[0] = parseInt(arr[0]) + 12
+                    } else if (arr[1].slice(-2) == 'AM' && parseInt(arr[0])==12) {
+                        arr[0] = parseInt(arr[0]) -12
+                    }
+                    arr[1] = arr[1].slice(0, -3)
+                    if (arr[0].toString().length == 1) {
+                        arr[0] = '0' + arr[0]
+                    }
+                }
+                formatTime(startTimeArr)
+                formatTime(endTimeArr)
+                const startTour = new Date(parseInt(darr[2]), parseInt(darr[1])-1, parseInt(darr[0]), parseInt(startTimeArr[0]), parseInt(startTimeArr[1])).toISOString()
+                const endTour = new Date(parseInt(darr[2]), parseInt(darr[1])-1, parseInt(darr[0]), parseInt(endTimeArr[0]), parseInt(endTimeArr[1])).toISOString()
+                const orderDateTime = new Date().toISOString()
 
-                // const rawTourDate = req.fields.tourDate
-                // const darr = rawTourDate.split('/')
-
-                // const rawTourTime = req.fields.tourTimeResult
-                // const timeArr = rawTourTime.split(' - ')
-                // for (i=0; i<timeArr.length;i++) {
-                //     timeArr[i] += timeArr[i].split(':')
-                // }
-                // console.log(timeArr)
-                // const dobj = new Date(parseInt(darr[2]), parseInt(darr[0]), parseInt(darr[1]))
-                // console.log(dobj)
-
-                const sampleBook = {
-                    bookId: genId,
+                Booking.create({
+                    bookId: genId1,
                     custId: userData.id,
                     tgId: listing.userId,
                     listingId: listing.id,
-                    chatId: 'chatId123',
-                    orderDateTime: Date.now().toISOString(),
-                    tourStart: 'no',
-                    tourEnd: 'yes',
+                    chatId: genId2,
+                    orderDatetime: orderDateTime,
+                    tourStart: startTour,
+                    tourEnd: endTour,
                     bookPax: req.fields.tourPax,
                     bookDuration: listing.tourDuration,
                     bookBaseprice: listing.tourPrice,
-                    bookCharges: [],
+                    bookCharges: '',
                     processStep: 0,
                     revisions: listing.tourRevision,
                     addInfo: '',
-                    custRequests: [],
+                    custRequests: '',
                     completed: 0,
                     approved: 1,
-                }
-                console.log(sampleBook)
+                }).then(async (data) => {
+                    ChatRoom.create({
+                        chatId: genId2,
+                        participants: userData.id + ',' + listing.userId,
+                        bookingId: genId1,
+                    })
+                }).catch((err) => {
+                    console.log(err)
+                })
 
-
-                // Shop.create({
-                //     // You create the uuid when you initialize the create listing
-                //     id: genId,
-                //     // Replace with actual usesrID once the auth library is out
-                //     userId: userData.id,
-                //     tourTitle: req.fields.tourTitle,
-                //     tourDesc: req.fields.tourDesc,
-                //     tourDuration: req.fields.tourDuration,
-                //     tourPrice: req.fields.tourPrice,
-                //     tourPax: req.fields.tourPax,
-                //     tourRevision: req.fields.tourRevision,
-                //     finalTimings: req.fields.finalTimings,
-                //     finalDays: req.fields.finalDays,
-                //     finalItinerary: req.fields.finalItinerary,
-                //     finalLocations: req.fields.finalLocations,
-                //     tourImage: 'default.jpg',
-                //     hidden: 'false',
-                // }).then(async (data) => {
-                //     await axios.post('http://localhost:5000/es-api/upload', {
-                //         id: genId,
-                //         name: req.fields.tourTitle,
-                //         description: req.fields.tourDesc,
-                //         image: 'default.jpg',
-                //     })
-                // })
-                //     .catch((err) => {
-                //         console.log(err)
-                //     })
-
-                // console.log('INSERTED')
+                console.log('Inserted')
                 res.redirect(`/bookings`)
             }
         }).catch((err) => console.log)
