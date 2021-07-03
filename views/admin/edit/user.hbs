@@ -134,7 +134,11 @@
     <div class="box p-5">
         <h4 class="title">System Object Account</h4>
         <p>This user is a System Object, responsible for governing Tourisit's backend.</p>
-        <p>Logging into, and editing this user's account settings is not allowed.</p>
+        {{#ifEquals data.user.id '00000000-0000-0000-0000-000000000002'}}
+        <p>Editing this user account's settings is not allowed.</p>
+        {{else}}
+        <p>Logging into, and editing this user account's settings is not allowed.</p>
+        {{/ifEquals}}
     </div>
     {{/unless}}
 </div>
