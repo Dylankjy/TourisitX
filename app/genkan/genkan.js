@@ -86,6 +86,29 @@ isLoggedin = (sid, callback) => {
         })
     })
 }
+
+isAdmin = (sid, callback) => {
+    if (sid === undefined) {
+        return callback(false)
+    }
+
+    findDB('session', { 'sessionId': sid }, (result) => {
+        if (result.length !== 1) {
+            return callback(false)
+        }
+
+        const UpdateLastSeenPayload = {
+            'lastseen_time': (new Date()).toISOString(),
+        }
+
+        findDB('user', { 'id': result[0].dataValues.userId, 'is_admin': true }, (result) => {
+            if (result.length !== 0) {
+                return callback(false)
+            }
+
+            updateDB('user', { 'id': result[0].dataValues.userId }, UpdateLastSeenPayload, () => {
+                return callback(true)
+            })
         })
     })
 }
@@ -157,6 +180,7 @@ module.exports = {
     getUserBySessionAsync,
     getUserBySessionDangerous,
     isLoggedin,
+    isAdmin,
     isLoggedinAsync,
     setPassword,
 }
