@@ -1,6 +1,7 @@
 const express = require('express')
 
-const { Shop, User } = require('../models')
+const { Shop, User, Token } = require('../models')
+const { Op } = require('sequelize')
 
 const router = express.Router()
 
@@ -9,6 +10,7 @@ require('../app/db')
 
 // Genkan API
 const genkan = require('../app/genkan/genkan')
+require('../app/genkan/resetPassword')
 
 const formidable = require('express-formidable')
 router.use(formidable())
@@ -69,9 +71,7 @@ router.get('/manage/users', (req, res) => {
 
     // Data only used if, before coming to this endpoint, a user was updated.
     const notifs = req.signedCookies.notifs || 'null然シテnull然シテnull'
-    const notifsData = notifs.split('然シテ')
-
-    console.log(notifsData[0])
+    const notifsData = notifs.split('然シテ') // Why 然シテ as a splitter? Because the chances of anyone using soushite in their name is 0.000001% with the fact that this is written in Katakana instead of Hiragana like any normal human being would. Why not a comma, because people like Elon Musk exists and they name their child like they are playing osu!, just that they are smashing their keyboards.
 
     User.findAll({ where: { 'is_admin': false }, limit: 15, offset: 0 + ((pageNo - 1) * 15) }).then( async (users) => {
         const userObjects = users.map((users) => users.dataValues)
@@ -119,7 +119,7 @@ router.get('/manage/staff', (req, res) => {
 
     // Data only used if, before coming to this endpoint, a user was updated.
     const notifs = req.signedCookies.notifs || 'null然シテnull然シテnull'
-    const notifsData = notifs.split('然シテ') // Why 然シテ as a splitter? Because the chances of anyone using soushite in their name is 0.000001%. Why not a comma, because people like Elon Musk exists and they name their child like they are playing osu!, just that they are smashing their keyboards.
+    const notifsData = notifs.split('然シテ') // Read above for why this is soushite
 
     User.findAll({ where: { 'is_admin': true }, limit: 15, offset: 0 + ((pageNo - 1) * 15) }).then(async (users) => {
         const userObjects = users.map((users) => users.dataValues)
@@ -164,6 +164,10 @@ router.get('/manage/users/edit/:userId', (req, res) => {
             return res.render('404', { layout: 'admin' })
         }
 
+        // Data only used if, before coming to this endpoint, a user was updated.
+        const notifs = req.signedCookies.notifs || 'null然シテnull然シテnull'
+        const notifsData = notifs.split('然シテ') // Read above for why this is soushite
+
         const metadata = {
             meta: {
                 title: 'Edit User: ' + user.name,
@@ -175,6 +179,11 @@ router.get('/manage/users/edit/:userId', (req, res) => {
             layout: 'admin',
             data: {
                 user: user,
+                updatedMessage: {
+                    updatedUser: notifsData[1] || undefined,
+                    status: notifsData[0],
+                    err: notifsData[2],
+                },
             },
         }
 
@@ -201,8 +210,48 @@ router.post('/manage/users/edit/:userId', (req, res) => {
         let redirectTo = 'users'
 
         if (user === null) {
-            res.cookie('notifs', `ERR_UPDATEDUSER然シテ${req.fields.name}然シテTarget user does not exist. このユーザーは存在しません。`, NotificationCookieOptions)
+            res.cookie('notifs', `ERR_UPDATEDUSER然シテ${user.name}然シテTarget user does not exist. このユーザーは存在しません。`, NotificationCookieOptions)
             return res.redirect('/admin/manage/' + redirectTo)
+        }
+
+        // For administrative action buttons
+        if (req.fields.editingPortion === 'ADMIN_ACTIONS') {
+            const requestedAction = req.fields.actionDo
+            if (requestedAction === 'CONFIRM_EMAIL') {
+                return updateDB('user', { id: targetUserId }, { email_status: true }, () => {
+                    Token.destroy({
+                        where: {
+                            'userId': targetUserId,
+                        },
+                    }).catch((err) => {
+                        throw err
+                    })
+
+                    res.cookie('notifs', `OK_EMAILCONFIRMED然シテ${user.name}`, NotificationCookieOptions)
+                    return res.redirect('/admin/manage/' + redirectTo)
+                })
+            }
+            if (requestedAction === 'SEND_RECOVERY_EMAIL') {
+                return sendResetPasswordEmail(user.email, () => {
+                    res.cookie('notifs', `OK_SENDRECOVEREMAIL然シテ${user.name}`, NotificationCookieOptions)
+                    return res.redirect('/admin/manage/' + redirectTo)
+                })
+            }
+            if (requestedAction === 'DELETE_USER') {
+                return User.destroy({
+                    where: {
+                        'id': targetUserId,
+                    },
+                }).catch((err) => {
+                    throw err
+                }).then(() => {
+                    res.cookie('notifs', `OK_DELETED然シテ${user.name}`, NotificationCookieOptions)
+                    return res.redirect('/admin/manage/' + redirectTo)
+                })
+            }
+
+            // Reject everything else.
+            return false
         }
 
         const EditUserPayload = {
@@ -216,21 +265,36 @@ router.post('/manage/users/edit/:userId', (req, res) => {
             'li': req.fields.li,
         }
 
-        // Successful update
-        if (user.is_admin === true) {
-            redirectTo = 'staff'
-        } else {
-            redirectTo = 'users'
-        }
-
-        User.update(EditUserPayload, {
-            where: { 'id': targetUserId },
-        }).catch((err) => {
-            res.cookie('notifs', `ERR_UPDATEDUSER然シテ${req.fields.name}然シテ${err}`, NotificationCookieOptions)
-            return res.redirect('/admin/manage/' + redirectTo)
+        User.findAll({
+            where: {
+                [Op.not]: {
+                    id: targetUserId,
+                },
+                email: req.fields.email,
+            },
         }).then((data) => {
-            res.cookie('notifs', `OK_UPDATEDUSER然シテ${req.fields.name}`, NotificationCookieOptions)
-            return res.redirect('/admin/manage/' + redirectTo)
+            if (data.length !== 0) {
+                res.cookie('notifs', `ERR_DUPLICATEEMAIL然シテ${req.fields.name}`, NotificationCookieOptions)
+                return res.redirect('/admin/manage/users/edit/' + targetUserId)
+            }
+
+            if (user.is_admin === true) {
+                redirectTo = 'staff'
+            } else {
+                redirectTo = 'users'
+            }
+
+            User.update(EditUserPayload, {
+                where: { 'id': targetUserId },
+            }).catch((err) => {
+                res.cookie('notifs', `ERR_UPDATEDUSER然シテ${req.fields.name}然シテ${err}`, NotificationCookieOptions)
+                return res.redirect('/admin/manage/' + redirectTo)
+            }).then((data) => {
+                res.cookie('notifs', `OK_UPDATEDUSER然シテ${req.fields.name}`, NotificationCookieOptions)
+                return res.redirect('/admin/manage/' + redirectTo)
+            })
+        }).catch((err)=> {
+            throw err
         })
     })
 })

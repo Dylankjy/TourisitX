@@ -1,5 +1,18 @@
 <div class='container'>
-    <p class="pb-5"><a href="/admin/manage/{{data.previousPage}}"><i class="fas fa-arrow-left"></i>&ensp;Return to {{data.previousPage}} management</a></p>
+    <p class="pb-5"><a href="/admin/manage/{{data.previousPage}}"><i class="fas fa-arrow-left"></i>&ensp;Return to
+            {{data.previousPage}} management</a></p>
+
+    {{#ifEquals data.updatedMessage.status 'ERR_DUPLICATEEMAIL'}}
+    <div id="updateMessage" class="notification is-danger is-light">
+        <p><i class="fas fa-times"></i>&ensp;Provided email is already in use by another TourisitID.</p>
+    </div>
+    <script>
+        setTimeout(() => {
+            $('#updateMessage').slideUp()
+        }, 5000)
+    </script>
+    {{/ifEquals}}
+
     <div class="box p-5">
         <small>Editing user:</small>
         <h2 class="title is-2">{{data.user.name}}</h2>
@@ -8,24 +21,57 @@
         <hr>
         <div class="heading">Administrative Actions</div>
         <span class="buttons">
-            <a class="button is-rounded is-light" href='/listing/create'>
-                <span class="icon is-small">
-                    <i class="fas fa-envelope-open-text"></i>
-                </span>
-                <span>Send password recovery email</span>
-            </a>
-            <a class="button is-rounded is-danger is-light">
-                <span class="icon is-small">
-                    <i class="fas fa-ban"></i>
-                </span>
-                <span>Ban User</span>
-            </a>
-            <a class="button is-rounded is-danger">
-                <span class="icon is-small">
-                    <i class="fas fa-user-slash"></i>
-                </span>
-                <span>Delete User</span>
-            </a>
+            <form id="adminActionsForm" method='POST'>
+                <input type='hidden' id="editingPortion" name='editingPortion' value="ADMIN_ACTIONS">
+                <input type='hidden' id="actionDo" name='actionDo' value="null">
+
+                {{#ifNotEquals data.user.email_status true}}
+                <a onclick="$('#actionDo').val('CONFIRM_EMAIL'); $('#adminActionsForm').submit()"
+                    class="button is-rounded is-success is-light">
+                    <span class="icon is-small">
+                        <i class="fas fa-check"></i>
+                    </span>
+                    <span>Confirm email</span>
+                </a>
+                {{/ifNotEquals}}
+                <a onclick="$('#actionDo').val('SEND_RECOVERY_EMAIL'); $('#adminActionsForm').submit()"
+                    class="button is-rounded is-light">
+                    <span class="icon is-small">
+                        <i class="fas fa-envelope-open-text"></i>
+                    </span>
+                    <span>Send password recovery email</span>
+                </a>
+                {{!-- <a onclick="$('#actionDo').val('BAN_USER'); $('#adminActionsForm').submit()"
+                    class="button is-rounded is-danger is-light">
+                    <span class="icon is-small">
+                        <i class="fas fa-ban"></i>
+                    </span>
+                    <span>Ban User</span>
+                </a> --}}
+                <a onclick="$('#deleteAccountConfirmationModal').fadeIn('fast')" class="button is-rounded is-danger">
+                    <span class="icon is-small">
+                        <i class="fas fa-user-slash"></i>
+                    </span>
+                    <span>Delete User</span>
+                </a>
+
+                <div id="deleteAccountConfirmationModal" class="modal is-active" style="display: none;">
+                    <div class="modal-background"></div>
+                    <div class="modal-content">
+                        <div class="box p-6">
+                            <h1 class="title">Delete Account</h1>
+                            <p class="subtitle">Turn '{{data.user.name}}' into a ghost</p>
+                            <p>You are about to delete a user account. <span class="has-text-danger">This action is
+                                    irreversible.</span></p>
+                            <br>
+                            <a onclick="$('#actionDo').val('DELETE_USER'); $('#adminActionsForm').submit()"
+                                class="button is-danger"><i class="fas fa-arrow-right"></i>&ensp;Commit action</a>
+                            <a onclick="$('#deleteAccountConfirmationModal').fadeOut('fast')" class="button is-light"><i
+                                    class="fas fa-times"></i>&ensp;Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </span>
         {{else}}
         <p><b>What is this account for?</b></p>
@@ -38,7 +84,7 @@
         <h4 class="title">Account Settings</h4>
         <!-- Update account settings -->
         <form method='POST'>
-
+            <input type='hidden' name='editingPortion' value="ACC_INFO">
             <fieldset>
                 <!-- Account Mode -->
                 <div class='field'>
@@ -62,7 +108,8 @@
                         <input class='input' type='text' name='bio' value='{{data.user.bio}}'>
                     </div>
                 </div>
-                {{!-- <!-- Profile Image -->
+                {{!--
+                <!-- Profile Image -->
                 <div class='field' id='pfp-input'>
                     <label class='label has-text-weight-medium has-text-grey-dark' for='name'>Profile Image
                     </label>
@@ -96,7 +143,8 @@
                     <label class='label has-text-weight-medium has-text-grey-dark' for='phone_number'>Phone
                         Number</label>
                     <div class='control'>
-                        <input class='input' type='text' name="phone_number" maxlength="8" value='{{data.user.phone_number}}' />
+                        <input class='input' type='text' name="phone_number" maxlength="8"
+                            value='{{data.user.phone_number}}' />
                     </div>
                 </div>
                 <hr>
@@ -124,7 +172,8 @@
                 </div>
                 <div class='field pt-5'>
                     <div class='control'>
-                        <button class="button is-dark" type="submit"><i class="fas fa-save"></i>&nbsp;Commit changes</button>
+                        <button class="button is-dark" type="submit"><i class="fas fa-save"></i>&nbsp;Commit
+                            changes</button>
                     </div>
                 </div>
             </fieldset>
