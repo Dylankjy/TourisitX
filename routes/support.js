@@ -5,66 +5,6 @@ const uuid = require('uuid')
 const router = express.Router()
 const { Support } = require('../models')
 
-class Validator {
-    constructor(data) {
-        this.data = data
-    }
-
-    // Used to initialize the validation. Specify the input name, error message to display if false and the name of element to render when showing error
-    Initialize(options) {
-        // Reset the result attribute to true (Make result an instance attribute, not a class attribute so I remove it from the constructor)
-        this.result = true
-        this.name = options.name
-        this.errMsg = options.errorMessage
-        return this
-    }
-
-    // Checks if the element is empty
-    exists() {
-        if (!this.data[this.name]) {
-            this.result = false
-            return this
-        }
-        return this
-    }
-
-    // Checks if a string's length falls within the specified range
-    isLength(options) {
-        const min = options.min
-        const max = options.max
-        if ((this.data[this.name].toString().length < min) || (this.data[this.name].length > max)) {
-            this.result = false
-            return this
-        }
-        // if ((this.data[name]).toString().length < min) return false
-        return this
-    }
-
-    // Checks if a numerical value is between a given range
-    isValue(options) {
-        const min = options.min
-        const max = options.max
-
-        // If it is a number then I'll validate
-        if (!isNaN(this.data[this.name])) {
-            if ((this.data[this.name] < min) || (this.data[this.name] > max)) {
-                this.result = false
-                return this
-            }
-        } else {
-            throw new Error('Only accept Numeric values')
-        }
-        return this
-    }
-
-    // Returns the JSON result of the validation
-    getResult() {
-        if (this.result == false) {
-            return { result: this.result, msg: this.errMsg }
-        }
-        return null
-    }
-}
 // Put all your routings below this line -----
 
 // router.get('/', (req, res) => { ... }

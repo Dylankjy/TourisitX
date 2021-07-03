@@ -1,146 +1,130 @@
 <head>
 	<link rel='stylesheet' href='/third_party/bulma/bulma-switch/dist/css/bulma-switch.min.css' />
+	<script src='/third_party/jquery-ui/jquery-ui.js'></script>
 </head>
 <!-- If validationErrors is defined and there are validationErrors -->
-{{#if (isDefined validationErrors)}}
-{{#if (haveErr validationErrors)}}
-	<div class='section'>
-		<div class='columns'>
-			<div class='column is-8 is-offset-2'>
-				<article class='message is-danger'>
-					<div class='message-header'>
-						<p>Errors</p>
-						<button class='delete' onclick='this.parentElement.parentElement.remove()'></button>
-					</div>
-					<div class='message-body'>
-						{{#each validationErrors}}
-							<blockquote>{{this.msg}}</blockquote>
-						{{/each}}
-					</div>					
-				</article>
+{{#if (isDefined settingErrors)}}
+	{{#if (haveErr settingErrors)}}
+		<div class='section'>
+			<div class='columns'>
+				<div class='column is-8'>
+					<article class='message is-danger'>
+						<div class='message-header'>
+							<p>Errors</p>
+							<button class='delete' onclick='this.parentElement.parentElement.remove()'></button>
+						</div>
+						<div class='message-body'>
+							{{#each settingErrors}}
+								<blockquote>{{this.msg}}</blockquote>
+							{{/each}}
+						</div>
+					</article>
+				</div>
 			</div>
 		</div>
-	</div>
+	{{/if}}
 {{/if}}
-{{/if}}
-
-<section class='section has-background-white' style='width:70%;'>
-	<div class='container'>
-		<h2 class='is-size-3 has-text-weight-bold'>Account Settings</h2>
-		<h6>Change your profile and account settings</h6>
-	</div>
-</section>
 
 <div class='container'>
-	<div class='columns'>
-		<!-- Content -->
-		<div class='box' style='width:70%;'>
-			<div class='column'>
-				<!-- Update account settings -->
-				<form class='form-horizontal formfield' enctype='multipart/form-data' method='POST' id='editSettingForm' target="/u/setting/general">
 
-					<fieldset>
-						<!-- Account Mode -->
-						<div class='field'>
-							<label class='has-text-weight-medium has-text-grey-dark' for='account_mode'>Tour Guide Mode:</label> &nbsp;
-							<input class='switch is-rounded' id='account_mode' type='checkbox' name='account_mode' />
-							<!-- Empty label -->
-							<label class='has-text-weight-medium has-text-grey-dark' for='account_mode'></label>
-						</div>
-						<!-- Name -->
-						<div class='field'>
-							<label class='label has-text-weight-medium has-text-grey-dark' for='name'>Name</label>
-							<div class='control'>
-								<input class='input' type='text' style='height:50px;' name='name' value='{{user.name}}'>
-							</div>
-						</div>
-						<!-- Profile Image -->
-						<div class='field' id='pfp-input'>
-							<label class='label has-text-weight-medium has-text-grey-dark' for='name'>Profile Image: </label>
-							<div class='file has-name'>
-								<label class='file-label'>
-									<input class='file-input' type='file' name='resume' />
-									<span class='file-cta'>
-										<span class='file-icon'>
-											<i class='fas fa-upload'></i>
-										</span>
-										<span class='file-label'>
-											Choose a file…
-										</span>
-									</span>
-									<span class='file-name'>
-										No file chosen
-									</span>
-								</label>
-							</div>
-						</div>
-						
-						<!-- Email -->
-						<div class='field'>
-							<label class='label has-text-weight-medium has-text-grey-dark' for='email'>Email:</label>
-							<div class='control'>
-								<input class='input' type='text' style='height:50px;' name="email" value='{{user.email}}'/>
-							</div>
-						</div>
-						<!-- Phone Number -->
-						<div class='field'>
-							<label class='label has-text-weight-medium has-text-grey-dark' for='phone_number'>Phone Number:</label>
-							<div class='control'>
-								<input class='input' type='text' style='height:50px;' name="phone_number" value='{{user.phone_number}}'/>
-							</div>
-						</div>
+	<h2 class='is-size-3 has-text-weight-bold'>Account Settings</h2>
+	<h6 class='mb-4'>Change your profile and account settings</h6>
 
-						<h1 class='is-size-4 has-text-left has-text-weight-bold pt-6 pb-4'>Social Networks
-							<label class='is-size-6 has-text-danger has-text-weight-normal'> (Optional)</label>
-						</h1>
-						<!-- Facebook -->
-						<div class='field'>
-							<label class='label has-text-weight-medium has-text-grey-dark' for='fb'>Facebook</label>
-							<div class='control'>
-								<input class='input' type='text' style='height:50px;' name="fb" value='{{user.fb}}'/>
-							</div>
+	<!-- Content -->
+	<div class='box' style='width:70%;'>
+		<div class='column'>
+			<!-- Update account settings -->
+			<form class='form-horizontal formfield' enctype='multipart/form-data' method='POST' id='editSettingForm'>
+				<fieldset>
+					<!-- Account Mode -->
+					<div class='field'>
+						<label class='has-text-weight-medium has-text-grey-dark' for='account_mode'>Tour Guide Mode:</label>
+						&nbsp;
+						<input class='switch is-rounded' type='checkbox' name='account_modes' />
+						<!-- Empty label -->
+						<label class='has-text-weight-medium has-text-grey-dark' for='account_modes'></label>
+					</div>
+					<!-- Name -->
+					<div class='field'>
+						<label class='label has-text-weight-medium has-text-grey-dark' for='name'>Name</label>
+						<div class='control'>
+							<input class='input' type='text' style='height:50px;' name='uname' value='{{user.name}}' />
 						</div>
-						<!-- Instagram -->
-						<div class='field'>
-							<label class='label has-text-weight-medium has-text-grey-dark' for='insta'>Instagram</label>
-							<div class='control'>
-								<input class='input' type='text' style='height:50px;' name="insta" value='{{user.insta}}'/>
-							</div>
+					</div>
+					<!-- Profile Image -->
+					<div class='field' id='pfp-input'>
+						<label class='label has-text-weight-medium has-text-grey-dark'>Profile Image: </label>
+						<div class='file has-name'>
+							<label class='file-label'>
+								<input class='file-input' type='file' name='resume' />
+								<span class='file-cta'>
+									<span class='file-icon'>
+										<i class='fas fa-upload'></i>
+									</span>
+									<span class='file-label'>
+										Choose a file…
+									</span>
+								</span>
+								<span class='file-name'>
+									No file chosen
+								</span>
+							</label>
 						</div>
-						<!-- LinkedIn -->
-						<div class='field'>
-							<label class='label has-text-weight-medium has-text-grey-dark' for='linkedin'>LinkedIn</label>
-							<div class='control'>
-								<input class='input' type='text' style='height:50px;' name="li" value='{{user.li}}'/>
-							</div>
+					</div>
+
+					<!-- Email -->
+					<div class='field'>
+						<label class='label has-text-weight-medium has-text-grey-dark' for='email'>Email:</label>
+						<div class='control'>
+							<input class='input' type='text' style='height:50px;' name='email' value='{{user.email}}' />
 						</div>
-						<div class='field is-pulled-right'>
-							<div class='control'>
-								<input
-									type='submit'
-									value='Save Changes'
-									id='submit-setting'
-									name='submit-setting'
-									class='button is-success is-medium'
-									disabled
-								/>
-							</div>
+					</div>
+					<!-- Phone Number -->
+					<div class='field'>
+						<label class='label has-text-weight-medium has-text-grey-dark' for='phone_number'>Phone Number:</label>
+						<div class='control'>
+							<input class='input' type='text' style='height:50px;' name='phone_number' value='{{user.phone_number}}' />
 						</div>
-					</fieldset>
-				</form>
-			</div>
+					</div>
+
+					<h1 class='is-size-4 has-text-left has-text-weight-bold pt-6 pb-4'>Social Networks
+						<label class='is-size-6 has-text-danger has-text-weight-normal'> (Optional)</label>
+					</h1>
+					<!-- Facebook -->
+					<div class='field'>
+						<label class='label has-text-weight-medium has-text-grey-dark' for='fb'>Facebook</label>
+						<div class='control'>
+							<input class='input' type='text' style='height:50px;' name='fb' value='{{user.fb}}' />
+						</div>
+					</div>
+					<!-- Instagram -->
+					<div class='field'>
+						<label class='label has-text-weight-medium has-text-grey-dark' for='insta'>Instagram</label>
+						<div class='control'>
+							<input class='input' type='text' style='height:50px;' name='insta' value='{{user.insta}}' />
+						</div>
+					</div>
+					<!-- LinkedIn -->
+					<div class='field'>
+						<label class='label has-text-weight-medium has-text-grey-dark' for='linkedin'>LinkedIn</label>
+						<div class='control'>
+							<input class='input' type='text' style='height:50px;' name='li' value='{{user.li}}' />
+						</div>
+					</div>
+					<div class='field is-pulled-right'>
+						<div class='control'>
+							<button class='button is-success is-medium' type='submit'>Submit</button>
+						</div>
+					</div>
+				</fieldset>
+			</form>
 		</div>
 	</div>
-</div>
 
+</div>
 
 <!-- Retrieve selected file name-->
 <script>
 	const fileInput = document.querySelector('#pfp-input input[type=file]'); fileInput.onchange = () => { if (fileInput.files.length > 0) { const
 	fileName = document.querySelector('#pfp-input .file-name'); fileName.textContent = fileInput.files[0].name; } }
-</script>
-<!-- Disabled button -->
-<script>
-	var somethingChanged = false; $(document).ready(function () { $('.formfield').change(function () { somethingChanged = true;
-	$('#submit-setting').prop("disabled", false); }); });
 </script>

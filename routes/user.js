@@ -7,8 +7,8 @@ const path = require('path')
 const formidableValidator = require('../app/validation')
 const formidable = require('express-formidable')
 const genkan = require('../app/genkan/genkan')
-// const cookieParser = require('cookie-parser')
 const { convert } = require('image-file-resize')
+const cookieParser = require('cookie-parser')
 
 const { requireLogin, requirePermission, removeNull, emptyArray, removeFromArray } = require('../app/helpers')
 
@@ -22,12 +22,12 @@ const { User } = require('../models')
 const Validator = formidableValidator.Validator
 const fileValidator = formidableValidator.FileValidator
 
-const savedImageFolder = './storage/'
+const savedImageFolder = './storage/users'
 
 require('../app/db')
 
 router.use(formidable())
-// router.use(cookieParser('Please change this when in production use'))
+router.use(cookieParser('Please change this when in production use'))
 
 // Put all your routings below this line -----
 
@@ -69,8 +69,14 @@ router.get('/setting/general', async (req, res) => {
         return requireLogin(res)
     }
 
+    if (req.cookies.storedValues) {
+        const storedValues = JSON.parse(req.cookies.storedValues)
+    } else {
+        const storedValues = {}
+    }
+
     const user = await genkan.getUserBySessionAsync(sid)
-    const metadata = {
+    return res.render('users/general.hbs', {
         meta: {
             title: 'General Setting',
             path: false,
@@ -80,12 +86,12 @@ router.get('/setting/general', async (req, res) => {
         },
         layout: 'setting',
         user,
-    }
-    return res.render('users/general.hbs', metadata)
+        settingErrors: req.cookies.settingErrors,
+    })
 })
 
 router.post('/setting/general', async (req, res) => {
-    const v = new Validator(req.fields)
+    res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
     const sid = req.signedCookies.sid
     if (sid == undefined) {
         return requireLogin(res)
@@ -95,158 +101,53 @@ router.post('/setting/general', async (req, res) => {
     }
 
     const user = await genkan.getUserBySessionAsync(sid)
-
-    // Doing this way so its cleaner. Can also directly call these into the removeNull() array
+    const v = new Validator(req.fields)
     const nameResult = v
-        .Initialize({
-            name: 'tourTitle',
-            errorMessage: 'Tour Title must be min 5 characters long',
-        })
+        .Initialize({ name: 'uname', errorMessage: 'Name must be at least 3 characters long' })
         .exists()
-        .isLength({ min: 5 })
+        .isLength({ min: 3 })
         .getResult()
 
-    const descResult = v
-        .Initialize({
-            name: 'tourDesc',
-            errorMessage: 'Please enter a Tour description',
-        })
-        .exists()
+    const phoneResult = v
+        .Initialize({ name: 'phone_number', errorMessage: 'Phone number must be 8 characters long' })
+        .isLength({ min: 8, max: 8 })
         .getResult()
 
-    const durationResult = v
-        .Initialize({
-            name: 'tourDuration',
-            errorMessage: 'Please enter a Tour Duration',
-        })
-        .exists()
+    const fbResult = v
+        .Initialize({ name: 'fb', errorMessage: 'Invalid Facebook link' })
+        .contains('facebook.com')
         .getResult()
 
-    const timingResult = v
-        .Initialize({
-            name: 'finalTimings',
-            errorMessage: 'Please provide a Tour Timing',
-        })
-        .exists()
+    const instaResult = v
+        .Initialize({ name: 'insta', errorMessage: 'Invalid Instagram link' })
+        .contains('instagram.com')
         .getResult()
 
-    const dayResult = v
-        .Initialize({
-            name: 'finalDays',
-            errorMessage: 'Please provide a Tour Day',
-        })
-        .exists()
+    const liResult = v
+        .Initialize({ name: 'li', errorMessage: 'Invalid LinkedIn link' })
+        .contains('linkedin.com/in')
         .getResult()
 
-    const itineraryResult = v
-        .Initialize({
-            name: 'finalItinerary',
-            errorMessage: 'Please create a Tour Itinerary',
-        })
-        .exists()
-        .getResult()
+    const settingErrors = removeNull([nameResult, phoneResult, fbResult, instaResult, liResult])
 
-    const locationResult = v
-        .Initialize({
-            name: 'finalLocations',
-            errorMessage: 'Please provide at least one location',
-        })
-        .exists()
-        .getResult()
-
-    const priceResult = v
-        .Initialize({
-            name: 'tourPrice',
-            errorMessage: 'Tour price must be more than $0',
-        })
-        .exists()
-        .isValue({ min: 1 })
-        .getResult()
-
-    const paxResult = v
-        .Initialize({
-            name: 'tourPax',
-            errorMessage: 'Tour Pax must be at least 1',
-        })
-        .exists()
-        .isValue({ min: 1 })
-        .getResult()
-
-    const revResult = v
-        .Initialize({
-            name: 'tourRevision',
-            errorMessage: 'Tour Revision cannot be negative',
-        })
-        .exists()
-        .isValue({ min: 0 })
-        .getResult()
-
-    const validationErrors = removeNull([
-        nameResult,
-        descResult,
-        durationResult,
-        timingResult,
-        dayResult,
-        itineraryResult,
-        locationResult,
-        priceResult,
-        paxResult,
-        revResult,
-    ])
-
-    if (!emptyArray(validationErrors)) {
-        res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
-        res.redirect(`/listing/edit/${req.params.savedId}`)
+    if (!emptyArray(settingErrors)) {
+        res.cookie('settingErrors', settingErrors, { maxAge: 5000 })
+        res.redirect(`/u/setting/general`)
     } else {
         res.clearCookie('validationErrors')
         res.clearCookie('storedValues')
-        res.clearCookie('savedImageName')
-
-        Shop.update(
-            {
-                tourTitle: req.fields.tourTitle,
-                tourDesc: req.fields.tourDesc,
-                tourDuration: req.fields.tourDuration,
-                tourPrice: req.fields.tourPrice,
-                tourPax: req.fields.tourPax,
-                tourRevision: req.fields.tourRevision,
-                finalTimings: req.fields.finalTimings,
-                finalDays: req.fields.finalDays,
-                finalItinerary: req.fields.finalItinerary,
-                finalLocations: req.fields.finalLocations,
-            },
-            {
-                where: { id: req.params.savedId },
-            },
-        )
-            .then(async (data) => {
-                const doc = {
-                    id: req.params.savedId,
-                    name: req.fields.tourTitle,
-                    description: req.fields.tourDesc,
-                }
-                console.log(doc['id'])
-
-                await elasticSearchHelper.updateDoc(doc)
-
-                res.redirect(`/listing/info/${req.params.savedId}`)
-            })
-            .catch((err) => {
-                console.log(err)
-            })
+        const AccDetails = {
+            'name': req.fields.name,
+            'email': req.fields.email,
+            'phone_number': req.fields.phone_number,
+            'fb': req.fields.fb,
+            'insta': req.fields.insta,
+            'li': req.fields.li,
+        }
+        updateDB('user', { 'id': user.id }, AccDetails, () => {
+            return res.redirect(`/u/setting/general`)
+        })
     }
-
-    const AccDetails = {
-        'name': req.fields.name,
-        'email': req.fields.email,
-        'phone_number': req.fields.phone_number,
-        'fb': req.fields.fb,
-        'insta': req.fields.insta,
-        'li': req.fields.li,
-    }
-
-    updateDB('user', { 'id': user.id }, AccDetails, () => {
-    })
 })
 
 

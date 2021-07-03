@@ -53,6 +53,18 @@ class Validator {
         return this
     }
 
+    // Checks if the string contains a certain value
+    contains(text) {
+        if (this.data[this.name].includes(text) == false) {
+            this.result = false
+            return this
+        }
+        if (!this.data[this.name]) {
+            this.result = true
+            return this
+        }
+        return this
+    }
     // Returns the JSON result of the validation
     getResult() {
         if (this.result == false) {
