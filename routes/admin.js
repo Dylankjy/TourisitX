@@ -198,8 +198,11 @@ router.post('/manage/users/edit/:userId', (req, res) => {
     const targetUserId = req.params.userId
 
     genkan.getUserByID(targetUserId, (user) => {
+        let redirectTo = 'users'
+
         if (user === null) {
-            return false
+            res.cookie('notifs', `ERR_UPDATEDUSER然シテ${req.fields.name}然シテTarget user does not exist. このユーザーは存在しません。`, NotificationCookieOptions)
+            return res.redirect('/admin/manage/' + redirectTo)
         }
 
         const EditUserPayload = {
@@ -213,7 +216,6 @@ router.post('/manage/users/edit/:userId', (req, res) => {
             'li': req.fields.li,
         }
 
-        let redirectTo = null
         // Successful update
         if (user.is_admin === true) {
             redirectTo = 'staff'
