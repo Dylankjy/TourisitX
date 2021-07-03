@@ -63,7 +63,6 @@ const adminAuthorisationRequired = (req, res, next) => {
     })
 }
 
-
 // Block if not logged in
 const loginRequired = (req, res, next) => {
     genkan.isLoggedin(req.signedCookies.sid, (result) => {
@@ -75,6 +74,26 @@ const loginRequired = (req, res, next) => {
         return next()
     })
 }
+
+// Block if not logged in
+const getCurrentUser = (req, res, next) => {
+    if (req.signedCookies.sid === undefined) {
+        req.currentUser = false
+        return next()
+    }
+
+    genkan.getUserBySession(req.signedCookies.sid, (user) => {
+        if (user === null) {
+            req.currentUser = false
+            return next()
+        }
+
+        req.currentUser = user
+        return next()
+    })
+    genkan.isLoggedin(req.signedCookies.sid, () => {})
+}
+
 
 // Module imports
 const dateFormat = require('dateformat')
@@ -191,25 +210,25 @@ const webserver = () => {
 
     // app.use('/shop', routes.market)
 
-    app.use('/listing', routes.listings)
+    app.use('/listing', getCurrentUser, routes.listings)
 
-    app.use('/id', routes.auth)
+    app.use('/id', getCurrentUser, routes.auth)
 
-    app.use('/u', routes.user)
+    app.use('/u', getCurrentUser, routes.user)
 
-    app.use('/bookings', loginRequired, routes.booking)
+    app.use('/bookings', getCurrentUser, loginRequired, routes.booking)
 
-    app.use('/admin', adminAuthorisationRequired, routes.admin)
+    app.use('/admin', getCurrentUser, adminAuthorisationRequired, routes.admin)
 
-    app.use('/', routes.support)
+    app.use('/', getCurrentUser, routes.support)
 
-    app.use('/', routes.index)
+    app.use('/', getCurrentUser, routes.index)
 
-    app.use('/tourguide', loginRequired, routes.tourguide)
+    app.use('/tourguide', getCurrentUser, loginRequired, routes.tourguide)
 
-    app.use('/marketplace', routes.market)
+    app.use('/marketplace', getCurrentUser, routes.market)
 
-    app.use('/es-api', routes.esApi)
+    app.use('/es-api', getCurrentUser, routes.esApi)
 
     // Don't put any more routes after this block, cuz they will get 404'ed
     app.get('*', (req, res) => {
