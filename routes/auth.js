@@ -230,8 +230,9 @@ router.post('/login', (req, res) => {
         }
         const email = req.body.email.toLowerCase().replace(/\s+/g, '')
         const password = req.body.password
+        const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress
 
-        loginAccount(email, password, (result) => {
+        loginAccount(email, password, ipAddress, (result) => {
             if (result === false) {
                 console.log('Failed to login')
                 res.cookie('notifs', 'ERR_CREDS_INVALID', NotificationCookieOptions)
