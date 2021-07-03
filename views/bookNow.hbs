@@ -33,6 +33,11 @@
     <!-- end: customise tour-->
     <br>
     <div class="divider has-text-centered">OR</div>
+        <div class="has-text-centered mb-2">
+            {{#each validationErrors}}
+                <div class="tag is-rounded is-danger is-light">{{this.msg}}</div><br>
+            {{/each}}
+        </div>
     <!--Booking form-->
     <form id="book_form" method="POST" action="#">
 

@@ -657,7 +657,10 @@ router.get('/:id/purchase', async (req, res) => {
         .then(async (items) => {
             const data = await items[0]['dataValues']
             const customPrice = (data['tourPrice'] / 10).toFixed(2)
-            return res.render('bookNow.hbs', { listing: data, customPrice: customPrice })
+            return res.render('bookNow.hbs', {
+                listing: data,
+                customPrice: customPrice,
+                validationErrors: req.cookies.validationErrors })
         }).catch((err) => console.log)
 
     // var userData = await genkan.getUserBySessionAsync(sid);
@@ -725,7 +728,7 @@ router.post('/:id/purchase', async (req, res) => {
             const bookTOCResult = v
                 .Initialize({
                     name: 'bookTOC',
-                    errorMessage: 'Please approve the Terms & Conditions.',
+                    errorMessage: 'Please agree to the Terms & Conditions before booking a tour.',
                 })
                 .exists()
                 .getResult()
