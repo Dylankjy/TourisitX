@@ -7,10 +7,6 @@ integrityCheck.check().catch((err) => {
     process.exit(0)
 })
 
-
-// Module imports
-const dateFormat = require('dateformat')
-
 // Genkan API
 const genkan = require('./app/genkan/genkan')
 
@@ -41,19 +37,13 @@ const app = express()
 // Uses genkan's secret key to sign cookies
 app.use(cookieParser(require('./config/genkan.json').genkan.secretKey))
 
-// Express Additional Options
 // Express: Public Directory
-
-// Need this in order to render the css and images
 app.use('/', express.static('public'))
 app.use('/static', express.static('storage'))
 app.use('/third_party', express.static('third_party'))
 app.use('/usercontent', express.static('storage'))
 
-// Handlebars: Render engine
-app.set('view engine', 'hbs')
-
-// Middleware
+// Express: Middleware
 // Block all pages if not admin
 const adminAuthorisationRequired = (req, res, next) => {
     genkan.isAdmin(req.signedCookies.sid, (result) => {
@@ -85,6 +75,12 @@ const loginRequired = (req, res, next) => {
         return next()
     })
 }
+
+// Module imports
+const dateFormat = require('dateformat')
+
+// Handlebars: Render engine
+app.set('view engine', 'hbs')
 
 // Handlebars: Environment options
 app.engine('hbs', exphbs({
@@ -234,6 +230,7 @@ const webserver = () => {
     })
 }
 
+// Load SQLize models
 require('./models').sequelize.sync().then((req) => {
     webserver()
 }).catch(console.log)
