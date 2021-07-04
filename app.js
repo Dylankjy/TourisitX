@@ -94,6 +94,9 @@ const getCurrentUser = (req, res, next) => {
             return next()
         }
 
+        // Updates the last seen
+        genkan.updateLastSeenByID(user.id)
+
         req.currentUser = user
         return next()
     })
