@@ -8,7 +8,6 @@ const formidableValidator = require('../app/validation')
 const formidable = require('express-formidable')
 const genkan = require('../app/genkan/genkan')
 const { convert } = require('image-file-resize')
-const cookieParser = require('cookie-parser')
 
 const { requireLogin, requirePermission, removeNull, emptyArray, removeFromArray } = require('../app/helpers')
 
@@ -30,8 +29,6 @@ const savedpfpFolder = './storage/users'
 require('../app/db')
 
 router.use(formidable())
-router.use(cookieParser('Please change this when in production use'))
-
 
 imageToB64Callback = (filePath, fileType, callback) => {
     fs.readFile(filePath, (err, data) => {
