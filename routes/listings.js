@@ -191,7 +191,7 @@ router.get('/info/:id', (req, res) => {
                         wishlistArr: userWishlist,
                         data: {
                             currentUser: req.currentUser,
-                        }
+                        },
                     }
 
                     console.log(metadata)
@@ -208,7 +208,7 @@ router.get('/info/:id', (req, res) => {
                         isOwner: owner,
                         wishlistArr: userWishlist,
                     }
-                    
+
                     return res.render('listing.hbs', metadata)
                 }
             }
@@ -243,7 +243,7 @@ router.get('/create', async (req, res) => {
         layout: 'tourGuide',
         data: {
             currentUser: req.currentUser,
-        }
+        },
     }
 
     return res.render('tourGuide/createListing.hbs', metadata)
@@ -447,7 +447,7 @@ router.get('/edit/:savedId', async (req, res) => {
                     validationErrors: req.cookies.validationErrors,
                     data: {
                         currentUser: req.currentUser,
-                    }
+                    },
                 }
 
                 return res.render('tourGuide/editListing.hbs', metadata)
@@ -686,8 +686,8 @@ router.get('/payment/customer/create', async (req, res)=>{
             number: cardNumber,
             exp_month: 9,
             exp_year: 2022,
-            cvc: cvc
-        }
+            cvc: cvc,
+        },
     })
 
     console.log(paymentMethod)
@@ -695,7 +695,7 @@ router.get('/payment/customer/create', async (req, res)=>{
     const customer = await stripe.customers.create({
         email: userData.email,
         name: userData.name,
-        payment_method: paymentMethod.id
+        payment_method: paymentMethod.id,
     })
 
     res.json(customer)
@@ -718,11 +718,11 @@ router.get('/:id/payment', async (req, res) => {
 
 
     // Replace wth res.redirect()
-    res.render("tourGuide/payment.hbs", {
-        key: "blahblah",
-        payeeName: "tester",
-        tourName: "Best Tours",
-        price: "Blah Price"
+    res.render('tourGuide/payment.hbs', {
+        key: 'blahblah',
+        payeeName: 'tester',
+        tourName: 'Best Tours',
+        price: 'Blah Price',
     })
 })
 
@@ -732,25 +732,25 @@ router.post('/:id/payment', async (req, res) => {
 
     const itemData = await Shop.findAll({
         where: {
-            id: itemID
-        }
+            id: itemID,
+        },
     })
 
-    var tourPrice = itemData[0]["dataValues"]["tourPrice"] * 100
+    const tourPrice = itemData[0]['dataValues']['tourPrice'] * 100
     console.log(tourPrice)
 
     const charge = await stripe.charges.create({
         amount: tourPrice,
-        currency: "sgd",
+        currency: 'sgd',
         source: 'tok_visa',
-        description: "Just testing",
-        capture: false
+        description: 'Just testing',
+        capture: false,
     })
 
     console.log(charge.id)
 
     const capture = await stripe.charges.capture(
-        charge.id
+        charge.id,
     )
     res.json(capture)
 })
