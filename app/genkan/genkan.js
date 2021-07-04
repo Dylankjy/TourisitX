@@ -77,13 +77,17 @@ isLoggedin = (sid, callback) => {
             return callback(false)
         }
 
-        const UpdateLastSeenPayload = {
-            'lastseen_time': (new Date()).toISOString(),
-        }
+        return callback(true)
+    })
+}
 
-        updateDB('user', { 'id': result[0].dataValues.userId }, UpdateLastSeenPayload, () => {
-            return callback(true)
-        })
+updateLastSeenByID = (uid, callback) => {
+    const UpdateLastSeenPayload = {
+        'lastseen_time': (new Date()).toISOString(),
+    }
+
+    updateDB('user', { 'id': uid }, UpdateLastSeenPayload, () => {
+        return callback(true)
     })
 }
 
@@ -180,6 +184,7 @@ module.exports = {
     getUserBySessionAsync,
     getUserBySessionDangerous,
     isLoggedin,
+    updateLastSeenByID,
     isAdmin,
     isLoggedinAsync,
     setPassword,
