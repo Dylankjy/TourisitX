@@ -47,4 +47,5 @@ module.exports = {
     removeNull,
     emptyArray,
     removeFromArray,
+    getUserfromSid,
 }
