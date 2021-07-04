@@ -53,6 +53,7 @@
                     return res.json()
                 })
                 .then((data)=>{
+                    $("#displayedListings").html("")
                     if (data["hits"]["hits"].length > 0) {
                             data["hits"]["hits"].forEach((elem)=>{
                             var d = elem["_source"]

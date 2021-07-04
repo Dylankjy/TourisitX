@@ -154,13 +154,14 @@ router.get('/info/:id', (req, res) => {
         },
     })
         .then(async (items) => {
-            const data = await items[0]['dataValues']
+            const tourData = await items[0]['dataValues']
+            console.log(tourData)
             const sid = req.signedCookies.sid
 
             // If person is not logged in
             if (sid == undefined) {
                 return res.render('listing.hbs', {
-                    data: data,
+                    tourData: tourData,
                     isOwner: false,
                 })
             } else {
@@ -172,28 +173,43 @@ router.get('/info/:id', (req, res) => {
 
                 // If user is logged in and has a valid session
                 const userData = await genkan.getUserBySessionAsync(sid)
-                const userWishlist = userData.wishlist
+                const userWishlist = userData.wishlist || ''
+                console.log(`userWishlist is: ${userWishlist}`)
                 // var userWishlistArr = userWishlist.split(';!;')
 
                 // Check if user is the owner of the current listing being browsed
-                const isOwner = userData.id == data.userId
+                const isOwner = userData.id == tourData.userId
                 if (isOwner) {
                 // Manually set to true now.. while waiting for the validation library
                     owner = true
                     const errMsg = req.cookies.imageValError || ''
-                    return res.render('listing.hbs', {
-                        data: data,
+
+                    const metadata = {
+                        tourData: tourData,
                         isOwner: owner,
                         errMsg: errMsg,
                         wishlistArr: userWishlist,
-                    })
+                        data: {
+                            currentUser: req.currentUser,
+                        }
+                    }
+
+                    console.log(metadata)
+
+                    return res.render('listing.hbs', metadata)
                 } else {
                     owner = false
-                    return res.render('listing.hbs', {
-                        data: data,
+
+                    const metadata = {
+                        data: {
+                            currentUser: req.currentUser,
+                        },
+                        tourData: tourData,
                         isOwner: owner,
                         wishlistArr: userWishlist,
-                    })
+                    }
+                    
+                    return res.render('listing.hbs', metadata)
                 }
             }
         })
@@ -222,10 +238,15 @@ router.get('/create', async (req, res) => {
         const storedValues = {}
     }
 
-    return res.render('tourGuide/createListing.hbs', {
+    const metadata = {
         validationErrors: req.cookies.validationErrors,
         layout: 'tourGuide',
-    })
+        data: {
+            currentUser: req.currentUser,
+        }
+    }
+
+    return res.render('tourGuide/createListing.hbs', metadata)
 })
 
 // To create the listing
@@ -421,9 +442,15 @@ router.get('/edit/:savedId', async (req, res) => {
             const isOwner = userData.id == savedData['userId']
             if (isOwner) {
                 res.cookie('storedValues', JSON.stringify(savedData), { maxAge: 5000 })
-                return res.render('tourGuide/editListing.hbs', {
+
+                const metadata = {
                     validationErrors: req.cookies.validationErrors,
-                })
+                    data: {
+                        currentUser: req.currentUser,
+                    }
+                }
+
+                return res.render('tourGuide/editListing.hbs', metadata)
             } else {
                 // Will return "No perms" screen
                 return requirePermission(res)
