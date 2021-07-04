@@ -180,15 +180,24 @@ app.engine('hbs', exphbs({
         },
 
         numToIndex: (value, options) =>{
-            console.log('hi im here lamo')
-            console.log(value)
             index = parseInt(value, 10) - 1
-            console.log(index)
             return index
         },
 
         dateParseISO: (value) => {
             return dateFormat(value, 'dS mmmm yyyy')
+        },
+
+        onlyTime: (value) => {
+            const hours = dateFormat(value, 'HH')
+            let suffix = ''
+            if (parseInt(hours) < 12) {
+                suffix = ' AM'
+            } else if (parseInt(hours) >= 12) {
+                suffix = ' PM'
+            }
+            const time = dateFormat(value, 'hh:MM') + suffix
+            return time
         },
 
         timestampParseISO: (value) => {
