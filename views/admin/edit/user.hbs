@@ -41,6 +41,23 @@
                     </span>
                     <span>Send password recovery email</span>
                 </a>
+                {{#ifEquals data.user.is_admin false}}
+                <a onclick="$('#actionDo').val('PROMOTE'); $('#adminActionsForm').submit()"
+                    class="button is-rounded is-info is-light">
+                    <span class="icon is-small">
+                        <i class="fas fa-user-shield"></i>
+                    </span>
+                    <span>Make staff</span>
+                </a>
+                {{else}}
+                <a onclick="$('#actionDo').val('DEMOTE'); $('#adminActionsForm').submit()"
+                    class="button is-rounded is-danger is-light">
+                    <span class="icon is-small">
+                        <i class="fas fa-angle-double-down"></i>
+                    </span>
+                    <span>Revoke staff</span>
+                </a>
+                {{/ifEquals}}
                 {{!-- <a onclick="$('#actionDo').val('BAN_USER'); $('#adminActionsForm').submit()"
                     class="button is-rounded is-danger is-light">
                     <span class="icon is-small">
