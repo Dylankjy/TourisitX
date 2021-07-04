@@ -94,11 +94,16 @@ const getCurrentUser = (req, res, next) => {
             return next()
         }
 
+        // Updates the last seen
+        genkan.updateLastSeenByID(user.id)
+
         req.currentUser = user
         return next()
     })
-    genkan.isLoggedin(req.signedCookies.sid, () => {})
 }
+
+// Make all routes getCurrentUser
+app.use(getCurrentUser)
 
 
 // Module imports
@@ -218,25 +223,25 @@ const webserver = () => {
 
     // app.use('/shop', routes.market)
 
-    app.use('/listing', getCurrentUser, routes.listings)
+    app.use('/listing', routes.listings)
 
-    app.use('/id', getCurrentUser, routes.auth)
+    app.use('/id', routes.auth)
 
-    app.use('/u', getCurrentUser, routes.user)
+    app.use('/u', routes.user)
 
-    app.use('/bookings', getCurrentUser, loginRequired, routes.booking)
+    app.use('/bookings', loginRequired, routes.booking)
 
-    app.use('/admin', getCurrentUser, adminAuthorisationRequired, routes.admin)
+    app.use('/admin', adminAuthorisationRequired, routes.admin)
 
-    app.use('/', getCurrentUser, routes.support)
+    app.use('/', routes.support)
 
-    app.use('/', getCurrentUser, routes.index)
+    app.use('/', routes.index)
 
-    app.use('/tourguide', getCurrentUser, loginRequired, routes.tourguide)
+    app.use('/tourguide', loginRequired, routes.tourguide)
 
-    app.use('/marketplace', getCurrentUser, routes.market)
+    app.use('/marketplace', routes.market)
 
-    app.use('/es-api', getCurrentUser, routes.esApi)
+    app.use('/es-api', routes.esApi)
 
     // Don't put any more routes after this block, cuz they will get 404'ed
     app.get('*', (req, res) => {
