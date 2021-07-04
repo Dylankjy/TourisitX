@@ -1,3 +1,6 @@
+// Bootscreen
+require('./app/boot/bootscreen')
+
 // System Integrity check
 // This checks the database to ensure it contains the needed objects for the system to function correctly.
 // At no point should this piece of code be disabled or commented out.
@@ -166,8 +169,9 @@ app.engine('hbs', exphbs({
 
         readArrWithReplace: (value, options) =>{
             let arr = value.split(',')
-            arr = arr.map((e)=>e.replaceAll(';!;', ','))
-            // arr = arr.map((e)=>e.replace(';!;', ','))
+            // arr = arr.map((e)=>e.replaceAll(';!;', ','))
+            arr = arr.map((e) => e.replace(new RegExp(';!;', 'g'), ','))
+            // arr = arr.map((e)=>e.replace('/;!;/g', ','))
             return arr
         },
 
