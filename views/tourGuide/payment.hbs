@@ -1,13 +1,13 @@
-<h3>Welcome to Payment Gateway</h3> 
+
 <form action="payment" method="POST"> 
 <script
     src="//checkout.stripe.com/v2/checkout.js"
     class="stripe-button"
-    data-key="<%= key %>" 
-    data-amount="7000" 
-    data-currency="usd" 
-    data-name="Gautam Sharma" 
-    data-description="Buy React.js Complete Course" 
+    data-key="{{key}}" 
+    data-amount="{{price}}" 
+    data-currency="SGD" 
+    data-name="{{payeeName}}" 
+    data-description="{{tourName}}" 
     data-locale="auto" > 
     </script> 
 </form> 

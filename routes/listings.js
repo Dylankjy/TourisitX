@@ -372,7 +372,7 @@ router.post('/create', async (req, res) => {
             tourTitle: req.fields.tourTitle,
             tourDesc: req.fields.tourDesc,
             tourDuration: req.fields.tourDuration,
-            tourPrice: req.fields.tourPrice,
+            tourPrice: parseInt(req.fields.tourPrice),
             tourPax: req.fields.tourPax,
             tourRevision: req.fields.tourRevision,
             finalTimings: req.fields.finalTimings,
@@ -552,7 +552,7 @@ router.post('/edit/:savedId', (req, res) => {
                 tourTitle: req.fields.tourTitle,
                 tourDesc: req.fields.tourDesc,
                 tourDuration: req.fields.tourDuration,
-                tourPrice: req.fields.tourPrice,
+                tourPrice: parseInt(req.fields.tourPrice),
                 tourPax: req.fields.tourPax,
                 tourRevision: req.fields.tourRevision,
                 finalTimings: req.fields.finalTimings,
@@ -636,7 +636,46 @@ router.get('/unhide/:id', (req, res)=>{
 })
 
 
-router.get('/:id/purchase', async (req, res) => {
+router.get('/payment/customer/create', async (req, res)=>{
+    const sid = req.signedCookies.sid
+
+    if (sid == undefined) {
+        return requireLogin(res)
+    }
+
+    if ((await genkan.isLoggedinAsync(sid)) == false) {
+        // Redirect to login page
+        return requireLogin(res)
+    }
+
+    const userData = await genkan.getUserBySessionAsync(sid)
+
+    const cardNumber = '4242424242424242'
+    const cvc = '424'
+
+    const paymentMethod = await stripe.paymentMethods.create({
+        type: 'card',
+        card: {
+            number: cardNumber,
+            exp_month: 9,
+            exp_year: 2022,
+            cvc: cvc
+        }
+    })
+
+    console.log(paymentMethod)
+
+    const customer = await stripe.customers.create({
+        email: userData.email,
+        name: userData.name,
+        payment_method: paymentMethod.id
+    })
+
+    res.json(customer)
+})
+
+
+router.get('/:id/payment', async (req, res) => {
     const itemID = req.params.id
 
     const sid = req.signedCookies.sid
@@ -652,18 +691,49 @@ router.get('/:id/purchase', async (req, res) => {
 
 
     // Replace wth res.redirect()
-    res.send('Redirect to purchase page')
-
-    // var userData = await genkan.getUserBySessionAsync(sid);
-
-    // var listingOwner = await Shop.findAll({
-    //     attributes: ['userId'],
-    //     where: { id: itemID },
-    // })
-
-    // var ownerId = listingOwner[0]["dataValues"]["userId"]
+    res.render("tourGuide/payment.hbs", {
+        key: "blahblah",
+        payeeName: "tester",
+        tourName: "Best Tours",
+        price: "Blah Price"
+    })
 })
 
+
+router.post('/:id/payment', async (req, res) => {
+    const itemID = req.params.id
+
+    const itemData = await Shop.findAll({
+        where: {
+            id: itemID
+        }
+    })
+
+    var tourPrice = itemData[0]["dataValues"]["tourPrice"] * 100
+    console.log(tourPrice)
+
+    const charge = await stripe.charges.create({
+        amount: tourPrice,
+        currency: "sgd",
+        source: 'tok_visa',
+        description: "Just testing",
+        capture: false
+    })
+
+    console.log(charge.id)
+
+    const capture = await stripe.charges.capture(
+        charge.id
+    )
+    res.json(capture)
+})
+
+
+router.get('/charges', async (req, res)=>{
+    const txs = await stripe.balanceTransactions.list({})
+    console.log(txs)
+    res.json(txs)
+})
 
 router.get('/:id/favourite', async (req, res) => {
     const itemID = req.params.id
