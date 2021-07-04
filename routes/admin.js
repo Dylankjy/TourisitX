@@ -243,6 +243,34 @@ router.post('/manage/users/edit/:userId', (req, res) => {
                     return res.redirect('/admin/manage/' + redirectTo)
                 })
             }
+            if (requestedAction === 'PROMOTE') {
+                const PromotePayload = {
+                    'is_admin': true,
+                }
+
+                return User.update(PromotePayload, {
+                    where: { id: user.id },
+                }).catch((err)=>{
+                    throw err
+                }).then((data) => {
+                    res.cookie('notifs', `OK_PROMOTED然シテ${user.name}`, NotificationCookieOptions)
+                    return res.redirect('/admin/manage/staff')
+                })
+            }
+            if (requestedAction === 'DEMOTE') {
+                const DemotePayload = {
+                    'is_admin': false,
+                }
+
+                return User.update(DemotePayload, {
+                    where: { id: user.id },
+                }).catch((err)=>{
+                    throw err
+                }).then((data) => {
+                    res.cookie('notifs', `OK_DEMOTED然シテ${user.name}`, NotificationCookieOptions)
+                    return res.redirect('/admin/manage/users')
+                })
+            }
             if (requestedAction === 'DELETE_USER') {
                 return User.destroy({
                     where: {
