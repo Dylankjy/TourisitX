@@ -179,6 +179,14 @@ app.engine('hbs', exphbs({
             return (value.length == 0)
         },
 
+        numToIndex: (value, options) =>{
+            console.log('hi im here lamo')
+            console.log(value)
+            index = parseInt(value, 10) - 1
+            console.log(index)
+            return index
+        },
+
         dateParseISO: (value) => {
             return dateFormat(value, 'dS mmmm yyyy')
         },

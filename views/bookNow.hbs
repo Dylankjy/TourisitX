@@ -11,8 +11,8 @@
 
 <section class="section">
         <div class="container">
-            <a href="/listing/info/{{ listing.id }}">
-                <i class="fas fa-arrow-left"></i> Back to {{ listing.tourTitle }}
+            <a href="/listing/info/{{ data.listing.id }}">
+                <i class="fas fa-arrow-left"></i> Back to {{ data.listing.tourTitle }}
             </a>
         </div>
         <div class="columns is-centered">
@@ -20,13 +20,13 @@
                 <div class="container box">
     <!--Customise tour-->
         <button class="button is-medium is-fullwidth is-success" onclick="$('#RequireModal').fadeIn('fast')">
-            Customise Tour for ${{customPrice}}
+            Customise Tour for ${{data.customPrice}}
         </button>
 
         <button class="button is-white is-pulled-right has-tooltip-multiline has-tooltip-right"
-                data-tooltip="Pay a fee of ${{customPrice}} upfront to customise this tour. 
-                This tour comes with {{ listing.tourRevision }} free revisions, so that changes may be requested if the tour plan is 
-                unsatisfactory. Each extra revision request will cost ${{customPrice}}. Remaining fees will be charged after the tour plan is finalised.">
+                data-tooltip="Pay a fee of ${{data.customPrice}} upfront to customise this tour. 
+                This tour comes with {{ data.listing.tourRevision }} free revisions, so that changes may be requested if the tour plan is 
+                unsatisfactory. Each extra revision request will cost ${{data.customPrice}}. Remaining fees will be charged after the tour plan is finalised.">
             <i class="far fa-question-circle"></i>
         </button>
 
@@ -34,7 +34,7 @@
     <br>
     <div class="divider has-text-centered">OR</div>
         <div class="has-text-centered mb-2">
-            {{#each validationErrors}}
+            {{#each data.validationErrors}}
                 <div class="tag is-rounded is-danger is-light">{{this.msg}}</div><br>
             {{/each}}
         </div>
@@ -98,15 +98,15 @@
 {{>requirementsModal}}
 
 <div id="finalDays" class="is-hidden">
-    {{listing.finalDays}}
+    {{data.listing.finalDays}}
 </div>
 
 <div id="tourPax" class="is-hidden">
-    {{listing.tourPax}}
+    {{data.listing.tourPax}}
 </div>
 
 <div id="finalTimings" class="is-hidden">
-    {{listing.finalTimings}}
+    {{data.listing.finalTimings}}
 </div>
 
 <script>

@@ -24,6 +24,10 @@ const elasticSearchHelper = require('../app/elasticSearch')
 // })
 
 const TIH_API_KEY = config.secret.TIH_API_KEY
+const STRIPE_PUBLIC_KEY = config.stripe.STRIPE_PUBLIC_KEY
+const STRIPE_SECRET_KEY = config.stripe.STRIPE_SECRET_KEY
+
+const stripe = require('stripe')(STRIPE_SECRET_KEY)
 
 const esClient = require('../app/elasticSearch').esClient
 const chatRoomTable = require('../models/chatRoomTable')
@@ -151,13 +155,14 @@ router.get('/info/:id', (req, res) => {
         },
     })
         .then(async (items) => {
-            const data = await items[0]['dataValues']
+            const tourData = await items[0]['dataValues']
+            console.log(tourData)
             const sid = req.signedCookies.sid
 
             // If person is not logged in
             if (sid == undefined) {
                 return res.render('listing.hbs', {
-                    data: data,
+                    tourData: tourData,
                     isOwner: false,
                 })
             } else {
@@ -169,28 +174,43 @@ router.get('/info/:id', (req, res) => {
 
                 // If user is logged in and has a valid session
                 const userData = await genkan.getUserBySessionAsync(sid)
-                const userWishlist = userData.wishlist
+                const userWishlist = userData.wishlist || ''
+                console.log(`userWishlist is: ${userWishlist}`)
                 // var userWishlistArr = userWishlist.split(';!;')
 
                 // Check if user is the owner of the current listing being browsed
-                const isOwner = userData.id == data.userId
+                const isOwner = userData.id == tourData.userId
                 if (isOwner) {
                 // Manually set to true now.. while waiting for the validation library
                     owner = true
                     const errMsg = req.cookies.imageValError || ''
-                    return res.render('listing.hbs', {
-                        data: data,
+
+                    const metadata = {
+                        tourData: tourData,
                         isOwner: owner,
                         errMsg: errMsg,
                         wishlistArr: userWishlist,
-                    })
+                        data: {
+                            currentUser: req.currentUser,
+                        },
+                    }
+
+                    console.log(metadata)
+
+                    return res.render('listing.hbs', metadata)
                 } else {
                     owner = false
-                    return res.render('listing.hbs', {
-                        data: data,
+
+                    const metadata = {
+                        data: {
+                            currentUser: req.currentUser,
+                        },
+                        tourData: tourData,
                         isOwner: owner,
                         wishlistArr: userWishlist,
-                    })
+                    }
+
+                    return res.render('listing.hbs', metadata)
                 }
             }
         })
@@ -219,10 +239,15 @@ router.get('/create', async (req, res) => {
         const storedValues = {}
     }
 
-    return res.render('tourGuide/createListing.hbs', {
+    const metadata = {
         validationErrors: req.cookies.validationErrors,
         layout: 'tourGuide',
-    })
+        data: {
+            currentUser: req.currentUser,
+        },
+    }
+
+    return res.render('tourGuide/createListing.hbs', metadata)
 })
 
 // To create the listing
@@ -369,7 +394,7 @@ router.post('/create', async (req, res) => {
             tourTitle: req.fields.tourTitle,
             tourDesc: req.fields.tourDesc,
             tourDuration: req.fields.tourDuration,
-            tourPrice: req.fields.tourPrice,
+            tourPrice: parseInt(req.fields.tourPrice),
             tourPax: req.fields.tourPax,
             tourRevision: req.fields.tourRevision,
             finalTimings: req.fields.finalTimings,
@@ -418,9 +443,15 @@ router.get('/edit/:savedId', async (req, res) => {
             const isOwner = userData.id == savedData['userId']
             if (isOwner) {
                 res.cookie('storedValues', JSON.stringify(savedData), { maxAge: 5000 })
-                return res.render('tourGuide/editListing.hbs', {
+
+                const metadata = {
                     validationErrors: req.cookies.validationErrors,
-                })
+                    data: {
+                        currentUser: req.currentUser,
+                    },
+                }
+
+                return res.render('tourGuide/editListing.hbs', metadata)
             } else {
                 // Will return "No perms" screen
                 return requirePermission(res)
@@ -549,7 +580,7 @@ router.post('/edit/:savedId', (req, res) => {
                 tourTitle: req.fields.tourTitle,
                 tourDesc: req.fields.tourDesc,
                 tourDuration: req.fields.tourDuration,
-                tourPrice: req.fields.tourPrice,
+                tourPrice: parseInt(req.fields.tourPrice),
                 tourPax: req.fields.tourPax,
                 tourRevision: req.fields.tourRevision,
                 finalTimings: req.fields.finalTimings,
@@ -633,7 +664,46 @@ router.get('/unhide/:id', (req, res)=>{
 })
 
 
-router.get('/:id/purchase', async (req, res) => {
+router.get('/payment/customer/create', async (req, res)=>{
+    const sid = req.signedCookies.sid
+
+    if (sid == undefined) {
+        return requireLogin(res)
+    }
+
+    if ((await genkan.isLoggedinAsync(sid)) == false) {
+        // Redirect to login page
+        return requireLogin(res)
+    }
+
+    const userData = await genkan.getUserBySessionAsync(sid)
+
+    const cardNumber = '4242424242424242'
+    const cvc = '424'
+
+    const paymentMethod = await stripe.paymentMethods.create({
+        type: 'card',
+        card: {
+            number: cardNumber,
+            exp_month: 9,
+            exp_year: 2022,
+            cvc: cvc,
+        },
+    })
+
+    console.log(paymentMethod)
+
+    const customer = await stripe.customers.create({
+        email: userData.email,
+        name: userData.name,
+        payment_method: paymentMethod.id,
+    })
+
+    res.json(customer)
+})
+
+
+router.get('/:id/payment', async (req, res) => {
     const itemID = req.params.id
 
     const sid = req.signedCookies.sid
@@ -647,32 +717,74 @@ router.get('/:id/purchase', async (req, res) => {
         return requireLogin(res)
     }
 
+
     // Replace wth res.redirect()
-    // res.send('Redirect to purchase page')
+    res.render('tourGuide/payment.hbs', {
+        key: 'blahblah',
+        payeeName: 'tester',
+        tourName: 'Best Tours',
+        price: 'Blah Price',
+    })
+})
+
+
+router.post('/:id/payment', async (req, res) => {
+    const itemID = req.params.id
+
+    const itemData = await Shop.findAll({
+        where: {
+            id: itemID,
+        },
+    })
+
+    const tourPrice = itemData[0]['dataValues']['tourPrice'] * 100
+    console.log(tourPrice)
+
+    const charge = await stripe.charges.create({
+        amount: tourPrice,
+        currency: 'sgd',
+        source: 'tok_visa',
+        description: 'Just testing',
+        capture: false,
+    })
+
+    console.log(charge.id)
+
+    const capture = await stripe.charges.capture(
+        charge.id,
+    )
+    res.json(capture)
+})
+
+router.get('/:id/purchase', async (req, res) => {
+    console.log('pepe hands')
+    const itemID = req.params.id
+
     Shop.findAll({
         where: {
             id: itemID,
         },
     })
         .then(async (items) => {
-            const data = await items[0]['dataValues']
-            const customPrice = (data['tourPrice'] / 10).toFixed(2)
-            return res.render('bookNow.hbs', {
-                listing: data,
-                customPrice: customPrice,
-                validationErrors: req.cookies.validationErrors })
-        }).catch((err) => console.log)
-
-    // var userData = await genkan.getUserBySessionAsync(sid);
-
-    // var listingOwner = await Shop.findAll({
-    //     attributes: ['userId'],
-    //     where: { id: itemID },
-    // })
-
-    // var ownerId = listingOwner[0]["dataValues"]["userId"]
+            const tourData = await items[0]['dataValues']
+            console.log(tourData)
+            const customPrice = (tourData['tourPrice'] / 10).toFixed(2)
+            const metadata = {
+                meta: {
+                    title: 'Book Now - ' + tourData.tourTitle,
+                },
+                data: {
+                    currentUser: req.currentUser,
+                    listing: tourData,
+                    customPrice: customPrice,
+                    validationErrors: req.cookies.validationErrors,
+                },
+            }
+            return res.render('bookNow.hbs', metadata )
+        }).catch((err) => {
+            throw err
+        })
 })
-
 
 router.post('/:id/purchase', async (req, res) => {
     console.log(req.fields)
@@ -936,6 +1048,12 @@ router.post('/:id/purchase/customise', async (req, res) => {
         }).catch((err) => console.log)
 })
 
+
+router.get('/charges', async (req, res)=>{
+    const txs = await stripe.balanceTransactions.list({})
+    console.log(txs)
+    res.json(txs)
+})
 
 router.get('/:id/favourite', async (req, res) => {
     const itemID = req.params.id
