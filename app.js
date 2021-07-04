@@ -70,6 +70,14 @@ app.engine('hbs', exphbs({
             }
         },
 
+        ifInRange(value, lower, upper, options) {
+            if ((lower <= parseInt(value)) && (parseInt(value)<= upper)) {
+                return options.fn(this)
+            } else {
+                return options.inverse(this)
+            }
+        },
+
         haveErr: (value, options) =>{
             // Removes all null values and boolean (true if not empty, false if empty)
             return value.filter((n) => n).length != 0
@@ -92,6 +100,10 @@ app.engine('hbs', exphbs({
 
         emptyArr: (value, options) =>{
             return (value.length == 0)
+        },
+
+        dateParseISO: (value) => {
+            return dateFormat(value, 'dS mmmm yyyy')
         },
 
         timestampParseISO: (value) => {
