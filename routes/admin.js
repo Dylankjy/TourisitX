@@ -258,6 +258,12 @@ router.post('/manage/users/edit/:userId', (req, res) => {
                 })
             }
             if (requestedAction === 'DEMOTE') {
+                // Check whether demotion is the currentUser
+                if (req.currentUser.id === user.id) {
+                    res.cookie('notifs', `ERR_DEMOTE然シテ${user.name}然シテSystem Error: Attempt to demote account, but account is self. (It sounds funny to fire yourself, but I'm not going to let it happen.)`, NotificationCookieOptions)
+                    return res.redirect('/admin/manage/users/edit/' + user.id)
+                }
+
                 const DemotePayload = {
                     'is_admin': false,
                 }

@@ -13,6 +13,20 @@
     </script>
     {{/ifEquals}}
 
+    {{#ifEquals data.updatedMessage.status 'ERR_DEMOTE'}}
+    <div id="updateMessage" class="notification is-danger is-light">
+        <p><i class="fas fa-times"></i>&ensp;Failed demote user. Error is as follows:</p>
+        <code>
+      {{data.updatedMessage.err}}
+  </code>
+    </div>
+    <script>
+        setTimeout(() => {
+            $('#updateMessage').slideUp()
+        }, 10000)
+    </script>
+    {{/ifEquals}}
+
     <div class="box p-5">
         <small>Editing user:</small>
         <h2 class="title is-2">{{data.user.name}}</h2>
