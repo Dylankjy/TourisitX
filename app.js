@@ -178,13 +178,13 @@ app.engine('hbs', exphbs({
         iteminWishList: (item, wishlist) => {
             if (wishlist == null || wishlist == '') {
                 return false
-            }
-
-            wishlist = wishlist.split(';!;')
-            if (wishlist.includes(item)) {
-                return true
             } else {
-                return false
+                wishlist = wishlist.split(';!;')
+                if (wishlist.includes(item)) {
+                    return true
+                } else {
+                    return false
+                }
             }
         },
     },

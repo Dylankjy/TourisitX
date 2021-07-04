@@ -22,7 +22,13 @@ router.get('/', (req, res) => {
             return listings
             // return res.render('marketplace.hbs', { listings: listings })
         }).then((listings)=>{
-            return res.render('marketplace.hbs', { listings: listings })
+            const metadata = {
+                listings: listings,
+                data: {
+                    currentUser: req.currentUser,
+                },
+            }
+            return res.render('marketplace.hbs', metadata)
         })
         .catch((err)=>{
             console.log(err)

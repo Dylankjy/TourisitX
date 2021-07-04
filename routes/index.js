@@ -80,7 +80,7 @@ router.get('/wishlist', async (req, res) => {
                 nav: {
                     wishlist: true,
                 },
-                listing: listings,
+                listing: wishlist,
                 data: {
                     currentUser: req.currentUser,
                 },
