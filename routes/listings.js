@@ -17,8 +17,9 @@ const config = require('../config/apikeys.json')
 
 // Globals
 const router = express.Router()
-const { Shop, User, Booking, ChatRoom } = require('../models')
+const { Shop, User, Booking, ChatRoom, ChatMessages } = require('../models')
 const elasticSearchHelper = require('../app/elasticSearch')
+const { addRoom, addMessage } = require('../app/chat/chat.js')
 // const esClient = elasticSearch.Client({
 //     host: 'http://47.241.14.108:9200',
 // })
@@ -31,6 +32,7 @@ const stripe = require('stripe')(STRIPE_SECRET_KEY)
 
 const esClient = require('../app/elasticSearch').esClient
 const chatRoomTable = require('../models/chatRoomTable')
+const chatMessagesTable = require('../models/chatMessagesTable')
 
 const Validator = formidableValidator.Validator
 const fileValidator = formidableValidator.FileValidator
@@ -910,10 +912,15 @@ router.post('/:id/purchase', async (req, res) => {
                     completed: 0,
                     approved: 1,
                 }).then(async (data) => {
-                    ChatRoom.create({
-                        chatId: genId2,
-                        participants: userData.id + ',' + listing.userId,
-                        bookingId: genId1,
+                    // ChatRoom.create({
+                    //     chatId: genId2,
+                    //     participants: userData.id + ',' + listing.userId,
+                    //     bookingId: genId1,
+                    // })
+                    participants = [userData.id, listing.userId]
+                    addRoom(participants, genId1, (roomId)=> {
+                        console.log('added')
+                        console.log(roomId)
                     })
                 }).catch((err) => {
                     console.log(err)

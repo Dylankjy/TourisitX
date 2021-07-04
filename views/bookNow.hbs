@@ -8,7 +8,6 @@
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
 <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
-
 <section class="section">
         <div class="container">
             <a href="/listing/info/{{ data.listing.id }}">
@@ -110,7 +109,9 @@
 </div>
 
 <script>
-    $(".dateField").datepicker({ 
+
+    $(document).ready(function(){
+        $(".dateField").datepicker({ 
         minDate: 1,
         maxDate: 90,
         beforeShowDay: filterDays,
@@ -179,4 +180,5 @@
         timeOptions += "<option>"+timingsArray[i]+"</option>"
     }
     $("select#TimeField").html(timeOptions)
+    })
 </script>

@@ -13,13 +13,15 @@ addRoom = (participants, bookingId, callback) => {
         throw new Error('Participants must of type object in a valid format.')
     }
 
+    participantsStr = participants[0] + ',' + participants[1]
+
     const AddRoomPayload = {
         'chatId': uuid.v1(),
-        'participants': participants,
+        'participants': participantsStr,
         'bookingId': bookingId,
     }
 
-    insertDB('chat', AddRoomPayload, (result) => {
+    insertDB('chatroom', AddRoomPayload, (result) => {
         // In rare situations, should the db operation fail, do not panic.
         // It's okay if everything decides to burn up and perish.
         if (result !== true) {
@@ -48,13 +50,17 @@ addMessage = (roomId, senderId, messageText, flag, callback) => {
     })
 }
 
-const exports = {
-    'room': {
-        add: addRoom,
-    },
-    'msg': {
-        add: addMessage,
-    },
-}
+// const exports = {
+//     'room': {
+//         add: addRoom,
+//     },
+//     'msg': {
+//         add: addMessage,
+//     },
+// }
 
-module.exports = exports
+// module.exports = exports
+module.exports = {
+    addRoom,
+    addMessage,
+}
