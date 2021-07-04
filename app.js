@@ -1,3 +1,6 @@
+// Bootscreen
+require('./app/boot/bootscreen')
+
 // System Integrity check
 // This checks the database to ensure it contains the needed objects for the system to function correctly.
 // At no point should this piece of code be disabled or commented out.
