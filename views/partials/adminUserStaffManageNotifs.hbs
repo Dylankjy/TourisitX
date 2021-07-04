@@ -1,0 +1,59 @@
+{{#ifEquals data.updatedMessage.status 'OK_UPDATEDUSER'}}
+<div id="updateMessage" class="notification is-success is-light">
+    <p><b><i class="fas fa-check"></i>&ensp;User updated successfully:</b> {{data.updatedMessage.updatedUser}}</p>
+</div>
+<script>
+    setTimeout(() => {
+        $('#updateMessage').slideUp()
+    }, 3000)
+</script>
+{{/ifEquals}}
+
+{{#ifEquals data.updatedMessage.status 'OK_EMAILCONFIRMED'}}
+<div id="updateMessage" class="notification is-success is-light">
+    <p><b><i class="fas fa-check"></i>&ensp;Email confirmed:</b> {{data.updatedMessage.updatedUser}}</p>
+</div>
+<script>
+    setTimeout(() => {
+        $('#updateMessage').slideUp()
+    }, 3000)
+</script>
+{{/ifEquals}}
+
+{{#ifEquals data.updatedMessage.status 'OK_SENDRECOVEREMAIL'}}
+<div id="updateMessage" class="notification is-success is-light">
+    <p><b><i class="fas fa-check"></i>&ensp;Account recovery email has been sent: </b>
+        {{data.updatedMessage.updatedUser}}</p>
+</div>
+<script>
+    setTimeout(() => {
+        $('#updateMessage').slideUp()
+    }, 3000)
+</script>
+{{/ifEquals}}
+
+{{#ifEquals data.updatedMessage.status 'OK_DELETED'}}
+<div id="updateMessage" class="notification is-success is-light">
+    <p><b><i class="fas fa-user-times"></i>&ensp;Account closed: </b> {{data.updatedMessage.updatedUser}}</p>
+</div>
+<script>
+    setTimeout(() => {
+        $('#updateMessage').slideUp()
+    }, 5000)
+</script>
+{{/ifEquals}}
+
+{{#ifEquals data.updatedMessage.status 'ERR_UPDATEDUSER'}}
+<div id="updateMessage" class="notification is-danger">
+    <p><b><i class="fas fa-exclamation-triangle"></i>&ensp;Something went wrong</b></p>
+    <p>'{{data.updatedMessage.updatedUser}}' could not be updated. The error is as follows:</p>
+    <code>
+      {{data.updatedMessage.err}}
+  </code>
+</div>
+<script>
+    setTimeout(() => {
+        $('#updateMessage').slideUp()
+    }, 10000)
+</script>
+{{/ifEquals}}

@@ -21,6 +21,7 @@ const SystemUserSchema = {
     'is_admin': true,
     'email_status': true,
     'phone_status': true,
+    'bio': 'Automated tasks and handling of the backend subsystems such as the chat.',
 }
 
 const systemUserObject = () => {

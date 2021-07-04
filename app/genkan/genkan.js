@@ -12,6 +12,10 @@ const saltRounds = 12
 
 getUserByID = (uid, callback) => {
     findDB('user', { 'id': uid }, (userResult) => {
+        if (userResult.length !== 1) {
+            return callback(null)
+        }
+
         return callback(userResult[0].dataValues)
     })
 }
@@ -78,7 +82,33 @@ isLoggedin = (sid, callback) => {
         }
 
         updateDB('user', { 'id': result[0].dataValues.userId }, UpdateLastSeenPayload, () => {
-            callback(true)
+            return callback(true)
+        })
+    })
+}
+
+isAdmin = (sid, callback) => {
+    if (sid === undefined) {
+        return callback(false)
+    }
+
+    findDB('session', { 'sessionId': sid }, (result) => {
+        if (result.length !== 1) {
+            return callback(false)
+        }
+
+        const UpdateLastSeenPayload = {
+            'lastseen_time': (new Date()).toISOString(),
+        }
+
+        findDB('user', { 'id': result[0].dataValues.userId, 'is_admin': true }, (user) => {
+            if (user.length !== 1) {
+                return callback(false)
+            }
+
+            updateDB('user', { 'id': result[0].dataValues.userId }, UpdateLastSeenPayload, () => {
+                return callback(true)
+            })
         })
     })
 }
@@ -150,6 +180,7 @@ module.exports = {
     getUserBySessionAsync,
     getUserBySessionDangerous,
     isLoggedin,
+    isAdmin,
     isLoggedinAsync,
     setPassword,
 }

@@ -75,13 +75,14 @@ router.post('/register', (req, res) => {
         const name = req.body.username
         const email = req.body.email.toLowerCase().replace(/\s+/g, '')
         const password = req.body.password
+        const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress
 
         const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
         // Data validations
         if (emailRegex.test(email) === false || password.length < 8) return
 
-        newAccount(name, email, password, (result) => {
+        newAccount(name, email, password, ipAddress, (result) => {
             if (result === false) {
                 console.log('Duplicate account')
                 res.cookie('notifs', 'ERR_DUP_EMAIL', NotificationCookieOptions)
@@ -183,10 +184,12 @@ router.get('/confirm', (req, res) => {
         if (req.query.token !== undefined) {
             return confirmEmail(req.query.token, (result) => {
                 if (result === false) {
-                    return res.render('auth/confirmEmail', { notifs: 'ERR_EMAIL_TOKEN_INVALID', metadata })
+                    metadata.notifs = 'ERR_EMAIL_TOKEN_INVALID'
+                    return res.render('auth/confirmEmail', metadata)
                 }
 
-                return res.render('auth/confirmEmail', { notifs: 'OK_EMAIL_CONFIRMED', metadata })
+                metadata.notifs = 'OK_EMAIL_CONFIRMED'
+                return res.render('auth/confirmEmail', metadata)
             })
         }
 
@@ -195,8 +198,10 @@ router.get('/confirm', (req, res) => {
             return res.redirect('/id/login')
         }
 
+        metadata.userEmailAddress = req.signedCookies.preData
+
         // Else give them the email confirmation page
-        return res.render('auth/confirmEmail', { userEmailAddress: req.signedCookies.preData })
+        return res.render('auth/confirmEmail', metadata)
     })
 })
 
@@ -212,6 +217,7 @@ router.get('/login', (req, res) => {
         layout: 'auth',
         notifs: req.signedCookies.notifs,
         csrfToken: req.csrfToken(),
+        loginToContinue: req.query.required,
     }
 
     isLoggedin(req.signedCookies.sid, (result) => {
@@ -229,8 +235,9 @@ router.post('/login', (req, res) => {
         }
         const email = req.body.email.toLowerCase().replace(/\s+/g, '')
         const password = req.body.password
+        const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress
 
-        loginAccount(email, password, (result) => {
+        loginAccount(email, password, ipAddress, (result) => {
             if (result === false) {
                 console.log('Failed to login')
                 res.cookie('notifs', 'ERR_CREDS_INVALID', NotificationCookieOptions)
