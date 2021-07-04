@@ -45,7 +45,7 @@
                             <p class="has-text-weight-bold">Logged in as</p>
                             <p>{{ data.currentUser.name }}</p>
                         </div>
-                        <a class="navbar-item" href='/u/profile'>
+                        <a class="navbar-item" href='/u/profile/{{ data.currentUser.id }}'>
                             Your profile
                         </a>
                         <a class="navbar-item" href='/bookings'>
