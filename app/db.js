@@ -68,7 +68,9 @@ deleteDB = (table, query, callback) => {
     })
 }
 
-module.exports = insertDB
-module.exports = updateDB
-module.exports = deleteDB
-module.exports = findDB
+// module.exports = insertDB
+// module.exports = updateDB
+// module.exports = deleteDB
+// module.exports = findDB
+
+module.exports = { insertDB, updateDB, deleteDB, findDB }
