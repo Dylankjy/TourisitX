@@ -20,6 +20,7 @@ const router = express.Router()
 const { Shop, User, Booking, ChatRoom, ChatMessages } = require('../models')
 const elasticSearchHelper = require('../app/elasticSearch')
 const { addRoom, addMessage } = require('../app/chat/chat.js')
+const { insertDB, updateDB, deleteDB, findDB } = require('../app/db.js')
 // const esClient = elasticSearch.Client({
 //     host: 'http://47.241.14.108:9200',
 // })
@@ -759,7 +760,6 @@ router.post('/:id/payment', async (req, res) => {
 })
 
 router.get('/:id/purchase', async (req, res) => {
-    console.log('pepe hands')
     const itemID = req.params.id
 
     Shop.findAll({
@@ -793,15 +793,6 @@ router.post('/:id/purchase', async (req, res) => {
     res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
     const tourID = req.params.id
     const sid = req.signedCookies.sid
-
-    if (sid == null) {
-        return requireLogin(res)
-    }
-
-    if ((await genkan.isLoggedinAsync(sid)) == false) {
-    // Redirect to login page
-        return requireLogin(res)
-    }
 
     const userData = await genkan.getUserBySessionAsync(sid)
     Shop.findAll({
@@ -864,8 +855,7 @@ router.post('/:id/purchase', async (req, res) => {
                 // Remove cookies for stored form values + validation errors
                 res.clearCookie('validationErrors')
                 res.clearCookie('storedValues')
-                const genId1 = uuid.v4()
-                const genId2 = uuid.v4()
+                const genId = uuid.v4()
 
                 const rawTourDate = req.fields.tourDate
                 const darr = rawTourDate.split('/')
@@ -892,11 +882,11 @@ router.post('/:id/purchase', async (req, res) => {
                 const orderDateTime = new Date().toISOString()
 
                 Booking.create({
-                    bookId: genId1,
+                    bookId: genId,
                     custId: userData.id,
                     tgId: listing.userId,
                     listingId: listing.id,
-                    chatId: genId2,
+                    chatId: '00000000-0000-0000-0000-000000000000',
                     orderDatetime: orderDateTime,
                     tourStart: startTour,
                     tourEnd: endTour,
@@ -915,19 +905,27 @@ router.post('/:id/purchase', async (req, res) => {
                     // ChatRoom.create({
                     //     chatId: genId2,
                     //     participants: userData.id + ',' + listing.userId,
-                    //     bookingId: genId1,
+                    //     bookingId: genId,
                     // })
                     participants = [userData.id, listing.userId]
-                    addRoom(participants, genId1, (roomId)=> {
-                        console.log('added')
-                        console.log(roomId)
+                    addRoom(participants, genId, (roomId)=> {
+                        updateDB('booking', { bookId: genId }, { chatId: roomId }, () => {
+                            console.log('updated successfully')
+                            // c-c-callback hell,,?
+                            addMessage(roomId, 'SYSTEM', 'You placed an order for this tour.', 'ACTIVITY', () => {
+                                //  will be removed once TG accept/reject system is in place
+                                addMessage(roomId, 'SYSTEM', 'Tour Guide accepted your order.', 'ACTIVITY', () => {
+                                    //  will be removed once payment system is in place
+                                    addMessage(roomId, 'SYSTEM', 'You made payment. You are now ready to go on your tour!', 'ACTIVITY', () => {
+                                        res.redirect(`/bookings`)
+                                    })
+                                })
+                            })
+                        })
                     })
                 }).catch((err) => {
                     console.log(err)
                 })
-
-                console.log('Inserted')
-                res.redirect(`/bookings`)
             }
         }).catch((err) => console.log)
 })
@@ -938,15 +936,6 @@ router.post('/:id/purchase/customise', async (req, res) => {
     res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
     const tourID = req.params.id
     const sid = req.signedCookies.sid
-
-    if (sid == null) {
-        return requireLogin(res)
-    }
-
-    if ((await genkan.isLoggedinAsync(sid)) == false) {
-    // Redirect to login page
-        return requireLogin(res)
-    }
 
     const userData = await genkan.getUserBySessionAsync(sid)
     Shop.findAll({
@@ -1009,8 +998,7 @@ router.post('/:id/purchase/customise', async (req, res) => {
                 // Remove cookies for stored form values + validation errors
                 res.clearCookie('validationErrors')
                 res.clearCookie('storedValues')
-                const genId1 = uuid.v4()
-                const genId2 = uuid.v4()
+                const genId = uuid.v4()
 
                 const rawTourDate = req.fields.tourDate
                 const darr = rawTourDate.split('/')
@@ -1020,11 +1008,11 @@ router.post('/:id/purchase/customise', async (req, res) => {
                 const customPrice = (listing['tourPrice'] / 10).toFixed(2)
 
                 Booking.create({
-                    bookId: genId1,
+                    bookId: genId,
                     custId: userData.id,
                     tgId: listing.userId,
                     listingId: listing.id,
-                    chatId: genId2,
+                    chatId: '00000000-0000-0000-0000-000000000000',
                     orderDatetime: orderDateTime,
                     tourStart: startTour,
                     tourEnd: endTour,
@@ -1040,17 +1028,25 @@ router.post('/:id/purchase/customise', async (req, res) => {
                     completed: 0,
                     approved: 1,
                 }).then(async (data) => {
-                    ChatRoom.create({
-                        chatId: genId2,
-                        participants: userData.id + ',' + listing.userId,
-                        bookingId: genId1,
+                    participants = [userData.id, listing.userId]
+                    addRoom(participants, genId, (roomId)=> {
+                        updateDB('booking', { bookId: genId }, { chatId: roomId }, () => {
+                            console.log('updated successfully')
+                            // c-c-callback hell,,?
+                            addMessage(roomId, 'SYSTEM', 'You placed an order for this tour with your custom requirements.', 'ACTIVITY', () => {
+                                //  will be removed once TG accept/reject system is in place
+                                addMessage(roomId, 'SYSTEM', 'Tour Guide accepted your order.', 'ACTIVITY', () => {
+                                    //  will be removed once payment system is in place
+                                    addMessage(roomId, 'SYSTEM', 'You paid the customisation fee.', 'ACTIVITY', () => {
+                                        res.redirect(`/bookings`)
+                                    })
+                                })
+                            })
+                        })
                     })
                 }).catch((err) => {
                     console.log(err)
                 })
-
-                console.log('Inserted')
-                res.redirect(`/bookings`)
             }
         }).catch((err) => console.log)
 })

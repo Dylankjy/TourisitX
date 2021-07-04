@@ -39,13 +39,14 @@ addMessage = (roomId, senderId, messageText, flag, callback) => {
     }
 
     const AddMessagePayload = {
+        'messageId': uuid.v4(),
         'roomId': roomId,
         'senderId': senderId,
         'messageText': messageText,
         'flag': flag,
     }
 
-    insertDB('chatMessages', AddMessagePayload, () => {
+    insertDB('chatmessages', AddMessagePayload, () => {
         return callback(true)
     })
 }
