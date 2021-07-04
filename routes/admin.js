@@ -21,7 +21,7 @@ const NotificationCookieOptions = {
     secure: true,
     signed: true,
     // domain: `.${config.webserver.cookieDomain}`,
-    maxAge: 5000,
+    maxAge: 2500,
     path: '/',
 }
 
