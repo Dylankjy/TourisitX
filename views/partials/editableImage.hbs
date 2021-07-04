@@ -1,8 +1,8 @@
-<div class='section listing-img editable-img' id='renderImage' style='background: url("/static/listings/{{data.tourImage}}") center; background-size: cover;'>
+<div class='section listing-img editable-img' id='renderImage' style='background: url("/static/listings/{{tourData.tourImage}}") center; background-size: cover;'>
     <p class='subtitle image-center-text' id="editText" hidden>Change Image</p>
 </div>
 
-<form class="form-horizontal" enctype="multipart/form-data" method="POST" id='editImageForm' action='/listing/edit/image/{{data.id}}'>
+<form class="form-horizontal" enctype="multipart/form-data" method="POST" id='editImageForm' action='/listing/edit/image/{{tourData.id}}'>
     <input name="tourImage" type="file" accept="image/x-png,image/jpeg" hidden>
 </form>    
 

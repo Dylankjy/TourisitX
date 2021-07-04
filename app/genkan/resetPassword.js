@@ -106,3 +106,4 @@ resetPassword = (resetPasswordToken, newPassword, callback) => {
 // })
 
 module.exports = resetPassword
+module.exports = sendResetPasswordEmail

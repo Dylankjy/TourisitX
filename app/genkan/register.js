@@ -126,7 +126,7 @@ confirmEmail = (token, callback) => {
 //     console.log('Confirmed')
 // })
 
-// newAccount("test", "test@tester.com", "test", ()=>{
+// newAccount("test", "test@tester.com", "test",'234,567,890,76', ()=>{
 //     console.log("Done")
 // })
 

@@ -38,7 +38,7 @@
         {{>editableImage}}
 
         {{else}}
-        <div class='listing-img' style='background: url("/static/listings/{{data.tourImage}}") center; background-size: cover;'></div>
+        <div class='listing-img' style='background: url("/static/listings/{{tourData.tourImage}}") center; background-size: cover;'></div>
 
         {{/if}}
 
@@ -48,19 +48,19 @@
                 <div class='column is-5'>
                     <div class='content'>
                         <h1 class='title is-4'>Tour Title:</h1>
-                        <p class='subtitle is-6'>{{data.tourTitle}}</p>
+                        <p class='subtitle is-6'>{{tourData.tourTitle}}</p>
                     </div>
                     
                     <br>
                     <div class='content'>
                         <h1 class='title is-4'>Tour Description:</h1>
-                        <p class='subtitle is-6'>{{data.tourDesc}}</p>
+                        <p class='subtitle is-6'>{{tourData.tourDesc}}</p>
                     </div>
 
                     <br>
                     <div class='content'>
                         <h1 class='title is-4'>Tour Price:</h1>
-                        <p class='subtitle is-6'>${{data.tourPrice}}</p>
+                        <p class='subtitle is-6'>${{tourData.tourPrice}}</p>
                     </div>
                 </div>
 
@@ -73,7 +73,7 @@
                             <span class="tag is-medium is-info">Tour Start</span>
                         </header>
 
-                        {{#each (readArrWithReplace data.finalItinerary)}}
+                        {{#each (readArrWithReplace tourData.finalItinerary)}}
                         <div class="timeline-item">
                             <div class="timeline-marker is-icon">
                                 <i class="fa fa-flag"></i>
@@ -93,26 +93,26 @@
                 <div class='column is-3'>
                     <div class='content'>
                         <h1 class='title is-4'>Tour Duration:</h1>
-                        <p class='subtitle is-6'>{{data.tourDuration}} hours</p>
+                        <p class='subtitle is-6'>{{tourData.tourDuration}} hours</p>
                     </div>
 
                     <div class='content'>
                         <h1 class='title is-4'>Tour Timing:</h1>
-                        {{#each (readArr data.finalTimings)}}
+                        {{#each (readArr tourData.finalTimings)}}
                         <p class='subtitle is-6'>{{this}}</p>
                         {{/each}}
                     </div>
 
                     <div class='content'>
                         <h1 class='title is-4'>Tour Days:</h1>
-                        {{#each (readArr data.finalDays)}}
+                        {{#each (readArr tourData.finalDays)}}
                         <p class='subtitle is-6'>{{this}}</p>
                         {{/each}}
                     </div>
                     
                     <div class='content'>
                         <h1 class='title is-4'>Tour Locations:</h1>
-                        {{#each (readArrWithReplace data.finalLocations)}}
+                        {{#each (readArrWithReplace tourData.finalLocations)}}
                         <p class='subtitle is-6'>{{this}}</p>
                         {{/each}}
                     </div>
@@ -124,7 +124,7 @@
             <br><br>
             <div class='container'>
                 {{#if isOwner}}
-                <a class='button mr-4 is-dark' href='/listing/edit/{{data.id}}'>
+                <a class='button mr-4 is-dark' href='/listing/edit/{{tourData.id}}'>
                     <span class='icon'>
                         <i class="fas fa-edit"></i>
                     </span>
@@ -134,8 +134,8 @@
                 </a>
 
                 <!-- Check if hidden or not -->
-                {{#if (evalBoolean data.hidden)}}
-                <a class='button mr-4 is-success is-light' href='/listing/unhide/{{data.id}}'>
+                {{#if (evalBoolean tourData.hidden)}}
+                <a class='button mr-4 is-success is-light' href='/listing/unhide/{{tourData.id}}'>
                     <span class='icon'>
                         <i class="fas fa-eye"></i>
                     </span>
@@ -145,7 +145,7 @@
                 </a>
                 {{else}}
 
-                <a class='button mr-4 is-danger is-light' href='/listing/hide/{{data.id}}'>
+                <a class='button mr-4 is-danger is-light' href='/listing/hide/{{tourData.id}}'>
                     <span class='icon'>
                         <i class="fas fa-eye-slash"></i>
                     </span>
@@ -156,7 +156,7 @@
                 
                 {{/if}}
 
-                <a class='button mr-4 is-danger is-light' href="/listing/delete/{{data.id}}">
+                <a class='button mr-4 is-danger is-light' href="/listing/delete/{{tourData.id}}">
                     <span class='icon'>
                         <i class="fas fa-trash"></i>
                     </span>
@@ -166,7 +166,7 @@
                 </a>
 
                 {{else}}
-                <a class='button mr-4 is-success is-outlined' href="/listing/{{data.id}}/purchase">
+                <a class='button mr-4 is-success is-outlined' href="/listing/{{tourData.id}}/purchase">
                     <span class='icon'>
                         <i class="fas fa-shopping-cart"></i>
                     </span>
@@ -175,8 +175,8 @@
                     </span>
                 </a>
 
-                {{#if (iteminWishList data.id wishlistArr )}}
-                <a class='button mr-4 is-danger is-outlined' href="/listing/{{data.id}}/unfavourite">
+                {{#if (iteminWishList tourData.id wishlistArr )}}
+                <a class='button mr-4 is-danger is-outlined' href="/listing/{{tourData.id}}/unfavourite">
                     <span class='icon'>
                         <i class="fas fa-heart-broken"></i>
                     </span>
@@ -186,7 +186,7 @@
                 </a>
 
                 {{else}}
-                <a class='button mr-4 is-danger is-outlined' href="/listing/{{data.id}}/favourite">
+                <a class='button mr-4 is-danger is-outlined' href="/listing/{{tourData.id}}/favourite">
                     <span class='icon'>
                         <i class="fas fa-heart"></i>
                     </span>

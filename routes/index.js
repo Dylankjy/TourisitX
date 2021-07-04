@@ -6,7 +6,7 @@ const express = require('express')
 
 const router = express.Router()
 
-router.get('/', (req, res)=>{
+router.get('/', (req, res) => {
     const listings = []
     Shop.findAll({
         attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
@@ -28,6 +28,9 @@ router.get('/', (req, res)=>{
                     index: true,
                 },
                 listing: listings,
+                data: {
+                    currentUser: req.currentUser,
+                },
             }
             return res.render('index', metadata)
         })
@@ -69,7 +72,22 @@ router.get('/wishlist', async (req, res) => {
                 wishlist.push(doc['dataValues'])
             })
 
-            return res.render('customer/wishlist', { wishlist: wishlist })
+            const metadata = {
+                meta: {
+                    title: 'Wishlist',
+                    path: false,
+                },
+                nav: {
+                    wishlist: true,
+                },
+                listing: wishlist,
+                data: {
+                    currentUser: req.currentUser,
+                },
+                wishlist: wishlist,
+            }
+
+            return res.render('customer/wishlist', metadata)
         })
         .catch((err)=>{
             console.log(err)
