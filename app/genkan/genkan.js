@@ -81,14 +81,12 @@ isLoggedin = (sid, callback) => {
     })
 }
 
-updateLastSeenByID = (uid, callback) => {
+updateLastSeenByID = (uid) => {
     const UpdateLastSeenPayload = {
         'lastseen_time': (new Date()).toISOString(),
     }
 
-    updateDB('user', { 'id': uid }, UpdateLastSeenPayload, () => {
-        return callback(true)
-    })
+    updateDB('user', { 'id': uid }, UpdateLastSeenPayload, () => {})
 }
 
 isAdmin = (sid, callback) => {
