@@ -125,6 +125,7 @@
         {{/unless}}
     </div>
 
+    {{#ifNotEquals data.currentUser.id data.user.id}}
     {{#unless data.readonly}}
     <div class='box p-5'>
         <h4 class="title">Account Settings</h4>
@@ -236,4 +237,12 @@
         {{/ifEquals}}
     </div>
     {{/unless}}
+
+    {{else}}
+    <div class="box p-5">
+        <h4 class="title">This is your account.</h4>
+        <p class="subtitle">For security reasons, you cannot edit your own account in Admin mode.</p>
+        <p>To edit account settings, please edit it <a href="/u/setting/general">here</a>.</p>
+    </div>
+    {{/ifNotEquals}}
 </div>
