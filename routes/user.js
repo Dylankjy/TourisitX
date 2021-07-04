@@ -18,17 +18,47 @@ const config = require('../config/apikeys.json')
 // Globals
 const router = express.Router()
 const { User } = require('../models')
+const elasticSearchHelper = require('../app/elasticSearch')
+
+const esClient = require('../app/elasticSearch').esClient
 
 const Validator = formidableValidator.Validator
 const fileValidator = formidableValidator.FileValidator
 
-const savedImageFolder = './storage/users'
+const savedpfpFolder = './storage/users'
 
 require('../app/db')
 
 router.use(formidable())
 router.use(cookieParser('Please change this when in production use'))
 
+
+imageToB64Callback = (filePath, fileType, callback) => {
+    fs.readFile(filePath, (err, data) => {
+        const base64 = Buffer.from(data).toString('base64')
+        // var formattedSrc = `<img src="data:${fileType};base64, ${base64}">`
+        fileType = fileType.replace('.', '')
+        const formattedSrc = `data:image/${fileType};base64, ${base64}`
+
+        callback(formattedSrc)
+        // console.log(base64)
+    })
+}
+
+storeImage = (filePath, fileName, folder) => {
+    const imgName = uuid.v4()
+
+    const fileExt = path.extname(fileName)
+    const savedName = `${imgName}${fileExt}`
+    const savedPath = `${folder}/${imgName}${fileExt}`
+
+    const data = fs.readFileSync(filePath)
+    const imgBuffer = Buffer.from(data)
+
+    fs.writeFileSync(savedPath, imgBuffer)
+
+    return savedName
+}
 // Put all your routings below this line -----
 
 // router.get('/', (req, res) => { ... }
@@ -102,52 +132,56 @@ router.post('/setting/general', async (req, res) => {
 
     const user = await genkan.getUserBySessionAsync(sid)
     const v = new Validator(req.fields)
+    const fv = new fileValidator(req.files['profile_img'])
     const nameResult = v
         .Initialize({ name: 'uname', errorMessage: 'Name must be at least 3 characters long' })
         .exists()
         .isLength({ min: 3 })
         .getResult()
 
-    const phoneResult = v
-        .Initialize({ name: 'phone_number', errorMessage: 'Phone number must be 8 characters long' })
-        .isLength({ min: 8, max: 8 })
+    const pfpResult = fv
+        .Initialize({ errorMessage: 'Please supply a valid Image' })
+        .fileExists()
+        .sizeAllowed({ maxSize: 5000000 })
         .getResult()
 
-    const fbResult = v
-        .Initialize({ name: 'fb', errorMessage: 'Invalid Facebook link' })
-        .getResult()
-        
-
-    const instaResult = v
-        .Initialize({ name: 'insta', errorMessage: 'Invalid Instagram link' })
-        .getResult()
-
-    const liResult = v
-        .Initialize({ name: 'li', errorMessage: 'Invalid LinkedIn link' })
-        .getResult()
-
-    if (fb == '') {
+    if (req.fields.phone_number == '') {
     }
     else {
-        v.Initialize({ name: 'fb', errorMessage: 'Invalid Facebook link' })
+        var phoneResult = v
+            .Initialize({ name: 'phone_number', errorMessage: 'Phone number must be 8 characters long' })
+            .isLength({ min: 8, max: 8 })
+            .getResult()
+    }
+
+    if (req.fields.fb == '') {
+    }
+    else {
+        var fbResult = v
+            .Initialize({ name: 'fb', errorMessage: 'Invalid Facebook link' })
             .contains('facebook.com')
             .getResult()
     }
-    if (insta == '') {
+
+    if (req.fields.insta == '') {
     }
     else {
-        v.Initialize({ name: 'insta', errorMessage: 'Invalid Instagram link' })
+        var instaResult = v
+            .Initialize({ name: 'insta', errorMessage: 'Invalid Instagram link' })
             .contains('instagram.com')
             .getResult()
     }
-    if (li == '') {
+
+    if (req.fields.li == '') {
     }
     else {
-        v.Initialize({ name: 'li', errorMessage: 'Invalid LinkedIn link' })
+        var liResult = v
+            .Initialize({ name: 'li', errorMessage: 'Invalid LinkedIn link' })
             .contains('linkedin.com/in')
             .getResult()
     }
-    const settingErrors = removeNull([nameResult, phoneResult, fbResult, instaResult, liResult])
+
+    const settingErrors = removeNull([nameResult, phoneResult, pfpResult, fbResult, instaResult, liResult])
 
     if (!emptyArray(settingErrors)) {
         res.cookie('settingErrors', settingErrors, { maxAge: 5000 })
@@ -155,17 +189,73 @@ router.post('/setting/general', async (req, res) => {
     } else {
         res.clearCookie('validationErrors')
         res.clearCookie('storedValues')
-        const AccDetails = {
-            'name': req.fields.name,
-            'email': req.fields.email,
-            'phone_number': req.fields.phone_number,
-            'fb': req.fields.fb,
-            'insta': req.fields.insta,
-            'li': req.fields.li,
-        }
-        updateDB('user', { 'id': user.id }, AccDetails, () => {
-            return res.redirect(`/u/setting/general`)
+
+
+
+        let filePath = req.files['profile_img']['path']
+        let fileName = req.files['profile_img']['name']
+        const saveFolder = savedpfpFolder
+        const savedName = storeImage(
+            (filePath = filePath),
+            (fileName = fileName),
+            (folder = saveFolder),
+        )
+        console.log(`Added file is ${savedName}`)
+        // const AccDetails = {
+        //     'name': req.fields.name,
+        //     'email': req.fields.email,
+        //     'phone_number': req.fields.phone_number,
+        //     'profile_img': savedName,
+        //     'fb': req.fields.fb,
+        //     'insta': req.fields.insta,
+        //     'li': req.fields.li,
+        // }
+        User.findAll({
+            where: {
+                id: user.id,
+            },
+        }).then((items) => {
+            const savedpfpFile = items[0]['dataValues']['profile_img']
+            if (savedpfpFile != 'default.jpg') {
+                console.log(`Removed IMAGE FILE: ${savedpfpFile}`)
+                fs.unlinkSync(`${savedpfpFolder}/${savedpfpFile}`)
+            }
         })
+
+        User.update(
+            {
+                name: req.fields.name,
+                email: req.fields.email,
+                phone_number: req.fields.phone_number,
+                profile_img: savedName,
+                fb: req.fields.fb,
+                insta: req.fields.insta,
+                li: req.fields.li,
+            },
+            {
+                where: { id: user.id },
+            },
+        )
+            .catch((err) => {
+                console.log(err)
+            })
+            .then(async (data) => {
+                // Update elastic search
+                const doc = {
+                    id: user.id,
+                    image: savedName,
+                }
+
+                await elasticSearchHelper.updateImage(doc)
+
+                res.redirect(`/u/setting/general`)
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+        // updateDB('user', { 'id': user.id }, AccDetails, () => {
+        //     return res.redirect(`/u/setting/general`)
+        // })
     }
 })
 
