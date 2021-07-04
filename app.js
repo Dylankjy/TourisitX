@@ -166,8 +166,9 @@ app.engine('hbs', exphbs({
 
         readArrWithReplace: (value, options) =>{
             let arr = value.split(',')
-            arr = arr.map((e)=>e.replaceAll(';!;', ','))
-            // arr = arr.map((e)=>e.replace(';!;', ','))
+            // arr = arr.map((e)=>e.replaceAll(';!;', ','))
+            arr = arr.map((e) => e.replace(new RegExp(';!;', 'g'), ','))
+            // arr = arr.map((e)=>e.replace('/;!;/g', ','))
             return arr
         },
 
