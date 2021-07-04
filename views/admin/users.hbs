@@ -1,16 +1,20 @@
 <h1 class="title">Manage Users</h1>
+
+{{>adminUserStaffManageNotifs}}
+
 <table class="table is-fullwidth">
     <tr>
         <th>Username</th>
         <th>Email status</th>
+        <th>Phone status</th>
         <th>Registration date</th>
-        <th>Last login</th>
+        <th>Last seen</th>
         <th>Account Mode</th>
         <th>Last IP Address</th>
     </tr>
     {{#each data.users}}
     <tr>
-        <td><a href="/admin/manage/user/{{this.id}}">{{ this.name }}</a></td>
+        <td><a href="/admin/manage/users/edit/{{this.id}}">{{ this.name }}</a></td>
 
         {{#ifEquals this.email_status true}}
         <td><i class="fas fa-check"></i></td>
@@ -18,9 +22,15 @@
         <td><i class="fas fa-times"></i></td>
         {{/ifEquals}}
 
-        <td>{{timestampParseISO this.registration_time }}</td>
+        {{#ifEquals this.phone_status true}}
+        <td><i class="fas fa-check"></i></td>
+        {{else}}
+        <td><i class="fas fa-times"></i></td>
+        {{/ifEquals}}
 
-        <td>{{timestampParseISO this.last_seen_time }}</td>
+        <td>{{timestampParseISO this.createdAt }}</td>
+
+        <td>{{timestampParseISO this.lastseen_time }}</td>
 
         {{#ifEquals this.account_mode 1}}
         <td>Tour Guide</td>
@@ -32,3 +42,32 @@
     </tr>
     {{/each}}
 </table>
+
+<nav class="pagination is-centered" role="navigation" aria-label="pagination">
+    {{#ifNotEquals data.pagination.current data.pagination.firstPage }}
+    <a class="pagination-previous" href="?page={{data.pagination.previous}}">Previous</a>
+    {{/ifNotEquals}}
+
+    {{#ifNotEquals data.pagination.current data.pagination.lastPage }}
+    <a class="pagination-next" href="?page={{data.pagination.next}}">Next page</a>
+    {{/ifNotEquals}}
+    <ul class="pagination-list">
+        {{#ifNotEquals data.pagination.current data.pagination.firstPage }}
+        {{#ifNotEquals data.pagination.previous data.pagination.firstPage }}
+        <li><a class="pagination-link" href="?page={{data.pagination.firstPage}}">{{data.pagination.firstPage}}</a></li>
+        <li><span class="pagination-ellipsis">&hellip;</span></li>
+        {{/ifNotEquals}}
+        <li><a class="pagination-link" href="?page={{data.pagination.previous}}">{{data.pagination.previous}}</a></li>
+        {{/ifNotEquals}}
+
+        <li><a class="pagination-link is-current" aria-current="page">{{data.pagination.current}}</a></li>
+
+        {{#ifNotEquals data.pagination.current data.pagination.lastPage }}
+        {{#ifNotEquals data.pagination.next data.pagination.lastPage }}
+        <li><a class="pagination-link" href="?page={{data.pagination.next}}">{{data.pagination.next}}</a></li>
+        <li><span class="pagination-ellipsis">&hellip;</span></li>
+        {{/ifNotEquals}}
+        <li><a class="pagination-link" href="?page={{data.pagination.lastPage}}">{{data.pagination.lastPage}}</a></li>
+        {{/ifNotEquals}}
+    </ul>
+</nav>

@@ -29,9 +29,10 @@
             Unable to log out since you aren't logged in.
         </div>
         {{/ifEquals}}
-        {{#ifEquals notifs "ERR_NOLOGIN_PRESENT"}}
-        <div id="badLogin" class="notification is-danger">
-            Logging into a system object is not allowed.
+
+        {{#ifEquals loginToContinue "1"}}
+        <div id="badLogin" class="notification is-light">
+            <i class="fas fa-exclamation-circle"></i>&ensp;Please login to continue.
         </div>
         {{/ifEquals}}
         <form method="POST">
@@ -55,9 +56,14 @@
                 </div>
             </div>
             <div class="field">
+                {{#ifEquals loginToContinue "1"}}
+                <button class="button is-dark has-text-weight-medium" type="submit"><i
+                        class="fas fa-arrow-right"></i>&ensp;Continue</button>
+                {{else}}
                 <button class="button is-primary has-text-weight-medium" type="submit"><i
                         class="fas fa-arrow-right"></i>&ensp;Sign
                     in</button>
+                {{/ifEquals}}
                 <a class="button is-light" href="/id/recover"><i class="fas fa-life-ring"></i>&ensp;I can't sign
                     in</a>
             </div>

@@ -21,6 +21,7 @@
                     Helpdesk
                 </a>
             </div>
+            {{#if data.currentUser}}
             <div class="navbar-end">
                 <a class="navbar-item has-tooltip-arrow has-tooltip-bottom" data-tooltip="Your Bookings"
                     href="/bookings">
@@ -34,7 +35,6 @@
                     href="/u/messages">
                     <i class="fas fa-comment-alt"></i>
                 </a>
-
                 <div class="navbar-item has-dropdown is-hoverable">
                     <div class="navbar-item">
                         <div class="profile-img" style="background-image: url('/static/pfp.jpg')"></div>
@@ -43,7 +43,7 @@
                     <div class="navbar-dropdown is-boxed is-right is-glass-white">
                         <div class="has-background-light p-4 mb-2 has-text-black">
                             <p class="has-text-weight-bold">Logged in as</p>
-                            <p>{{ user.name }}</p>
+                            <p>{{ data.currentUser.name }}</p>
                         </div>
                         <a class="navbar-item" href='/u/profile'>
                             Your profile
@@ -55,19 +55,26 @@
                             Account settings
                         </a>
                         <hr class="navbar-divider">
-                        <a onclick="$('#logoutOptionsModal').fadeIn('fast')" class="navbar-item has-text-danger-dark">
+                        <a href="/id/logout" class="navbar-item has-text-danger-dark">
                             <i class="fas fa-sign-out-alt"></i>&ensp;Sign out
                         </a>
                     </div>
                 </div>
             </div>
-            {{!-- <div class="navbar-end">
-                <div class="navbar-item has-background-dark">
-                    <a href="/id/login" class="navbar-item is-family-secondary has-text-white has-background-dark">
-                        <i class="fas fa-sign-out-alt"></i>&ensp;Login
+            {{else}}
+            <div class="navbar-end">
+                <div class="navbar-item has-background-grey-darker">
+                    <a href="/id/login" class="navbar-item is-family-secondary has-text-white has-background-grey-darker">
+                        <i class="fas fa-sign-in-alt"></i>&ensp;Login
                     </a>
                 </div>
-            </div> --}}
+                <div class="navbar-item has-background-grey-dark">
+                    <a href="/id/register" class="navbar-item is-family-secondary has-text-white has-background-grey-dark">
+                        <i class="fas fa-user-plus"></i>&ensp;Join
+                    </a>
+                </div>
+            </div>
+            {{/if}}
         </div>
     </div>
 </nav>

@@ -58,6 +58,7 @@ module.exports = (sequelize, DataTypes) => {
             wishlist: {
                 type: DataTypes.STRING(2048),
                 allowNull: true,
+                defaultValue: '',
             },
 
             fb: {
