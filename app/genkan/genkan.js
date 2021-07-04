@@ -99,18 +99,12 @@ isAdmin = (sid, callback) => {
             return callback(false)
         }
 
-        const UpdateLastSeenPayload = {
-            'lastseen_time': (new Date()).toISOString(),
-        }
-
         findDB('user', { 'id': result[0].dataValues.userId, 'is_admin': true }, (user) => {
             if (user.length !== 1) {
                 return callback(false)
             }
 
-            updateDB('user', { 'id': result[0].dataValues.userId }, UpdateLastSeenPayload, () => {
-                return callback(true)
-            })
+            callback(true)
         })
     })
 }
