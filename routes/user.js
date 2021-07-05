@@ -7,7 +7,6 @@ const path = require('path')
 const formidableValidator = require('../app/validation')
 const formidable = require('express-formidable')
 const genkan = require('../app/genkan/genkan')
-// const cookieParser = require('cookie-parser')
 const { convert } = require('image-file-resize')
 
 const { requireLogin, requirePermission, removeNull, emptyArray, removeFromArray } = require('../app/helpers')
@@ -18,58 +17,177 @@ const config = require('../config/apikeys.json')
 // Globals
 const router = express.Router()
 const { User } = require('../models')
+const elasticSearchHelper = require('../app/elasticSearch')
+
+const esClient = require('../app/elasticSearch').esClient
 
 const Validator = formidableValidator.Validator
 const fileValidator = formidableValidator.FileValidator
 
-const savedImageFolder = './storage/'
+const savedpfpFolder = './storage/users'
 
 require('../app/db')
 
 router.use(formidable())
-// router.use(cookieParser('Please change this when in production use'))
 
+imageToB64Callback = (filePath, fileType, callback) => {
+    fs.readFile(filePath, (err, data) => {
+        const base64 = Buffer.from(data).toString('base64')
+        // var formattedSrc = `<img src="data:${fileType};base64, ${base64}">`
+        fileType = fileType.replace('.', '')
+        const formattedSrc = `data:image/${fileType};base64, ${base64}`
+
+        callback(formattedSrc)
+        // console.log(base64)
+    })
+}
+
+storeImage = (filePath, fileName, folder) => {
+    const imgName = uuid.v4()
+
+    const fileExt = path.extname(fileName)
+    const savedName = `${imgName}${fileExt}`
+    const savedPath = `${folder}/${imgName}${fileExt}`
+
+    const data = fs.readFileSync(filePath)
+    const imgBuffer = Buffer.from(data)
+
+    fs.writeFileSync(savedPath, imgBuffer)
+
+    return savedName
+}
 // Put all your routings below this line -----
 
 // router.get('/', (req, res) => { ... }
-router.get('/profile', (req, res) => {
-    const metadata = {
-        meta: {
-            title: 'profile',
-            path: false,
-        },
-        nav: {
-            sidebarActive: '',
-        },
-        layout: '',
-    }
-    return res.render('users/profile.hbs', {
-        user: {
-            name: 'Harold Chan',
-            password: 'password',
-            email: 'test@email.com',
-            bio: 'Hide The Pain',
-            pfp: '/static/pfp.jpg',
-            phone_number: '12348765',
-            account_mode: 0,
-            fb: 'https://www.facebook.com/',
-            insta: 'https://www.instagram.com/',
-            li: 'https://www.linkedin.com/company/paul-immigrations/',
+router.get('/profile/:id', async (req, res) => {
+    const userID = req.params.id
+
+    User.findAll({
+        where: {
+            id: userID,
         },
     })
+        .then(async (items) => {
+            const uData = await items[0]['dataValues']
+            console.log(uData)
+            const sid = req.signedCookies.sid
+
+            // If person is not logged in
+            if (sid == undefined) {
+                return res.render('profile.hbs', {
+                    uData: uData,
+                    isOwner: false,
+                })
+            } else {
+                // Check if session is up to date. Else, require person to reloggin
+                if ((await genkan.isLoggedinAsync(sid)) == false) {
+                    // Redirect to login page
+                    return requireLogin(res)
+                }
+                if (req.cookies.storedValues) {
+                    const storedValues = JSON.parse(req.cookies.storedValues)
+                } else {
+                    const storedValues = {}
+                }
+                // If user is logged in and has a valid session
+                const userData = await genkan.getUserBySessionAsync(sid)
+
+                // Check if user is the owner of the current listing being browsed
+                const isOwner = userData.id == uData.id
+                if (isOwner) {
+                    // Manually set to true now.. while waiting for the validation library
+                    owner = true
+                    const metadata = {
+                        meta: {
+                            title: 'Profile',
+                            path: false,
+                        },
+                        data: {
+                            currentUser: req.currentUser,
+                        },
+                        uData: uData,
+                        isOwner: owner,
+                        bioErrors: req.cookies.bioErrors,
+                    }
+                    return res.render('users/profile.hbs', metadata)
+                } else {
+                    owner = false
+
+                    const metadata = {
+                        meta: {
+                            title: 'Profile',
+                            path: false,
+                        },
+                        data: {
+                            currentUser: req.currentUser,
+                        },
+                        uData: uData,
+                        isOwner: owner,
+                    }
+                    return res.render('users/profile.hbs', metadata)
+                }
+            }
+        })
+        .catch((err) => console.log)
+})
+
+router.post('/profile/:id', async (req, res) => {
+    res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
+    const sid = req.signedCookies.sid
+    if (sid == undefined) {
+        return requireLogin(res)
+    }
+    if ((await genkan.isLoggedinAsync(sid)) == false) {
+        return requireLogin(res)
+    }
+
+    const user = await genkan.getUserBySessionAsync(sid)
+    const v = new Validator(req.fields)
+
+    const bioErrors = []
+    if (req.fields.bio == '') {
+    } else {
+        const bioResult = v
+            .Initialize({ name: 'bio', errorMessage: 'Bio must be less than 200 characters' })
+            .isLength({ max: 200 })
+            .getResult()
+        bioErrors.push(bioResult)
+    }
+
+    bioErrors = removeNull(bioErrors)
+
+    if (!emptyArray(bioErrors)) {
+        res.cookie('bioErrors', bioErrors, { maxAge: 5000 })
+        res.redirect(`/u/profile/${req.params.id}`)
+    } else {
+        res.clearCookie('bioErrors')
+        res.clearCookie('storedValues')
+
+        const bioDetails = {
+            'bio': req.fields.bio,
+        }
+        updateDB('user', { 'id': user.id }, bioDetails, () => {
+            return res.redirect(`/u/profile/${req.params.id}`)
+        })
+    }
 })
 
 router.get('/setting/general', async (req, res) => {
     const sid = req.signedCookies.sid
     if (sid == undefined) {
         return requireLogin(res)
-    }
-
-    if ((await genkan.isLoggedinAsync(sid)) == false) {
+    } else if ((await genkan.isLoggedinAsync(sid)) == false) {
         return requireLogin(res)
     }
 
+    if (req.cookies.storedValues) {
+        const storedValues = JSON.parse(req.cookies.storedValues)
+    } else {
+        const storedValues = {}
+    }
+
     const user = await genkan.getUserBySessionAsync(sid)
+
     const metadata = {
         meta: {
             title: 'General Setting',
@@ -79,13 +197,17 @@ router.get('/setting/general', async (req, res) => {
             sidebarActive: 'general',
         },
         layout: 'setting',
+        data: {
+            currentUser: req.currentUser,
+        },
         user,
+        settingErrors: req.cookies.settingErrors,
     }
     return res.render('users/general.hbs', metadata)
 })
 
 router.post('/setting/general', async (req, res) => {
-    const v = new Validator(req.fields)
+    res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
     const sid = req.signedCookies.sid
     if (sid == undefined) {
         return requireLogin(res)
@@ -95,158 +217,130 @@ router.post('/setting/general', async (req, res) => {
     }
 
     const user = await genkan.getUserBySessionAsync(sid)
-
-    // Doing this way so its cleaner. Can also directly call these into the removeNull() array
+    const v = new Validator(req.fields)
+    // const fv = new fileValidator(req.files['profile_img'])
+    settingErrors = []
     const nameResult = v
-        .Initialize({
-            name: 'tourTitle',
-            errorMessage: 'Tour Title must be min 5 characters long',
-        })
+        .Initialize({ name: 'uname', errorMessage: 'Name must be at least 3 characters long' })
         .exists()
-        .isLength({ min: 5 })
+        .isLength({ min: 3 })
         .getResult()
+    settingErrors.push(nameResult)
+    // const pfpResult = fv
+    //     .Initialize({ errorMessage: 'Please supply a valid Image' })
+    //     .fileExists()
+    //     .sizeAllowed({ maxSize: 5000000 })
+    //     .getResult()
 
-    const descResult = v
-        .Initialize({
-            name: 'tourDesc',
-            errorMessage: 'Please enter a Tour description',
-        })
-        .exists()
-        .getResult()
-
-    const durationResult = v
-        .Initialize({
-            name: 'tourDuration',
-            errorMessage: 'Please enter a Tour Duration',
-        })
-        .exists()
-        .getResult()
-
-    const timingResult = v
-        .Initialize({
-            name: 'finalTimings',
-            errorMessage: 'Please provide a Tour Timing',
-        })
-        .exists()
-        .getResult()
-
-    const dayResult = v
-        .Initialize({
-            name: 'finalDays',
-            errorMessage: 'Please provide a Tour Day',
-        })
-        .exists()
-        .getResult()
-
-    const itineraryResult = v
-        .Initialize({
-            name: 'finalItinerary',
-            errorMessage: 'Please create a Tour Itinerary',
-        })
-        .exists()
-        .getResult()
-
-    const locationResult = v
-        .Initialize({
-            name: 'finalLocations',
-            errorMessage: 'Please provide at least one location',
-        })
-        .exists()
-        .getResult()
-
-    const priceResult = v
-        .Initialize({
-            name: 'tourPrice',
-            errorMessage: 'Tour price must be more than $0',
-        })
-        .exists()
-        .isValue({ min: 1 })
-        .getResult()
-
-    const paxResult = v
-        .Initialize({
-            name: 'tourPax',
-            errorMessage: 'Tour Pax must be at least 1',
-        })
-        .exists()
-        .isValue({ min: 1 })
-        .getResult()
-
-    const revResult = v
-        .Initialize({
-            name: 'tourRevision',
-            errorMessage: 'Tour Revision cannot be negative',
-        })
-        .exists()
-        .isValue({ min: 0 })
-        .getResult()
-
-    const validationErrors = removeNull([
-        nameResult,
-        descResult,
-        durationResult,
-        timingResult,
-        dayResult,
-        itineraryResult,
-        locationResult,
-        priceResult,
-        paxResult,
-        revResult,
-    ])
-
-    if (!emptyArray(validationErrors)) {
-        res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
-        res.redirect(`/listing/edit/${req.params.savedId}`)
+    if (req.fields.phone_number == '') {
     } else {
-        res.clearCookie('validationErrors')
+        const phoneResult = v
+            .Initialize({ name: 'phone_number', errorMessage: 'Phone number must be 8 characters long' })
+            .isLength({ min: 8, max: 8 })
+            .getResult()
+        settingErrors.push(phoneResult)
+    }
+
+    if (req.fields.fb == '') {
+    } else {
+        const fbResult = v
+            .Initialize({ name: 'fb', errorMessage: 'Invalid Facebook link' })
+            .contains('facebook.com')
+            .getResult()
+        settingErrors.push(fbResult)
+    }
+
+    if (req.fields.insta == '') {
+    } else {
+        const instaResult = v
+            .Initialize({ name: 'insta', errorMessage: 'Invalid Instagram link' })
+            .contains('instagram.com')
+            .getResult()
+        settingErrors.push(instaResult)
+    }
+
+    if (req.fields.li == '') {
+    } else {
+        const liResult = v
+            .Initialize({ name: 'li', errorMessage: 'Invalid LinkedIn link' })
+            .contains('linkedin.com/in')
+            .getResult()
+        settingErrors.push(liResult)
+    }
+
+    settingErrors = removeNull(settingErrors)
+
+    if (!emptyArray(settingErrors)) {
+        res.cookie('settingErrors', settingErrors, { maxAge: 5000 })
+        res.redirect(`/u/setting/general`)
+    } else {
+        res.clearCookie('settingErrors')
         res.clearCookie('storedValues')
-        res.clearCookie('savedImageName')
 
-        Shop.update(
-            {
-                tourTitle: req.fields.tourTitle,
-                tourDesc: req.fields.tourDesc,
-                tourDuration: req.fields.tourDuration,
-                tourPrice: req.fields.tourPrice,
-                tourPax: req.fields.tourPax,
-                tourRevision: req.fields.tourRevision,
-                finalTimings: req.fields.finalTimings,
-                finalDays: req.fields.finalDays,
-                finalItinerary: req.fields.finalItinerary,
-                finalLocations: req.fields.finalLocations,
-            },
-            {
-                where: { id: req.params.savedId },
-            },
-        )
-            .then(async (data) => {
-                const doc = {
-                    id: req.params.savedId,
-                    name: req.fields.tourTitle,
-                    description: req.fields.tourDesc,
-                }
-                console.log(doc['id'])
+        const AccDetails = {
+            'name': req.fields.uname,
+            'email': req.fields.email,
+            'phone_number': req.fields.phone_number,
+            'fb': req.fields.fb,
+            'insta': req.fields.insta,
+            'li': req.fields.li,
+        }
+        updateDB('user', { 'id': user.id }, AccDetails, () => {
+            return res.redirect(`/u/setting/general`)
+        })
+        // let filePath = req.files['profile_img']['path']
+        // let fileName = req.files['profile_img']['name']
+        // const saveFolder = savedpfpFolder
+        // const savedName = storeImage(
+        //     (filePath = filePath),
+        //     (fileName = fileName),
+        //     (folder = saveFolder),
+        // )
+        // console.log(`Added file is ${savedName}`)
+        // User.findAll({
+        //     where: {
+        //         id: user.id,
+        //     },
+        // }).then((items) => {
+        //     const savedpfpFile = items[0]['dataValues']['profile_img']
+        //     if (savedpfpFile != 'default.jpg') {
+        //         console.log(`Removed IMAGE FILE: ${savedpfpFile}`)
+        //         fs.unlinkSync(`${savedpfpFolder}/${savedpfpFile}`)
+        //     }
+        // })
 
-                await elasticSearchHelper.updateDoc(doc)
+        // User.update(
+        //     {
+        //         name: req.fields.name,
+        //         email: req.fields.email,
+        //         phone_number: req.fields.phone_number,
+        //         profile_img: savedName,
+        //         fb: req.fields.fb,
+        //         insta: req.fields.insta,
+        //         li: req.fields.li,
+        //     },
+        //     {
+        //         where: { id: user.id },
+        //     },
+        // )
+        //     .catch((err) => {
+        //         console.log(err)
+        //     })
+        //     .then(async (data) => {
+        //         // Update elastic search
+        //         const doc = {
+        //             id: user.id,
+        //             image: savedName,
+        //         }
 
-                res.redirect(`/listing/info/${req.params.savedId}`)
-            })
-            .catch((err) => {
-                console.log(err)
-            })
+        //         await elasticSearchHelper.updateImage(doc)
+
+        //         res.redirect(`/u/setting/general`)
+        //     })
+        //     .catch((err) => {
+        //         console.log(err)
+        //     })
     }
-
-    const AccDetails = {
-        'name': req.fields.name,
-        'email': req.fields.email,
-        'phone_number': req.fields.phone_number,
-        'fb': req.fields.fb,
-        'insta': req.fields.insta,
-        'li': req.fields.li,
-    }
-
-    updateDB('user', { 'id': user.id }, AccDetails, () => {
-    })
 })
 
 

@@ -77,14 +77,16 @@ isLoggedin = (sid, callback) => {
             return callback(false)
         }
 
-        const UpdateLastSeenPayload = {
-            'lastseen_time': (new Date()).toISOString(),
-        }
-
-        updateDB('user', { 'id': result[0].dataValues.userId }, UpdateLastSeenPayload, () => {
-            return callback(true)
-        })
+        return callback(true)
     })
+}
+
+updateLastSeenByID = (uid) => {
+    const UpdateLastSeenPayload = {
+        'lastseen_time': (new Date()).toISOString(),
+    }
+
+    updateDB('user', { 'id': uid }, UpdateLastSeenPayload, () => {})
 }
 
 isAdmin = (sid, callback) => {
@@ -97,18 +99,12 @@ isAdmin = (sid, callback) => {
             return callback(false)
         }
 
-        const UpdateLastSeenPayload = {
-            'lastseen_time': (new Date()).toISOString(),
-        }
-
         findDB('user', { 'id': result[0].dataValues.userId, 'is_admin': true }, (user) => {
             if (user.length !== 1) {
                 return callback(false)
             }
 
-            updateDB('user', { 'id': result[0].dataValues.userId }, UpdateLastSeenPayload, () => {
-                return callback(true)
-            })
+            callback(true)
         })
     })
 }
@@ -180,6 +176,7 @@ module.exports = {
     getUserBySessionAsync,
     getUserBySessionDangerous,
     isLoggedin,
+    updateLastSeenByID,
     isAdmin,
     isLoggedinAsync,
     setPassword,
