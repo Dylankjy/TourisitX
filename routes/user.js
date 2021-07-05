@@ -358,20 +358,5 @@ router.get('/setting/password', (req, res) => {
     return res.render('users/password.hbs', metadata)
 })
 
-router.get('/messages', (req, res) => {
-    const metadata = {
-        meta: {
-            title: 'Your messages',
-            path: false,
-        },
-        nav: {
-            navbar: 'chat',
-            sidebarActive: 'aa',
-        },
-        layout: 'chat',
-    }
-    return res.render('chat.hbs', metadata)
-})
-
 
 module.exports = router

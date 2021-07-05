@@ -32,9 +32,14 @@ const routes = {
     user: require('./routes/user'),
     support: require('./routes/support'),
     index: require('./routes/index'),
+    chat: require('./routes/chat'),
 }
 
 const app = express()
+// Socket.io Injection
+const server = require('http').Server(app)
+const io = require('socket.io')(server)
+app.set('io', io)
 
 // cookieParser: Secret key for signing
 // Uses genkan's secret key to sign cookies
@@ -126,6 +131,14 @@ app.engine('hbs', exphbs({
             }
         },
 
+        ifInRange(value, lower, upper, options) {
+            if ((lower <= parseInt(value)) && (parseInt(value)<= upper)) {
+                return options.fn(this)
+            } else {
+                return options.inverse(this)
+            }
+        },
+
         ifNotEquals(a, b, options) {
             if (a !== b) {
                 return options.fn(this)
@@ -173,6 +186,27 @@ app.engine('hbs', exphbs({
 
         emptyArr: (value, options) =>{
             return (value.length == 0)
+        },
+
+        numToIndex: (value, options) =>{
+            index = parseInt(value, 10) - 1
+            return index
+        },
+
+        dateParseISO: (value) => {
+            return dateFormat(value, 'dS mmmm yyyy')
+        },
+
+        onlyTime: (value) => {
+            const hours = dateFormat(value, 'HH')
+            let suffix = ''
+            if (parseInt(hours) < 12) {
+                suffix = ' AM'
+            } else if (parseInt(hours) >= 12) {
+                suffix = ' PM'
+            }
+            const time = dateFormat(value, 'hh:MM') + suffix
+            return time
         },
 
         timestampParseISO: (value) => {
@@ -259,7 +293,7 @@ const webserver = () => {
         return res.render('404', metadata)
     })
 
-    app.listen(5000, (err) => {
+    server.listen(5000, (err) => {
         if (err) throw log.error(err)
         console.log(`Web server listening on port 5000 | http://localhost:5000`)
     })
