@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
 
             chatId: {
                 type: DataTypes.UUID,
-                allowNull: false,
+                allowNull: true,
             },
 
             orderDatetime: {
@@ -114,6 +114,17 @@ module.exports = (sequelize, DataTypes) => {
             modelName: 'Booking',
         },
     )
+
+    Booking.associate = (models) => {
+        Booking.belongsTo(models.Shop, {
+            targetKey: 'id',
+            foreignKey: 'listingId',
+        })
+        // Booking.hasOne(models.ChatRoom, {
+        //     targetKey: 'chatId',
+        //     foreignKey: 'chatId',
+        // })
+    }
 
     return Booking
 }
