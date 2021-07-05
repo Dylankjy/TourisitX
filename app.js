@@ -99,11 +99,16 @@ const getCurrentUser = (req, res, next) => {
             return next()
         }
 
+        // Updates the last seen
+        genkan.updateLastSeenByID(user.id)
+
         req.currentUser = user
         return next()
     })
-    genkan.isLoggedin(req.signedCookies.sid, () => {})
 }
+
+// Make all routes getCurrentUser
+app.use(getCurrentUser)
 
 
 // Module imports
@@ -240,7 +245,8 @@ app.set('views', [`views`])
 // Slowdown: For Rate limiting
 const limiter = new RateLimit({
     windowMs: 1*60*1000,
-    max: 120,
+    max: 80,
+    message: '<title>429 - Tourisit</title><p style="font-family: Arial"><b>429 — Too many requests</b><br>Please try again in a moment.<p><p style="font-family: Arial"><small>Why am I seeing this: You are sending too many requests to Tourisit.<br>Tourisit limits the number of request a user can make to prevent DDOS attacks.</small></p>',
 })
 
 app.use(limiter)
@@ -251,29 +257,25 @@ const webserver = () => {
 
     // app.use('/shop', routes.market)
 
-    app.use('/listing', getCurrentUser, routes.listings)
+    app.use('/listing', routes.listings)
 
-    app.use('/id', getCurrentUser, routes.auth)
+    app.use('/id', routes.auth)
 
-    app.use('/u', getCurrentUser, routes.user)
+    app.use('/u', routes.user)
 
-    // app.use('/u', routes.chat)
+    app.use('/bookings', loginRequired, routes.booking)
 
-    // app.use('/bookings', routes.booking)
+    app.use('/admin', adminAuthorisationRequired, routes.admin)
 
-    app.use('/bookings', getCurrentUser, loginRequired, routes.booking)
+    app.use('/', routes.support)
 
-    app.use('/admin', getCurrentUser, adminAuthorisationRequired, routes.admin)
+    app.use('/', routes.index)
 
-    app.use('/', getCurrentUser, routes.support)
+    app.use('/tourguide', loginRequired, routes.tourguide)
 
-    app.use('/', getCurrentUser, routes.index)
+    app.use('/marketplace', routes.market)
 
-    app.use('/tourguide', getCurrentUser, loginRequired, routes.tourguide)
-
-    app.use('/marketplace', getCurrentUser, routes.market)
-
-    app.use('/es-api', getCurrentUser, routes.esApi)
+    app.use('/es-api', routes.esApi)
 
     // Don't put any more routes after this block, cuz they will get 404'ed
     app.get('*', (req, res) => {

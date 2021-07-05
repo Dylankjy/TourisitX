@@ -1,6 +1,29 @@
-<link rel='stylesheet' href='/css/profile.css' />
+<head>
+	<link rel='stylesheet' href='/css/profile.css' />
+</head>
 
-<section class='section is-medium'>
+{{#if (isDefined bioErrors)}}
+	{{#if (haveErr bioErrors)}}
+		<div class='section'>
+			<div class='columns'>
+				<div class='column is-half is-offset-3'>
+					<article class='message is-danger'>
+						<div class='message-header'>
+							<p>Errors</p>
+							<button class='delete' onclick='this.parentElement.parentElement.remove()'></button>
+						</div>
+						<div class='message-body'>
+							{{#each bioErrors}}
+								<blockquote>{{this.msg}}</blockquote>
+							{{/each}}
+						</div>
+					</article>
+				</div>
+			</div>
+		</div>
+	{{/if}}
+{{/if}}
+<section class='section is-medium pt-3'>
 	<div class='container profile-container box p-6' style="background-image: url('/static/pfp.jpg')">
 		<div class='profile-card-blur'></div>
 		<div class='columns is-vcentered' style='position: inherit; z-index: 1'>
@@ -9,7 +32,7 @@
 			</div>
 			<div class='column'>
 				<p class='title is-1 has-text-white'>
-					{{ user.name }}
+					{{uData.name}}
 
 					<span class='tag is-success'>
 						<i class='fas fa-check'></i>&ensp;Verified Guide
@@ -21,7 +44,7 @@
 
 				</p>
 				<p id='bioContainer' class='is-size-5 has-text-grey-lighter'>
-					{{ user.bio }}
+					{{uData.bio}}
 					<span class='has-text-grey'>
 						<i onclick="$('#bioContainer').fadeOut('fast', () => { $('#bioEditFormContainer').slideDown() });" class='fa fa-edit'></i>
 					</span>
@@ -29,14 +52,11 @@
 				</p>
 
 				<div id='bioEditFormContainer' style='display: none;'>
-					<form class='form-horizontal' action='/users/profile' method='POST'>
+					<form class='form-horizontal' method='POST' id='editBioForm'>
 						<fieldset>
 							<div class='field'>
 								<div class='control'>
-									<input class='input' type='text' style='height:50px;' />
-									<ul>
-										<li class='has-text-danger'>Error</li>
-									</ul>
+									<input class='input' type='text' style='height:50px;' name='bio' />
 								</div>
 							</div>
 							<div class='field is-small has-text-right'>
@@ -50,27 +70,27 @@
 					</form>
 				</div>
 
-				<a href='' id='reportbtn'>
+				{{!-- <a href='' id='reportbtn'>
 					<button class='button is-danger is-outlined mt-4'>Report Abuse</button>
-				</a>
+				</a> --}}
 
 				<div class='field is-grouped has-text-right mt-3'>
-					{{#if user.fb}}
-					<a id='fb' href='{{user.fb}}'>
-						<i class='fab fa-facebook-square fa-2x mr-3' style='color: #3B5998;'></i>
-					</a>
+					{{#if uData.fb}}
+						<a id='fb' href='{{uData.fb}}'>
+							<i class='fab fa-facebook-square fa-2x mr-3' style='color: #3B5998;'></i>
+						</a>
 					{{/if}}
 
-					{{#if user.insta}}
-					<a id='fb' href='{{user.insta}}'>
-						<i class='fab fa-instagram-square fa-2x mr-3' style='color: #DD2A7D;'></i>
-					</a>
+					{{#if uData.insta}}
+						<a id='fb' href='{{uData.insta}}'>
+							<i class='fab fa-instagram-square fa-2x mr-3' style='color: #DD2A7D;'></i>
+						</a>
 					{{/if}}
 
-					{{#if user.li}}
-					<a id='fb' href='{{user.li}}'>
-						<i class='fab fa-linkedin fa-2x' style='color: #0077B5;'></i>
-					</a>
+					{{#if uData.li}}
+						<a id='fb' href='{{uData.li}}'>
+							<i class='fab fa-linkedin fa-2x' style='color: #0077B5;'></i>
+						</a>
 					{{/if}}
 				</div>
 			</div>
