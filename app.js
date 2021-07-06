@@ -197,11 +197,23 @@ app.engine('hbs', exphbs({
         ifAfterToday: (value, options) =>{
             // bug: returns html without the handlebars blocks
             today = new Date()
-            if (today <= value) {
+            if (today >= value) {
                 console.log(options.fn(this))
                 return options.fn(this)
             } else {
                 return options.inverse(this)
+            }
+        },
+
+        math: (base, operator, value) => {
+            if (operator == '+') {
+                return parseInt(base) + parseInt(value)
+            } else if (operator == '-') {
+                return parseInt(base) - parseInt(value)
+            } else if (operator == '/') {
+                return parseInt(base) / parseInt(value)
+            } else if (operator == '*') {
+                return parseInt(base) * parseInt(value)
             }
         },
 
