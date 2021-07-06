@@ -194,6 +194,17 @@ app.engine('hbs', exphbs({
             return index
         },
 
+        ifAfterToday: (value, options) =>{
+            // bug: returns html without the handlebars blocks
+            today = new Date()
+            if (today <= value) {
+                console.log(options.fn(this))
+                return options.fn(this)
+            } else {
+                return options.inverse(this)
+            }
+        },
+
         dateParseISO: (value) => {
             return dateFormat(value, 'dS mmmm yyyy')
         },
