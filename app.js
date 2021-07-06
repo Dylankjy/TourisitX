@@ -1,15 +1,6 @@
 // Bootscreen
 require('./app/boot/bootscreen')
 
-// System Integrity check
-// This checks the database to ensure it contains the needed objects for the system to function correctly.
-// At no point should this piece of code be disabled or commented out.
-const integrityCheck = require('./app/systemIntegrity/checks')
-integrityCheck.check().catch((err) => {
-    console.error(err)
-    process.exit(0)
-})
-
 // Genkan API
 const genkan = require('./app/genkan/genkan')
 
@@ -301,5 +292,15 @@ const webserver = () => {
 
 // Load SQLize models
 require('./models').sequelize.sync().then((req) => {
-    webserver()
+    // System Integrity check
+    // This checks the database to ensure it contains the needed objects for the system to function correctly.
+    // At no point should this piece of code be disabled or commented out.
+    const integrityCheck = require('./app/systemIntegrity/checks')
+    integrityCheck.check().catch((err) => {
+        console.error(err)
+        process.exit(0)
+    }).then(() => {
+        // If all is well, start the webserver.
+        webserver()
+    })
 }).catch(console.log)
