@@ -17,7 +17,7 @@ const config = require('../config/apikeys.json')
 
 // Globals
 const router = express.Router()
-const { Shop, User } = require('../models')
+const { Shop, User, Ban } = require('../models')
 const elasticSearchHelper = require('../app/elasticSearch')
 // const esClient = elasticSearch.Client({
 //     host: 'http://47.241.14.108:9200',
@@ -180,15 +180,30 @@ router.get('/info/:id', (req, res) => {
                 // Check if user is the owner of the current listing being browsed
                 const isOwner = userData.id == tourData.userId
                 if (isOwner) {
-                // Manually set to true now.. while waiting for the validation library
                     owner = true
                     const errMsg = req.cookies.imageValError || ''
+
+                    let banStatus = ''
+                    const banLog = await Ban.findAll({ where: { objectID: itemID, is_inForce: true } })
+
+                    if (banLog[0] == undefined) {
+                        banStatus = false
+                    } else {
+                        const currentlyBanned = banLog[0]['dataValues']['is_inForce']
+
+                        if (currentlyBanned == true) {
+                            banStatus = true
+                        } else {
+                            banStatus = false
+                        }
+                    }
 
                     const metadata = {
                         tourData: tourData,
                         isOwner: owner,
                         errMsg: errMsg,
                         wishlistArr: userWishlist,
+                        bannedStatus: banStatus,
                         data: {
                             currentUser: req.currentUser,
                         },
@@ -627,39 +642,60 @@ router.get('/hide/:id', (req, res)=>{
 })
 
 
-router.get('/unhide/:id', (req, res)=>{
+router.get('/unhide/:id', async (req, res)=>{
     const itemID = req.params.id
-    Shop.update(
-        {
-            hidden: 'false',
-        },
-        {
-            where: { id: itemID },
-        },
-    )
-        .then(()=>{
-            Shop.findAll({
-                attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
+
+    let banStatus = ''
+    const banLog = await Ban.findAll({ where: { objectID: itemID, is_inForce: true } })
+
+    if (banLog[0] == undefined) {
+        banStatus = false
+    } else {
+        const currentlyBanned = banLog[0]['dataValues']['is_inForce']
+
+        if (currentlyBanned == true) {
+            banStatus = true
+        } else {
+            banStatus = false
+        }
+    }
+
+    // If listing is not banned, allow for unhide
+    if (banStatus == false) {
+        Shop.update(
+            {
+                hidden: 'false',
+            },
+            {
                 where: { id: itemID },
-            }).then(async (data)=>{
-                doc = data[0]['dataValues']
-                console.log('REINSERTING')
-                await axios.post('http://localhost:5000/es-api/upload', {
-                    id: doc.id,
-                    name: doc.tourTitle,
-                    description: doc.tourDesc,
-                    image: doc.tourImage,
+            },
+        )
+            .then(()=>{
+                Shop.findAll({
+                    attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
+                    where: { id: itemID },
+                }).then(async (data)=>{
+                    doc = data[0]['dataValues']
+                    console.log('REINSERTING')
+                    await axios.post('http://localhost:5000/es-api/upload', {
+                        id: doc.id,
+                        name: doc.tourTitle,
+                        description: doc.tourDesc,
+                        image: doc.tourImage,
+                    })
+                    console.log('REINSERTING SUCCESS')
+                    res.redirect(`/listing/info/${itemID}`)
+                }).catch((err)=>{
+                    console.log('Error Inserting to ES')
+                    console.log(err)
                 })
-                console.log('REINSERTING SUCCESS')
-                res.redirect(`/listing/info/${itemID}`)
             }).catch((err)=>{
-                console.log('Error Inserting to ES')
+                console.log('Error updating DB')
                 console.log(err)
             })
-        }).catch((err)=>{
-            console.log('Error updating DB')
-            console.log(err)
-        })
+    } else {
+        res.redirect(`/listing/info/${itemID}`)
+    }
 })
 
 
