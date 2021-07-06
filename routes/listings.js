@@ -17,11 +17,13 @@ const config = require('../config/apikeys.json')
 
 // Globals
 const router = express.Router()
-const { Shop, User, Ban } = require('../models')
+const { Shop, User, Ban, Booking, ChatRoom, ChatMessages } = require('../models')
 const elasticSearchHelper = require('../app/elasticSearch')
 // const esClient = elasticSearch.Client({
 //     host: 'http://47.241.14.108:9200',
 // })
+const { addRoom, addMessage } = require('../app/chat/chat.js')
+const { insertDB, updateDB, deleteDB, findDB } = require('../app/db.js')
 
 const TIH_API_KEY = config.secret.TIH_API_KEY
 const STRIPE_PUBLIC_KEY = config.stripe.STRIPE_PUBLIC_KEY
@@ -1039,5 +1041,301 @@ router.get('/api/getImage/:id', (req, res) => {
         })
         .catch((err) => console.log)
 })
+
+// Start: Booking-related items under the listing route
+// Rendering the book-now form
+router.get('/:id/purchase', async (req, res) => {
+    const itemID = req.params.id
+
+    Shop.findAll({
+        where: {
+            id: itemID,
+        },
+    })
+        .then(async (items) => {
+            const tourData = await items[0]['dataValues']
+            console.log(tourData)
+            const customPrice = (tourData['tourPrice'] / 10).toFixed(2)
+            const metadata = {
+                meta: {
+                    title: 'Book Now - ' + tourData.tourTitle,
+                },
+                data: {
+                    currentUser: req.currentUser,
+                    listing: tourData,
+                    customPrice: customPrice,
+                    validationErrors: req.cookies.validationErrors,
+                },
+            }
+            return res.render('bookNow.hbs', metadata )
+        }).catch((err) => {
+            throw err
+        })
+})
+
+// Default booking
+router.post('/:id/purchase', async (req, res) => {
+    console.log(req.fields)
+    res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
+    const tourID = req.params.id
+    const sid = req.signedCookies.sid
+
+    const userData = await genkan.getUserBySessionAsync(sid)
+    Shop.findAll({
+        where: {
+            id: tourID,
+        },
+    })
+        .then(async (items) => {
+            const listing = await items[0]['dataValues']
+
+            const v = new Validator(req.fields)
+
+            const tourDateResult = v
+                .Initialize({
+                    name: 'tourDate',
+                    errorMessage: 'Please select a tour date.',
+                })
+                .exists()
+                .getResult()
+
+            const tourTimeResult = v
+                .Initialize({
+                    name: 'tourTime',
+                    errorMessage: 'Please select a tour time.',
+                })
+                .exists()
+                .getResult()
+
+            const bookPaxResult = v
+                .Initialize({
+                    name: 'tourPax',
+                    errorMessage: 'Please select number of participants.',
+                })
+                .exists()
+                .getResult()
+
+            const bookTOCResult = v
+                .Initialize({
+                    name: 'bookTOC',
+                    errorMessage: 'Please agree to the Terms & Conditions before booking a tour.',
+                })
+                .exists()
+                .getResult()
+
+            // // Evaluate the files and fields data separately
+            const validationErrors = removeNull([
+                tourDateResult,
+                tourTimeResult,
+                bookPaxResult,
+                bookTOCResult,
+            ])
+
+            // If there are errors, re-render the create listing page with the valid error messages
+            if (!emptyArray(validationErrors)) {
+                res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
+                res.redirect(`/listing/${tourID}/purchase`)
+            } else {
+                // If successful
+                // Remove cookies for stored form values + validation errors
+                res.clearCookie('validationErrors')
+                res.clearCookie('storedValues')
+                const genId = uuid.v4()
+
+                const rawTourDate = req.fields.tourDate
+                const darr = rawTourDate.split('/')
+
+                const rawTourTime = req.fields.tourTime
+                const timeArr = rawTourTime.split(' - ')
+                const startTimeArr = timeArr[0].split(':')
+                const endTimeArr = timeArr[1].split(':')
+                formatTime = (arr) => {
+                    if (arr[1].slice(-2) == 'PM' && parseInt(arr[0])<12) {
+                        arr[0] = parseInt(arr[0]) + 12
+                    } else if (arr[1].slice(-2) == 'AM' && parseInt(arr[0])==12) {
+                        arr[0] = parseInt(arr[0]) -12
+                    }
+                    arr[1] = arr[1].slice(0, -3)
+                    if (arr[0].toString().length == 1) {
+                        arr[0] = '0' + arr[0]
+                    }
+                }
+                formatTime(startTimeArr)
+                formatTime(endTimeArr)
+                const startTour = new Date(parseInt(darr[2]), parseInt(darr[1])-1, parseInt(darr[0]), parseInt(startTimeArr[0]), parseInt(startTimeArr[1])).toISOString()
+                const endTour = new Date(parseInt(darr[2]), parseInt(darr[1])-1, parseInt(darr[0]), parseInt(endTimeArr[0]), parseInt(endTimeArr[1])).toISOString()
+                const orderDateTime = new Date().toISOString()
+
+                Booking.create({
+                    bookId: genId,
+                    custId: userData.id,
+                    tgId: listing.userId,
+                    listingId: listing.id,
+                    chatId: '00000000-0000-0000-0000-000000000000',
+                    orderDatetime: orderDateTime,
+                    tourStart: startTour,
+                    tourEnd: endTour,
+                    bookPax: req.fields.tourPax,
+                    bookDuration: listing.tourDuration,
+                    bookBaseprice: listing.tourPrice,
+                    bookCharges: '',
+                    // processStep: 0, set to 4 for now until approval & payment system is in place
+                    processStep: 4,
+                    revisions: listing.tourRevision,
+                    addInfo: '',
+                    custRequests: '',
+                    completed: 0,
+                    approved: 1,
+                }).then(async (data) => {
+                    // ChatRoom.create({
+                    //     chatId: genId2,
+                    //     participants: userData.id + ',' + listing.userId,
+                    //     bookingId: genId,
+                    // })
+                    participants = [userData.id, listing.userId]
+                    addRoom(participants, genId, (roomId)=> {
+                        updateDB('booking', { bookId: genId }, { chatId: roomId }, () => {
+                            console.log('updated successfully')
+                            // c-c-callback hell,,?
+                            addMessage(roomId, 'SYSTEM', 'You placed an order for this tour.', 'ACTIVITY', () => {
+                                //  will be removed once TG accept/reject system is in place
+                                addMessage(roomId, 'SYSTEM', 'Tour Guide accepted your order.', 'ACTIVITY', () => {
+                                    //  will be removed once payment system is in place
+                                    addMessage(roomId, 'SYSTEM', 'You made payment. You are now ready to go on your tour!', 'ACTIVITY', () => {
+                                        res.redirect(`/bookings`)
+                                    })
+                                })
+                            })
+                        })
+                    })
+                }).catch((err) => {
+                    console.log(err)
+                })
+            }
+        }).catch((err) => console.log)
+})
+
+// Customised booking
+router.post('/:id/purchase/customise', async (req, res) => {
+    console.log(req.fields)
+    res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
+    const tourID = req.params.id
+    const sid = req.signedCookies.sid
+
+    const userData = await genkan.getUserBySessionAsync(sid)
+    Shop.findAll({
+        where: {
+            id: tourID,
+        },
+    })
+        .then(async (items) => {
+            const listing = await items[0]['dataValues']
+
+            const v = new Validator(req.fields)
+
+            // Doing this way so its cleaner. Can also directly call these into the removeNull() array
+            const reqTextResult = v
+                .Initialize({
+                    name: 'reqText',
+                    errorMessage: 'Please fill in the requirements for your customised tour.',
+                })
+                .exists()
+                .getResult()
+
+            const tourDateResult = v
+                .Initialize({
+                    name: 'tourDate',
+                    errorMessage: 'Please select a tour date.',
+                })
+                .exists()
+                .getResult()
+
+            const bookPaxResult = v
+                .Initialize({
+                    name: 'tourPax',
+                    errorMessage: 'Please select number of participants.',
+                })
+                .exists()
+                .getResult()
+
+            const bookTOCResult = v
+                .Initialize({
+                    name: 'bookTOC',
+                    errorMessage: 'Please agree to the Terms & Conditions before booking a tour.',
+                })
+                .exists()
+                .getResult()
+
+            // // Evaluate the files and fields data separately
+            const validationErrors = removeNull([
+                reqTextResult,
+                tourDateResult,
+                bookPaxResult,
+                bookTOCResult,
+            ])
+
+            // If there are errors, re-render the create listing page with the valid error messages
+            if (!emptyArray(validationErrors)) {
+                res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
+                res.redirect(`/listing/${tourID}/purchase`)
+            } else {
+                // If successful
+                // Remove cookies for stored form values + validation errors
+                res.clearCookie('validationErrors')
+                res.clearCookie('storedValues')
+                const genId = uuid.v4()
+
+                const rawTourDate = req.fields.tourDate
+                const darr = rawTourDate.split('/')
+                const startTour = new Date(parseInt(darr[2]), parseInt(darr[1])-1, parseInt(darr[0])).toISOString()
+                const endTour = new Date(parseInt(darr[2]), parseInt(darr[1])-1, parseInt(darr[0])).toISOString()
+                const orderDateTime = new Date().toISOString()
+                const customPrice = (listing['tourPrice'] / 10).toFixed(2)
+
+                Booking.create({
+                    bookId: genId,
+                    custId: userData.id,
+                    tgId: listing.userId,
+                    listingId: listing.id,
+                    chatId: '00000000-0000-0000-0000-000000000000',
+                    orderDatetime: orderDateTime,
+                    tourStart: startTour,
+                    tourEnd: endTour,
+                    bookPax: req.fields.tourPax,
+                    bookDuration: 0,
+                    bookBaseprice: listing.tourPrice,
+                    bookCharges: customPrice,
+                    // processStep: 0, set to 4 for now until approval & payment system is in place
+                    processStep: 1,
+                    revisions: listing.tourRevision,
+                    addInfo: '',
+                    custRequests: req.fields.reqText,
+                    completed: 0,
+                    approved: 1,
+                }).then(async (data) => {
+                    participants = [userData.id, listing.userId]
+                    addRoom(participants, genId, (roomId)=> {
+                        updateDB('booking', { bookId: genId }, { chatId: roomId }, () => {
+                            console.log('updated successfully')
+                            // c-c-callback hell,,?
+                            addMessage(roomId, 'SYSTEM', 'You placed an order for this tour with your custom requirements.', 'ACTIVITY', () => {
+                                //  will be removed once TG accept/reject system is in place
+                                addMessage(roomId, 'SYSTEM', 'Tour Guide accepted your order.', 'ACTIVITY', () => {
+                                    //  will be removed once payment system is in place
+                                    addMessage(roomId, 'SYSTEM', 'You paid the customisation fee.', 'ACTIVITY', () => {
+                                        res.redirect(`/bookings`)
+                                    })
+                                })
+                            })
+                        })
+                    })
+                }).catch((err) => {
+                    console.log(err)
+                })
+            }
+        }).catch((err) => console.log)
+})
+
+// End: Booking-related items under the listing route
 
 module.exports = router
