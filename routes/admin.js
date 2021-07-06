@@ -1,9 +1,10 @@
 const express = require('express')
 
-const { Shop, User, Token } = require('../models')
+const { Shop, User, Token, Ban } = require('../models')
 const { Op } = require('sequelize')
 
 const router = express.Router()
+const uuid = require('uuid')
 
 // Database operations
 require('../app/db')
@@ -47,7 +48,6 @@ const exampleTransaction2 = {
     status: false,
 }
 
-
 router.get('/', (req, res) => {
     const metadata = {
         meta: {
@@ -75,42 +75,51 @@ router.get('/manage/users', (req, res) => {
     // Data only used if, before coming to this endpoint, a user was updated.
     const notifs = req.signedCookies.notifs || 'null然シテnull然シテnull'
     const notifsData = notifs.split('然シテ') // Why 然シテ as a splitter? Because the chances of anyone using soushite in their name is 0.000001% with the fact that this is written in Katakana instead of Hiragana like any normal human being would. Why not a comma, because people like Elon Musk exists and they name their child like they are playing osu!, just that they are smashing their keyboards.
+    const entriesPerPage = 15
 
-    User.findAll({ where: { 'is_admin': false }, limit: 15, offset: 0 + ((pageNo - 1) * 15) }).then( async (users) => {
-        const userObjects = users.map((users) => users.dataValues)
-        const totalNumberOfPages = Math.floor(await User.count({ where: { 'is_admin': false } }) / 15)
-
-        const metadata = {
-            meta: {
-                title: 'Manage Users',
-                path: false,
-            },
-            nav: {
-                sidebarActive: 'users',
-            },
-            layout: 'admin',
-            data: {
-                currentUser: req.currentUser,
-                updatedMessage: {
-                    updatedUser: notifsData[1],
-                    status: notifsData[0],
-                    err: notifsData[2],
-                },
-                users: userObjects,
-                pagination: {
-                    firstPage: 1,
-                    lastPage: totalNumberOfPages + 1,
-                    previous: pageNo - 1,
-                    current: pageNo,
-                    next: pageNo + 1,
-                },
-            },
-        }
-
-        return res.render('admin/users', metadata)
-    }).catch((err) => {
-        throw err
+    User.findAll({
+        where: { is_admin: false },
+        limit: entriesPerPage,
+        offset: (pageNo - 1) * entriesPerPage,
     })
+        .then(async (users) => {
+            const userObjects = users.map((users) => users.dataValues)
+            const totalNumberOfPages = Math.ceil(
+                (await User.count({ where: { is_admin: false } })) / entriesPerPage,
+            )
+
+            const metadata = {
+                meta: {
+                    title: 'Manage Users',
+                    path: false,
+                },
+                nav: {
+                    sidebarActive: 'users',
+                },
+                layout: 'admin',
+                data: {
+                    currentUser: req.currentUser,
+                    updatedMessage: {
+                        updatedUser: notifsData[1],
+                        status: notifsData[0],
+                        err: notifsData[2],
+                    },
+                    users: userObjects,
+                    pagination: {
+                        firstPage: 1,
+                        lastPage: totalNumberOfPages,
+                        previous: pageNo - 1,
+                        current: pageNo,
+                        next: pageNo + 1,
+                    },
+                },
+            }
+
+            return res.render('admin/users', metadata)
+        })
+        .catch((err) => {
+            throw err
+        })
 })
 
 router.get('/manage/staff', (req, res) => {
@@ -120,45 +129,53 @@ router.get('/manage/staff', (req, res) => {
 
     const pageNo = parseInt(req.query.page)
 
-
     // Data only used if, before coming to this endpoint, a user was updated.
     const notifs = req.signedCookies.notifs || 'null然シテnull然シテnull'
     const notifsData = notifs.split('然シテ') // Read above for why this is soushite
+    const entriesPerPage = 15
 
-    User.findAll({ where: { 'is_admin': true }, limit: 15, offset: 0 + ((pageNo - 1) * 15) }).then(async (users) => {
-        const userObjects = users.map((users) => users.dataValues)
-        const totalNumberOfPages = Math.floor(await User.count({ where: { 'is_admin': true } }) / 15)
-
-        const metadata = {
-            meta: {
-                title: 'Manage Staff',
-                path: false,
-            },
-            nav: {
-                sidebarActive: 'staff',
-            },
-            layout: 'admin',
-            data: {
-                currentUser: req.currentUser,
-                updatedMessage: {
-                    updatedUser: notifsData[1] || undefined,
-                    status: notifsData[0],
-                    err: notifsData[2],
-                },
-                users: userObjects,
-                pagination: {
-                    firstPage: 1,
-                    lastPage: totalNumberOfPages + 1,
-                    previous: pageNo - 1,
-                    current: pageNo,
-                    next: pageNo + 1,
-                },
-            },
-        }
-        return res.render('admin/staff', metadata)
-    }).catch((err) => {
-        throw err
+    User.findAll({
+        where: { is_admin: true },
+        limit: entriesPerPage,
+        offset: (pageNo - 1) * entriesPerPage,
     })
+        .then(async (users) => {
+            const userObjects = users.map((users) => users.dataValues)
+            const totalNumberOfPages = Math.ceil(
+                (await User.count({ where: { is_admin: true } })) / entriesPerPage,
+            )
+
+            const metadata = {
+                meta: {
+                    title: 'Manage Staff',
+                    path: false,
+                },
+                nav: {
+                    sidebarActive: 'staff',
+                },
+                layout: 'admin',
+                data: {
+                    currentUser: req.currentUser,
+                    updatedMessage: {
+                        updatedUser: notifsData[1] || undefined,
+                        status: notifsData[0],
+                        err: notifsData[2],
+                    },
+                    users: userObjects,
+                    pagination: {
+                        firstPage: 1,
+                        lastPage: totalNumberOfPages,
+                        previous: pageNo - 1,
+                        current: pageNo,
+                        next: pageNo + 1,
+                    },
+                },
+            }
+            return res.render('admin/staff', metadata)
+        })
+        .catch((err) => {
+            throw err
+        })
 })
 
 router.get('/manage/users/edit/:userId', (req, res) => {
@@ -216,7 +233,11 @@ router.post('/manage/users/edit/:userId', (req, res) => {
         let redirectTo = 'users'
 
         if (user === null) {
-            res.cookie('notifs', `ERR_UPDATEDUSER然シテ${user.name}然シテTarget user does not exist. このユーザーは存在しません。`, NotificationCookieOptions)
+            res.cookie(
+                'notifs',
+                `ERR_UPDATEDUSER然シテ${user.name}然シテTarget user does not exist. このユーザーは存在しません。`,
+                NotificationCookieOptions,
+            )
             return res.redirect('/admin/manage/' + redirectTo)
         }
 
@@ -224,81 +245,124 @@ router.post('/manage/users/edit/:userId', (req, res) => {
         if (req.fields.editingPortion === 'ADMIN_ACTIONS') {
             const requestedAction = req.fields.actionDo
             if (requestedAction === 'CONFIRM_EMAIL') {
-                return updateDB('user', { id: targetUserId }, { email_status: true }, () => {
-                    Token.destroy({
-                        where: {
-                            'userId': targetUserId,
-                        },
-                    }).catch((err) => {
-                        throw err
-                    })
+                return updateDB(
+                    'user',
+                    { id: targetUserId },
+                    { email_status: true },
+                    () => {
+                        Token.destroy({
+                            where: {
+                                userId: targetUserId,
+                            },
+                        }).catch((err) => {
+                            throw err
+                        })
 
-                    res.cookie('notifs', `OK_EMAILCONFIRMED然シテ${user.name}`, NotificationCookieOptions)
-                    return res.redirect('/admin/manage/' + redirectTo)
-                })
+                        res.cookie(
+                            'notifs',
+                            `OK_EMAILCONFIRMED然シテ${user.name}`,
+                            NotificationCookieOptions,
+                        )
+                        return res.redirect('/admin/manage/' + redirectTo)
+                    },
+                )
             }
             if (requestedAction === 'SEND_RECOVERY_EMAIL') {
                 return sendResetPasswordEmail(user.email, () => {
-                    res.cookie('notifs', `OK_SENDRECOVEREMAIL然シテ${user.name}`, NotificationCookieOptions)
+                    res.cookie(
+                        'notifs',
+                        `OK_SENDRECOVEREMAIL然シテ${user.name}`,
+                        NotificationCookieOptions,
+                    )
                     return res.redirect('/admin/manage/' + redirectTo)
                 })
             }
             if (requestedAction === 'PROMOTE') {
                 const PromotePayload = {
-                    'is_admin': true,
+                    is_admin: true,
                 }
 
                 return User.update(PromotePayload, {
                     where: { id: user.id },
-                }).catch((err)=>{
-                    throw err
-                }).then((data) => {
-                    res.cookie('notifs', `OK_PROMOTED然シテ${user.name}`, NotificationCookieOptions)
-                    return res.redirect('/admin/manage/staff')
                 })
+                    .catch((err) => {
+                        throw err
+                    })
+                    .then((data) => {
+                        res.cookie(
+                            'notifs',
+                            `OK_PROMOTED然シテ${user.name}`,
+                            NotificationCookieOptions,
+                        )
+                        return res.redirect('/admin/manage/staff')
+                    })
             }
             if (requestedAction === 'DEMOTE') {
                 // Check whether demotion is the currentUser
                 if (req.currentUser.id === user.id) {
-                    res.cookie('notifs', `ERR_DEMOTE然シテ${user.name}然シテCannot demote yourself. (It sounds funny to fire yourself, but it's not happening.)`, NotificationCookieOptions)
+                    res.cookie(
+                        'notifs',
+                        `ERR_DEMOTE然シテ${user.name}然シテCannot demote yourself. (It sounds funny to fire yourself, but it's not happening.)`,
+                        NotificationCookieOptions,
+                    )
                     return res.redirect('/admin/manage/users/edit/' + user.id)
                 }
 
                 const DemotePayload = {
-                    'is_admin': false,
+                    is_admin: false,
                 }
 
                 return User.update(DemotePayload, {
                     where: { id: user.id },
-                }).catch((err)=>{
-                    throw err
-                }).then((data) => {
-                    res.cookie('notifs', `OK_DEMOTED然シテ${user.name}`, NotificationCookieOptions)
-                    return res.redirect('/admin/manage/users')
                 })
+                    .catch((err) => {
+                        throw err
+                    })
+                    .then((data) => {
+                        res.cookie(
+                            'notifs',
+                            `OK_DEMOTED然シテ${user.name}`,
+                            NotificationCookieOptions,
+                        )
+                        return res.redirect('/admin/manage/users')
+                    })
             }
             if (requestedAction === 'DELETE_USER') {
                 // Check whether demotion is the currentUser
                 if (req.currentUser.id === user.id) {
-                    res.cookie('notifs', `ERR_DELETE然シテ${user.name}然シテCannot delete yourself.`, NotificationCookieOptions)
+                    res.cookie(
+                        'notifs',
+                        `ERR_DELETE然シテ${user.name}然シテCannot delete yourself.`,
+                        NotificationCookieOptions,
+                    )
                     return res.redirect('/admin/manage/users/edit/' + user.id)
                 }
 
                 if (user.is_admin === true) {
-                    res.cookie('notifs', `ERR_DELETE然シテ${user.name}然シテCannot delete privileged user. Please demote the account before attempting a delete.`, NotificationCookieOptions)
+                    res.cookie(
+                        'notifs',
+                        `ERR_DELETE然シテ${user.name}然シテCannot delete privileged user. Please demote the account before attempting a delete.`,
+                        NotificationCookieOptions,
+                    )
                     return res.redirect('/admin/manage/users/edit/' + user.id)
                 }
 
                 return User.destroy({
                     where: {
-                        'id': targetUserId,
+                        id: targetUserId,
                     },
-                }).catch((err) => {
-                    throw err
-                }).then(() => {
-                    res.cookie('notifs', `OK_DELETED然シテ${user.name}`, NotificationCookieOptions)
-                    return res.redirect('/admin/manage/' + redirectTo)
                 })
+                    .catch((err) => {
+                        throw err
+                    })
+                    .then(() => {
+                        res.cookie(
+                            'notifs',
+                            `OK_DELETED然シテ${user.name}`,
+                            NotificationCookieOptions,
+                        )
+                        return res.redirect('/admin/manage/' + redirectTo)
+                    })
             }
 
             // Reject everything else.
@@ -306,14 +370,14 @@ router.post('/manage/users/edit/:userId', (req, res) => {
         }
 
         const EditUserPayload = {
-            'account_mode': req.fields.account_mode,
-            'name': req.fields.name,
-            'bio': req.fields.bio,
-            'email': req.fields.email,
-            'phone_number': req.fields.phone_number,
-            'fb': req.fields.fb,
-            'insta': req.fields.insta,
-            'li': req.fields.li,
+            account_mode: req.fields.account_mode,
+            name: req.fields.name,
+            bio: req.fields.bio,
+            email: req.fields.email,
+            phone_number: req.fields.phone_number,
+            fb: req.fields.fb,
+            insta: req.fields.insta,
+            li: req.fields.li,
         }
 
         User.findAll({
@@ -323,70 +387,216 @@ router.post('/manage/users/edit/:userId', (req, res) => {
                 },
                 email: req.fields.email,
             },
-        }).then((data) => {
-            if (data.length !== 0) {
-                res.cookie('notifs', `ERR_DUPLICATEEMAIL然シテ${req.fields.name}`, NotificationCookieOptions)
-                return res.redirect('/admin/manage/users/edit/' + user.id)
-            }
-
-            if (user.is_admin === true) {
-                redirectTo = 'staff'
-            } else {
-                redirectTo = 'users'
-            }
-
-            User.update(EditUserPayload, {
-                where: { 'id': targetUserId },
-            }).catch((err) => {
-                res.cookie('notifs', `ERR_UPDATEDUSER然シテ${req.fields.name}然シテ${err}`, NotificationCookieOptions)
-                return res.redirect('/admin/manage/' + redirectTo)
-            }).then((data) => {
-                res.cookie('notifs', `OK_UPDATEDUSER然シテ${req.fields.name}`, NotificationCookieOptions)
-                return res.redirect('/admin/manage/' + redirectTo)
-            })
-        }).catch((err)=> {
-            throw err
         })
+            .then((data) => {
+                if (data.length !== 0) {
+                    res.cookie(
+                        'notifs',
+                        `ERR_DUPLICATEEMAIL然シテ${req.fields.name}`,
+                        NotificationCookieOptions,
+                    )
+                    return res.redirect('/admin/manage/users/edit/' + user.id)
+                }
+
+                if (user.is_admin === true) {
+                    redirectTo = 'staff'
+                } else {
+                    redirectTo = 'users'
+                }
+
+                User.update(EditUserPayload, {
+                    where: { id: targetUserId },
+                })
+                    .catch((err) => {
+                        res.cookie(
+                            'notifs',
+                            `ERR_UPDATEDUSER然シテ${req.fields.name}然シテ${err}`,
+                            NotificationCookieOptions,
+                        )
+                        return res.redirect('/admin/manage/' + redirectTo)
+                    })
+                    .then((data) => {
+                        res.cookie(
+                            'notifs',
+                            `OK_UPDATEDUSER然シテ${req.fields.name}`,
+                            NotificationCookieOptions,
+                        )
+                        return res.redirect('/admin/manage/' + redirectTo)
+                    })
+            })
+            .catch((err) => {
+                throw err
+            })
     })
 })
 
-router.get('/manage/tours', (req, res) => {
-    Shop.findAll(
-        {
-            where: {
-                // Set to empty now, but it should be replaced with the userID when authentication library is out
-                userId: 'sample',
-            },
-            order:
-                [['createdAt', 'ASC']],
+router.get('/manage/tours', async (req, res) => {
+    if (req.query.page === undefined) {
+        return res.redirect('?page=1')
+    }
+
+    const pageNo = parseInt(req.query.page)
+
+    const entriesPerPage = 15
+    const totalNumberOfPages = Math.ceil((await Shop.count()) / entriesPerPage)
+
+    const dbData = await Shop.findAll({
+        limit: entriesPerPage,
+        offset: (pageNo - 1) * entriesPerPage,
+        order: [['createdAt', 'DESC']],
+    })
+
+    const listingObjects = dbData.map((data) => data.dataValues)
+    console.log(listingObjects)
+
+    const metadata = {
+        meta: {
+            title: 'Manage Tours',
+            path: false,
         },
-    )
-        .then(async (data)=>{
-            const listings = []
-            await data.forEach((doc)=>{
-                listings.push(doc['dataValues'])
+        nav: {
+            sidebarActive: 'tourListings',
+        },
+        layout: 'admin',
+        listing: listingObjects,
+        // pagination: {
+        //     firstPage: 1,
+        //     lastPage: totalNumberOfPages,
+        //     previousPage: pageNo - 1,
+        //     currentPage: pageNo,
+        //     nextPage: pageNo + 1,
+        // },
+        data: {
+            currentUser: req.currentUser,
+            pagination: {
+                firstPage: 1,
+                lastPage: totalNumberOfPages,
+                previous: pageNo - 1,
+                current: pageNo,
+                next: pageNo + 1,
+            },
+        },
+    }
+
+    return res.render('admin/viewListings', metadata)
+})
+
+router.get('/manage/tours/edit/:id', async (req, res) => {
+    const itemID = req.params.id
+    const dbData = await Shop.findAll({
+        where: {
+            id: itemID,
+        },
+    })
+
+    const listingObject = dbData[0]['dataValues']
+
+    let banStatus = ''
+
+
+    const banLog = await Ban.findAll({ where: { objectID: itemID } })
+
+    console.log('BAN LOG HAS FOUND')
+
+    if (banLog[0] == undefined) {
+        banStatus = false
+    } else {
+        const currentlyBanned = banLog[0]['dataValues']['is_inForce']
+
+        // Might have been previously banned but then unbanned
+        if (currentlyBanned == true) {
+            banStatus = true
+        } else {
+            banStatus = false
+        }
+    }
+
+    const metadata = {
+        meta: {
+            title: 'Manage Tours',
+            path: false,
+        },
+        nav: {
+            sidebarActive: 'tourListings',
+        },
+        layout: 'admin',
+        listing: listingObject,
+        bannedStatus: banStatus,
+        data: {
+            currentUser: req.currentUser,
+        },
+    }
+
+    res.render('admin/edit/reportListing.hbs', metadata)
+})
+
+
+router.post('/manage/tours/edit/:id', async (req, res) => {
+    const itemID = req.params.id
+    const ACTION = req.fields.actionDo
+    let banStatus = ''
+
+    if (ACTION == 'REVOKE_TOUR') {
+        const banLog = await Ban.findAll({ where: { objectID: itemID } })
+        console.log('BAN LOG HAS FOUND')
+
+        if (banLog[0] == undefined) {
+            banStatus = false
+        } else {
+            const currentlyBanned = banLog[0]['dataValues']['is_inForce']
+
+            // Might have been previously banned but then unbanned
+            if (currentlyBanned == true) {
+                banStatus = true
+            } else {
+                banStatus = false
+            }
+        }
+
+        // If banned already, don't have to do anything
+        if (banStatus == true) {
+            console.log('BANNED ALREADY')
+        } else {
+            const revokeMessage = req.fields.revokeReason
+
+            await Shop.update(
+                {
+                    hidden: 'true',
+                },
+                {
+                    where: { id: itemID },
+                },
+            )
+
+            const banId = uuid.v4()
+            await Ban.create({
+                banId: banId,
+                banType: 'LISTING',
+                objectID: itemID,
+                is_inForce: true,
             })
 
-            const metadata = {
-                meta: {
-                    title: 'Manage Tours',
-                    path: false,
+            console.log('RANNING ban')
+
+            await Shop.findAll({
+                where: {
+                    id: itemID,
                 },
-                nav: {
-                    sidebarActive: 'tourListings',
-                },
-                layout: 'admin',
-                listing: listings,
-                data: {
-                    currentUser: req.currentUser,
-                },
-            }
-            return res.render('admin/listings', metadata)
+                raw: true,
+            }).then((dbData) => {
+                const tourGuideId = dbData[0]['userId']
+                // Use admin account to send message to user "reasonRevoke"
+            })
+        }
+    } else {
+        await Ban.update({
+            is_inForce: false,
+        }, {
+            where: { objectID: itemID },
         })
-        .catch((err)=>{
-            console.log(err)
-            res.json({ 'Message': 'Failed' })
-        })
+    }
+
+    res.redirect(`/admin/manage/tours/edit/${itemID}`)
 })
 
 router.get('/payments', (req, res) => {
@@ -406,7 +616,6 @@ router.get('/payments', (req, res) => {
     }
     return res.render('admin/payments', metadata)
 })
-
 
 router.get('/tickets', (req, res) => {
     const metadata = {

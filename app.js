@@ -30,6 +30,8 @@ const app = express()
 // Socket.io Injection
 const server = require('http').Server(app)
 const io = require('socket.io')(server)
+const { ShopDB, UserDB } = require('./models')
+
 app.set('io', io)
 
 // cookieParser: Secret key for signing
@@ -119,6 +121,14 @@ app.engine('hbs', exphbs({
                 return options.fn(this)
             } else {
                 return options.inverse(this)
+            }
+        },
+
+        ifNumEquals(a, b) {
+            if (parseInt(a) == parseInt(b)) {
+                return true
+            } else {
+                return false
             }
         },
 
@@ -221,6 +231,14 @@ app.engine('hbs', exphbs({
                 }
             }
         },
+
+        range: (value, block) =>{
+            let accum = ''
+            for (let i = 1; i < value + 1; ++i) {
+                accum += block.fn(i)
+            }
+            return accum
+        },
     },
 }))
 
@@ -252,7 +270,7 @@ const webserver = () => {
 
     app.use('/admin', adminAuthorisationRequired, routes.admin)
 
-    app.use('/', routes.support)
+    app.use('/', loginRequired, routes.support)
 
     app.use('/', routes.index)
 
@@ -261,6 +279,8 @@ const webserver = () => {
     app.use('/marketplace', routes.market)
 
     app.use('/es-api', routes.esApi)
+
+    app.use('/', routes.chat)
 
     // Don't put any more routes after this block, cuz they will get 404'ed
     app.get('*', (req, res) => {
