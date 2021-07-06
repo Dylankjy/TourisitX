@@ -120,6 +120,12 @@ module.exports = (sequelize, DataTypes) => {
             targetKey: 'id',
             foreignKey: 'listingId',
         })
+
+        Booking.hasMany(models.TourPlans, {
+            onDelete: 'cascade',
+            sourceKey: 'bookId',
+            foreignKey: 'bookId',
+        })
         // Booking.hasOne(models.ChatRoom, {
         //     targetKey: 'chatId',
         //     foreignKey: 'chatId',
