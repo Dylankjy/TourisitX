@@ -55,13 +55,12 @@
     "sequelize": "^6.6.4",
     "sequelize-cli": "^6.2.0",
     "socket.io": "^4.1.2",
-    "stripe": "^8.160.0",
     "txtgen": "^2.2.8",
     "uuid": "^8.3.2",
     "validator": "^13.6.0"
   },
   "devDependencies": {
-    "eslint": "^7.29.0",
+    "eslint": "^7.30.0",
     "eslint-config-google": "^0.14.0",
     "nodemon": "^2.0.9"
   }

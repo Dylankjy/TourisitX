@@ -85,5 +85,14 @@ module.exports = (sequelize, DataTypes) => {
         },
     )
 
+
+    Shop.associate = (models) => {
+        Shop.hasMany(models.Booking, {
+            onDelete: 'cascade',
+            sourceKey: 'id',
+            foreignKey: 'listingId',
+        })
+    }
+
     return Shop
 }

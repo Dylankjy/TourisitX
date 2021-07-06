@@ -224,6 +224,7 @@ router.get('/login', (req, res) => {
         if (result === true) {
             return res.redirect('/?loggedin=true')
         }
+
         res.render('auth/login', metadata)
     })
 })
@@ -246,6 +247,9 @@ router.post('/login', (req, res) => {
             if (result === 'EMAIL_NOT_VERIFIED') {
                 res.cookie('preData', email, NotificationCookieOptions)
                 return res.redirect('/id/confirm')
+            }
+            if (result === 'SERVICE_ACCOUNT_UNAUTHORISED') {
+                res.cookie('preData', 'ERR_NOLOGIN_PRESENT', NotificationCookieOptions)
             }
 
             console.log('Login OK')

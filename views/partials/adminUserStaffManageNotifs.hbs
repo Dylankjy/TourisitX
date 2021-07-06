@@ -5,7 +5,7 @@
 <script>
     setTimeout(() => {
         $('#updateMessage').slideUp()
-    }, 3000)
+    }, 5000)
 </script>
 {{/ifEquals}}
 
@@ -16,7 +16,7 @@
 <script>
     setTimeout(() => {
         $('#updateMessage').slideUp()
-    }, 3000)
+    }, 5000)
 </script>
 {{/ifEquals}}
 
@@ -28,13 +28,37 @@
 <script>
     setTimeout(() => {
         $('#updateMessage').slideUp()
-    }, 3000)
+    }, 5000)
 </script>
 {{/ifEquals}}
 
 {{#ifEquals data.updatedMessage.status 'OK_DELETED'}}
 <div id="updateMessage" class="notification is-success is-light">
     <p><b><i class="fas fa-user-times"></i>&ensp;Account closed: </b> {{data.updatedMessage.updatedUser}}</p>
+</div>
+<script>
+    setTimeout(() => {
+        $('#updateMessage').slideUp()
+    }, 5000)
+</script>
+{{/ifEquals}}
+
+{{#ifEquals data.updatedMessage.status 'OK_PROMOTED'}}
+<div id="updateMessage" class="notification is-success is-light">
+    <p><b><i class="fas fa-user-shield"></i>&ensp;Account given administrative privileges: </b>
+        {{data.updatedMessage.updatedUser}}</p>
+</div>
+<script>
+    setTimeout(() => {
+        $('#updateMessage').slideUp()
+    }, 5000)
+</script>
+{{/ifEquals}}
+
+{{#ifEquals data.updatedMessage.status 'OK_DEMOTED'}}
+<div id="updateMessage" class="notification is-success is-light">
+    <p><b><i class="fas fa-angle-double-down"></i>&ensp;Administrative privileges stripped from account: </b>
+        {{data.updatedMessage.updatedUser}}</p>
 </div>
 <script>
     setTimeout(() => {
@@ -54,6 +78,6 @@
 <script>
     setTimeout(() => {
         $('#updateMessage').slideUp()
-    }, 10000)
+    }, 15000)
 </script>
 {{/ifEquals}}

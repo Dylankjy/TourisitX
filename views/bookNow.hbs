@@ -1,0 +1,184 @@
+<link rel="stylesheet" href="/third_party/bulma/bulma-divider.css">
+<link rel="stylesheet" href="/third_party/bulma/bulma-tooltip.css">
+
+{{!-- <link rel="stylesheet" href="/third_party/jquery-ui/jquery-ui.min.css"> --}}
+<script src="/third_party/jquery/jquery.min.js"></script>
+{{!-- <script src="/third_party/jquery-ui/jquery-ui.js"></script> --}}
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+<script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<section class="section">
+        <div class="container">
+            <a href="/listing/info/{{ data.listing.id }}">
+                <i class="fas fa-arrow-left"></i> Back to {{ data.listing.tourTitle }}
+            </a>
+        </div>
+        <div class="columns is-centered">
+            <div class="column is-two-fifths">
+                <div class="container box">
+    <!--Customise tour-->
+        <button class="button is-medium is-fullwidth is-success" onclick="$('#RequireModal').fadeIn('fast')">
+            Customise Tour for ${{data.customPrice}}
+        </button>
+
+        <button class="button is-white is-pulled-right has-tooltip-multiline has-tooltip-right"
+                data-tooltip="Pay a fee of ${{data.customPrice}} upfront to customise this tour. 
+                This tour comes with {{ data.listing.tourRevision }} free revisions, so that changes may be requested if the tour plan is 
+                unsatisfactory. Each extra revision request will cost ${{data.customPrice}}. Remaining fees will be charged after the tour plan is finalised.">
+            <i class="far fa-question-circle"></i>
+        </button>
+
+    <!-- end: customise tour-->
+    <br>
+    <div class="divider has-text-centered">OR</div>
+        <div class="has-text-centered mb-2">
+            {{#each data.validationErrors}}
+                <div class="tag is-rounded is-danger is-light">{{this.msg}}</div><br>
+            {{/each}}
+        </div>
+    <!--Booking form-->
+    <form id="book_form" method="POST">
+
+                        <div class='field'>
+                            <label class="label">Select Date</label>
+                            <input class="dateField input" type="text" id="datepicker1" name="tourDate">
+                        </div>
+
+                        <div class="field">
+                            <label class="label">Select Time</label>
+                            <div class="select">
+                                <select id="TimeField" name="tourTime">
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div class='field'>
+                            <div class='control is-expanded'>
+                            <label class="label">Number of Participants</label>
+                            <div class="select">
+                                <select id="PaxField" name="tourPax"></select>
+                            </div>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="control">
+                                <label class="checkbox">
+                                    <input type="checkbox" name="bookTOC">
+                                    I agree to the <a class="has-tooltip-multiline has-text-centered has-tooltip-danger"
+                                                      href="#"
+                                                      data-tooltip="There should not be more than 8 people in a group. Safe distancing measures should be adhered to at all times.">
+                                    terms and conditions.</a>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="control">
+                                <button type="submit" id="book_submit" class="button is-medium is-fullwidth is-link">
+                                    <p class="has-text-weight-semibold">Book Now</p>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <p class="is-grey has-text-centered mt-2">Not sure if this tour is for you?
+                    <br>
+                    {{!-- create chat room --}}
+                    <a href="/u/messages">Chat with Tour Guide first.</a>
+                    </p>
+    <!-- end: Booking form-->
+</div>
+</div>
+</div>
+</section>
+
+{{>requirementsModal}}
+
+<div id="finalDays" class="is-hidden">
+    {{data.listing.finalDays}}
+</div>
+
+<div id="tourPax" class="is-hidden">
+    {{data.listing.tourPax}}
+</div>
+
+<div id="finalTimings" class="is-hidden">
+    {{data.listing.finalTimings}}
+</div>
+
+<script>
+
+    $(document).ready(function(){
+        $(".dateField").datepicker({ 
+        minDate: 1,
+        maxDate: 90,
+        beforeShowDay: filterDays,
+        dateFormat: 'dd/mm/yy'});
+    const finalDays = document.getElementById('finalDays').innerText
+
+    function filterDays(date){
+        switch (date.getDay()){
+            case 0:
+                if (finalDays.includes('Sunday'))
+                    return [true, "", ""]
+                else
+                    return [false, "", ""]
+                break;
+            case 1:
+                if (finalDays.includes('Monday'))
+                    return [true, "", ""]
+                else
+                    return [false, "", ""]
+                break;
+            case 2:
+                if (finalDays.includes('Tuesday'))
+                    return [true, "", ""]
+                else
+                    return [false, "", ""]
+                break;
+            case 3:
+                if (finalDays.includes('Wednesday'))
+                    return [true, "", ""]
+                else
+                    return [false, "", ""]
+                break;
+            case 4:
+                if (finalDays.includes('Thursday'))
+                    return [true, "", ""]
+                else
+                    return [false, "", ""]
+                break;
+            case 5:
+                if (finalDays.includes('Friday'))
+                    return [true, "", ""]
+                else
+                    return [false, "", ""]
+                break;
+            case 6:
+                if (finalDays.includes('Saturday'))
+                    return [true, "", ""]
+                else
+                    return [false, "", ""]
+                break;
+
+        }
+    }
+
+    var tourPax = document.getElementById('tourPax').innerText 
+    var PaxOptions = ""
+    for (var i=1; i<=tourPax; i++){
+        PaxOptions += "<option>"+i+"</option>"
+    }
+    $("select#PaxField").html(PaxOptions)
+
+    var finalTimings = document.getElementById('finalTimings').innerText 
+    var timingsArray = finalTimings.split(',')
+    var timeOptions = ""
+    for (var i=0; i<timingsArray.length;i++){
+        timeOptions += "<option>"+timingsArray[i]+"</option>"
+    }
+    $("select#TimeField").html(timeOptions)
+    })
+</script>

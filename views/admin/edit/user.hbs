@@ -13,6 +13,35 @@
     </script>
     {{/ifEquals}}
 
+    {{#ifEquals data.updatedMessage.status 'ERR_DEMOTE'}}
+    <div id="updateMessage" class="notification is-danger is-light">
+        <p><i class="fas fa-times"></i>&ensp;Failed to demote user. Error is as follows:</p>
+        <code>
+      {{data.updatedMessage.err}}
+  </code>
+    </div>
+    <script>
+        setTimeout(() => {
+            $('#updateMessage').slideUp()
+        }, 15000)
+    </script>
+    {{/ifEquals}}
+
+
+    {{#ifEquals data.updatedMessage.status 'ERR_DELETE'}}
+    <div id="updateMessage" class="notification is-danger is-light">
+        <p><i class="fas fa-times"></i>&ensp;Failed to delete user. Error is as follows:</p>
+        <code>
+      {{data.updatedMessage.err}}
+  </code>
+    </div>
+    <script>
+        setTimeout(() => {
+            $('#updateMessage').slideUp()
+        }, 15000)
+    </script>
+    {{/ifEquals}}
+
     <div class="box p-5">
         <small>Editing user:</small>
         <h2 class="title is-2">{{data.user.name}}</h2>
@@ -41,6 +70,23 @@
                     </span>
                     <span>Send password recovery email</span>
                 </a>
+                {{#ifEquals data.user.is_admin false}}
+                <a onclick="$('#actionDo').val('PROMOTE'); $('#adminActionsForm').submit()"
+                    class="button is-rounded is-info is-light">
+                    <span class="icon is-small">
+                        <i class="fas fa-user-shield"></i>
+                    </span>
+                    <span>Make staff</span>
+                </a>
+                {{else}}
+                <a onclick="$('#actionDo').val('DEMOTE'); $('#adminActionsForm').submit()"
+                    class="button is-rounded is-danger is-light">
+                    <span class="icon is-small">
+                        <i class="fas fa-angle-double-down"></i>
+                    </span>
+                    <span>Revoke staff</span>
+                </a>
+                {{/ifEquals}}
                 {{!-- <a onclick="$('#actionDo').val('BAN_USER'); $('#adminActionsForm').submit()"
                     class="button is-rounded is-danger is-light">
                     <span class="icon is-small">
@@ -79,6 +125,7 @@
         {{/unless}}
     </div>
 
+    {{#ifNotEquals data.currentUser.id data.user.id}}
     {{#unless data.readonly}}
     <div class='box p-5'>
         <h4 class="title">Account Settings</h4>
@@ -190,4 +237,12 @@
         {{/ifEquals}}
     </div>
     {{/unless}}
+
+    {{else}}
+    <div class="box p-5">
+        <h4 class="title">This is your account.</h4>
+        <p class="subtitle">For security reasons, you cannot edit your own account in Admin mode.</p>
+        <p>To edit account settings, please edit it <a href="/u/setting/general">here</a>.</p>
+    </div>
+    {{/ifNotEquals}}
 </div>

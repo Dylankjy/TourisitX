@@ -21,7 +21,7 @@ const NotificationCookieOptions = {
     secure: true,
     signed: true,
     // domain: `.${config.webserver.cookieDomain}`,
-    maxAge: 5000,
+    maxAge: 2500,
     path: '/',
 }
 
@@ -243,7 +243,52 @@ router.post('/manage/users/edit/:userId', (req, res) => {
                     return res.redirect('/admin/manage/' + redirectTo)
                 })
             }
+            if (requestedAction === 'PROMOTE') {
+                const PromotePayload = {
+                    'is_admin': true,
+                }
+
+                return User.update(PromotePayload, {
+                    where: { id: user.id },
+                }).catch((err)=>{
+                    throw err
+                }).then((data) => {
+                    res.cookie('notifs', `OK_PROMOTED然シテ${user.name}`, NotificationCookieOptions)
+                    return res.redirect('/admin/manage/staff')
+                })
+            }
+            if (requestedAction === 'DEMOTE') {
+                // Check whether demotion is the currentUser
+                if (req.currentUser.id === user.id) {
+                    res.cookie('notifs', `ERR_DEMOTE然シテ${user.name}然シテCannot demote yourself. (It sounds funny to fire yourself, but it's not happening.)`, NotificationCookieOptions)
+                    return res.redirect('/admin/manage/users/edit/' + user.id)
+                }
+
+                const DemotePayload = {
+                    'is_admin': false,
+                }
+
+                return User.update(DemotePayload, {
+                    where: { id: user.id },
+                }).catch((err)=>{
+                    throw err
+                }).then((data) => {
+                    res.cookie('notifs', `OK_DEMOTED然シテ${user.name}`, NotificationCookieOptions)
+                    return res.redirect('/admin/manage/users')
+                })
+            }
             if (requestedAction === 'DELETE_USER') {
+                // Check whether demotion is the currentUser
+                if (req.currentUser.id === user.id) {
+                    res.cookie('notifs', `ERR_DELETE然シテ${user.name}然シテCannot delete yourself.`, NotificationCookieOptions)
+                    return res.redirect('/admin/manage/users/edit/' + user.id)
+                }
+
+                if (user.is_admin === true) {
+                    res.cookie('notifs', `ERR_DELETE然シテ${user.name}然シテCannot delete privileged user. Please demote the account before attempting a delete.`, NotificationCookieOptions)
+                    return res.redirect('/admin/manage/users/edit/' + user.id)
+                }
+
                 return User.destroy({
                     where: {
                         'id': targetUserId,
