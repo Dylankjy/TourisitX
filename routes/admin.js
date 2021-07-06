@@ -494,7 +494,7 @@ router.get('/manage/tours/edit/:id', async (req, res) => {
     let banStatus = ''
 
 
-    const banLog = await Ban.findAll({ where: { objectID: itemID } })
+    const banLog = await Ban.findAll({ where: { objectID: itemID, is_inForce: true } })
 
     console.log('BAN LOG HAS FOUND')
 
@@ -537,7 +537,7 @@ router.post('/manage/tours/edit/:id', async (req, res) => {
     let banStatus = ''
 
     if (ACTION == 'REVOKE_TOUR') {
-        const banLog = await Ban.findAll({ where: { objectID: itemID } })
+        const banLog = await Ban.findAll({ where: { objectID: itemID, is_inForce: true } })
         console.log('BAN LOG HAS FOUND')
 
         if (banLog[0] == undefined) {
@@ -568,6 +568,8 @@ router.post('/manage/tours/edit/:id', async (req, res) => {
                 },
             )
 
+            console.log('HIDDEN SET TO TRUE')
+
             const banId = uuid.v4()
             await Ban.create({
                 banId: banId,
@@ -589,10 +591,17 @@ router.post('/manage/tours/edit/:id', async (req, res) => {
             })
         }
     } else {
+        // THIS RUNS TO UNREVOKE TOUR
         await Ban.update({
             is_inForce: false,
         }, {
             where: { objectID: itemID },
+        })
+
+        await Shop.update({
+            hidden: 'false',
+        }, {
+            where: { id: itemID },
         })
     }
 
