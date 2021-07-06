@@ -124,7 +124,7 @@ app.engine('hbs', exphbs({
             }
         },
 
-        ifNumEquals(a,b) {
+        ifNumEquals(a, b) {
             if (parseInt(a) == parseInt(b)) {
                 return true
             } else {
@@ -233,11 +233,12 @@ app.engine('hbs', exphbs({
         },
 
         range: (value, block) =>{
-            var accum = '';
-            for(var i = 1; i < value + 1; ++i)
-                accum += block.fn(i);
-            return accum;
-        }
+            let accum = ''
+            for (let i = 1; i < value + 1; ++i) {
+                accum += block.fn(i)
+            }
+            return accum
+        },
     },
 }))
 
@@ -269,7 +270,7 @@ const webserver = () => {
 
     app.use('/admin', adminAuthorisationRequired, routes.admin)
 
-    app.use('/', routes.support)
+    app.use('/', loginRequired, routes.support)
 
     app.use('/', routes.index)
 
@@ -278,6 +279,8 @@ const webserver = () => {
     app.use('/marketplace', routes.market)
 
     app.use('/es-api', routes.esApi)
+
+    app.use('/', routes.chat)
 
     // Don't put any more routes after this block, cuz they will get 404'ed
     app.get('*', (req, res) => {
