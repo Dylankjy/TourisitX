@@ -39,6 +39,8 @@ const app = express()
 // Socket.io Injection
 const server = require('http').Server(app)
 const io = require('socket.io')(server)
+const { ShopDB, UserDB } = require('./models')
+
 app.set('io', io)
 
 // cookieParser: Secret key for signing
@@ -128,6 +130,14 @@ app.engine('hbs', exphbs({
                 return options.fn(this)
             } else {
                 return options.inverse(this)
+            }
+        },
+
+        ifNumEquals(a,b) {
+            if (parseInt(a) == parseInt(b)) {
+                return true
+            } else {
+                return false
             }
         },
 
@@ -230,6 +240,13 @@ app.engine('hbs', exphbs({
                 }
             }
         },
+
+        range: (value, block) =>{
+            var accum = '';
+            for(var i = 1; i < value + 1; ++i)
+                accum += block.fn(i);
+            return accum;
+        }
     },
 }))
 
