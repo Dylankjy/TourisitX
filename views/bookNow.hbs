@@ -2,11 +2,13 @@
 <link rel="stylesheet" href="/third_party/bulma/bulma-tooltip.css">
 
 {{!-- <link rel="stylesheet" href="/third_party/jquery-ui/jquery-ui.min.css"> --}}
-<script src="/third_party/jquery/jquery.min.js"></script>
 {{!-- <script src="/third_party/jquery-ui/jquery-ui.js"></script> --}}
 
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
-<script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+<head>
+<meta name="turbolinks-visit-control" content="reload">
+</head>
 
 <section class="section">
         <div class="container">
@@ -110,14 +112,28 @@
 
 <script>
 
-    $(document).ready(function(){
-        $(".dateField").datepicker({ 
+    $(".dateField").datepicker({ 
         minDate: 1,
         maxDate: 90,
         beforeShowDay: filterDays,
         dateFormat: 'dd/mm/yy'});
-    const finalDays = document.getElementById('finalDays').innerText
 
+        const finalDays = document.getElementById('finalDays').innerText
+        var tourPax = document.getElementById('tourPax').innerText 
+        var PaxOptions = ""
+        for (var i=1; i<=tourPax; i++){
+            PaxOptions += "<option>"+i+"</option>"
+        }
+        $("select#PaxField").html(PaxOptions)
+        
+        var finalTimings = document.getElementById('finalTimings').innerText 
+        var timingsArray = finalTimings.split(',')
+        var timeOptions = ""
+        for (var i=0; i<timingsArray.length;i++){
+            timeOptions += "<option>"+timingsArray[i]+"</option>"
+        }
+        $("select#TimeField").html(timeOptions)
+    
     function filterDays(date){
         switch (date.getDay()){
             case 0:
@@ -166,19 +182,4 @@
         }
     }
 
-    var tourPax = document.getElementById('tourPax').innerText 
-    var PaxOptions = ""
-    for (var i=1; i<=tourPax; i++){
-        PaxOptions += "<option>"+i+"</option>"
-    }
-    $("select#PaxField").html(PaxOptions)
-
-    var finalTimings = document.getElementById('finalTimings').innerText 
-    var timingsArray = finalTimings.split(',')
-    var timeOptions = ""
-    for (var i=0; i<timingsArray.length;i++){
-        timeOptions += "<option>"+timingsArray[i]+"</option>"
-    }
-    $("select#TimeField").html(timeOptions)
-    })
 </script>
