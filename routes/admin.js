@@ -605,7 +605,11 @@ router.post('/manage/tours/edit/:id', async (req, res) => {
         })
     }
 
-    res.redirect(`/admin/manage/tours/edit/${itemID}`)
+    if (await Shop.count({ where: { objectID: itemID } }) === 1) {
+        return res.redirect(`/admin/manage/tours/edit/${itemID}`)
+    }
+
+    return res.render('404', { layout: 'admin' })
 })
 
 router.get('/payments', (req, res) => {
