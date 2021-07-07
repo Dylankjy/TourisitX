@@ -41,6 +41,17 @@
                             {{!-- preferrably without creating new list --}}
                             {{!-- names displayed incorrectly as listings is used to fetch names, listings contains all bookings, indexes do not align --}}
                             {{#each data.bookList}}
+
+                            {{#ifEquals this.processStep '1'}}
+                                <tr>
+                                    <th>{{this.[Shop.tourTitle]}}</th>
+                                    <td><a href="/bookings/{{this.bookId}}">
+                                        <span class="tag is-link">Pay customisation fee&nbsp;
+                                            <i class="fas fa-arrow-right"></i></span>
+                                    </a></td>
+                                </tr>
+                            {{/ifEquals}}
+
                             {{#ifEquals this.processStep '2'}}
                                 <tr>
                                     <th>{{this.[Shop.tourTitle]}}</th>
@@ -67,7 +78,7 @@
                                     <tr>
                                         <th>{{{this.[Shop.tourTitle]}}}</th>
                                         <td><a href="/bookings/{{{this.bookId}}}">
-                                            <span class="tag is-link">Go on &nbsp;
+                                            <span class="tag is-link">Declare that tour is complete&nbsp;
                                                 <i class="fas fa-arrow-right"></i></span>
                                         </a></td>
                                     </tr>
@@ -152,17 +163,6 @@
                     <!-- end: card --> 
                     {{/each}}
 
-{{else}}
-                    <div class='container mt-5 mb-5 has-text-centered'>
-                        <div class="subtitle ">Nothing to display here. <br>Start a tour with
-                    Tourisit today.</div>
-                    <a class="button is-primary is-large" href="/marketplace"> 
-                    <i class="fas fa-store mr-2"></i> Head to the marketplace <i class="fas fa-arrow-right ml-2"></i>
-                    </a>
-{{/if}}
-
-        </div>
-    </section>
 
 <section class="section is-small">
 <div class="has-text-centered">
@@ -177,3 +177,15 @@
 </span>
 </div>
 </section>
+
+{{else}}
+                    <div class='container mt-5 mb-5 has-text-centered'>
+                        <div class="subtitle ">Nothing to display here. <br>Start a tour with
+                    Tourisit today.</div>
+                    <a class="button is-primary is-large" href="/marketplace"> 
+                    <i class="fas fa-store mr-2"></i> Head to the marketplace <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+{{/if}}
+
+        </div>
+    </section>
