@@ -8,11 +8,11 @@ const { Support } = require('../models')
 // Put all your routings below this line -----
 
 // router.get('/', (req, res) => { ... }
-router.get('/helpdesk', (req, res) => {
+router.get('/', (req, res) => {
     return res.render('support.hbs')
 })
 
-router.post('/helpdesk', (req, res) => {
+router.post('/', (req, res) => {
     res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
 
     const v = new Validator(req.fields)
