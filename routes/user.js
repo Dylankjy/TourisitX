@@ -29,6 +29,7 @@ const savedpfpFolder = './storage/users'
 // Hashing
 const sha512 = require('hash-anything').sha512
 const bcrypt = require('bcrypt')
+const { findDB } = require('../app/db')
 
 require('../app/db')
 
@@ -234,14 +235,22 @@ router.post('/setting/general', async (req, res) => {
         .getResult()
     settingErrors.push(nameResult)
 
-    const emailResult = v
-        .Initialize({
-            name: 'email',
-            errorMessage: 'Invalid email address',
-        })
-        .exists()
-        .getResult()
-    settingErrors.push(emailResult)
+    findDB('user', { 'email': req.fields.uemail }, (result) => {
+        if ((req.fields.uemail == result[0].dataValues.email) && (user.id != result[0].dataValues.id)) {
+            const emailResult = v
+                .notFound({
+                    name: 'uemail',
+                    errorMessage: 'This email address has already been taken',
+                })
+                .exists()
+                .getResult()
+            settingErrors.push(emailResult)
+        }
+        else {
+        }
+
+    })
+
     // const pfpResult = fv
     //     .Initialize({ errorMessage: 'Please supply a valid Image' })
     //     .fileExists()
@@ -306,7 +315,7 @@ router.post('/setting/general', async (req, res) => {
         res.clearCookie('storedValues')
         const AccDetails = {
             'name': req.fields.uname,
-            'email': req.fields.email,
+            'email': req.fields.uemail,
             'phone_number': req.fields.phone_number,
             'fb': req.fields.fb,
             'insta': req.fields.insta,
