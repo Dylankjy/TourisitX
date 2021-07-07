@@ -160,6 +160,9 @@ router.get('/info/:id', (req, res) => {
 
             // If person is not logged in
             if (sid == undefined) {
+                if (tourData.hidden == 'true') {
+                    res.redirect('/marketplace')
+                }
                 return res.render('listing.hbs', {
                     tourData: tourData,
                     isOwner: false,
@@ -174,7 +177,6 @@ router.get('/info/:id', (req, res) => {
                 // If user is logged in and has a valid session
                 const userData = await genkan.getUserBySessionAsync(sid)
                 const userWishlist = userData.wishlist || ''
-                console.log(`userWishlist is: ${userWishlist}`)
                 // var userWishlistArr = userWishlist.split(';!;')
 
                 // Check if user is the owner of the current listing being browsed
@@ -209,22 +211,23 @@ router.get('/info/:id', (req, res) => {
                         },
                     }
 
-                    console.log(metadata)
-
                     return res.render('listing.hbs', metadata)
                 } else {
-                    owner = false
+                    if (tourData.hidden == 'true') {
+                        res.redirect('/marketplace')
+                    } else {
+                        owner = false
 
-                    const metadata = {
-                        data: {
-                            currentUser: req.currentUser,
-                        },
-                        tourData: tourData,
-                        isOwner: owner,
-                        wishlistArr: userWishlist,
+                        const metadata = {
+                            data: {
+                                currentUser: req.currentUser,
+                            },
+                            tourData: tourData,
+                            isOwner: owner,
+                            wishlistArr: userWishlist,
+                        }
+                        return res.render('listing.hbs', metadata)
                     }
-
-                    return res.render('listing.hbs', metadata)
                 }
             }
         })
@@ -424,6 +427,8 @@ router.post('/create', async (req, res) => {
                 description: req.fields.tourDesc,
                 image: 'default.jpg',
             })
+
+            console.log('ELASTICSEARCH POSTED')
         })
             .catch((err) => {
                 console.log(err)

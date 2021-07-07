@@ -120,15 +120,15 @@ module.exports = {
 
 // Examples
 
-const postData = { 'theName': 'Jaddke', 'theAge': 4 }
+// const postData = { 'theName': 'Jaddke', 'theAge': 4 }
 
-const v = new Validator(postData)
-nameResult = v.Initialize({ name: 'theName', errorMessage: 'Needs to be 5 chars!' }).exists().isLength({ min: 6 })
-    .getResult()
+// const v = new Validator(postData)
+// nameResult = v.Initialize({ name: 'theName', errorMessage: 'Needs to be 5 chars!' }).exists().isLength({ min: 6 })
+//     .getResult()
 
-ageResult = v.Initialize({ name: 'theAge', errorMessage: 'Minimum age is 10' }).exists().isValue({ min: 10 })
-    .getResult()
+// ageResult = v.Initialize({ name: 'theAge', errorMessage: 'Minimum age is 10' }).exists().isValue({ min: 10 })
+//     .getResult()
 
-const allResults = [nameResult, ageResult]
+// const allResults = [nameResult, ageResult]
 // console.log(allResults)
 

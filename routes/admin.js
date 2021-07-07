@@ -5,6 +5,8 @@ const { Op } = require('sequelize')
 
 const router = express.Router()
 const uuid = require('uuid')
+const elasticSearchHelper = require('../app/elasticSearch')
+const { default: axios } = require('axios')
 
 // Database operations
 require('../app/db')
@@ -493,7 +495,6 @@ router.get('/manage/tours/edit/:id', async (req, res) => {
 
     let banStatus = ''
 
-
     const banLog = await Ban.findAll({ where: { objectID: itemID, is_inForce: true } })
 
     console.log('BAN LOG HAS FOUND')
@@ -578,7 +579,7 @@ router.post('/manage/tours/edit/:id', async (req, res) => {
                 is_inForce: true,
             })
 
-            console.log('RANNING ban')
+            deleteDoc('products', itemID)
 
             await Shop.findAll({
                 where: {
@@ -603,9 +604,23 @@ router.post('/manage/tours/edit/:id', async (req, res) => {
         }, {
             where: { id: itemID },
         })
+
+        listData = await Shop.findAll({
+            attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
+            where: { id: itemID },
+        })
+
+        doc = listData[0]['dataValues']
+
+        await axios.post('http://localhost:5000/es-api/upload', {
+            id: doc.id,
+            name: doc.tourTitle,
+            description: doc.tourDesc,
+            image: doc.tourImage,
+        })
     }
 
-    if (await Shop.count({ where: { objectID: itemID } }) === 1) {
+    if (await Shop.count({ where: { id: itemID } }) === 1) {
         return res.redirect(`/admin/manage/tours/edit/${itemID}`)
     }
 
