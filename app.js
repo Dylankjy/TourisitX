@@ -270,7 +270,7 @@ const webserver = () => {
 
     app.use('/admin', adminAuthorisationRequired, routes.admin)
 
-    app.use('/helpdesk', routes.support)
+    app.use('/helpdesk', loginRequired, routes.support)
 
     app.use('/', routes.index)
 
