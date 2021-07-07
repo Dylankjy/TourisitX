@@ -182,6 +182,10 @@ app.engine('hbs', exphbs({
             return value.split(',')
         },
 
+        splitArr_semicolon: (value, options) => {
+            return value.split(';!;')
+        },
+
         emptyArr: (value, options) =>{
             return (value.length == 0)
         },
