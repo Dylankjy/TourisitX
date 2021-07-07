@@ -62,5 +62,12 @@ module.exports = (sequelize, DataTypes) => {
         },
     )
 
+    tourPlans.associate = (models) => {
+        tourPlans.belongsTo(models.Booking, {
+            targetKey: 'bookId',
+            foreignKey: 'bookId',
+        })
+    }
+
     return tourPlans
 }

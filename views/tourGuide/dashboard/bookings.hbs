@@ -7,47 +7,48 @@
         <th>Customer</th>
         <th>Status</th>
     </tr>
-    {{#each data.transactions}}
+    {{#each data.bookList}}
     <tr>
-        <td>{{timestampParseISO this.order_date }}</td>
+        <td>{{dateParseISO this.orderDatetime }}</td>
 
-        <td>{{timestampParseISO this.book_datetime }}</td>
+        <td>{{dateParseISO this.tourStart }}</td>
 
-        <td>{{ this.tour_name }}</td>
+        <td><a href="/tourguide/bookings/{{this.bookId}}">{{ this.[Shop.tourTitle] }}</a></td>
 
-        <td>{{ this.cust_id }}</td>
-
-        <td>TODO</td>
-
-        {{!-- TODO: Please change when Chowwie finalises the process steps. --}}
+        <td>{{ this.custId }}</td>
         
-        {{!-- {{#ifEquals this.process_step 1}} --}}
+        {{#ifEquals this.processStep '0'}}
 
-        {{!-- <td class="has-text-grey"><i class="fas fa-clock"></i>&nbsp;Awaiting customer requirements</td>
+            {{#ifEquals this.approved 0}}
+            <td class="has-text-grey"><i class="fas fa-exclamation-circle"></i>&nbsp;Approve or Reject Tour</td>
+            {{/ifEquals}}
 
+            {{#ifEquals this.approved 1}}
+            <td class="has-text-grey"><i class="fas fa-clock"></i>&nbsp;Awaiting customer payment (customisation fee)</td>
+            {{/ifEquals}}
+
+        {{/ifEquals}}
+
+        {{#ifEquals this.processStep '1'}}
         <td class="has-text-danger-dark"><i class="fas fa-exclamation-circle"></i>&nbsp;Submit tour agenda</td>
+        {{/ifEquals}}
 
+        {{#ifEquals this.processStep '2'}}
         <td class="has-text-grey"><i class="fas fa-clock"></i>&nbsp;Pending customer feedback</td>
+        {{/ifEquals}}
 
-        <td class="has-text-danger-dark"><i class="fas fa-exclamation-circle"></i>&nbsp;Revision required</td>
+        {{#ifEquals this.processStep '3'}}
+        <td class="has-text-grey"><i class="fas fa-clock"></i>&nbsp;Awaiting customer payment</td>
+        {{/ifEquals}}
 
+        {{#ifEquals this.processStep '4'}}
         <td class="has-text-info-dark"><i class="fas fa-clock"></i>&nbsp;Pending tour completion</td>
+        {{/ifEquals}}
 
-        <td class="has-text-success-dark"><i class="fas fa-tick"></i>&nbsp;Tour completed</td> --}}
+        {{#ifEquals this.processStep '6'}}
+        <td class="has-text-success-dark"><i class="fas fa-tick"></i>&nbsp;Tour completed</td>
+        {{/ifEquals}}
     </tr>
     {{/each}}
-
-    {{!-- To be deleted later, for demo purposes only :)  --}}
-    <tr>
-        <td>12/5/21</td>
-
-        <td>20/5/21</td>
-
-        <td><a href="/tourguide/bookings/id">Bishan Nightlife</a></td>
-
-        <td>Harold Chan</td>
-
-        <td class="has-text-success-dark"><i class="fas fa-tick"></i>&nbsp;Tour completed</td>
-    </tr>
 
 </table>

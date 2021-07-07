@@ -24,7 +24,7 @@ const genkan = require('../app/genkan/genkan')
 
 // Globals
 const router = express.Router()
-const { Shop } = require('../models')
+const { Shop, Booking, ChatRoom, ChatMessages, TourPlans } = require('../models')
 const elasticSearchHelper = require('../app/elasticSearch')
 
 const Validator = formidableValidator.Validator
@@ -146,32 +146,107 @@ router.get('/manage/listings/archived', async (req, res) => {
         })
 })
 
-router.get('/bookings', (req, res) => {
-    const metadata = {
-        meta: {
-            title: 'Bookings',
-            path: false,
-        },
-        nav: {
-            sidebarActive: 'bookings',
-        },
-        layout: 'tourguide',
+router.get('/bookings', async (req, res) => {
+    const sid = req.signedCookies.sid
+    let pageNo = req.query.page
+    const pageSize = 5
+    let offset = 0
+    if (pageNo) {
+        pageNo = parseInt(pageNo)
+        offset = pageSize * (pageNo - 1)
+    } else {
+        pageNo = 1
     }
-    return res.render('tourguide/dashboard/bookings', metadata)
+
+    const userData = await genkan.getUserBySessionAsync(sid)
+    Booking.findAndCountAll({
+        where: {
+            tgId: userData.id,
+            completed: 0,
+            approved: 1,
+        },
+        order: [['createdAt', 'ASC']],
+        include: Shop,
+        raw: true,
+        limit: pageSize,
+        offset: offset,
+    })
+        .then( (result) => {
+            const bookCount = result.count
+            const bookList = result.rows
+            const lastPage = Math.ceil(bookCount / pageSize)
+            const metadata = {
+                meta: {
+                    title: 'All Bookings',
+                    pageNo: pageNo,
+                    count: bookCount,
+                    lastPage: lastPage,
+                },
+                data: {
+                    currentUser: req.currentUser,
+                    bookList: bookList,
+                },
+                nav: {
+                    sidebarActive: 'bookings',
+                },
+                layout: 'tourguide',
+            }
+            return res.render('tourguide/dashboard/bookings', metadata)
+        }).catch((err) => console.log)
 })
 
 router.get('/bookings/:id', (req, res) => {
-    const metadata = {
-        meta: {
-            title: 'Bookings',
-            path: false,
+    const bookID = req.params.id
+    // const booking = bookingList.filter((obj) => {
+    //     return obj.id == bookID
+    // })[0]
+    Booking.findOne({
+        where: {
+            bookId: bookID,
         },
-        nav: {
-            sidebarActive: 'bookings',
-        },
-        layout: 'main',
-    }
-    return res.render('tourguide/myJob', metadata)
+        include: Shop, TourPlans,
+        raw: true,
+    }) .then(async (result) => {
+        // const sid = req.signedCookies.sid
+        // const userId = await genkan.getUserBySessionAsync(sid)
+        ChatMessages.findAll({
+            where: {
+                roomId: result.chatId,
+            },
+            order: [['createdAt', 'ASC']],
+            raw: true,
+        }) .then( async (msgs) => {
+            const metadata = {
+                meta: {
+                    title: result['Shop.tourTitle'],
+                    path: false,
+                },
+                data: {
+                    currentUser: req.currentUser,
+                    book: result,
+                    timeline: msgs,
+                },
+                nav: {
+                    sidebarActive: 'bookings',
+                },
+                layout: 'main',
+                // tourPlans is a placeholder used for testing until the customisation features are in
+                tourPlans: [
+                    { planId: '00000000-0000-0000-0000-000000000000',
+                        bookId: '00000000-0000-0000-0000-000000000000',
+                        index: 0,
+                        tourStart: new Date().toISOString(),
+                        tourEnd: new Date().toISOString(),
+                        tourPax: '5',
+                        tourPrice: '300',
+                        tourItinerary: 'Go to the chopper at bshan an eat some duck rice,Ride to outskirts of SG e',
+                        accepted: '-1' },
+                ],
+
+            }
+            return res.render('tourguide/myJob', metadata)
+        }).catch((err) => console.log)
+    }).catch((err) => console.log)
 })
 
 router.get('/payments', (req, res) => {

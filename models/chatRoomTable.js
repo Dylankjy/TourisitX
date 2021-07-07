@@ -32,7 +32,17 @@ module.exports = (sequelize, DataTypes) => {
         },
     )
 
+    ChatRoom.associate = (models) => {
+        ChatRoom.hasMany(models.ChatMessages, {
+            onDelete: 'cascade',
+            sourceKey: 'chatId',
+            foreignKey: 'roomId',
+        })
+    // ChatRoom.belongsTo(models.Booking, {
+    //     targetKey: 'bookId',
+    //     foreignKey: 'bookingId',
+    // })
+    }
+
     return ChatRoom
 }
-
-
