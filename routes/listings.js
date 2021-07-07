@@ -1177,6 +1177,7 @@ router.post('/:id/purchase', async (req, res) => {
                     tourEnd: endTour,
                     bookPax: req.fields.tourPax,
                     bookDuration: listing.tourDuration,
+                    bookItinerary: listing.finalItinerary,
                     bookBaseprice: listing.tourPrice,
                     bookCharges: '',
                     // processStep: 0, set to 4 for now until approval & payment system is in place
@@ -1186,6 +1187,8 @@ router.post('/:id/purchase', async (req, res) => {
                     custRequests: '',
                     completed: 0,
                     approved: 1,
+                    custom: 0,
+                    paid: 0,
                 }).then(async (data) => {
                     // ChatRoom.create({
                     //     chatId: genId2,
@@ -1303,15 +1306,18 @@ router.post('/:id/purchase/customise', async (req, res) => {
                     tourEnd: endTour,
                     bookPax: req.fields.tourPax,
                     bookDuration: 0,
+                    bookItinerary: listing.finalItinerary,
                     bookBaseprice: listing.tourPrice,
                     bookCharges: customPrice,
-                    // processStep: 0, set to 4 for now until approval & payment system is in place
+                    // processStep: 0, set to 1 for now until approval & payment system is in place
                     processStep: 1,
                     revisions: listing.tourRevision,
                     addInfo: '',
                     custRequests: req.fields.reqText,
                     completed: 0,
                     approved: 1,
+                    custom: 1,
+                    paid: 0,
                 }).then(async (data) => {
                     participants = [userData.id, listing.userId]
                     addRoom(participants, genId, (roomId)=> {

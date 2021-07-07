@@ -59,6 +59,11 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull: true,
             },
 
+            bookItinerary: {
+                type: DataTypes.STRING(256),
+                allowNull: true,
+            },
+
             bookBaseprice: {
                 type: DataTypes.STRING(8),
                 allowNull: false,
@@ -102,6 +107,18 @@ module.exports = (sequelize, DataTypes) => {
             },
 
             approved: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
+            },
+
+            custom: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
+            },
+
+            paid: {
                 type: DataTypes.BOOLEAN,
                 allowNull: false,
                 defaultValue: false,
