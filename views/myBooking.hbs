@@ -85,8 +85,8 @@
                                     <span class="tag is-primary">Start</span>
                                 </header>
 
-                                {{#each timeline}}
-                                    {{#ifEquals this.flag 'COMPLETE'}}
+                                {{#each data.timeline}}
+                                    {{#ifEquals this.flag 'ACTIVITY'}}
                                         <div class="timeline-item">
                                             <div class="timeline-marker is-icon has-background-success has-text-white">
                                                 <i class="fas fa-check"></i>
@@ -513,16 +513,16 @@
                                     <tr>
                                         <th>Subtotal</th>
                                         {{!-- calculate subtotal server side --}}
-                                        <th>${{data.book.bookBaseprice}}</th>
+                                        <th>${{math data.book.bookBaseprice '+' data.book.bookCharges}}</th>
                                     </tr>
                                      <tr>
                                         <th>Service Fee <span><i class="far fa-question-circle has-tooltip-multiline" 
                                         data-tooltip="Tourisit takes a 10% service fee for sustainability. Thank you for using our service."></i></span></th>
-                                        <th>${{math data.book.bookBaseprice '*' 0.1}}</th>
+                                        <th>${{math (math data.book.bookBaseprice '+' data.book.bookCharges) '*' 0.1}}</th>
                                     </tr>
                                     <tr class="has-background-white-ter has-text-weight-bold is-size-5">
                                         <th>Total</th>
-                                        <th>${{math data.book.bookBaseprice '+' (math data.book.bookBaseprice '*' 0.1)}}</th>
+                                        <th>${{math (math (math data.book.bookBaseprice '+' data.book.bookCharges) '*' 0.1) '+' (math data.book.bookBaseprice '+' data.book.bookCharges)}}</th>
                                     </tr>
                                 </table>
                             </div>
@@ -539,7 +539,7 @@
                             <div class="container">
                                 <p class="has-text-centered is-size-4 has-text-weight-bold">Requirements &amp; Requests</p>
 
-                                {{#each (readArrWithReplace data.book.custRequests)}}
+                                {{#each (splitArr_semicolon data.book.custRequests)}}
 
                                     <!--Req card-->
                                     <div class="card ml-3 mt-3 has-background-white-ter is-shadowless">

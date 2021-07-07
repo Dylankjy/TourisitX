@@ -42,7 +42,7 @@
                             {{!-- names displayed incorrectly as listings is used to fetch names, listings contains all bookings, indexes do not align --}}
                             {{#each data.bookList}}
 
-                            {{#ifEquals this.processStep '1'}}
+                            {{#ifEquals this.processStep '0'}}
                                 <tr>
                                     <th>{{this.[Shop.tourTitle]}}</th>
                                     <td><a href="/bookings/{{this.bookId}}">
@@ -144,9 +144,9 @@
                                         <span class="tag is-primary">Payment Pending</span>
                                     {{/ifEquals}}
 
-                                    {{#ifEquals this.processStep 4 }}
+                                    {{#ifInRange this.processStep 4 5}}
                                         <span class="tag is-success is-light">Confirmed</span>
-                                    {{/ifEquals}}
+                                    {{/ifInRange}}
                                     
                                     {{#ifEquals this.completed 1 }}
                                         <span class="tag is-warning is-light mb-4">Completed</span>

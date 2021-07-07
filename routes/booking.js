@@ -2,7 +2,7 @@ const express = require('express')
 const { default: axios } = require('axios')
 
 const router = express.Router()
-const { Shop, User, Booking, ChatRoom, TourPlans } = require('../models')
+const { Shop, User, Booking, ChatRoom, TourPlans, ChatMessages } = require('../models')
 
 const uuid = require('uuid')
 const path = require('path')
@@ -15,62 +15,26 @@ const genkan = require('../app/genkan/genkan')
 const db = require('../app/db.js')
 const { requireLogin, requirePermission, removeNull, emptyArray, removeFromArray, getUserfromSid } = require('../app/helpers')
 const { parse } = require('path')
+const chatMessagesTable = require('../models/chatMessagesTable')
 
 // Put all your routings below this line -----
 
-const sampletimeline = [
-    { messageId: '1',
-        messageText: 'You booked this tour.',
-        flag: 'COMPLETE',
-        senderId: '0' },
-
-    { messageId: '2',
-        messageText: 'You submitted your requirements.',
-        flag: 'COMPLETE',
-        senderId: '0' },
-
-    { messageId: '3',
-        messageText: 'George acknowledged your requirements.',
-        flag: 'COMPLETE',
-        senderId: '0' },
-
-    // { messageId: '4',
-    //     messageText: 'George posted a draft of the Tour Plan (#1)',
-    //     flag: 'COMPLETE',
-    //     senderId: '0' },
-
-    { messageId: '5',
-        messageText: '1',
-        // index of plan
-        flag: 'TOURPLAN',
-        senderId: 'tourplanid' },
-
-    { messageId: '6',
-        messageText: 'You submitted a revision request.',
-        flag: 'COMPLETE',
-        senderId: '0' },
-]
-
-tourPlans = [
-    { planId: '555',
-        bookId: 'bookweee',
-        index: 0,
-        tourStart: new Date().toISOString(),
-        tourEnd: new Date().toISOString(),
-        tourPax: '5',
-        tourPrice: '300',
-        tourItinerary: 'Go to the chopper at bshan an eat some duck rice,Ride to outskirts of SG e',
-        accepted: '-1' },
-]
-
-// router.get('/', (req, res) => {
-//     return res.render('allBookings.hbs')
-// })
+// const tourPlans = [
+//     { planId: '555',
+//         bookId: 'bookweee',
+//         index: 0,
+//         tourStart: new Date().toISOString(),
+//         tourEnd: new Date().toISOString(),
+//         tourPax: '5',
+//         tourPrice: '300',
+//         tourItinerary: 'Go to the chopper at bshan an eat some duck rice,Ride to outskirts of SG e',
+//         accepted: '-1' },
+// ]
 
 router.get('/', async (req, res) => {
     const sid = req.signedCookies.sid
     let pageNo = req.query.page
-    const pageSize = 1
+    const pageSize = 5
     let offset = 0
     if (pageNo) {
         pageNo = parseInt(pageNo)
@@ -88,6 +52,7 @@ router.get('/', async (req, res) => {
             where: {
                 custId: userData.id,
                 completed: 0,
+                approved: 1,
             },
             order: [['createdAt', 'ASC']],
             include: Shop,
@@ -161,45 +126,35 @@ router.get('/:id', (req, res) => {
         where: {
             bookId: bookID,
         },
-    }) .then(async (items) => {
-        const booking = await items['dataValues']
-        const sid = req.signedCookies.sid
+        include: Shop, TourPlans,
+        raw: true,
+    }) .then(async (result) => {
+        console.log(result)
+        console.log(result.chatId)
+        // const sid = req.signedCookies.sid
+        // const userId = await genkan.getUserBySessionAsync(sid)
+        ChatMessages.findAll({
+            where: {
+                roomId: result.chatId,
+            },
+            order: [['createdAt', 'ASC']],
+            raw: true,
+        }) .then( async (msgs) => {
+            console.log(msgs)
 
-        // If person is not logged in
-        if (sid == undefined) {
-            return requireLogin(res)
-        } else {
-            // Check if session is up to date. Else, require person to reloggin
-            if ((await genkan.isLoggedinAsync(sid)) == false) {
-            // Redirect to login page
-                return requireLogin(res)
-            }
-            const userData = await genkan.getUserBySessionAsync(sid)
-
-            Shop.findOne({
-                where: {
-                    id: booking.listingId,
+            const metadata = {
+                meta: {
+                    title: result['Shop.tourTitle'],
                 },
-            }) .then(async (items) => {
-                const listing = await items['dataValues']
-
-                const metadata = {
-                    meta: {
-                        title: listing.tourTitle,
-                    },
-                    data: {
-                        currentUser: req.currentUser,
-                    },
-                    booking: booking,
-                    listing: listing,
-                    timeline: sampletimeline,
-                    tourPlans: tourPlans,
-                }
-                console.log(booking)
-                console.log(listing)
-                return res.render('myBooking.hbs', metadata)
-            }).catch((err) => console.log)
-        }
+                data: {
+                    currentUser: req.currentUser,
+                    book: result,
+                    timeline: msgs,
+                },
+                tourPlans: tourPlans,
+            }
+            return res.render('myBooking.hbs', metadata)
+        }).catch((err) => console.log)
     }).catch((err) => console.log)
 
     // const tourID = booking['tour_id']
