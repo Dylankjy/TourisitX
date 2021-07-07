@@ -1,23 +1,17 @@
 // Bootscreen
 require('./app/boot/bootscreen')
 
-// System Integrity check
-// This checks the database to ensure it contains the needed objects for the system to function correctly.
-// At no point should this piece of code be disabled or commented out.
-const integrityCheck = require('./app/systemIntegrity/checks')
-integrityCheck.check().catch((err) => {
-    console.error(err)
-    process.exit(0)
-})
-
-// Genkan API
-const genkan = require('./app/genkan/genkan')
-
 // Express related modules
 const express = require('express')
 const exphbs = require('express-handlebars')
 const cookieParser = require('cookie-parser')
 const RateLimit = require('express-rate-limit')
+
+const app = express()
+// Socket.io Injection
+const server = require('http').Server(app)
+const io = require('socket.io')(server)
+app.set('io', io)
 
 // Routes for Express
 const routes = {
@@ -32,9 +26,8 @@ const routes = {
     user: require('./routes/user'),
     support: require('./routes/support'),
     index: require('./routes/index'),
+    chat: require('./routes/chat'),
 }
-
-const app = express()
 
 // cookieParser: Secret key for signing
 // Uses genkan's secret key to sign cookies
@@ -68,6 +61,9 @@ const adminAuthorisationRequired = (req, res, next) => {
         return next()
     })
 }
+
+// Genkan API
+const genkan = require('./app/genkan/genkan')
 
 // Block if not logged in
 const loginRequired = (req, res, next) => {
@@ -105,7 +101,6 @@ const getCurrentUser = (req, res, next) => {
 // Make all routes getCurrentUser
 app.use(getCurrentUser)
 
-
 // Module imports
 const dateFormat = require('dateformat')
 
@@ -120,6 +115,22 @@ app.engine('hbs', exphbs({
     helpers: {
         ifEquals(a, b, options) {
             if (a === b) {
+                return options.fn(this)
+            } else {
+                return options.inverse(this)
+            }
+        },
+
+        ifNumEquals(a, b) {
+            if (parseInt(a) == parseInt(b)) {
+                return true
+            } else {
+                return false
+            }
+        },
+
+        ifInRange(value, lower, upper, options) {
+            if ((lower <= parseInt(value)) && (parseInt(value)<= upper)) {
                 return options.fn(this)
             } else {
                 return options.inverse(this)
@@ -175,6 +186,27 @@ app.engine('hbs', exphbs({
             return (value.length == 0)
         },
 
+        numToIndex: (value, options) =>{
+            index = parseInt(value, 10) - 1
+            return index
+        },
+
+        dateParseISO: (value) => {
+            return dateFormat(value, 'dS mmmm yyyy')
+        },
+
+        onlyTime: (value) => {
+            const hours = dateFormat(value, 'HH')
+            let suffix = ''
+            if (parseInt(hours) < 12) {
+                suffix = ' AM'
+            } else if (parseInt(hours) >= 12) {
+                suffix = ' PM'
+            }
+            const time = dateFormat(value, 'hh:MM') + suffix
+            return time
+        },
+
         timestampParseISO: (value) => {
             return dateFormat(value, 'dS mmmm yyyy, HH:MM:ss')
         },
@@ -196,17 +228,19 @@ app.engine('hbs', exphbs({
                 }
             }
         },
+
+        range: (value, block) =>{
+            let accum = ''
+            for (let i = 1; i < value + 1; ++i) {
+                accum += block.fn(i)
+            }
+            return accum
+        },
     },
 }))
 
 // Handlebars: Views folder
 app.set('views', [`views`])
-
-// Formidable: For POST data accessing
-// THIS IS DISABLED AS IT INTERFERES WITH POST PROCESSING FOR GENKAN
-// IF YOU REQUIRE THIS MODULE, PLEASE INCLUDE IT INSIDE YOUR ROUTING FILES
-// -- Dylan UwU
-// app.use(formidable())
 
 // Slowdown: For Rate limiting
 const limiter = new RateLimit({
@@ -221,8 +255,6 @@ app.use(limiter)
 const webserver = () => {
     app.use('/id', routes.auth)
 
-    // app.use('/shop', routes.market)
-
     app.use('/listing', routes.listings)
 
     app.use('/id', routes.auth)
@@ -233,7 +265,7 @@ const webserver = () => {
 
     app.use('/admin', adminAuthorisationRequired, routes.admin)
 
-    app.use('/', routes.support)
+    app.use('/helpdesk', loginRequired, routes.support)
 
     app.use('/', routes.index)
 
@@ -242,6 +274,8 @@ const webserver = () => {
     app.use('/marketplace', routes.market)
 
     app.use('/es-api', routes.esApi)
+
+    app.use('/messages', routes.chat)
 
     // Don't put any more routes after this block, cuz they will get 404'ed
     app.get('*', (req, res) => {
@@ -259,7 +293,7 @@ const webserver = () => {
         return res.render('404', metadata)
     })
 
-    app.listen(5000, (err) => {
+    server.listen(5000, (err) => {
         if (err) throw log.error(err)
         console.log(`Web server listening on port 5000 | http://localhost:5000`)
     })
@@ -267,5 +301,15 @@ const webserver = () => {
 
 // Load SQLize models
 require('./models').sequelize.sync().then((req) => {
-    webserver()
+    // System Integrity check
+    // This checks the database to ensure it contains the needed objects for the system to function correctly.
+    // At no point should this piece of code be disabled or commented out.
+    const integrityCheck = require('./app/systemIntegrity/checks')
+    integrityCheck.check().catch((err) => {
+        console.error(err)
+        process.exit(0)
+    }).then(() => {
+        // If all is well, start the webserver.
+        webserver()
+    })
 }).catch(console.log)

@@ -135,6 +135,16 @@
 
                 <!-- Check if hidden or not -->
                 {{#if (evalBoolean tourData.hidden)}}
+                {{#if bannedStatus}}
+                <a class='button mr-4 is-success is-light' href='/listing/info/{{tourData.id}}'>
+                    <span class='icon'>
+                        <i class="fas fa-eye"></i>
+                    </span>
+                    <span>
+                        Apply to Unban
+                    </span>
+                </a>
+                {{else}}
                 <a class='button mr-4 is-success is-light' href='/listing/unhide/{{tourData.id}}'>
                     <span class='icon'>
                         <i class="fas fa-eye"></i>
@@ -143,6 +153,7 @@
                         Unhide Listing
                     </span>
                 </a>
+                {{/if}}
                 {{else}}
 
                 <a class='button mr-4 is-danger is-light' href='/listing/hide/{{tourData.id}}'>

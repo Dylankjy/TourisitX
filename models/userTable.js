@@ -23,6 +23,11 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull: false,
             },
 
+            lastseen_time: {
+                type: DataTypes.DATE,
+                allowNull: false,
+            },
+
             email: {
                 type: DataTypes.STRING(254),
                 allowNull: false,
@@ -33,21 +38,28 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull: true,
             },
 
-            bio: {
-                type: DataTypes.STRING(254),
-                allowNull: false,
-                defaultValue: 'Your friendly tourisit user',
-            },
-
             profile_img: {
                 type: DataTypes.STRING(64),
                 allowNull: false,
                 defaultValue: 'TODO', // TODO: Please set this to the value of the default profile picture.
             },
 
-            lastseen_time: {
-                type: DataTypes.DATE,
+            bio: {
+                type: DataTypes.STRING(254),
                 allowNull: false,
+                defaultValue: 'Your friendly tourisit user',
+            },
+
+            email_status: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
+            },
+
+            phone_status: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
             },
 
             stripe_id: {
@@ -56,9 +68,38 @@ module.exports = (sequelize, DataTypes) => {
             },
 
             wishlist: {
-                type: DataTypes.STRING(2048),
+                type: DataTypes.STRING(8192),
                 allowNull: true,
                 defaultValue: '',
+            },
+
+            is_admin: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
+            },
+
+            is_banned: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
+            },
+
+            is_tourguide: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
+            },
+
+            is_verified: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
+            },
+
+            ip_address: {
+                type: DataTypes.STRING(256),
+                allowNull: false,
             },
 
             fb: {
@@ -74,43 +115,6 @@ module.exports = (sequelize, DataTypes) => {
             li: {
                 type: DataTypes.STRING(64),
                 allowNull: true,
-            },
-
-            email_status: {
-                type: DataTypes.BOOLEAN,
-                allowNull: false,
-                defaultValue: false,
-            },
-
-            phone_status: {
-                type: DataTypes.BOOLEAN,
-                allowNull: false,
-                defaultValue: false,
-            },
-
-            is_admin: {
-                type: DataTypes.BOOLEAN,
-                allowNull: false,
-                defaultValue: false,
-                // validate: {
-                //     isIn: [[0, 1]],
-                // },
-            },
-
-            is_tourguide: {
-                type: DataTypes.BOOLEAN,
-                defaultValue: false,
-            },
-
-            verified: {
-                type: DataTypes.BOOLEAN,
-                allowNull: false,
-                defaultValue: false,
-            },
-
-            ip_address: {
-                type: DataTypes.STRING(16),
-                allowNull: false,
             },
         },
 
@@ -128,6 +132,16 @@ module.exports = (sequelize, DataTypes) => {
         })
 
         User.hasMany(models.Token, {
+            onDelete: 'cascade',
+            foreignKey: 'userId',
+        })
+
+        User.hasMany(models.ChatMessages, {
+            onDelete: 'cascade',
+            foreignKey: 'senderId',
+        })
+
+        User.hasMany(models.Shop, {
             onDelete: 'cascade',
             foreignKey: 'userId',
         })
