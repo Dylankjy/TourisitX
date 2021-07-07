@@ -19,17 +19,17 @@ const chatMessagesTable = require('../models/chatMessagesTable')
 
 // Put all your routings below this line -----
 
-// const tourPlans = [
-//     { planId: '555',
-//         bookId: 'bookweee',
-//         index: 0,
-//         tourStart: new Date().toISOString(),
-//         tourEnd: new Date().toISOString(),
-//         tourPax: '5',
-//         tourPrice: '300',
-//         tourItinerary: 'Go to the chopper at bshan an eat some duck rice,Ride to outskirts of SG e',
-//         accepted: '-1' },
-// ]
+const tourPlans = [
+    { planId: '555',
+        bookId: 'bookweee',
+        index: 0,
+        tourStart: new Date().toISOString(),
+        tourEnd: new Date().toISOString(),
+        tourPax: '5',
+        tourPrice: '300',
+        tourItinerary: 'Go to the chopper at bshan an eat some duck rice,Ride to outskirts of SG e',
+        accepted: '-1' },
+]
 
 router.get('/', async (req, res) => {
     const sid = req.signedCookies.sid
