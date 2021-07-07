@@ -1179,7 +1179,7 @@ router.post('/:id/purchase', async (req, res) => {
                     bookDuration: listing.tourDuration,
                     bookItinerary: listing.finalItinerary,
                     bookBaseprice: listing.tourPrice,
-                    bookCharges: '',
+                    bookCharges: 0,
                     // processStep: 0, set to 4 for now until approval & payment system is in place
                     processStep: 4,
                     revisions: listing.tourRevision,
