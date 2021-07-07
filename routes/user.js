@@ -221,10 +221,13 @@ router.post('/setting/general', async (req, res) => {
 
     const user = await genkan.getUserBySessionAsync(sid)
     const v = new Validator(req.fields)
-    // const fv = new fileValidator(req.files['profile_img'])
+    // const fv = new fileValidator(req.files['pfp'])
     settingErrors = []
     const nameResult = v
-        .Initialize({ name: 'uname', errorMessage: 'Name must be at least 3 characters long' })
+        .Initialize({ 
+            name: 'uname', 
+            errorMessage: 'Name must be at least 3 characters long' 
+        })
         .exists()
         .isLength({ min: 3 })
         .getResult()
@@ -238,7 +241,10 @@ router.post('/setting/general', async (req, res) => {
     if (req.fields.phone_number == '') {
     } else {
         const phoneResult = v
-            .Initialize({ name: 'phone_number', errorMessage: 'Phone number must be 8 characters long' })
+            .Initialize({ 
+                name: 'phone_number', 
+                errorMessage: 'Phone number must be 8 characters long' 
+            })
             .isLength({ min: 8, max: 8 })
             .getResult()
         settingErrors.push(phoneResult)
@@ -247,7 +253,10 @@ router.post('/setting/general', async (req, res) => {
     if (req.fields.fb == '') {
     } else {
         const fbResult = v
-            .Initialize({ name: 'fb', errorMessage: 'Invalid Facebook link' })
+            .Initialize({ 
+                name: 'fb', 
+                errorMessage: 'Invalid Facebook link' 
+            })
             .contains('facebook.com')
             .getResult()
         settingErrors.push(fbResult)
@@ -256,7 +265,10 @@ router.post('/setting/general', async (req, res) => {
     if (req.fields.insta == '') {
     } else {
         const instaResult = v
-            .Initialize({ name: 'insta', errorMessage: 'Invalid Instagram link' })
+            .Initialize({ 
+                name: 'insta', 
+                errorMessage: 'Invalid Instagram link' 
+            })
             .contains('instagram.com')
             .getResult()
         settingErrors.push(instaResult)
@@ -265,7 +277,10 @@ router.post('/setting/general', async (req, res) => {
     if (req.fields.li == '') {
     } else {
         const liResult = v
-            .Initialize({ name: 'li', errorMessage: 'Invalid LinkedIn link' })
+            .Initialize({ 
+                name: 'li', 
+                errorMessage: 'Invalid LinkedIn link' 
+            })
             .contains('linkedin.com/in')
             .getResult()
         settingErrors.push(liResult)
@@ -279,7 +294,8 @@ router.post('/setting/general', async (req, res) => {
     } else {
         res.clearCookie('settingErrors')
         res.clearCookie('storedValues')
-
+        test = genkan.getUserBySessionDangerous(sid, (result))
+        console.log(test)
         const AccDetails = {
             'name': req.fields.uname,
             'email': req.fields.email,
@@ -291,8 +307,8 @@ router.post('/setting/general', async (req, res) => {
         updateDB('user', { 'id': user.id }, AccDetails, () => {
             return res.redirect(`/u/setting/general`)
         })
-        // let filePath = req.files['profile_img']['path']
-        // let fileName = req.files['profile_img']['name']
+        // let filePath = req.files['pfp']['path']
+        // let fileName = req.files['pfp']['name']
         // const saveFolder = savedpfpFolder
         // const savedName = storeImage(
         //     (filePath = filePath),
@@ -347,7 +363,21 @@ router.post('/setting/general', async (req, res) => {
 })
 
 
-router.get('/setting/password', (req, res) => {
+router.get('/setting/password', async (req, res) => {
+    const sid = req.signedCookies.sid
+    if (sid == undefined) {
+        return requireLogin(res)
+    } else if ((await genkan.isLoggedinAsync(sid)) == false) {
+        return requireLogin(res)
+    }
+
+    if (req.cookies.storedValues) {
+        const storedValues = JSON.parse(req.cookies.storedValues)
+    } else {
+        const storedValues = {}
+    }
+
+    const user = await genkan.getUserBySessionAsync(sid)
     const metadata = {
         meta: {
             title: 'Password',
@@ -357,8 +387,66 @@ router.get('/setting/password', (req, res) => {
             sidebarActive: 'password',
         },
         layout: 'setting',
+        data: {
+            currentUser: req.currentUser,
+        },
+        user,
+        passwordErrors: req.cookies.passwordErrors,
     }
     return res.render('users/password.hbs', metadata)
+})
+
+router.post('/setting/password', async (req, res) => {
+    res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
+    const sid = req.signedCookies.sid
+    if (sid == undefined) {
+        return requireLogin(res)
+    }
+    if ((await genkan.isLoggedinAsync(sid)) == false) {
+        return requireLogin(res)
+    }
+
+    const user = await genkan.getUserBySessionAsync(sid)
+    const v = new Validator(req.fields)
+
+    const oldResult = v
+        .Initialize({
+            name: 'old_password', 
+            errorMessage: 'Wrong Password entered'
+        })
+        .exists()
+        .getResult()
+    
+    const newResult = v
+        .Initialize({
+            name: 'new',
+            errorMessage: 'Both passwords do not match'
+        })
+        .exists()
+        .getResult()
+    
+    const repeatResult = v
+        .Initialize({ 
+            name: 'confirm', 
+            errorMessage: 'Both passwords do not match'
+        })
+        .exists()
+        .getResult()
+
+    const passwordErrors = removeNull([
+        oldResult, 
+        newResult, 
+        repeatResult,
+    ])
+
+    if(!emptyArray(passwordErrors)) {
+        res.cookie('passwordErrors', passwordErrors, { maxAge: 5000 })
+        res.redirect(`/u/setting/password`)
+    } else {
+        res.clearCookie('passwordErrors')
+        res.clearCookie('storedValues')
+
+    }
 })
 
 router.get('/messages', (req, res) => {
