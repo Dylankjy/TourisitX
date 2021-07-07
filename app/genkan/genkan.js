@@ -10,6 +10,8 @@ const sha512 = require('hash-anything').sha512
 const bcrypt = require('bcrypt')
 const saltRounds = 12
 
+const config = require('../../config/genkan.json')
+
 getUserByID = (uid, callback) => {
     findDB('user', { 'id': uid }, (userResult) => {
         if (userResult.length !== 1) {
@@ -133,7 +135,7 @@ isLoggedinAsync = (sid) => {
 
 setPassword = (sid, newPassword, callback) => {
     getUserBySession(sid, (userObject) => {
-        if (status === null) {
+        if (userObject === null) {
             return callback(false)
         }
 
@@ -150,7 +152,7 @@ setPassword = (sid, newPassword, callback) => {
             'password': hashedPasswordSHA512Bcrypt,
         }
 
-        updateDB('user', { 'id': userObject.dataValues.id }, UpdatePasswordPayload, (status) => {
+        updateDB('user', { 'id': userObject.id }, UpdatePasswordPayload, (status) => {
             return callback(true)
         })
     })

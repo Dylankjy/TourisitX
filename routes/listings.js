@@ -29,7 +29,7 @@ const TIH_API_KEY = config.secret.TIH_API_KEY
 const STRIPE_PUBLIC_KEY = config.stripe.STRIPE_PUBLIC_KEY
 const STRIPE_SECRET_KEY = config.stripe.STRIPE_SECRET_KEY
 
-const stripe = require('stripe')(STRIPE_SECRET_KEY)
+// const stripe = require('stripe')(STRIPE_SECRET_KEY)
 
 const esClient = require('../app/elasticSearch').esClient
 
