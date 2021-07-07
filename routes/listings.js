@@ -162,7 +162,7 @@ router.get('/info/:id', (req, res) => {
             if (sid == undefined) {
                 if (tourData.hidden == 'true') {
                     res.redirect('/marketplace')
-                } 
+                }
                 return res.render('listing.hbs', {
                     tourData: tourData,
                     isOwner: false,

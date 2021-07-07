@@ -605,7 +605,7 @@ router.post('/manage/tours/edit/:id', async (req, res) => {
             where: { id: itemID },
         })
 
-        listData = await  Shop.findAll({
+        listData = await Shop.findAll({
             attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
             where: { id: itemID },
         })
