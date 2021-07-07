@@ -133,7 +133,7 @@ app.engine('hbs', exphbs({
         },
 
         ifInRange(value, lower, upper, options) {
-            if ((lower <= parseInt(value)) && (parseInt(value)<= upper)) {
+            if ((lower <= parseFloat(value)) && (parseFloat(value)<= upper)) {
                 return options.fn(this)
             } else {
                 return options.inverse(this)
@@ -207,13 +207,13 @@ app.engine('hbs', exphbs({
 
         math: (base, operator, value) => {
             if (operator == '+') {
-                return parseInt(base) + parseInt(value)
+                return parseFloat(base) + parseFloat(value)
             } else if (operator == '-') {
-                return parseInt(base) - parseInt(value)
+                return parseFloat(base) - parseFloat(value)
             } else if (operator == '/') {
-                return parseInt(base) / parseInt(value)
+                return parseFloat(base) / parseFloat(value)
             } else if (operator == '*') {
-                return parseInt(base) * parseInt(value)
+                return parseFloat(base) * parseFloat(value)
             }
         },
 
@@ -235,6 +235,10 @@ app.engine('hbs', exphbs({
 
         timestampParseISO: (value) => {
             return dateFormat(value, 'dS mmmm yyyy, HH:MM:ss')
+        },
+
+        toNum: (value) => {
+            return parseInt(value)
         },
 
         // Check if listing is hidden
