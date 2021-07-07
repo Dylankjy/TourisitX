@@ -74,10 +74,10 @@
 
                             {{#ifEquals this.processStep '4'}}
                                 {{#ifAfterToday this.tourStart}}
-                                {{{this.revisions}}}
+                                {{this.revisions}}
                                     <tr>
-                                        <th>{{{this.[Shop.tourTitle]}}}</th>
-                                        <td><a href="/bookings/{{{this.bookId}}}">
+                                        <th>{{this.[Shop.tourTitle]}}</th>
+                                        <td><a href="/bookings/{{this.bookId}}">
                                             <span class="tag is-link">Declare that tour is complete&nbsp;
                                                 <i class="fas fa-arrow-right"></i></span>
                                         </a></td>
