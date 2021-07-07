@@ -130,7 +130,7 @@ app.engine('hbs', exphbs({
         },
 
         ifInRange(value, lower, upper, options) {
-            if ((lower <= parseInt(value)) && (parseInt(value)<= upper)) {
+            if ((lower <= parseFloat(value)) && (parseFloat(value)<= upper)) {
                 return options.fn(this)
             } else {
                 return options.inverse(this)
@@ -182,6 +182,10 @@ app.engine('hbs', exphbs({
             return value.split(',')
         },
 
+        splitArr_semicolon: (value, options) => {
+            return value.split(';!;')
+        },
+
         emptyArr: (value, options) =>{
             return (value.length == 0)
         },
@@ -189,6 +193,29 @@ app.engine('hbs', exphbs({
         numToIndex: (value, options) =>{
             index = parseInt(value, 10) - 1
             return index
+        },
+
+        ifAfterToday: (value, options) =>{
+            // bug: returns html without the handlebars blocks
+            today = new Date()
+            if (today >= value) {
+                console.log(options.fn(this))
+                return options.fn(this)
+            } else {
+                return options.inverse(this)
+            }
+        },
+
+        math: (base, operator, value) => {
+            if (operator == '+') {
+                return parseFloat(base) + parseFloat(value)
+            } else if (operator == '-') {
+                return parseFloat(base) - parseFloat(value)
+            } else if (operator == '/') {
+                return parseFloat(base) / parseFloat(value)
+            } else if (operator == '*') {
+                return parseFloat(base) * parseFloat(value)
+            }
         },
 
         dateParseISO: (value) => {
@@ -209,6 +236,10 @@ app.engine('hbs', exphbs({
 
         timestampParseISO: (value) => {
             return dateFormat(value, 'dS mmmm yyyy, HH:MM:ss')
+        },
+
+        toNum: (value) => {
+            return parseInt(value)
         },
 
         // Check if listing is hidden

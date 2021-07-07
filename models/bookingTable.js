@@ -59,6 +59,11 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull: true,
             },
 
+            bookItinerary: {
+                type: DataTypes.STRING(256),
+                allowNull: true,
+            },
+
             bookBaseprice: {
                 type: DataTypes.STRING(8),
                 allowNull: false,
@@ -106,6 +111,18 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull: false,
                 defaultValue: false,
             },
+
+            custom: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
+            },
+
+            paid: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
+            },
         },
 
         { /* hon hon french bread */
@@ -119,6 +136,12 @@ module.exports = (sequelize, DataTypes) => {
         Booking.belongsTo(models.Shop, {
             targetKey: 'id',
             foreignKey: 'listingId',
+        })
+
+        Booking.hasMany(models.TourPlans, {
+            onDelete: 'cascade',
+            sourceKey: 'bookId',
+            foreignKey: 'bookId',
         })
         // Booking.hasOne(models.ChatRoom, {
         //     targetKey: 'chatId',

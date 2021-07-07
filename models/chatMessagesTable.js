@@ -13,6 +13,11 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.UUID,
             },
 
+            roomId: {
+                allowNull: false,
+                type: DataTypes.UUID,
+            },
+
             messageText: {
                 field: 'messageText',
                 allowNull: false,
@@ -33,6 +38,13 @@ module.exports = (sequelize, DataTypes) => {
             modelName: 'ChatMessages',
         },
     )
+
+    ChatMessages.associate = (models) => {
+        ChatMessages.belongsTo(models.ChatRoom, {
+            targetKey: 'chatId',
+            foreignKey: 'roomId',
+        })
+    }
 
     return ChatMessages
 }
