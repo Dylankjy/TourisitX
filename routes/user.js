@@ -12,7 +12,7 @@ const { convert } = require('image-file-resize')
 const { requireLogin, requirePermission, removeNull, emptyArray, removeFromArray } = require('../app/helpers')
 
 // Config file
-const config = require('../config/apikeys.json')
+const config = require('../config/genkan.json')
 
 // Globals
 const router = express.Router()
@@ -25,6 +25,10 @@ const Validator = formidableValidator.Validator
 const fileValidator = formidableValidator.FileValidator
 
 const savedpfpFolder = './storage/users'
+
+// Hashing
+const sha512 = require('hash-anything').sha512
+const bcrypt = require('bcrypt')
 
 require('../app/db')
 
@@ -221,9 +225,9 @@ router.post('/setting/general', async (req, res) => {
     // const fv = new fileValidator(req.files['pfp'])
     settingErrors = []
     const nameResult = v
-        .Initialize({ 
-            name: 'uname', 
-            errorMessage: 'Name must be at least 3 characters long' 
+        .Initialize({
+            name: 'uname',
+            errorMessage: 'Name must be at least 3 characters long'
         })
         .exists()
         .isLength({ min: 3 })
@@ -238,9 +242,9 @@ router.post('/setting/general', async (req, res) => {
     if (req.fields.phone_number == '') {
     } else {
         const phoneResult = v
-            .Initialize({ 
-                name: 'phone_number', 
-                errorMessage: 'Phone number must be 8 characters long' 
+            .Initialize({
+                name: 'phone_number',
+                errorMessage: 'Phone number must be 8 characters long'
             })
             .isLength({ min: 8, max: 8 })
             .getResult()
@@ -250,9 +254,9 @@ router.post('/setting/general', async (req, res) => {
     if (req.fields.fb == '') {
     } else {
         const fbResult = v
-            .Initialize({ 
-                name: 'fb', 
-                errorMessage: 'Invalid Facebook link' 
+            .Initialize({
+                name: 'fb',
+                errorMessage: 'Invalid Facebook link'
             })
             .contains('facebook.com')
             .getResult()
@@ -262,9 +266,9 @@ router.post('/setting/general', async (req, res) => {
     if (req.fields.insta == '') {
     } else {
         const instaResult = v
-            .Initialize({ 
-                name: 'insta', 
-                errorMessage: 'Invalid Instagram link' 
+            .Initialize({
+                name: 'insta',
+                errorMessage: 'Invalid Instagram link'
             })
             .contains('instagram.com')
             .getResult()
@@ -274,9 +278,9 @@ router.post('/setting/general', async (req, res) => {
     if (req.fields.li == '') {
     } else {
         const liResult = v
-            .Initialize({ 
-                name: 'li', 
-                errorMessage: 'Invalid LinkedIn link' 
+            .Initialize({
+                name: 'li',
+                errorMessage: 'Invalid LinkedIn link'
             })
             .contains('linkedin.com/in')
             .getResult()
@@ -291,8 +295,6 @@ router.post('/setting/general', async (req, res) => {
     } else {
         res.clearCookie('settingErrors')
         res.clearCookie('storedValues')
-        test = genkan.getUserBySessionDangerous(sid, (result))
-        console.log(test)
         const AccDetails = {
             'name': req.fields.uname,
             'email': req.fields.email,
@@ -403,47 +405,60 @@ router.post('/setting/password', async (req, res) => {
         return requireLogin(res)
     }
 
-    const user = await genkan.getUserBySessionAsync(sid)
     const v = new Validator(req.fields)
+    genkan.getUserBySessionDangerous(sid, (user) => {
+        const oldResult = v
+            .Initialize({
+                name: 'old_password',
+                errorMessage: 'Wrong Password entered'
+            })
+            .exists()
+            .getResult()
 
-    const oldResult = v
-        .Initialize({
-            name: 'old_password', 
-            errorMessage: 'Wrong Password entered'
+        const newResult = v
+            .Initialize({
+                name: 'new',
+                errorMessage: 'Both passwords do not match'
+            })
+            .exists()
+            .getResult()
+
+        const repeatResult = v
+            .Initialize({
+                name: 'confirm',
+                errorMessage: 'Both passwords do not match'
+            })
+            .exists()
+            .isLength({ min:8 })
+            .getResult()
+
+        const passwordErrors = removeNull([
+            oldResult,
+            newResult,
+            repeatResult,
+        ])
+        // SHA512 Hashing
+        const incomingHashedPasswordSHA512 = sha512({
+            a: req.fields.old_password,
+            b: config.genkan.secretKey,
         })
-        .exists()
-        .getResult()
-    
-    const newResult = v
-        .Initialize({
-            name: 'new',
-            errorMessage: 'Both passwords do not match'
-        })
-        .exists()
-        .getResult()
-    
-    const repeatResult = v
-        .Initialize({ 
-            name: 'confirm', 
-            errorMessage: 'Both passwords do not match'
-        })
-        .exists()
-        .getResult()
 
-    const passwordErrors = removeNull([
-        oldResult, 
-        newResult, 
-        repeatResult,
-    ])
+        result = bcrypt.compareSync(incomingHashedPasswordSHA512, user.password)
 
-    if(!emptyArray(passwordErrors)) {
-        res.cookie('passwordErrors', passwordErrors, { maxAge: 5000 })
-        res.redirect(`/u/setting/password`)
-    } else {
-        res.clearCookie('passwordErrors')
-        res.clearCookie('storedValues')
+        if (result === true && emptyArray(passwordErrors)) {
+            res.clearCookie('passwordErrors')
+            res.clearCookie('storedValues')
+            // do password change
+            genkan.setPassword(sid, req.fields.new, () => {
+                res.redirect(`/u/setting/password`)
+                return callback(true)
+            })
 
-    }
+        } else {
+            res.cookie('passwordErrors', passwordErrors, { maxAge: 5000 })
+            res.redirect(`/u/setting/password`)
+        }
+    })
 })
 
 router.get('/messages', (req, res) => {

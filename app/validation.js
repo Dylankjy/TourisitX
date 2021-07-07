@@ -64,10 +64,10 @@ class Validator {
 
     //Checks that first input value == second input value
     isEqual(field2) {
-        if (this.data[this.name] != field2) {
-            this.result = false
+        if (this.data[this.name] === field2) {
             return this
         }
+        this.result = false
         return this
     }
     // Returns the JSON result of the validation
