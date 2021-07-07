@@ -1196,15 +1196,18 @@ router.post('/:id/purchase', async (req, res) => {
                     //     bookingId: genId,
                     // })
                     participants = [userData.id, listing.userId]
+                    console.log(userData.name)
                     addRoom(participants, genId, (roomId)=> {
                         updateDB('booking', { bookId: genId }, { chatId: roomId }, () => {
                             console.log('updated successfully')
                             // c-c-callback hell,,?
-                            addMessage(roomId, 'SYSTEM', 'You placed an order for this tour.', 'ACTIVITY', () => {
+                            timelineMsg = userData.name + ' placed an order for this tour.'
+                            addMessage(roomId, 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
                                 //  will be removed once TG accept/reject system is in place
-                                addMessage(roomId, 'SYSTEM', 'Tour Guide accepted your order.', 'ACTIVITY', () => {
+                                addMessage(roomId, 'SYSTEM', 'Tour Guide accepted the order.', 'ACTIVITY', () => {
                                     //  will be removed once payment system is in place
-                                    addMessage(roomId, 'SYSTEM', 'You made payment. You are now ready to go on your tour!', 'ACTIVITY', () => {
+                                    timelineMsg = userData.name + ' made payment. You are now ready to go on your tour!'
+                                    addMessage(roomId, 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
                                         res.redirect(`/bookings`)
                                     })
                                 })
@@ -1324,11 +1327,13 @@ router.post('/:id/purchase/customise', async (req, res) => {
                         updateDB('booking', { bookId: genId }, { chatId: roomId }, () => {
                             console.log('updated successfully')
                             // c-c-callback hell,,?
-                            addMessage(roomId, 'SYSTEM', 'You placed an order for this tour with your custom requirements.', 'ACTIVITY', () => {
+                            timelineMsg = userData.name + ' placed an order for this tour with custom requirements.'
+                            addMessage(roomId, 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
                                 //  will be removed once TG accept/reject system is in place
-                                addMessage(roomId, 'SYSTEM', 'Tour Guide accepted your order.', 'ACTIVITY', () => {
+                                addMessage(roomId, 'SYSTEM', 'Tour Guide accepted the order.', 'ACTIVITY', () => {
                                     //  will be removed once payment system is in place
-                                    addMessage(roomId, 'SYSTEM', 'You paid the customisation fee.', 'ACTIVITY', () => {
+                                    timelineMsg = userData.name + ' paid the customisation fee.'
+                                    addMessage(roomId, 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
                                         res.redirect(`/bookings`)
                                     })
                                 })
