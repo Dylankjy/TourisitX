@@ -227,12 +227,21 @@ router.post('/setting/general', async (req, res) => {
     const nameResult = v
         .Initialize({
             name: 'uname',
-            errorMessage: 'Name must be at least 3 characters long'
+            errorMessage: 'Name must be at least 3 characters long',
         })
         .exists()
         .isLength({ min: 3 })
         .getResult()
     settingErrors.push(nameResult)
+
+    const emailResult = v
+        .Initialize({
+            name: 'email',
+            errorMessage: 'Invalid email address',
+        })
+        .exists()
+        .getResult()
+    settingErrors.push(emailResult)
     // const pfpResult = fv
     //     .Initialize({ errorMessage: 'Please supply a valid Image' })
     //     .fileExists()
@@ -244,7 +253,7 @@ router.post('/setting/general', async (req, res) => {
         const phoneResult = v
             .Initialize({
                 name: 'phone_number',
-                errorMessage: 'Phone number must be 8 characters long'
+                errorMessage: 'Phone number must be 8 characters long',
             })
             .isLength({ min: 8, max: 8 })
             .getResult()
@@ -256,7 +265,7 @@ router.post('/setting/general', async (req, res) => {
         const fbResult = v
             .Initialize({
                 name: 'fb',
-                errorMessage: 'Invalid Facebook link'
+                errorMessage: 'Invalid Facebook link',
             })
             .contains('facebook.com')
             .getResult()
@@ -268,7 +277,7 @@ router.post('/setting/general', async (req, res) => {
         const instaResult = v
             .Initialize({
                 name: 'insta',
-                errorMessage: 'Invalid Instagram link'
+                errorMessage: 'Invalid Instagram link',
             })
             .contains('instagram.com')
             .getResult()
@@ -280,7 +289,7 @@ router.post('/setting/general', async (req, res) => {
         const liResult = v
             .Initialize({
                 name: 'li',
-                errorMessage: 'Invalid LinkedIn link'
+                errorMessage: 'Invalid LinkedIn link',
             })
             .contains('linkedin.com/in')
             .getResult()
@@ -407,18 +416,10 @@ router.post('/setting/password', async (req, res) => {
 
     const v = new Validator(req.fields)
     genkan.getUserBySessionDangerous(sid, (user) => {
-        const oldResult = v
-            .Initialize({
-                name: 'old_password',
-                errorMessage: 'Wrong Password entered'
-            })
-            .exists()
-            .getResult()
-
         const newResult = v
             .Initialize({
                 name: 'new',
-                errorMessage: 'Both passwords do not match'
+                errorMessage: 'Both passwords do not match',
             })
             .exists()
             .getResult()
@@ -426,17 +427,14 @@ router.post('/setting/password', async (req, res) => {
         const repeatResult = v
             .Initialize({
                 name: 'confirm',
-                errorMessage: 'Both passwords do not match'
+                errorMessage: 'Both passwords do not match',
             })
             .exists()
-            .isLength({ min:8 })
+            .isLength({ min: 8 })
+            .isEqual(req.fields.new)
             .getResult()
 
-        const passwordErrors = removeNull([
-            oldResult,
-            newResult,
-            repeatResult,
-        ])
+        const passwordErrors = removeNull([newResult, repeatResult])
         // SHA512 Hashing
         const incomingHashedPasswordSHA512 = sha512({
             a: req.fields.old_password,
@@ -453,7 +451,6 @@ router.post('/setting/password', async (req, res) => {
                 res.redirect(`/u/setting/password`)
                 return callback(true)
             })
-
         } else {
             res.cookie('passwordErrors', passwordErrors, { maxAge: 5000 })
             res.redirect(`/u/setting/password`)
