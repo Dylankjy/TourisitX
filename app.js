@@ -1,14 +1,17 @@
 // Bootscreen
 require('./app/boot/bootscreen')
 
-// Genkan API
-const genkan = require('./app/genkan/genkan')
-
 // Express related modules
 const express = require('express')
 const exphbs = require('express-handlebars')
 const cookieParser = require('cookie-parser')
 const RateLimit = require('express-rate-limit')
+
+const app = express()
+// Socket.io Injection
+const server = require('http').Server(app)
+const io = require('socket.io')(server)
+app.set('io', io)
 
 // Routes for Express
 const routes = {
@@ -25,14 +28,6 @@ const routes = {
     index: require('./routes/index'),
     chat: require('./routes/chat'),
 }
-
-const app = express()
-// Socket.io Injection
-const server = require('http').Server(app)
-const io = require('socket.io')(server)
-const { ShopDB, UserDB } = require('./models')
-
-app.set('io', io)
 
 // cookieParser: Secret key for signing
 // Uses genkan's secret key to sign cookies
@@ -66,6 +61,9 @@ const adminAuthorisationRequired = (req, res, next) => {
         return next()
     })
 }
+
+// Genkan API
+const genkan = require('./app/genkan/genkan')
 
 // Block if not logged in
 const loginRequired = (req, res, next) => {
@@ -102,7 +100,6 @@ const getCurrentUser = (req, res, next) => {
 
 // Make all routes getCurrentUser
 app.use(getCurrentUser)
-
 
 // Module imports
 const dateFormat = require('dateformat')
@@ -257,8 +254,6 @@ app.use(limiter)
 // Express: Routes
 const webserver = () => {
     app.use('/id', routes.auth)
-
-    // app.use('/shop', routes.market)
 
     app.use('/listing', routes.listings)
 
