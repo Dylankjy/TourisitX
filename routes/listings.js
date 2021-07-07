@@ -424,6 +424,8 @@ router.post('/create', async (req, res) => {
                 description: req.fields.tourDesc,
                 image: 'default.jpg',
             })
+
+            console.log("ELASTICSEARCH POSTED")
         })
             .catch((err) => {
                 console.log(err)
