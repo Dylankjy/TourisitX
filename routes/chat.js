@@ -16,7 +16,7 @@ app.use((req, res, next) => {
 })
 
 
-router.get('/messages', (req, res) => {
+router.get('/', (req, res) => {
     const metadata = {
         meta: {
             title: 'Your messages',

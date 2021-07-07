@@ -5,14 +5,26 @@ const uuid = require('uuid')
 const router = express.Router()
 const { Support } = require('../models')
 
+// Block if not logged in
+const loginRequired = (req, res, next) => {
+    genkan.isLoggedin(req.signedCookies.sid, (result) => {
+        if (result !== true) {
+            res.status = 401
+            return res.redirect(302, '/id/login?required=1')
+        }
+
+        return next()
+    })
+}
+
 // Put all your routings below this line -----
 
 // router.get('/', (req, res) => { ... }
-router.get('/helpdesk', (req, res) => {
+router.get('/', loginRequired, (req, res) => {
     return res.render('support.hbs')
 })
 
-router.post('/helpdesk', (req, res) => {
+router.post('/', loginRequired, (req, res) => {
     res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
 
     const v = new Validator(req.fields)
@@ -56,7 +68,7 @@ router.post('/helpdesk', (req, res) => {
     }
 })
 
-router.get('/helpdesk-success', (req, res) => {
+router.get('/helpdesk-success', loginRequired, (req, res) => {
     return res.render('support-success.hbs')
 })
 

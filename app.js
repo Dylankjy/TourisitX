@@ -270,7 +270,7 @@ const webserver = () => {
 
     app.use('/admin', adminAuthorisationRequired, routes.admin)
 
-    app.use('/', loginRequired, routes.support)
+    app.use('/helpdesk', routes.support)
 
     app.use('/', routes.index)
 
@@ -280,7 +280,7 @@ const webserver = () => {
 
     app.use('/es-api', routes.esApi)
 
-    app.use('/', routes.chat)
+    app.use('/messages', routes.chat)
 
     // Don't put any more routes after this block, cuz they will get 404'ed
     app.get('*', (req, res) => {
