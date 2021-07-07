@@ -6,6 +6,8 @@
 <section class="section">
     <div class="container">
         <a href="/bookings"><span><i class="fas fa-arrow-left">&ensp;</i> Back to All Bookings</span></a>
+        <h1 class="is-size-2 has-text-weight-bold">{{ data.book.[Shop.tourTitle]}}</h1>
+
         <div class="columns">
             <div class="column is-three-quarters">
                 <!-- START: Tabs  -->
@@ -20,9 +22,11 @@
                         <li class="tab pl-3 pr-3" onclick="openTab(event,'Billing')">
                             <a>Billing</a>
                         </li>
+                        {{#ifEquals data.book.custom 1}}
                         <li class="tab pl-3 pr-3" onclick="openTab(event,'Req')">
                             <a>Requirements &amp; Requests</a>
                         </li>
+                        {{/ifEquals}}
                     </ul>
                     </div>
                 <!--END: Tabs-->
@@ -35,82 +39,79 @@
                             <p class="has-text-centered is-size-4 has-text-weight-bold">Activity</p>
                             <div class="has-text-weight-semibold">
                             <span>Current Progress</span>
-                            <progress class="progress is-success" value="50" max="100">100%</progress>
+                            <progress class="progress is-success" value={{data.book.processStep}} max="6">100%</progress>
                             <div id="steps">
                             <p>Current Step</p>
                             <!--START: steps-->
                             <div class="tags are-medium">
-                                <a href="#"><span class="tag is-link">Submit Requirements &nbsp;<i class="fas fa-arrow-right"></i></span></a>
-                                <a href="#"><span class="tag is-link is-hidden">Review Tour Plan &nbsp;<i class="fas fa-arrow-right"></i></span></a>
-                                <a href="#"><span class="tag is-link is-hidden">Make Payment &nbsp;<i class="fas fa-arrow-right"></i></span></a>
-                                <a href="#"><span class="tag is-link is-hidden">Declare that Tour is Complete &nbsp;<i class="fas fa-arrow-right"></i></span></a>
-                                <a href="#"><span class="tag is-link is-hidden">Leave a Review &nbsp;<i class="fas fa-arrow-right"></i></span></a>
-                                <span class="tag is-hidden">Awaiting Tour Guide Action</span>
+                                {{#ifEquals data.book.processStep '0'}}
+                                    <a onclick="openTab(event,'Billing')"><span class="tag is-link">Pay Customisation fee</span></a>
+                                {{/ifEquals}}
+
+                                {{#ifEquals data.book.processStep '2'}}
+                                    <a onclick="window.scrollTo(0,document.body.scrollHeight);"><span class="tag is-link">Review Tour Plan </span></a>
+                                {{/ifEquals}}
+
+                                {{#ifEquals data.book.processStep '3'}}
+                                    <a onclick="openTab(event,'Billing')"><span class="tag is-link">Make Payment </span></a>
+                                {{/ifEquals}}
+
+                                {{#ifEquals data.book.processStep '4'}}
+                                    {{#ifAfterToday data.book.tourStart}}<a onclick="window.scrollTo(0,document.body.scrollHeight);">{{/ifAfterToday}}
+                                    <span class="tag has-tooltip-multiline has-tooltip-right {{#ifAfterToday data.book.tourStart}} is-link {{/ifAfterToday}} " 
+                                    data-tooltip="Available after the tour date, {{dateParseISO data.book.tourStart}}">
+                                    Declare that Tour is Complete </span></a>
+                                {{/ifEquals}}
+
+                                {{#ifEquals data.book.processStep '5'}}
+                                    <a href="/bookings/{{data.book.bookId}}/review"><span class="tag is-link">Leave a Review </span></a>
+                                {{/ifEquals}}
+
+                                {{#ifEquals data.book.processStep '1'}}
+                                    <span class="tag is-light">Awaiting Tour Guide Action</span>
+                                {{/ifEquals}}
                             </div>
                             </div>
                             <!--END: steps-->
                             </div>
                             <br>
                             <div class="divider is-right"></div>
-                            <p class="has-text-right has-text-link"><i class="fas fa-angle-double-down"></i> 
-                            Jump to latest activity</p>
+                            <p class="has-text-right has-text-link" onclick="window.scrollTo(0,document.body.scrollHeight);" style="cursor: pointer;">
+                                <i class="fas fa-angle-double-down"></i> Jump to latest activity</p>
                                <!--START: timeline-->
 
                             <div class="timeline">
                                 <header class="timeline-header">
-                                    <span class="tag is-primary">10 Jan</span>
+                                    <span class="tag is-primary">Start</span>
                                 </header>
 
-                                <div class="timeline-item">
+                                {{#each timeline}}
+                                    {{#ifEquals this.flag 'COMPLETE'}}
+                                        <div class="timeline-item">
+                                            <div class="timeline-marker is-icon has-background-success has-text-white">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <div class="timeline-content">
+                                                <p class="has-text-weight-semibold">{{this.messageText}}</p>
+                                            </div>
+                                        </div>
+                                    {{/ifEquals}}
+
+                                    {{#ifEquals this.flag 'TOURPLAN'}}
+                                        <div class="timeline-item">
                                     <div class="timeline-marker is-icon has-background-success has-text-white">
                                     <i class="fas fa-check"></i>
                                     </div>
                                     <div class="timeline-content">
-                                    <p class="has-text-weight-semibold">You booked this tour.
-                                    <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
-                                    </div>
-                                </div>
-
-                                <div class="timeline-item">
-                                    <div class="timeline-marker is-icon has-background-success has-text-white">
-                                    <i class="fas fa-check"></i>
-                                    </div>
-                                    <div class="timeline-content">
-                                    <p class="has-text-weight-semibold">You submitted your requirements.
-                                    <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
-                                    </div>
-                                </div>
-
-                                <div class="timeline-item">
-                                    <div class="timeline-marker is-icon has-background-success has-text-white">
-                                    <i class="fas fa-check"></i>
-                                    </div>
-                                    <div class="timeline-content">
-                                    <p class="has-text-weight-semibold"><span class="has-text-primary">Tour Guide</span> 
-                                        acknowledged your requirements.
-                                    <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
-                                    </div>
-                                </div>
-
-                                <header class="timeline-header">
-                                    <span class="tag is-primary">11 Jan</span>
-                                </header>
-
-                                <div class="timeline-item">
-                                    <div class="timeline-marker is-icon has-background-success has-text-white">
-                                    <i class="fas fa-check"></i>
-                                    </div>
-                                    <div class="timeline-content">
-                                    <p class="has-text-weight-semibold"><span class="has-text-primary">Tour Guide</span> 
-                                        posted a draft of the Tour Plan (#1).
-                                    <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
+                                    <p class="has-text-weight-semibold">(Tour Guide)
+                                        posted a draft of the Tour Plan (#{{this.messageText}}).</p>
 
                                     <!--Tour plan card-->
                                     <div class="card ml-3 mt-3 has-background-white-ter is-shadowless">
 
                                         <header class="card-header is-clickable" onclick="collapseCard(this)">
                                                 <p class="card-header-title has-text-centered has-text-weight-bold is-size-5">
-                                                Tour Plan (#1) </p>
+                                                Tour Plan (#{{this.messageText}}) </p>
 
                                                 <span class=" card-header-icon icon is-large">
                                                     <i class="fas fa-angle-down" aria-hidden="true"></i>
@@ -119,24 +120,27 @@
 
                                         <div class="card-content is-hidden">
                                             <div class="content">
-
-                                            </p> Note: This is what the customer sees after they have selected request a revision. </p>
                                             <table class="table has-background-white-ter is-fullwidth">
                                                 <tr>
                                                     <th><i class="far fa-calendar"></i>&ensp;Date</th>
-                                                    <td>Date</td>
+                                                    <td>{{#with (lookup ../tourPlans (numToIndex this.messageText))}}{{dateParseISO tourStart}}{{/with}}</td>
+                                                    {{!-- <td>{{#with (lookup ../tourPlans 0)}}{{dateParseISO tourStart}}{{/with}}</td> --}}
                                                 </tr>
                                                 <tr>
-                                                    <th><i class="fas fa-clock"></i>&ensp;Time</th>
-                                                    <td>Time</td>
+                                                    <th><i class="fas fa-clock"></i>&ensp;Start Time</th>
+                                                    <td>{{#with (lookup ../tourPlans (numToIndex this.messageText))}}{{onlyTime tourStart}}{{/with}}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th><i class="fas fa-clock"></i>&ensp;End Time</th>
+                                                    <td>{{#with (lookup ../tourPlans (numToIndex this.messageText))}}{{onlyTime tourEnd}}{{/with}}</td>
                                                 </tr>
                                                 <tr>
                                                     <th><i class="fas fa-user-friends"></i>&ensp;Number of Participants</th>
-                                                    <td>Pax</td>
+                                                    <td>{{#with (lookup ../tourPlans (numToIndex this.messageText))}}{{tourPax}}{{/with}}</td>
                                                 </tr>
                                                 <tr>
                                                     <th><i class="fas fa-dollar-sign"></i>&ensp;Proposed Cost</th>
-                                                    <td>Cost</td>
+                                                    <td>${{#with (lookup ../tourPlans (numToIndex this.messageText))}}{{tourPrice}}{{/with}}</td>
                                                 </tr>
                                             </table>
                                             <p class="has-text-centered has-text-weight-bold">Tour Itinerary</p>
@@ -147,17 +151,18 @@
                                                     <span class="tag is-medium is-info">Tour Start</span>
                                                 </header>
 
-                                                {{!-- {{#each (readArrWithReplace data.finalItinerary)}} --}}
+                                                {{#with (lookup ../tourPlans (numToIndex this.messageText))}}
+                                                {{#each (readArrWithReplace tourItinerary)}}
                                                 <div class="timeline-item">
                                                     <div class="timeline-marker is-icon">
                                                         <i class="fa fa-flag"></i>
                                                     </div>
                                                     <div class="timeline-content">
-                                                        Activity
-                                                        {{!-- <p>{{this}}</p> --}}
+                                                        <p>{{this}}</p>
                                                     </div>
                                                 </div>
-                                                {{!-- {{/each}} --}}
+                                                {{/each}}
+                                                {{/with}}
 
                                                 <div class="timeline-header">
                                                 <span class="tag is-medium is-info">End</span>
@@ -169,181 +174,90 @@
                                             </div>
                                         </div>
 
+                                        {{#with (lookup ../tourPlans (numToIndex this.messageText))}}
                                         <footer class="card-footer p-4">
                                             <div class="field is-grouped mt-2">
                                             <div class="control">
-                                                <button class="button is-danger is-outlined" style="pointer-events: none;">Request a Revision
+                                                <button class="button 
+                                                {{#ifEquals accepted '-1'}}
+                                                is-danger is-outlined
+                                                {{/ifEquals}}
+                                                {{#ifEquals accepted '0'}}
+                                                is-danger
+                                                {{/ifEquals}}
+                                                {{#ifEquals accepted '1'}}
+                                                is-static
+                                                {{/ifEquals}}
+                                                " 
+                                                {{#ifEquals accepted '-1'}}
+                                                style="pointer-events: none;"
+                                                {{/ifEquals}}
+                                                {{#ifEquals accepted '1'}}
+                                                style="pointer-events: none;"
+                                                {{/ifEquals}}>Request a Revision
+
+                                                {{#ifEquals accepted '-1'}}
                                                     <i class="fas fa-check ml-1"></i>
+                                                {{/ifEquals}}
                                                 </button>
                                             </div>
+
                                             <div class="control">
-                                                <button class="button is-static">Approve Plan</button>
+                                                <button class="button
+                                                {{#ifEquals accepted '-1'}}
+                                                is-static
+                                                {{/ifEquals}}
+                                                {{#ifEquals accepted '0'}}
+                                                is-success
+                                                {{/ifEquals}}
+                                                {{#ifEquals accepted '1'}}
+                                                is-success is-outlined
+                                                {{/ifEquals}}
+                                                "
+                                                
+                                                {{#ifEquals accepted '-1'}}
+                                                style="pointer-events: none;"
+                                                {{/ifEquals}}
+                                                {{#ifEquals accepted '1'}}
+                                                style="pointer-events: none;"
+                                                {{/ifEquals}}>Approve Plan
+
+                                                {{#ifEquals accepted '1'}}
+                                                    <i class="fas fa-check ml-1"></i>
+                                                {{/ifEquals}}
+                                                </button>
                                             </div>
                                         </div>
                                         </footer>
+                                        {{/with}}
 
                                     </div>
                                     <!--Tour plan card-->
-
                                     </div>
                                 </div>
+                                    {{/ifEquals}}
 
-                                <div class="timeline-item">
-                                    <div class="timeline-marker is-icon has-background-success has-text-white">
-                                    <i class="fas fa-check"></i>
-                                    </div>
-                                    <div class="timeline-content">
-                                    <p class="has-text-weight-semibold">You submitted a Revision Request (#1).
-                                    <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
-                                    </div>
-                                </div>
 
+                                {{/each}}
+
+                                {{!-- You submitted a Revision Request (#1)
+                                You approved Tour Plan (#2)
+                                You made payment. You are now ready to go on your tour!
+                                You declared that your tour is complete. --}}
+
+                                {{#ifEquals data.book.processStep '0'}}
                                 <div class="timeline-item">
                                     <div class="timeline-marker is-icon has-background-grey has-text-white">
                                     <i class="fas fa-ellipsis-h"></i>
                                     </div>
-                                    <div class="timeline-content">
-                                    <p class="has-text-weight-semibold"><span class="has-text-primary">Tour Guide</span> 
-                                        posted a draft of the Tour Plan (#2).
-                                    <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
-
-                                    <!--Tour plan card-->
-                                    <div class="card ml-3 mt-3 is-shadowless has-background-white-ter">
-
-                                        <header class="card-header is-clickable" onclick="collapseCard(this)">
-                                                <p class="card-header-title has-text-centered has-text-weight-bold is-size-5">
-                                                Tour Plan (#2) </p>
-
-                                                <span class=" card-header-icon icon is-large">
-                                                    <i class="fas fa-angle-down" aria-hidden="true"></i>
-                                                </span>
-                                            </header>
-
-                                        <div class="card-content is-hidden">
-                                            <div class="content">
-
-                                            </p>This is what the customer sees when they are at this step. 
-                                            (Ignore this in the flow of this timeline) Insert plan from above here.</p>
-                                            <table class="table has-background-white-ter is-fullwidth">
-                                                <tr>
-                                                    <th><i class="far fa-calendar"></i>&ensp;Date</th>
-                                                    <td>Date</td>
-                                                </tr>
-                                                <tr>
-                                                    <th><i class="fas fa-clock"></i>&ensp;Time</th>
-                                                    <td>Time</td>
-                                                </tr>
-                                                <tr>
-                                                    <th><i class="fas fa-user-friends"></i>&ensp;Number of Participants</th>
-                                                    <td>Pax</td>
-                                                </tr>
-                                                <tr>
-                                                    <th><i class="fas fa-dollar-sign"></i>&ensp;Proposed Cost</th>
-                                                    <td>Cost</td>
-                                                </tr>
-                                            </table>
-                                            <p class="has-text-centered has-text-weight-bold">Tour Itinerary</p>
-                                            <span>itinerary</span>
-
-                                            </div>
-                                        </div>
-
-                                        <footer class="card-footer p-4">
-                                            <div class="field is-grouped mt-2">
-                                            <div class="control">
-                                                <button class="button is-danger">Request a Revision</button>
-                                            </div>
-                                            <div class="control">
-                                                <button class="button is-success">Approve Plan</button>
-                                            </div>
-                                        </div>
-                                        </footer>
-                                        
-                                    </div>
-                                    <!--Tour plan card-->
-
+                                    <div class="timeline-content pt-3">
+                                    <p class="button is-link is-inverted has-text-weight-semibold is-italic">
+                                        <i class="fas fa-chevron-right mr-2"></i> Pay customisation fee.</p>
                                     </div>
                                 </div>
+                                {{/ifEquals}}
 
-                                <div class="timeline-item">
-                                    <div class="timeline-marker is-icon has-background-success has-text-white">
-                                    <i class="fas fa-check"></i>
-                                    </div>
-                                    <div class="timeline-content">
-                                    <p class="has-text-weight-semibold"><span class="has-text-primary">Tour Guide</span> 
-                                        posted a draft of the Tour Plan (#2).
-                                    <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
-
-                                    <!--Tour plan card-->
-                                    <div class="card ml-3 mt-3 has-background-white-ter is-shadowless">
-
-                                        <header class="card-header is-clickable" onclick="collapseCard(this)">
-                                                <p class="card-header-title has-text-centered has-text-weight-bold is-size-5">
-                                                Tour Plan (#2) </p>
-
-                                                <span class=" card-header-icon icon is-large">
-                                                    <i class="fas fa-angle-down" aria-hidden="true"></i>
-                                                </span>
-                                            </header>
-
-                                        <div class="card-content is-hidden">
-                                            <div class="content">
-
-                                            </p>This is what the customer sees after they have accepted. Insert plan from above here.</p>
-                                            <table class="table has-background-white-ter is-fullwidth">
-                                                <tr>
-                                                    <th><i class="far fa-calendar"></i>&ensp;Date</th>
-                                                    <td>Date</td>
-                                                </tr>
-                                                <tr>
-                                                    <th><i class="fas fa-clock"></i>&ensp;Time</th>
-                                                    <td>Time</td>
-                                                </tr>
-                                                <tr>
-                                                    <th><i class="fas fa-user-friends"></i>&ensp;Number of Participants</th>
-                                                    <td>Pax</td>
-                                                </tr>
-                                                <tr>
-                                                    <th><i class="fas fa-dollar-sign"></i>&ensp;Proposed Cost</th>
-                                                    <td>Cost</td>
-                                                </tr>
-                                            </table>
-                                            <p class="has-text-centered has-text-weight-bold">Tour Itinerary</p>
-                                            <span>itinerary</span>
-
-                                            </div>
-                                        </div>
-
-                                        <footer class="card-footer p-4">
-                                            <div class="field is-grouped mt-2">
-                                            <div class="control">
-                                                <button class="button is-static">Request a Revision
-                                                </button>
-                                            </div>
-                                            <div class="control">
-                                                <button class="button is-success is-outlined" style="pointer-events: none;">Approve Plan
-                                                    <i class="fas fa-check ml-1"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        </footer>
-
-                                    </div>
-                                    <!--Tour plan card-->
-
-                                    </div>
-                                </div>
-
-                                 <div class="timeline-item">
-                                    <div class="timeline-marker is-icon has-background-success has-text-white">
-                                    <i class="fas fa-check"></i>
-                                    </div>
-                                    <div class="timeline-content">
-                                    <p class="has-text-weight-semibold">You approved Tour Plan (#2).
-                                    <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
-                                    </div>
-                                </div>
-
+                                {{#ifEquals data.book.processStep '3'}}
                                 <div class="timeline-item">
                                     <div class="timeline-marker is-icon has-background-grey has-text-white">
                                     <i class="fas fa-ellipsis-h"></i>
@@ -353,17 +267,10 @@
                                         <i class="fas fa-chevron-right mr-2"></i> Proceed to Payment.</p>
                                     </div>
                                 </div>
+                                {{/ifEquals}}
 
-                                <div class="timeline-item">
-                                    <div class="timeline-marker is-icon has-background-success has-text-white">
-                                    <i class="fas fa-check"></i>
-                                    </div>
-                                    <div class="timeline-content">
-                                    <p class="has-text-weight-semibold">You made payment. You are now ready to go on your tour!
-                                    <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
-                                    </div>
-                                </div>
-
+                                {{#ifEquals data.book.processStep '4'}}
+                                {{#ifAfterToday data.book.tourStart}}
                                 <div class="timeline-item">
                                     <div class="timeline-marker is-icon has-background-grey has-text-white">
                                     <i class="fas fa-ellipsis-h"></i>
@@ -373,17 +280,10 @@
                                         <i class="fas fa-chevron-right mr-2"></i> Declare that the tour has been completed.</p>
                                     </div>
                                 </div>
+                                {{/ifAfterToday}}
+                                {{/ifEquals}}
 
-                                <div class="timeline-item">
-                                    <div class="timeline-marker is-icon has-background-success has-text-white">
-                                    <i class="fas fa-check"></i>
-                                    </div>
-                                    <div class="timeline-content">
-                                    <p class="has-text-weight-semibold">You declared that your tour is complete.
-                                    <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
-                                    </div>
-                                </div>
-
+                                {{#ifEquals data.book.processStep '5'}}
                                 <div class="timeline-item">
                                     <div class="timeline-marker is-icon has-background-grey has-text-white">
                                     <i class="fas fa-ellipsis-h"></i>
@@ -393,15 +293,15 @@
                                         <i class="fas fa-chevron-right mr-2"></i> Leave a review.</p>
                                     </div>
                                 </div>
+                                {{/ifEquals}}
 
-                                <div class="timeline-item">
+                                {{!-- <div class="timeline-item">
                                     <div class="timeline-marker is-icon has-background-success has-text-white">
                                     <i class="far fa-thumbs-up"></i>
                                     </div>
                                     <div class="timeline-content">
                                     <p class="has-text-weight-semibold"><span class="has-text-primary">Tour Guide</span> 
                                         left a review for you.
-                                    <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
                                     <div class="has-background-white-ter ml-3 mt-3 p-4">
                                         <div class="container">
                                         <p>
@@ -415,38 +315,20 @@
                                         </div>
                                     </div>
                                     </div>
-                                </div>
-
-                                <div class="timeline-item">
-                                    <div class="timeline-marker is-icon has-background-success has-text-white">
-                                    <i class="far fa-thumbs-up"></i>
-                                    </div>
-                                    <div class="timeline-content">
-                                    <p class="has-text-weight-semibold">You left a review for 
-                                        <span class="has-text-primary">Tour Guide</span>
-                                    <span class="has-text-weight-light is-italic is-size-7 has-text-grey ml-1">2pm</span></p>
-                                    <div class="has-background-white-ter ml-3 mt-3 p-4">
-                                        <div class="container">
-                                        <p>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="far fa-star"></i>
-                                        </p>
-                                        <p>Wonderful!</p>
-                                        </div>
-                                    </div>
-                                    </div>
-                                </div>
+                                </div> --}}
 
                                 <header class="timeline-header">
                                     <span class="tag is-primary">End</span>
                                 </header>
-
                                 </div>
                                <!--END: timeline-->
+                               {{#ifEquals data.book.completed 1}}
                                <p class="has-text-centered has-text-primary">Your booking is complete.</p>
+                               {{/ifEquals}}
+
+                               <p class="has-text-centered has-text-link" onclick="window.scrollTo(0,0);" style="cursor: pointer;">
+                                <i class="fas fa-angle-double-up"></i> Back to Top</p>
+
                         </div>
                     </section>
                     </div>
@@ -459,25 +341,51 @@
                         <section class="section">
                             <div class="container">
                                 <p class="has-text-centered is-size-4 has-text-weight-bold">Tour Details
-                                <span class="tag is-success is-light">Finalised</span></p>
+                                {{#ifInRange data.book.processStep 1 2}}
+                                    <span class="tag is-warning is-light">Planning</span></p>
+                                {{/ifInRange}}
+                                {{#ifInRange data.book.processStep 3 6}}
+                                    <span class="tag is-success is-light">Finalised</span></p>
+                                {{/ifInRange}}
                                 <br>
                                 <!--START: Tour plan-->
                                 <table class="table is-fullwidth">
                                                 <tr>
                                                     <th><i class="far fa-calendar"></i>&ensp;Date</th>
-                                                    <td>Date</td>
+                                                    <td>{{dateParseISO data.book.tourStart}}</td>
                                                 </tr>
                                                 <tr>
-                                                    <th><i class="fas fa-clock"></i>&ensp;Time</th>
-                                                    <td>Time</td>
+                                                    <th><i class="fas fa-clock"></i>&ensp;Start Time</th>
+                                                    {{#ifInRange data.book.processStep 0 2}}
+                                                    <td>Unconfirmed</td>
+                                                    {{/ifInRange}}
+                                                    {{#ifInRange data.book.processStep 3 6}}
+                                                    <td>{{onlyTime data.book.tourStart}}</td>
+                                                    {{/ifInRange}}
+                                                </tr>
+                                                <tr>
+                                                    <th><i class="fas fa-clock"></i>&ensp;End Time</th>
+                                                    {{#ifInRange data.book.processStep 0 2}}
+                                                    <td>Unconfirmed</td>
+                                                    {{/ifInRange}}
+                                                    {{#ifInRange data.book.processStep 3 6}}
+                                                    <td>{{onlyTime data.book.tourEnd}}</td>
+                                                    {{/ifInRange}}
+
                                                 </tr>
                                                 <tr>
                                                     <th><i class="fas fa-user-friends"></i>&ensp;Number of Participants</th>
-                                                    <td>Pax</td>
+                                                    <td>{{data.book.bookPax}}</td>
                                                 </tr>
                                                 <tr onclick="openTab(event,'Billing')" class="is-clickable">
                                                     <th><i class="fas fa-dollar-sign"></i>&ensp;Cost</th>
-                                                    <td>Cost</td>
+                                                    {{#ifInRange data.book.processStep 0 2}}
+                                                    <td>Unconfirmed</td>
+                                                    {{/ifInRange}}
+                                                    {{#ifInRange data.book.processStep 3 6}}
+                                                    <td>${{data.book.bookBaseprice}}</td>
+                                                    {{/ifInRange}}
+                                                    {{!-- Calculate final price in the backend --}}
                                                 </tr>
                                             </table>
                                             <br>
@@ -489,23 +397,29 @@
                                                     <span class="tag is-medium is-info">Tour Start</span>
                                                 </header>
 
-                                                {{!-- {{#each (readArrWithReplace data.finalItinerary)}} --}}
+                                                {{!-- replace with itinerary from booking once model is updated --}}
+                                                {{#each (readArrWithReplace data.book.[Shop.finalItinerary])}}
                                                 <div class="timeline-item">
                                                     <div class="timeline-marker is-icon">
                                                         <i class="fa fa-flag"></i>
                                                     </div>
                                                     <div class="timeline-content">
-                                                        Activity
-                                                        {{!-- <p>{{this}}</p> --}}
+                                                        <p>{{this}}</p>
                                                     </div>
                                                 </div>
-                                                {{!-- {{/each}} --}}
+                                                {{/each}}
 
                                                 <div class="timeline-header">
                                                 <span class="tag is-medium is-info">End</span>
                                                 </div>
-                                            </div>                
+                                            </div><br> 
 
+                                            {{#ifNotEquals data.book.addInfo ''}}
+                                            <div>
+                                                <p class="has-text-weight-bold is-size-4 has-text-centered">Additional Information</p>
+                                                <p>{{data.book.addInfo}}</p>
+                                            </div>
+                                            {{/ifNotEquals}}
                                             <!--END: Itinerary-->
                                 <!--END: Tour plan-->
                             </div>
@@ -516,8 +430,10 @@
 
                 <!--START: Billing Section-->
                 <div id="Billing" class="content-tab" style="display:none;">
-                    <!-- Paid and outstanding will be hidden for custom tours-->
+                    <!-- Paid and outstanding will be hidden for default tours-->
                     <div class="columns is-v-centered">
+                        {{#ifEquals data.book.custom 1}}
+                        {{#ifInRange data.book.processStep 1 6}}
                         <div class="column">
                             <div class="box p-5">
                                 <p class="has-text-weight-bold is-size-5 has-text-success">Paid</p>
@@ -527,27 +443,48 @@
                                         <th>Price</th>
                                     </tr>
                                     <tr>
-                                        <td>Booking Fee</td>
-                                        <td>$20</td>
+                                        <td>Customisation Fee</td>
+                                        <td>${{data.book.bookCharges}}</td>
                                     </tr>
                                 </table>
                             </div>
                         </div>
-                        <div class="column">
+                        {{/ifInRange}}
+                        {{/ifEquals}}
+
+                        {{#ifEquals data.book.processStep '0'}}
+                            <div class="column">
                             <div class="box p-5">
                                 <p class="has-text-weight-bold is-size-5 has-text-info">Outstanding</p>
-                                <p class="title has-text-centered">$174.30</p>
+                                <p class="title has-text-centered">${{data.book.bookCharges}}</p>
+                                <p class="subtitle has-text-centered">Customisation fee</p>
                                 <button class="button is-fullwidth is-success">Proceed to Payment</button>
                             </div>
                         </div>
+                        {{/ifEquals}}
+
+                        {{#ifEquals data.book.paid 0}}
+                        {{#ifEquals data.book.processStep '5'}}
+                        <div class="column">
+                            <div class="box p-5">
+                                <p class="has-text-weight-bold is-size-5 has-text-info">Outstanding</p>
+                                <p class="title has-text-centered">${{data.book.bookBaseprice}}</p>
+                                <button class="button is-fullwidth is-success">Proceed to Payment</button>
+                            </div>
+                        </div>
+                        {{/ifEquals}}
+                        {{/ifEquals}}
                     </div>
+
                     <div class="box" id="Billing_Overall">
                         <section class="section">
                             <div class="container">
                                 <div class="has-text-centered">
-                                <p class="has-text-weight-bold is-size-4">Tour Name</p>
+                                <p class="has-text-weight-bold is-size-4">{{data.book.[Shop.tourTitle]}}</p>
                                 <p class="is-size-6">Overall Cost Breakdown</p>
+                                {{#ifEquals data.book.paid 1}}
                                 <span class="tag is-success is-light is-medium"><i class="fas fa-check mr-1"></i>Paid in Full</span>
+                                {{/ifEquals}}
                                 </div>
                                 <br>
                                 <table class="table is-fullwidth">
@@ -555,34 +492,37 @@
                                         <th>Item</th>
                                         <th>Price</th>
                                     </tr>
+                                    {{#ifEquals data.book.custom 1}}
                                     <tr>
-                                        <td>Booking Fee</td>
-                                        <td>$20.00</td>
+                                        <td>Customisation Fee</td>
+                                        <td>${{data.book.bookCharges}}</td>
                                     </tr>
+                                    {{/ifEquals}}
                                     <tr>
                                         <td>Base Tour Price</td>
-                                        <td>$150.00</td>
+                                        <td>${{data.book.bookBaseprice}}</td>
                                     </tr>
+                                    {{#ifEquals data.book.custom 1}}
+                                    {{#ifSmaller (toNum data.book.revisions) 0}}
                                     <tr>
-                                        <td>Add-On - Extra Activity</td>
-                                        <td>$5.00</td>
+                                        <td>Extra Revisions {{data.book.revisions}}</td>
+                                        <td>${{math data.book.revisions '*' data.book.bookCharges}}</td>
                                     </tr>
-                                    <tr>
-                                        <td>Extra Revisions (2)</td>
-                                        <td>$10.00</td>
-                                    </tr>
+                                    {{/ifSmaller}}
+                                    {{/ifEquals}}
                                     <tr>
                                         <th>Subtotal</th>
-                                        <th>$185</th>
+                                        {{!-- calculate subtotal server side --}}
+                                        <th>${{data.book.bookBaseprice}}</th>
                                     </tr>
                                      <tr>
                                         <th>Service Fee <span><i class="far fa-question-circle has-tooltip-multiline" 
-                                        data-tooltip="Tourisit takes a blah bla blah"></i></span></th>
-                                        <th>$9.30</th>
+                                        data-tooltip="Tourisit takes a 10% service fee for sustainability. Thank you for using our service."></i></span></th>
+                                        <th>${{math data.book.bookBaseprice '*' 0.1}}</th>
                                     </tr>
                                     <tr class="has-background-white-ter has-text-weight-bold is-size-5">
                                         <th>Total</th>
-                                        <th>$194.30</th>
+                                        <th>${{math data.book.bookBaseprice '+' (math data.book.bookBaseprice '*' 0.1)}}</th>
                                     </tr>
                                 </table>
                             </div>
@@ -591,6 +531,7 @@
                 </div>
                 <!--END: Billing Section-->
 
+                {{#ifEquals data.book.custom 1}}
                 <!--START: Req Section-->
                 <div id="Req" class="content-tab" style="display:none;">
                     <div class="box">
@@ -598,12 +539,14 @@
                             <div class="container">
                                 <p class="has-text-centered is-size-4 has-text-weight-bold">Requirements &amp; Requests</p>
 
-                                <!--Req card-->
+                                {{#each (readArrWithReplace data.book.custRequests)}}
+
+                                    <!--Req card-->
                                     <div class="card ml-3 mt-3 has-background-white-ter is-shadowless">
 
                                         <header class="card-header is-clickable" onclick="collapseCard(this)">
                                                 <p class="card-header-title has-text-centered has-text-weight-bold is-size-5">
-                                                Your Requirements</p>
+                                                Request (#{{math @index '+' 1}})</p>
                                                 <span class=" card-header-icon icon is-large">
                                                     <i class="fas fa-angle-down" aria-hidden="true"></i>
                                                 </span>
@@ -611,38 +554,20 @@
 
                                         <div class="card-content is-hidden">
                                             <div class="content">
-                                                <p>Requirement text</p>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                    <!--Req card-->
-
-                                    <!--Req card-->
-                                    <div class="card ml-3 mt-3 has-background-white-ter is-shadowless">
-
-                                        <header class="card-header is-clickable" onclick="collapseCard(this)">
-                                                <p class="card-header-title has-text-centered has-text-weight-bold is-size-5">
-                                                Revision Request (#1)</p>
-                                                <span class=" card-header-icon icon is-large">
-                                                    <i class="fas fa-angle-down" aria-hidden="true"></i>
-                                                </span>
-                                            </header>
-
-                                        <div class="card-content is-hidden">
-                                            <div class="content">
-                                                <p>I want XXX changed...</p>
+                                                <p>{{this}}</p>
                                             </div>
                                         </div>
                                         
                                     </div>
                                     <!--Req card-->
 
+                                    {{/each}}
                             </div>
                         </section>
                     </div>
                 </div>
                 <!--END: Req Section-->
+                {{/ifEquals}}
 
             </div>
             <div class="column is-one-quarter">
@@ -655,10 +580,9 @@
                     <br>
 
                     <div class="mt-4 has-background-white-bis p-4">
-                        <p class="has-text-weight-bold is-size-5 mb-2 has-text-centered">Tour Name</p>
-                        <img style="border-radius:10px;" src="/static/sample-listing.jpg">
-                        <p>Some description that truncates ...</p>
-                        <a class="pt-5 is-size-7" href="#">View Original Listing</a>
+                        <img style="border-radius:10px;" src="/static/listings/{{data.book.[Shop.tourImage]}}">
+                        <p>{{data.book.[Shop.tourDesc]}}</p>
+                        <a class="pt-5 is-size-7" href="/listing/info/{{data.book.[Shop.id]}}">View Original Listing</a>
                     </div>
                     <br>
 
@@ -666,16 +590,12 @@
                         <p class="has-text-weight-bold is-size-5 mb-2 has-text-centered">Booking Details</p>
                         <table class="table is-fullwidth has-background-white-bis">
                             <tr>
+                                <th>Booking ID</th>
+                                <td>{{data.book.bookId}}</td>
+                            </tr>
+                            <tr>
                                 <th>Ordered from</th>
                                 <td class="has-text-link">Tour Guide</td>
-                            </tr>
-                            <tr>
-                                <th>Total price</th>
-                                <td>To-be Confirmed</td>
-                            </tr>
-                            <tr>
-                                <th>Booking ID</th>
-                                <td>ID</td>
                             </tr>
                         </table>
                     </div>
@@ -683,7 +603,7 @@
 
                     <div class="mt-4 p-4 has-background-info-light is-light">
                         <span class="has-text-weight-semibold">Have an issue with your tour?</span><br>
-                        Contact <a href="#">Customer Support</a>.
+                        Contact <a href="/helpdesk">Customer Support</a>.
                     </div>
 
                 </div>
