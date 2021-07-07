@@ -493,7 +493,6 @@ router.get('/manage/tours/edit/:id', async (req, res) => {
 
     let banStatus = ''
 
-
     const banLog = await Ban.findAll({ where: { objectID: itemID, is_inForce: true } })
 
     console.log('BAN LOG HAS FOUND')
@@ -605,7 +604,7 @@ router.post('/manage/tours/edit/:id', async (req, res) => {
         })
     }
 
-    if (await Shop.count({ where: { objectID: itemID } }) === 1) {
+    if (await Shop.count({ where: { id: itemID } }) === 1) {
         return res.redirect(`/admin/manage/tours/edit/${itemID}`)
     }
 
