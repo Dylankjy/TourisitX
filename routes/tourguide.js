@@ -159,8 +159,6 @@ router.get('/bookings', async (req, res) => {
     }
 
     const userData = await genkan.getUserBySessionAsync(sid)
-    console.log(userData)
-    console.log(userData.id)
     Booking.findAndCountAll({
         where: {
             tgId: userData.id,
@@ -174,11 +172,9 @@ router.get('/bookings', async (req, res) => {
         offset: offset,
     })
         .then( (result) => {
-            console.log(result)
             const bookCount = result.count
             const bookList = result.rows
             const lastPage = Math.ceil(bookCount / pageSize)
-            console.log(bookList)
             const metadata = {
                 meta: {
                     title: 'All Bookings',
@@ -211,8 +207,6 @@ router.get('/bookings/:id', (req, res) => {
         include: Shop, TourPlans,
         raw: true,
     }) .then(async (result) => {
-        console.log(result)
-        console.log(result.chatId)
         // const sid = req.signedCookies.sid
         // const userId = await genkan.getUserBySessionAsync(sid)
         ChatMessages.findAll({
@@ -222,8 +216,6 @@ router.get('/bookings/:id', (req, res) => {
             order: [['createdAt', 'ASC']],
             raw: true,
         }) .then( async (msgs) => {
-            console.log(msgs)
-
             const metadata = {
                 meta: {
                     title: result['Shop.tourTitle'],

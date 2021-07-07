@@ -64,18 +64,6 @@ router.get('/', async (req, res) => {
                 const bookCount = result.count
                 const bookList = result.rows
                 const lastPage = Math.ceil(bookCount / pageSize)
-                // const bookList = items.map((x) => x['dataValues']).reverse()
-                // console.log(bookList)
-
-                // listingIdArray = bookList.map((x) => x['listingId'])
-                // console.log(listingIdArray)
-                // Shop.findAll({
-                //     where: {
-                //         id: listingIdArray,
-                //     },
-                // }) .then( (items) => {
-                // const tourList = items.map((x) => x['dataValues']).reverse()
-                // console.log(tourList)
                 const metadata = {
                     meta: {
                         title: 'All Bookings',
@@ -92,29 +80,6 @@ router.get('/', async (req, res) => {
                 // }).catch((err) => console.log)
             }).catch((err) => console.log)
     }
-    // sid = req.signedCookies.sid
-    // const user = await genkan.getUserBySessionAsync(sid)
-    // // const userData = getUserfromSid(sid)
-    // console.log(user)
-
-    // Booking.findAll({
-    //     where: {
-    //         custId: user.id,
-    //     },
-    // })
-    //     .then((items) => {
-    //         console.log(items)
-
-    //         // If user is logged in and has a valid session
-    //         return res.render('allBookings.hbs', {
-    //             // booking_list, listings, action_needed_list
-    //             // process list of required action
-    //             // maybe write a custom helper that fetches tour name for booking
-    //             booking_list: bookingList,
-    //             listings: listings,
-    //             action_needed_list: [sampleBooking1, sampleBooking2],
-    //         })
-    //     }).catch((err) => console.log)
 })
 
 router.get('/:id', (req, res) => {
@@ -130,7 +95,6 @@ router.get('/:id', (req, res) => {
         raw: true,
     }) .then(async (result) => {
         console.log(result)
-        console.log(result.chatId)
         // const sid = req.signedCookies.sid
         // const userId = await genkan.getUserBySessionAsync(sid)
         ChatMessages.findAll({
@@ -156,14 +120,6 @@ router.get('/:id', (req, res) => {
             return res.render('myBooking.hbs', metadata)
         }).catch((err) => console.log)
     }).catch((err) => console.log)
-
-    // const tourID = booking['tour_id']
-    // const listing = listings.filter((obj) => {
-    //     return obj.id == tourID
-    // })[0]
-    // console.log(booking)
-    // console.log(listing)
-    // return res.render('myBooking.hbs', { booking: booking, listing: listing })
 })
 
 module.exports = router
