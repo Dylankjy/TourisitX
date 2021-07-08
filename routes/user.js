@@ -245,10 +245,8 @@ router.post('/setting/general', async (req, res) => {
                 .exists()
                 .getResult()
             settingErrors.push(emailResult)
+        } else {
         }
-        else {
-        }
-
     })
 
     // const pfpResult = fv
