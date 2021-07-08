@@ -33,15 +33,16 @@
 			<div class='column'>
 				<p class='title is-1 has-text-white'>
 					{{uData.name}}
-
-					<span class='tag is-success'>
-						<i class='fas fa-check'></i>&ensp;Verified Guide
-					</span>
-
-					<span class='tag is-danger is-dark'>
-						<i class='fas fa-id-badge'></i>&ensp;Tourisit Admin
-					</span>
-
+					{{#if uData.is_verified}}
+						<span class='tag is-success'>
+							<i class='fas fa-check'></i>&ensp;Verified Guide
+						</span>
+					{{/if}}
+					{{#if uData.is_admin}}
+						<span class='tag is-danger is-dark'>
+							<i class='fas fa-id-badge'></i>&ensp;Tourisit Admin
+						</span>
+					{{/if}}
 				</p>
 				<p id='bioContainer' class='is-size-5 has-text-grey-lighter'>
 					{{uData.bio}}
@@ -70,9 +71,9 @@
 					</form>
 				</div>
 
-				{{!-- <a href='' id='reportbtn'>
+				{{! <a href='' id='reportbtn'>
 					<button class='button is-danger is-outlined mt-4'>Report Abuse</button>
-				</a> --}}
+				</a> }}
 
 				<div class='field is-grouped has-text-right mt-3'>
 					{{#if uData.fb}}
