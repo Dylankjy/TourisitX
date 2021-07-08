@@ -15,6 +15,13 @@ class Validator {
         return this
     }
 
+    notFound(options) {
+        // Reset the result attribute to true (Make result an instance attribute, not a class attribute so I remove it from the constructor)
+        this.result = false
+        this.name = options.name
+        this.errMsg = options.errorMessage
+        return this
+    }
     // Checks if the element is empty
     exists() {
         if (!this.data[this.name]) {
@@ -68,9 +75,9 @@ class Validator {
             this.result = false
             return this
         }
-
         return this
     }
+
     // Returns the JSON result of the validation
     getResult() {
         if (this.result == false) {
