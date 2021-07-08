@@ -25,7 +25,7 @@
                                     {{!-- formatting needed --}}
                                     <td>{{dateParseISO this.tourStart}}</td>
                                     {{!-- <td><a href="/{{this.bookId}}">{{#with (lookup ../listings @index)}}{{tourTitle}}{{/with}}</a>  --}}
-                                    <td><a href="/{{this.bookId}}">{{this.[Shop.tourTitle]}}</a></td>
+                                    <td><a href="/bookings/{{this.bookId}}">{{this.[Shop.tourTitle]}}</a></td>
                                 </tr>
                             {{/ifEquals}}
                             {{/each}}
