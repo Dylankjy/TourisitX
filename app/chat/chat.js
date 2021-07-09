@@ -51,14 +51,6 @@ addMessage = (roomId, senderId, messageText, flag, callback) => {
     })
 }
 
-// const exports = {
-//     'room': {
-//         add: addRoom,
-//     },
-//     'msg': {
-//         add: addMessage,
-//     },
-// }
 getAllMessagesByRoomID = (roomId, callback) => {
     findDB('chatroom', { 'chatId': roomId }, (roomResult) => {
         if (roomResult.length !== 1) {
