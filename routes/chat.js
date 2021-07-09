@@ -27,6 +27,9 @@ router.get('/', (req, res) => {
             sidebarActive: 'aa',
         },
         layout: 'chat',
+        data: {
+            currentUser: req.currentUser,
+        },
     }
     return res.render('chat.hbs', metadata)
 })
