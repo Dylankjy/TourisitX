@@ -54,7 +54,7 @@ addMessage = (roomId, senderId, messageText, flag, callback) => {
 getAllMessagesByRoomID = (roomId, callback) => {
     findDB('chatroom', { 'chatId': roomId }, (roomResult) => {
         if (roomResult.length !== 1) {
-            return null
+            return callback(null)
         }
 
         findDB('chatmessages', { 'roomId': roomId }, (msgResult) => {
