@@ -66,9 +66,9 @@ getAllMessagesByRoomID = (roomId, callback) => {
     })
 }
 
-getAllMessagesByRoomID('ec62a190-df1b-11eb-9fe2-db3cd0c5592f', (result) => {
-    console.log(result)
-})
+// getAllMessagesByRoomID('ec62a190-df1b-11eb-9fe2-db3cd0c5592f', (result) => {
+//     console.log(result)
+// })
 
 // module.exports = exports
 module.exports = {
