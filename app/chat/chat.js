@@ -59,6 +59,24 @@ addMessage = (roomId, senderId, messageText, flag, callback) => {
 //         add: addMessage,
 //     },
 // }
+getAllMessagesByRoomID = (roomId, callback) => {
+    findDB('chatroom', { 'chatId': roomId }, (roomResult) => {
+        if (roomResult.length !== 1) {
+            return null
+        }
+
+        findDB('chatmessages', { 'roomId': roomId }, (msgResult) => {
+            return callback({
+                msg: msgResult.map((msgResult) => msgResult.dataValues),
+                users: roomResult[0].dataValues.participants.split(','),
+            })
+        })
+    })
+}
+
+getAllMessagesByRoomID('ec62a190-df1b-11eb-9fe2-db3cd0c5592f', (result) => {
+    console.log(result)
+})
 
 // module.exports = exports
 module.exports = {
