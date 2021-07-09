@@ -4,6 +4,8 @@
 
 // Database operations
 require('../db')
+const { ChatRoom, ChatMessages } = require('../../models')
+const { Op } = require('sequelize')
 
 // UUID
 const uuid = require('uuid')
@@ -51,7 +53,8 @@ addMessage = (roomId, senderId, messageText, flag, callback) => {
     })
 }
 
-getAllMessagesByRoomID = (roomId, callback) => {
+// Chloe!!! Please use this one for your booking chat. Don't use getAllMessagesByRoomID() <- this doesn't allow you to get booking chat
+getAllBookingMessagesByRoomID = (roomId, callback) => {
     findDB('chatroom', { 'chatId': roomId }, (roomResult) => {
         if (roomResult.length !== 1) {
             return callback(null)
@@ -74,4 +77,5 @@ getAllMessagesByRoomID = (roomId, callback) => {
 module.exports = {
     addRoom,
     addMessage,
+    getAllBookingMessagesByRoomID,
 }
