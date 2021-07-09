@@ -69,6 +69,22 @@ getAllBookingMessagesByRoomID = (roomId, callback) => {
     })
 }
 
+getAllMessagesByRoomID = (roomId, callback) => {
+    findDB('chatroom', { 'chatId': roomId, 'bookingId': null }, (roomResult) => {
+        if (roomResult.length !== 1) {
+            return callback(null)
+        }
+
+        findDB('chatmessages', { 'roomId': roomId }, (msgResult) => {
+            return callback({
+                msg: msgResult.map((msgResult) => msgResult.dataValues),
+                users: roomResult[0].dataValues.participants.split(','),
+            })
+        })
+    })
+}
+
+
 // getAllMessagesByRoomID('ec62a190-df1b-11eb-9fe2-db3cd0c5592f', (result) => {
 //     console.log(result)
 // })
@@ -78,4 +94,5 @@ module.exports = {
     addRoom,
     addMessage,
     getAllBookingMessagesByRoomID,
+    getAllMessagesByRoomID,
 }
