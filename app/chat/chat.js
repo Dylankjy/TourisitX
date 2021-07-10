@@ -89,10 +89,6 @@ getAllMessagesByRoomID = (roomId, callback) => {
 //     console.log(result)
 // })
 
-getListOfRoomsByUserID = (uid, callback) => {
-    if ( uuid.validate(uid) !== true) {
-        return callback(false)
-    }
 
     ChatRoom.findAll({
         where: {
@@ -109,7 +105,24 @@ getListOfRoomsByUserID = (uid, callback) => {
 // getListOfRoomsByUserID('2f6f6ba0-d7d1-11eb-af9c-1749a0be6609', (result) => {
 //     console.log(result)
 // })
+getListOfRoomsByUserIDAsync = (uid) => {
+    return new Promise((res, rej) => {
+        if (uuid.validate(uid) !== true) {
+            return rej(new Error('Invalid User ID'))
+        }
 
+        ChatRoom.findAll({
+            where: {
+                participants: {
+                    [Op.like]: '%' + uid + '%',
+                },
+            },
+        }).then((result) => {
+            const listOfChats = result.map((result) => result.dataValues)
+            return res(listOfChats)
+        })
+    })
+}
 
 // module.exports = exports
 module.exports = {
@@ -117,5 +130,5 @@ module.exports = {
     addMessage,
     getAllBookingMessagesByRoomID,
     getAllMessagesByRoomID,
-    getListOfRoomsByUserID,
+    getListOfRoomsByUserIDAsync,
 }
