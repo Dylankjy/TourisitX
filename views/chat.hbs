@@ -1,25 +1,24 @@
-<section class="section chat-box">
-    <div class="container">
-        <div class="box">
-            <div class="columns p-0">
-                {{>sidebarChat}}
-                <div class="column ml-5 mr-5 message-container">
-                    <p class="message-bubble receive">Hello
-                        Worldsdfhghusdgfhsdfhgsdhgfhgdhfgdhfhdghjfdghfghdfhgdhfgdhfghdhfghdghfghdgfhdghgh</p>
-                    <p class="message-bubble send">Hello World</p>
-                    <div class="message-input">
-                        <div class="field">
-                            <div class="control has-icons-left has-icons-right">
-                                <input class="input" type="text" placeholder="Type message...">
-                                <span class="icon is-small is-left">
-                                    <i class="fas fa-keyboard"></i>
-                                </span>
-                                <p class="help has-text-grey">Press <code>enter</code> to send.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<div class="column ml-5 mr-5 message-container">
+    <div id="message-container-display" style="display: none">
+        {{#each data.chat}}
+        {{#ifNotEquals currentUser.id this.senderId}}
+        <p class="message-bubble receive mt-3">{{this.messageText}}</p>
+        {{/ifNotEquals}}
+
+        {{#ifEquals currentUser.id this.senderId}}
+        <p class="message-bubble send mt-3">{{this.messageText}}</p>
+        {{/ifEquals}}
+        {{/each}}
+    </div>
+    <div class="message-input">
+        <div class="field">
+            <div class="control has-icons-left has-icons-right">
+                <input id="messageBoxInput" class="input" type="text" name="messageText" placeholder="Type message...">
+                <span class="icon is-small is-left">
+                    <i class="fas fa-keyboard"></i>
+                </span>
+                <p class="help has-text-grey">Press <code>enter</code> to send.</p>
             </div>
         </div>
     </div>
-</section>
+</div>

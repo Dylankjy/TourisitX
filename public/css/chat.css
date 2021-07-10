@@ -49,9 +49,9 @@
     height: 13rem
 }
 
-.chat-box {
+/* .chat-box {
     animation: bigToSmall .4s ease;
-}
+} */
 
 @keyframes bigToSmall {
     0% {
