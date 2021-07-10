@@ -1,6 +1,14 @@
 // This file contains low level operations for the chat.
 // -- Dylan
 
+// Genkan API
+const genkan = require('../genkan/genkan')
+
+// Sync loops
+// I know that this is extremely stupid and not good but screw you. I just need this to work
+// I've spent 3 flipping hours trying to make this work. After this, I will go to a corner and cry.
+// Leaf me alone :(
+const syncLoop = require('sync-loop')
 
 // Database operations
 require('../db')
@@ -89,22 +97,33 @@ getAllMessagesByRoomID = (roomId, callback) => {
 //     console.log(result)
 // })
 
+excludeSelfIDAsync = async (uid, listOfChats) => {
+    return new Promise((res) => {
+        reconstructedChatList = listOfChats
+        syncLoop(listOfChats.length, (loop) => {
+            const i = loop.iteration()
 
-    ChatRoom.findAll({
-        where: {
-            participants: {
-                [Op.like]: '%' + uid + '%',
-            },
-        },
-    }).then((result) => {
-        const listOfChats = result.map((result) => result.dataValues)
-        return callback(listOfChats)
+            const arrayOfParticipants = listOfChats[i].participants.split(',')
+
+            const indexToDeleteSelf = arrayOfParticipants.indexOf(uid)
+
+            arrayOfParticipants.splice(indexToDeleteSelf, 1)
+
+            const receiverUid = arrayOfParticipants[0]
+
+            genkan.getUserByID(receiverUid, (userObject) => {
+                if (userObject === null) {
+                    return res(null)
+                }
+                reconstructedChatList[i].receiverName = userObject.name
+                loop.next()
+            })
+        }, () => {
+            return res(reconstructedChatList)
+        })
     })
 }
 
-// getListOfRoomsByUserID('2f6f6ba0-d7d1-11eb-af9c-1749a0be6609', (result) => {
-//     console.log(result)
-// })
 getListOfRoomsByUserIDAsync = (uid) => {
     return new Promise((res, rej) => {
         if (uuid.validate(uid) !== true) {
@@ -130,5 +149,6 @@ module.exports = {
     addMessage,
     getAllBookingMessagesByRoomID,
     getAllMessagesByRoomID,
+    excludeSelfIDAsync,
     getListOfRoomsByUserIDAsync,
 }
