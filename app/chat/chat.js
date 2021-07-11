@@ -44,20 +44,27 @@ addRoom = (participants, bookingId, callback) => {
 }
 
 addMessage = (roomId, senderId, messageText, flag, callback) => {
-    if (senderId === 'SYSTEM') {
-        senderId = '00000000-0000-0000-0000-000000000000'
-    }
+    // Ensures that this requested chatroom exists before performing any operations.
+    findDB('chatroom', { 'chatId': roomId }, (roomResult) => {
+        if (roomResult.length !== 1) {
+            return callback(null)
+        }
 
-    const AddMessagePayload = {
-        'messageId': uuid.v4(),
-        'roomId': roomId,
-        'senderId': senderId,
-        'messageText': messageText,
-        'flag': flag,
-    }
+        if (senderId === 'SYSTEM') {
+            senderId = '00000000-0000-0000-0000-000000000000'
+        }
 
-    insertDB('chatmessages', AddMessagePayload, () => {
-        return callback(true)
+        const AddMessagePayload = {
+            'messageId': uuid.v1(),
+            'roomId': roomId,
+            'senderId': senderId,
+            'messageText': messageText,
+            'flag': flag,
+        }
+
+        insertDB('chatmessages', AddMessagePayload, () => {
+            return callback(true)
+        })
     })
 }
 
