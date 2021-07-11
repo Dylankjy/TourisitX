@@ -8,10 +8,8 @@ const cookieParser = require('cookie-parser')
 const RateLimit = require('express-rate-limit')
 
 const app = express()
-// Socket.io Injection
 const server = require('http').Server(app)
 const io = require('socket.io')(server)
-app.set('io', io)
 
 // Routes for Express
 const routes = {

@@ -9,16 +9,6 @@ const router = express.Router()
 const formidable = require('express-formidable')
 router.use(formidable())
 
-// Socket.io injection read from app.js
-const io = app.get('io')
-
-// place this middleware before any other route definitions
-// makes io available as req.io in all request handlers
-app.use((req, res, next) => {
-    req.io = io
-    next()
-})
-
 // SQLize models
 const { ChatRoom, ChatMessages } = require('../models')
 
@@ -60,7 +50,8 @@ router.get('/:roomId', (req, res) => {
 })
 
 router.post('/', (req, res) => {
-    console.log(req.fields.msg)
+    console.table(req.fields)
+    // addMessage(req.fields.chatId)
 })
 
 module.exports = router
