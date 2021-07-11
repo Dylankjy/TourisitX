@@ -101,6 +101,7 @@ app.use(getCurrentUser)
 
 // Module imports
 const dateFormat = require('dateformat')
+const { addMessage } = require('./app/chat/chat')
 
 // Handlebars: Render engine
 app.set('view engine', 'hbs')
@@ -327,6 +328,43 @@ const webserver = () => {
         console.log(`Web server listening on port 5000 | http://localhost:5000`)
     })
 }
+
+// I'm putting this here because apparent for the love of everyone. THERE'S NO F***ing SOLUTION ON STACKOVERFLOW THAT WORKS.
+// Thanks for wasting 3 hours.
+io.on('connection', (socket) => {
+    // When a user sends a message in a room
+    socket.on('msgSend', (data) => {
+        if (data.msg === '') {
+            return
+        }
+        // require('./config/genkan.json').genkan.secretKey
+        const reqCookies = require('cookie').parse(socket.handshake.headers.cookie)
+
+        const decryptedSID = cookieParser.signedCookie(reqCookies.sid, require('./config/genkan.json').genkan.secretKey)
+
+        genkan.isLoggedin(decryptedSID, (result) => {
+            if (result !== true) {
+                return io.emit('reloginRequired')
+            }
+
+            getAllMessagesByRoomID(data.roomId, async (chatRoomObject) => {
+            // Checks whether chatroom exists and if the user requesting it has permissions to view it.
+                if (chatRoomObject === null || chatRoomObject.users.includes(data.senderId) === false) {
+                    return false
+                }
+
+                addMessage(data.roomId, data.senderId, data.msg, 'SENT', () => {
+                    return io.to(data.roomId).emit('msgReceive', { msg: data.msg, roomId: data.roomId, senderId: data.senderId, pendingCount: data.pendingCount })
+                })
+            })
+        })
+    })
+
+    // Handles room joining
+    socket.on('room', (room) => {
+        return socket.join(room)
+    })
+})
 
 // Load SQLize models
 require('./models').sequelize.sync().then((req) => {

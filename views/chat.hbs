@@ -1,12 +1,11 @@
 <div class="column ml-5 mr-5 message-container">
     <div id="message-container-display" style="display: none">
         {{#each data.chat}}
-        {{#ifNotEquals currentUser.id this.senderId}}
-        <p class="message-bubble receive mt-3">{{this.messageText}}</p>
-        {{/ifNotEquals}}
 
-        {{#ifEquals currentUser.id this.senderId}}
+        {{#ifEquals @root.data.currentUser.id this.senderId}}
         <p class="message-bubble send mt-3">{{this.messageText}}</p>
+        {{else}}
+        <p class="message-bubble receive mt-3">{{this.messageText}}</p>
         {{/ifEquals}}
         {{/each}}
     </div>
