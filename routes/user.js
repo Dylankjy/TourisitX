@@ -149,7 +149,7 @@ router.post('/profile/:id', async (req, res) => {
     const user = await genkan.getUserBySessionAsync(sid)
     const v = new Validator(req.fields)
 
-    const bioErrors = []
+    bioErrors = []
     if (req.fields.bio == '') {
     } else {
         const bioResult = v
