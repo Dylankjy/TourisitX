@@ -37,6 +37,10 @@
     border-bottom-right-radius: 8px;
 }
 
+.message-bubble.send.sending {
+    opacity: 0.35;
+}
+
 .message-input {
     position: absolute;
     bottom: 0.5rem;
@@ -47,6 +51,11 @@
 .chat-background {
     margin-bottom: -12rem;
     height: 13rem
+}
+
+#message-container-display {
+    overflow-y: scroll;
+    height: 30rem
 }
 
 /* .chat-box {
