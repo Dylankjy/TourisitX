@@ -102,6 +102,7 @@ app.use(getCurrentUser)
 // Module imports
 const dateFormat = require('dateformat')
 const { addMessage } = require('./app/chat/chat')
+const sanitizeHtml = require('sanitize-html')
 
 // Handlebars: Render engine
 app.set('view engine', 'hbs')
@@ -353,8 +354,8 @@ io.on('connection', (socket) => {
                     return false
                 }
 
-                addMessage(data.roomId, data.senderId, data.msg, 'SENT', () => {
-                    return io.to(data.roomId).emit('msgReceive', { msg: data.msg, roomId: data.roomId, senderId: data.senderId, pendingCount: data.pendingCount })
+                addMessage(data.roomId, data.senderId, sanitizeHtml(data.msg), 'SENT', () => {
+                    return io.to(data.roomId).emit('msgReceive', { msg: sanitizeHtml(data.msg), roomId: data.roomId, senderId: data.senderId, pendingCount: data.pendingCount })
                 })
             })
         })

@@ -53,6 +53,7 @@
     "nodemailer": "^6.6.2",
     "random": "^3.0.6",
     "random-words": "^1.1.1",
+    "sanitize-html": "^2.4.0",
     "sequelize": "^6.6.5",
     "sequelize-cli": "^6.2.0",
     "socket.io": "^4.1.2",

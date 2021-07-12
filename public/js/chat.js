@@ -14,9 +14,13 @@ $(document).on('turbolinks:load', () => {
 
     $('#messageBoxInput').keydown((e) => {
         if (e.keyCode == 13) {
+            // The reason why the message payload is separate from the append is for sanitary reason.
             $('#message-container-display').append(`
-                <p id="pending-${sendIdCounter}" class="message-bubble send sending mt-3">${$('#messageBoxInput').val()}</p>
+                <p id="pending-${sendIdCounter}" class="message-bubble send sending mt-3"></p>
             `)
+
+            $(`#pending-${sendIdCounter}`).text($('#messageBoxInput').val())
+
             socket.emit('msgSend', { msg: $('#messageBoxInput').val(), roomId: $('#currentChatID').val(), senderId: $('#currentUserID').val(), pendingCount: sendIdCounter })
             $('#messageBoxInput').val('')
 
@@ -31,6 +35,7 @@ $(document).on('turbolinks:load', () => {
         if (data.senderId === $('#currentUserID').val()) {
             $(`#pending-${data.pendingCount}`).removeClass('sending')
         } else {
+            // Sanitisation is handled by the server
             $('#message-container-display').append(`
                 <p class="message-bubble receive mt-3">${data.msg}</p>
             `)
