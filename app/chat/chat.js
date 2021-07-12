@@ -142,6 +142,7 @@ getListOfRoomsByUserIDAsync = (uid) => {
                 participants: {
                     [Op.like]: '%' + uid + '%',
                 },
+                bookingId: null,
             },
         }).then((result) => {
             const listOfChats = result.map((result) => result.dataValues)
