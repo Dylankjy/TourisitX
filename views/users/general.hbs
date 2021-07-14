@@ -38,37 +38,27 @@
 				<fieldset>
 					<!-- Account Mode -->
 					<div class='field'>
-						<label class='has-text-weight-medium has-text-grey-dark' for='account_mode'>Tour Guide Mode:</label>
-						&nbsp;
-						<input class='switch is-rounded' type='checkbox' name='account_modes' />
-						<!-- Empty label -->
-						<label class='has-text-weight-medium has-text-grey-dark' for='account_modes'></label>
+						{{#if user.is_tourguide}}
+							<label class='has-text-weight-medium has-text-grey-dark' for='account_mode'>Tour Guide Mode:</label>
+							&nbsp;
+							<input class='switch is-rounded' type='checkbox' name='account_modes' id='account_modes' checked='checked' />
+							<!-- Empty label -->
+							<label class='has-text-weight-medium has-text-grey-dark' for='account_modes'></label>
+						{{else}}
+							<label class='has-text-weight-medium has-text-grey-dark' for='account_mode'>Tour Guide Mode:</label>
+							&nbsp;
+							<input class='switch is-rounded' type='checkbox' name='account_modes' id='account_modes' />
+							<!-- Empty label -->
+							<label class='has-text-weight-medium has-text-grey-dark' for='account_modes'></label>
+						{{/if}}
+						<input type="hidden" id="mode" name="mode">
 					</div>
+
 					<!-- Name -->
 					<div class='field'>
 						<label class='label has-text-weight-medium has-text-grey-dark' for='uname'>Name</label>
 						<div class='control'>
 							<input class='input' type='text' style='height:50px;' name='uname' value='{{user.name}}' />
-						</div>
-					</div>
-					<!-- Profile Image -->
-					<div class='field' id='pfp-input'>
-						<label class='label has-text-weight-medium has-text-grey-dark'>Profile Image: </label>
-						<div class='file has-name'>
-							<label class='file-label'>
-								<input class='file-input' type='file' name='pfp' />
-								<span class='file-cta'>
-									<span class='file-icon'>
-										<i class='fas fa-upload'></i>
-									</span>
-									<span class='file-label'>
-										Choose a file…
-									</span>
-								</span>
-								<span class='file-name'>
-									No file chosen
-								</span>
-							</label>
 						</div>
 					</div>
 
@@ -113,18 +103,30 @@
 					</div>
 					<div class='field is-pulled-right'>
 						<div class='control'>
-							<button class='button is-success is-medium' type='submit'>Submit</button>
+							<button class='button is-success is-medium' type='submit' id='s1'>Submit</button>
 						</div>
 					</div>
 				</fieldset>
 			</form>
 		</div>
 	</div>
-
 </div>
 
 <!-- Retrieve selected file name-->
 <script>
-	const fileInput = document.querySelector('#pfp-input input[type=file]'); fileInput.onchange = () => { if (fileInput.files.length > 0) { const
-	fileName = document.querySelector('#pfp-input .file-name'); fileName.textContent = fileInput.files[0].name; } }
+	$("#s1").click(function(){
+		if ($('#account_mode').prop("checked") == true) { 
+			$('#mode').val('true') 
+		} else if($('#account_mode').prop("checked") == false){  
+			$('#mode').val('false') 
+		}
+	});
+	
+	document.querySelector('#pfp-input input[type=file]'); 
+	fileInput.onchange = () => { 
+		if (fileInput.files.length > 0) { 
+			const fileName = document.querySelector('#pfp-input .file-name'); 
+			fileName.textContent = fileInput.files[0].name; 
+		} 
+	}
 </script>

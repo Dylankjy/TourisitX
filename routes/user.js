@@ -149,7 +149,7 @@ router.post('/profile/:id', async (req, res) => {
     const user = await genkan.getUserBySessionAsync(sid)
     const v = new Validator(req.fields)
 
-    const bioErrors = []
+    bioErrors = []
     if (req.fields.bio == '') {
     } else {
         const bioResult = v
@@ -192,23 +192,41 @@ router.get('/setting/general', async (req, res) => {
     }
 
     const user = await genkan.getUserBySessionAsync(sid)
-
-    const metadata = {
-        meta: {
-            title: 'General Setting',
-            path: false,
-        },
-        nav: {
-            sidebarActive: 'general',
-        },
-        layout: 'setting',
-        data: {
-            currentUser: req.currentUser,
-        },
-        user,
-        settingErrors: req.cookies.settingErrors,
+    if ( user.is_tourguide == 0) {
+        const metadata = {
+            meta: {
+                title: 'General Setting',
+                path: false,
+            },
+            nav: {
+                sidebarActive: 'general',
+            },
+            layout: 'setting',
+            data: {
+                currentUser: req.currentUser,
+            },
+            user,
+            settingErrors: req.cookies.settingErrors,
+        }
+        return res.render('users/general.hbs', metadata)
+    } else {
+        const metadata = {
+            meta: {
+                title: 'General Setting',
+                path: false,
+            },
+            nav: {
+                sidebarActive: 'general',
+            },
+            layout: 'setting',
+            data: {
+                currentUser: req.currentUser,
+            },
+            user,
+            settingErrors: req.cookies.settingErrors,
+        }
+        return res.render('users/general.hbs', metadata)
     }
-    return res.render('users/general.hbs', metadata)
 })
 
 router.post('/setting/general', async (req, res) => {
@@ -249,11 +267,6 @@ router.post('/setting/general', async (req, res) => {
         }
     })
 
-    // const pfpResult = fv
-    //     .Initialize({ errorMessage: 'Please supply a valid Image' })
-    //     .fileExists()
-    //     .sizeAllowed({ maxSize: 5000000 })
-    //     .getResult()
 
     if (req.fields.phone_number == '') {
     } else {
@@ -311,69 +324,33 @@ router.post('/setting/general', async (req, res) => {
     } else {
         res.clearCookie('settingErrors')
         res.clearCookie('storedValues')
-        const AccDetails = {
-            'name': req.fields.uname,
-            'email': req.fields.uemail,
-            'phone_number': req.fields.phone_number,
-            'fb': req.fields.fb,
-            'insta': req.fields.insta,
-            'li': req.fields.li,
+        if (req.fields.mode == 'true') {
+            const AccDetails = {
+                'name': req.fields.uname,
+                'email': req.fields.uemail,
+                'phone_number': req.fields.phone_number,
+                'is_tourguide': 1,
+                'fb': req.fields.fb,
+                'insta': req.fields.insta,
+                'li': req.fields.li,
+            }
+            updateDB('user', { 'id': user.id }, AccDetails, () => {
+                return res.redirect(`/u/setting/general`)
+            })
+        } else {
+            const AccDetails = {
+                'name': req.fields.uname,
+                'email': req.fields.uemail,
+                'phone_number': req.fields.phone_number,
+                'is_tourguide': 0,
+                'fb': req.fields.fb,
+                'insta': req.fields.insta,
+                'li': req.fields.li,
+            }
+            updateDB('user', { 'id': user.id }, AccDetails, () => {
+                return res.redirect(`/u/setting/general`)
+            })
         }
-        updateDB('user', { 'id': user.id }, AccDetails, () => {
-            return res.redirect(`/u/setting/general`)
-        })
-        // let filePath = req.files['pfp']['path']
-        // let fileName = req.files['pfp']['name']
-        // const saveFolder = savedpfpFolder
-        // const savedName = storeImage(
-        //     (filePath = filePath),
-        //     (fileName = fileName),
-        //     (folder = saveFolder),
-        // )
-        // console.log(`Added file is ${savedName}`)
-        // User.findAll({
-        //     where: {
-        //         id: user.id,
-        //     },
-        // }).then((items) => {
-        //     const savedpfpFile = items[0]['dataValues']['profile_img']
-        //     if (savedpfpFile != 'default.jpg') {
-        //         console.log(`Removed IMAGE FILE: ${savedpfpFile}`)
-        //         fs.unlinkSync(`${savedpfpFolder}/${savedpfpFile}`)
-        //     }
-        // })
-
-        // User.update(
-        //     {
-        //         name: req.fields.name,
-        //         email: req.fields.email,
-        //         phone_number: req.fields.phone_number,
-        //         profile_img: savedName,
-        //         fb: req.fields.fb,
-        //         insta: req.fields.insta,
-        //         li: req.fields.li,
-        //     },
-        //     {
-        //         where: { id: user.id },
-        //     },
-        // )
-        //     .catch((err) => {
-        //         console.log(err)
-        //     })
-        //     .then(async (data) => {
-        //         // Update elastic search
-        //         const doc = {
-        //             id: user.id,
-        //             image: savedName,
-        //         }
-
-        //         await elasticSearchHelper.updateImage(doc)
-
-        //         res.redirect(`/u/setting/general`)
-        //     })
-        //     .catch((err) => {
-        //         console.log(err)
-        //     })
     }
 })
 
