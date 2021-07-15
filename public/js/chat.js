@@ -55,6 +55,9 @@ $(document).on('turbolinks:load', () => {
     socket.emit('room', $('#currentChatID').val())
 
     $(document).on('turbolinks:before-cache turbolinks:before-render', () => {
+        if (!$('#thisIsAChatPageSoPleaseLoadTheChatScript').length) {
+            return
+        }
         console.log('[END] 接続を切りました')
         return socket.disconnect()
     })
