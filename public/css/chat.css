@@ -37,7 +37,7 @@
     border-bottom-right-radius: 8px;
 }
 
-.message-bubble.send.sending {
+.message-bubble.send.sending, .timeline-item.sending {
     opacity: 0.35;
 }
 

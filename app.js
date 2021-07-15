@@ -37,7 +37,8 @@ app.use('/static', express.static('storage'))
 app.use('/third_party', express.static('third_party'))
 app.use('/usercontent', express.static('storage'))
 
-// Genkan Middleware
+// Genkan API & Middleware
+const genkan = require('./app/genkan/genkan')
 const { getCurrentUser, loginRequired, adminAuthorisationRequired } = require('./app/genkan/middleware')
 
 // Make all routes getCurrentUser
@@ -45,7 +46,7 @@ app.use(getCurrentUser)
 
 // Module imports
 const dateFormat = require('dateformat')
-const { addMessage } = require('./app/chat/chat')
+const { addMessage, getAllTypesOfMessagesByRoomID } = require('./app/chat/chat')
 const sanitizeHtml = require('sanitize-html')
 
 // Handlebars: Render engine
@@ -292,14 +293,17 @@ io.on('connection', (socket) => {
                 return io.emit('reloginRequired')
             }
 
-            getAllMessagesByRoomID(data.roomId, async (chatRoomObject) => {
+            // The reason why this is getAllTypesOfMessagesByRoomID is because getUwUMessagesByRoomID it only gets messages that are not of booking type.
+            getAllTypesOfMessagesByRoomID(data.roomId, async (chatRoomObject) => {
             // Checks whether chatroom exists and if the user requesting it has permissions to view it.
                 if (chatRoomObject === null || chatRoomObject.users.includes(data.senderId) === false) {
                     return false
                 }
 
-                addMessage(data.roomId, data.senderId, sanitizeHtml(data.msg), 'SENT', () => {
-                    return io.to(data.roomId).emit('msgReceive', { msg: sanitizeHtml(data.msg), roomId: data.roomId, senderId: data.senderId, pendingCount: data.pendingCount })
+                genkan.getUserByID(data.senderId, (userObject) => {
+                    addMessage(data.roomId, data.senderId, sanitizeHtml(data.msg), 'SENT', () => {
+                        return io.to(data.roomId).emit('msgReceive', { msg: sanitizeHtml(data.msg), roomId: data.roomId, senderId: data.senderId, senderName: userObject.name, pendingCount: data.pendingCount })
+                    })
                 })
             })
         })
