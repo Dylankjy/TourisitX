@@ -68,8 +68,8 @@ addMessage = (roomId, senderId, messageText, flag, callback) => {
     })
 }
 
-// Chloe!!! Please use this one for your booking chat. Don't use getAllMessagesByRoomID() <- this doesn't allow you to get booking chat
-getAllBookingMessagesByRoomID = (roomId, callback) => {
+// Chloe!!! Please use this one for your booking chat. Don't use getUwUMessagesByRoomID() <- this doesn't allow you to get booking chat
+getAllTypesOfMessagesByRoomID = (roomId, callback) => {
     findDB('chatroom', { 'chatId': roomId }, (roomResult) => {
         if (roomResult.length !== 1) {
             return callback(null)
@@ -84,7 +84,7 @@ getAllBookingMessagesByRoomID = (roomId, callback) => {
     })
 }
 
-getAllMessagesByRoomID = (roomId, callback) => {
+getUwUMessagesByRoomID = (roomId, callback) => {
     findDB('chatroom', { 'chatId': roomId, 'bookingId': null }, (roomResult) => {
         if (roomResult.length !== 1) {
             return callback(null)
@@ -100,7 +100,7 @@ getAllMessagesByRoomID = (roomId, callback) => {
 }
 
 
-// getAllMessagesByRoomID('ec62a190-df1b-11eb-9fe2-db3cd0c5592f', (result) => {
+// getUwUMessagesByRoomID('ec62a190-df1b-11eb-9fe2-db3cd0c5592f', (result) => {
 //     console.log(result)
 // })
 
@@ -156,8 +156,8 @@ getListOfRoomsByUserIDAsync = (uid) => {
 module.exports = {
     addRoom,
     addMessage,
-    getAllBookingMessagesByRoomID,
-    getAllMessagesByRoomID,
+    getAllTypesOfMessagesByRoomID,
+    getUwUMessagesByRoomID,
     excludeSelfIDAsync,
     getListOfRoomsByUserIDAsync,
 }
