@@ -122,6 +122,7 @@ excludeSelfIDAsync = async (uid, listOfChats) => {
                 if (userObject === null) {
                     return res(null)
                 }
+                reconstructedChatList[i].receiverUid = userObject.id
                 reconstructedChatList[i].receiverName = userObject.name
                 loop.next()
             })
