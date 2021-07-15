@@ -1,4 +1,8 @@
 $(document).on('turbolinks:load', () => {
+    if (!$('#thisIsAChatPageSoPleaseLoadTheChatScript').length) {
+        return
+    }
+
     // Force bottom of chat history
     $('#message-container-display').scrollTop($('#message-container-display')[0].scrollHeight)
 
