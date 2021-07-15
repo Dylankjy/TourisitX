@@ -1,100 +1,109 @@
 <head>
-	<link rel='stylesheet' href='/css/profile.css' />
+    <link rel='stylesheet' href='/css/profile.css'/>
 </head>
 
 {{#if (isDefined bioErrors)}}
-	{{#if (haveErr bioErrors)}}
-		<div class='section'>
-			<div class='columns'>
-				<div class='column is-half is-offset-3'>
-					<article class='message is-danger'>
-						<div class='message-header'>
-							<p>Errors</p>
-							<button class='delete' onclick='this.parentElement.parentElement.remove()'></button>
-						</div>
-						<div class='message-body'>
-							{{#each bioErrors}}
-								<blockquote>{{this.msg}}</blockquote>
-							{{/each}}
-						</div>
-					</article>
-				</div>
-			</div>
-		</div>
-	{{/if}}
+    {{#if (haveErr bioErrors)}}
+        <div class='section'>
+            <div class='columns'>
+                <div class='column is-half is-offset-3'>
+                    <article class='message is-danger'>
+                        <div class='message-header'>
+                            <p>Errors</p>
+                            <button class='delete' onclick='this.parentElement.parentElement.remove()'></button>
+                        </div>
+                        <div class='message-body'>
+                            {{#each bioErrors}}
+                                <blockquote>{{this.msg}}</blockquote>
+                            {{/each}}
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    {{/if}}
 {{/if}}
 <section class='section is-medium pt-3'>
-	<div class='container profile-container box p-6' style="background-image: url('/static/pfp.jpg')">
-		<div class='profile-card-blur'></div>
-		<div class='columns is-vcentered' style='position: inherit; z-index: 1'>
-			<div class='column is-one-fifth'>
-				<div class='profile-img-onprofile' style="background-image: url('/static/pfp.jpg')"></div>
-			</div>
-			<div class='column'>
-				<p class='title is-1 has-text-white'>
-					{{uData.name}}
-					{{#if uData.is_verified}}
-						<span class='tag is-success'>
+    <div class='container profile-container box p-6' style="background-image: url('/static/pfp.jpg')">
+        <div class='profile-card-blur'></div>
+        <div class='columns is-vcentered' style='position: inherit; z-index: 1'>
+            {{#if isOwner}}
+                {{>editablepfp}}
+            {{else}}
+                <div class='column is-one-fifth'>
+                    <div class='profile-img-onprofile' style="background-image: url('/static/pfp.jpg')"></div>
+                </div>
+            {{/if}}
+
+            <div class='column'>
+                <p class='title is-1 has-text-white'>
+                    {{uData.name}}
+                    {{#if uData.is_verified}}
+                        <span class='tag is-success'>
 							<i class='fas fa-check'></i>&ensp;Verified Guide
 						</span>
-					{{/if}}
-					{{#if uData.is_admin}}
-						<span class='tag is-danger is-dark'>
+                    {{/if}}
+                    {{#if uData.is_admin}}
+                        <span class='tag is-danger is-dark'>
 							<i class='fas fa-id-badge'></i>&ensp;Tourisit Admin
 						</span>
-					{{/if}}
-				</p>
-				<p id='bioContainer' class='is-size-5 has-text-grey-lighter'>
-					{{uData.bio}}
-					<span class='has-text-grey'>
-						<i onclick="$('#bioContainer').fadeOut('fast', () => { $('#bioEditFormContainer').slideDown() });" class='fa fa-edit'></i>
+                    {{/if}}
+                </p>
+                <p id='bioContainer' class='is-size-5 has-text-grey-lighter'>
+                    {{uData.bio}}
+                    <span class='has-text-grey'>
+						<i onclick="$('#bioContainer').fadeOut('fast', () => { $('#bioEditFormContainer').slideDown() });"
+                           class='fa fa-edit'></i>
 					</span>
 
-				</p>
+                </p>
 
-				<div id='bioEditFormContainer' style='display: none;'>
-					<form class='form-horizontal' method='POST' id='editBioForm'>
-						<fieldset>
-							<div class='field'>
-								<div class='control'>
-									<input class='input' type='text' style='height:50px;' name='bio' value="{{uData.bio}}"/>
-								</div>
-							</div>
-							<div class='field is-small has-text-right'>
-								<label class='label' for='bio-submit'></label>
-								<button type='submit' class='button is-success' id='bio-submit'><i class='fas fa-save'></i>&nbsp; Save
-								</button>
-								<a class='button is-danger is-light' onclick="$('#bioEditFormContainer').slideUp('', () => { $('#bioContainer').fadeIn() });">
-									<i class='fas fa-times'></i>&nbsp; Cancel</a>
-							</div>
-						</fieldset>
-					</form>
-				</div>
+                <div id='bioEditFormContainer' style='display: none;'>
+                    <form class='form-horizontal' method='POST' id='editBioForm'>
+                        <fieldset>
+                            <div class='field'>
+                                <div class='control'>
+                                    <input class='input' type='text' style='height:50px;' name='bio'
+                                           value="{{uData.bio}}"/>
+                                </div>
+                            </div>
+                            <div class='field is-small has-text-right'>
+                                <label class='label' for='bio-submit'></label>
+                                <button type='submit' class='button is-success' id='bio-submit'><i
+                                        class='fas fa-save'></i>&nbsp; Save
+                                </button>
+                                <a class='button is-danger is-light'
+                                   onclick="$('#bioEditFormContainer').slideUp('', () => { $('#bioContainer').fadeIn() });">
+                                    <i class='fas fa-times'></i>&nbsp; Cancel</a>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
 
-				{{! <a href='' id='reportbtn'>
-					<button class='button is-danger is-outlined mt-4'>Report Abuse</button>
-				</a> }}
+                {{! <a href='' id='reportbtn'>
+                    <button class='button is-danger is-outlined mt-4'>Report Abuse</button>
+                </a> }}
 
-				<div class='field is-grouped has-text-right mt-3'>
-					{{#if uData.fb}}
-						<a id='fb' href='{{uData.fb}}'>
-							<i class='fab fa-facebook-square fa-2x mr-3' style='color: #3B5998;'></i>
-						</a>
-					{{/if}}
+                <div class='field is-grouped has-text-right mt-3'>
+                    {{#if uData.fb}}
+                        <a id='fb' href='{{uData.fb}}'>
+                            <i class='fab fa-facebook-square fa-2x mr-3' style='color: #3B5998;'></i>
+                        </a>
+                    {{/if}}
 
-					{{#if uData.insta}}
-						<a id='fb' href='{{uData.insta}}'>
-							<i class='fab fa-instagram-square fa-2x mr-3' style='color: #DD2A7D;'></i>
-						</a>
-					{{/if}}
+                    {{#if uData.insta}}
+                        <a id='fb' href='{{uData.insta}}'>
+                            <i class='fab fa-instagram-square fa-2x mr-3' style='color: #DD2A7D;'></i>
+                        </a>
+                    {{/if}}
 
-					{{#if uData.li}}
-						<a id='fb' href='{{uData.li}}'>
-							<i class='fab fa-linkedin fa-2x' style='color: #0077B5;'></i>
-						</a>
-					{{/if}}
-				</div>
-			</div>
-		</div>
-	</div>
+                    {{#if uData.li}}
+                        <a id='fb' href='{{uData.li}}'>
+                            <i class='fab fa-linkedin fa-2x' style='color: #0077B5;'></i>
+                        </a>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </div>
 </section>

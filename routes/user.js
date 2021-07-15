@@ -192,7 +192,7 @@ router.get('/setting/general', async (req, res) => {
     }
 
     const user = await genkan.getUserBySessionAsync(sid)
-    if ( user.is_tourguide == 0) {
+    if (user.is_tourguide == 0) {
         const metadata = {
             meta: {
                 title: 'General Setting',
