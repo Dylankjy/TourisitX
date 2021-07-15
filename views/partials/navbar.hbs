@@ -55,6 +55,17 @@
                             Account settings
                         </a>
                         <hr class="navbar-divider">
+                        {{#if data.currentUser.is_tourguide}}
+                        <a class="navbar-item has-text-primary-dark" href='/tourguide'>
+                            <i class="fas fa-store-alt"></i>&ensp;Tour Guide Dashboard
+                        </a>
+                        {{/if}}
+                        {{#if data.currentUser.is_admin}}
+                        <a class="navbar-item has-text-danger-dark" href='/admin'>
+                            <i class="fas fa-users-cog"></i>&ensp;Admin Panel
+                        </a>
+                        {{/if}}
+                        <hr class="navbar-divider">
                         <a href="/id/logout" class="navbar-item has-text-danger-dark">
                             <i class="fas fa-sign-out-alt"></i>&ensp;Sign out
                         </a>
