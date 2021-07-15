@@ -11,4 +11,5 @@ console.log(`\x1b[1m\x1b[32m
 `)
 
 const thePun = puns.random()
+console.log('Here is a pun while the app initialises:')
 console.log(thePun['pun'] + '\n' + thePun['punchline'])
