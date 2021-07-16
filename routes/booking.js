@@ -5,17 +5,13 @@ const router = express.Router()
 const { Shop, User, Booking, ChatRoom, TourPlans, ChatMessages } = require('../models')
 
 const uuid = require('uuid')
-const path = require('path')
 
 const formidableValidator = require('../app/validation')
 const formidable = require('express-formidable')
 const Validator = formidableValidator.Validator
 
 const genkan = require('../app/genkan/genkan')
-const db = require('../app/db.js')
 const { requireLogin, requirePermission, removeNull, emptyArray, removeFromArray, getUserfromSid } = require('../app/helpers')
-const { parse } = require('path')
-const chatMessagesTable = require('../models/chatMessagesTable')
 
 // Put all your routings below this line -----
 
