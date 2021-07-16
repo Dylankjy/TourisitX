@@ -189,6 +189,8 @@ router.get('/bookings/:id', (req, res) => {
         // const sid = req.signedCookies.sid
         // const userId = await genkan.getUserBySessionAsync(sid)
 
+        // Hi again, yes. I swapped this one out as well.
+        // Read booking.js at line 100 for more info.
         getAllTypesOfMessagesByRoomID(result.chatId, (chatroomObject) => {
             const listOfParticipantNames = []
 
