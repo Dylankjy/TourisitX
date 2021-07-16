@@ -1,34 +1,11 @@
-const { urlencoded } = require('body-parser')
 const express = require('express')
-const formidable = require('express-formidable')
-const bodyParser = require('body-parser')
-const { route } = require('./admin')
-const ExpressFormidable = require('express-formidable')
-const fs = require('fs')
-const fsPromise = require('fs/promises')
-const exphbs = require('express-handlebars')
-const expressSession = require('express-session')
-const cors = require('cors')
-const { default: axios } = require('axios')
-const uuid = require('uuid')
-const fileType = require('file-type')
-const path = require('path')
-const elasticSearch = require('elasticsearch')
-const io = require('socket.io')
-const { generateFakeEntry } =
-  require('../app/listingGenerator').generateFakeEntry
-const formidableValidator = require('../app/validation')
-const { convert } = require('image-file-resize')
 
 const genkan = require('../app/genkan/genkan')
 
 // Globals
 const router = express.Router()
 const { Shop, Booking, ChatRoom, ChatMessages, TourPlans } = require('../models')
-const elasticSearchHelper = require('../app/elasticSearch')
 
-const Validator = formidableValidator.Validator
-const fileValidator = formidableValidator.FileValidator
 
 // Put all your routings below this line -----
 
