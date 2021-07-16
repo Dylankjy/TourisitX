@@ -104,7 +104,7 @@ getUwUMessagesByRoomID = (roomId, callback) => {
 //     console.log(result)
 // })
 
-excludeSelfIDAsync = async (uid, listOfChats) => {
+excludeSelfIDAsync = (uid, listOfChats) => {
     return new Promise((res) => {
         reconstructedChatList = listOfChats
         syncLoop(listOfChats.length, (loop) => {
