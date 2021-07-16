@@ -101,7 +101,7 @@
                                                 {{#ifEquals this.senderId @root.data.currentUser.id}}
                                                 <p class="has-text-weight-semibold">You sent a message:</p>
                                                 {{else}}
-                                                <p class="has-text-weight-semibold">{{this.senderId}} sent a message:</p>
+                                                <p class="has-text-weight-semibold">{{oppositeValue @root.data.currentUser.name @root.data.participants}} sent a message:</p>
                                                 {{/ifEquals}}
                                                 <p>{{this.messageText}}</p>
                                             </div>

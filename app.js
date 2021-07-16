@@ -192,6 +192,16 @@ app.engine('hbs', exphbs({
             return value == 'true'
         },
 
+        // Give an opposing value.
+        oppositeValue: (compareValue, withThisList) => {
+            if (withThisList[0] === compareValue) {
+                return withThisList[1]
+            } else if (withThisList[1] === compareValue) {
+                return withThisList[0]
+            }
+            return 'Unknown'
+        },
+
         iteminWishList: (item, wishlist) => {
             if (wishlist == null || wishlist == '') {
                 return false
