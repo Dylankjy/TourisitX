@@ -24,14 +24,14 @@
     {{/if}}
 {{/if}}
 <section class='section is-medium pt-3'>
-    <div class='container profile-container box p-6' style="background-image: url('/static/pfp.jpg')">
+    <div class='container profile-container box p-6' style="background-image: url('/static/users/{{uData.profile_img}}')">
         <div class='profile-card-blur'></div>
         <div class='columns is-vcentered' style='position: inherit; z-index: 1'>
             {{#if isOwner}}
                 {{>editablepfp}}
             {{else}}
                 <div class='column is-one-fifth'>
-                    <div class='profile-img-onprofile' style="background-image: url('/static/pfp.jpg')"></div>
+                    <div class='profile-img-onprofile' style="background-image: url('/static/users/{{uData.profile_img}}')"></div>
                 </div>
             {{/if}}
 

@@ -442,19 +442,39 @@ router.post('/setting/password', async (req, res) => {
     })
 })
 
-router.get('/messages', (req, res) => {
-    const metadata = {
-        meta: {
-            title: 'Your messages',
-            path: false,
-        },
-        nav: {
-            navbar: 'chat',
-            sidebarActive: 'aa',
-        },
-        layout: 'chat',
+router.post('/profile/edit/:savedId', (req, res) => {
+    console.log('Image edited')
+    const v = new fileValidator(req.files['profile_img'])
+    const imageResult = v
+        .Initialize({ errorMessage: 'Please supply a valid Image' } )
+        .fileExists()
+        .sizeAllowed({ maxSize: 5000000 })
+        .getResult()
+
+    // Upload is successful
+    if (imageResult == null) {
+        let filePath = req.files['profile_img']['path']
+        let fileName = req.files['profile_img']['name']
+        const saveFolder = savedpfpFolder
+        const savedName = storeImage(
+            (filePath = filePath),
+            (fileName = fileName),
+            (folder = saveFolder),
+        )
+        console.log(`Added file is ${savedName}`)
+
+        const imgDetails = {
+            'profile_img': savedName,
+        }
+        updateDB('user', { 'id': req.params.savedId }, imgDetails, () => {
+            return res.redirect(`/u/profile/${req.params.savedId}`)
+        })
+    } else {
+        const errMsg = imageResult.msg
+        console.log('Failed')
+        res.cookie('imageValError', errMsg, { maxAge: 5000 })
+        res.redirect(`/u/profile/${req.params.savedId}`)
     }
-    return res.render('chat.hbs', metadata)
 })
 
 

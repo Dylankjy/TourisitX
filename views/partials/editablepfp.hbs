@@ -3,13 +3,13 @@
 </head>
 
 <div class='column is-one-fifth'>
-    <div class='profile-img-onprofile editable-img' id='renderImage' style="background-image: url('/static/pfp.jpg'); background-size: cover; ">
+    <div class='profile-img-onprofile editable-img' id='renderImage' style="background-image: url('/static/users/{{uData.profile_img}}'); background-size: cover; ">
         <p class='subtitle image-center-text' id="editText" hidden>Change Image</p>
     </div>
 
 </div>
 
-<form class="form-horizontal" enctype="multipart/form-data" method="POST" id='editpfpForm' action='/u/profile/{{uData.id}}'>
+<form class="form-horizontal" enctype="multipart/form-data" method="POST" id='editpfpForm' action='/u/profile/edit/{{uData.id}}'>
     <input name="profile_img" type="file" accept="image/x-png,image/jpeg" hidden>
 </form>
 

@@ -1,5 +1,5 @@
 // This file is completely utterly useless and it is here to be fancy.
-const puns = require("puns.dev");
+const puns = require('puns.dev')
 
 console.log(`\x1b[1m\x1b[32m
  _______               _     _ _  __   __
