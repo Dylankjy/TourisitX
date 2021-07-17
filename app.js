@@ -39,64 +39,8 @@ app.use('/static', express.static('storage'))
 app.use('/third_party', express.static('third_party'))
 app.use('/usercontent', express.static('storage'))
 
-// Express: Middleware
-// Block all pages if not admin
-const adminAuthorisationRequired = (req, res, next) => {
-    genkan.isAdmin(req.signedCookies.sid, (result) => {
-        if (result !== true) {
-            const metadata = {
-                meta: {
-                    title: '403',
-                    path: false,
-                },
-                nav: {},
-                data: {
-                    currentUser: req.currentUser,
-                },
-            }
-            res.status = 403
-            return res.render('403', metadata)
-        }
-
-        return next()
-    })
-}
-
-// Genkan API
-const genkan = require('./app/genkan/genkan')
-
-// Block if not logged in
-const loginRequired = (req, res, next) => {
-    genkan.isLoggedin(req.signedCookies.sid, (result) => {
-        if (result !== true) {
-            res.status = 401
-            return res.redirect(302, '/id/login?required=1')
-        }
-
-        return next()
-    })
-}
-
-// Block if not logged in
-const getCurrentUser = (req, res, next) => {
-    if (req.signedCookies.sid === undefined) {
-        req.currentUser = false
-        return next()
-    }
-
-    genkan.getUserBySession(req.signedCookies.sid, (user) => {
-        if (user === null) {
-            req.currentUser = false
-            return next()
-        }
-
-        // Updates the last seen
-        genkan.updateLastSeenByID(user.id)
-
-        req.currentUser = user
-        return next()
-    })
-}
+// Genkan Middleware
+const { getCurrentUser, loginRequired, adminAuthorisationRequired } = require('./app/genkan/middleware')
 
 // Make all routes getCurrentUser
 app.use(getCurrentUser)
