@@ -26,6 +26,32 @@ const SystemUserSchema = {
     'bio': 'Automated tasks and handling of the backend subsystems such as the chat.',
 }
 
+const GhostUserSchema = {
+    'id': '00000000-0000-0000-0000-000000000001',
+    'name': 'GHOST',
+    'email': 'ghost@tourisit.local',
+    'password': 'nologin',
+    'ip_address': 'Heaven',
+    'lastseen_time': new Date(),
+    'is_admin': false,
+    'email_status': true,
+    'phone_status': true,
+    'bio': 'Takes the place of deleted accounts.',
+}
+
+const GodUserSchema = {
+    'id': '00000000-0000-0000-0000-000000000002',
+    'name': 'ADMINISTRATOR',
+    'email': 'administrator@tourisit.local',
+    'password': 'password#123',
+    'ip_address': '127.0.0.1',
+    'lastseen_time': new Date(),
+    'is_admin': true,
+    'email_status': true,
+    'phone_status': true,
+    'bio': 'Built-in default administrator account.',
+}
+
 const systemUserObject = () => {
     return new Promise((res)=>{
         findDB('user', { 'id': '00000000-0000-0000-0000-000000000000' }, (result) => {
@@ -40,8 +66,36 @@ const systemUserObject = () => {
     })
 }
 
+const ghostUserObject = () => {
+    return new Promise((res)=>{
+        findDB('user', { 'id': '00000000-0000-0000-0000-000000000001' }, (result) => {
+            if (result.length === 1) {
+                return res(0)
+            }
+
+            insertDB('user', GhostUserSchema, () => {
+                return res(1)
+            })
+        })
+    })
+}
+
+const godUserObject = () => {
+    return new Promise((res)=>{
+        findDB('user', { 'id': '00000000-0000-0000-0000-000000000002' }, (result) => {
+            if (result.length === 1) {
+                return res(0)
+            }
+
+            insertDB('user', GodUserSchema, () => {
+                return res(1)
+            })
+        })
+    })
+}
+
 check = async () => {
-    const mandateScore = await systemUserObject()
+    const mandateScore = await systemUserObject() + await godUserObject() + await ghostUserObject()
 
     if (mandateScore !== 0) {
         throw SystemIntegrityError
