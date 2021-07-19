@@ -88,9 +88,6 @@ storage/
 
 # Stupid apple shit
 .DS_STORE
-.idea/inspectionProfiles/profiles_settings.xml
-.idea/inspectionProfiles/Project_Default.xml
-.idea/misc.xml
-.idea/modules.xml
-.idea/TourisitX.iml
-.idea/vcs.xml
+
+# Ignore JetBrains IDEs
+.idea
