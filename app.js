@@ -269,8 +269,10 @@ const webserver = () => {
     })
 
     server.listen(5000, (err) => {
-        if (err) throw log.error(err)
-        console.log(`Web server listening on port 5000 | http://localhost:5000`)
+        if (err) {
+            console.log(`\x1b[1m\x1b[2m[WEBSERVER] - \x1b[0m\x1b[1m\x1b[31m\x1b[5mFAILED\x1b[0m\x1b[31m: Unable to bind to port 5000. Could there possibly be another instance alive?`)
+        }
+        console.log(`\x1b[1m\x1b[2m[WEBSERVER] - \x1b[1m\x1b[34mOK\x1b[0m: Webserver binded on port 5000 | http://127.0.0.1:5000`)
     })
 }
 
@@ -281,6 +283,7 @@ require('./models').sequelize.sync().then((req) => {
     // At no point should this piece of code be disabled or commented out.
     const integrityCheck = require('./app/systemIntegrity/checks')
     integrityCheck.check().catch((err) => {
+        console.log(`\x1b[1m\x1b[2m[SYSTEMIC] - \x1b[0m\x1b[1m\x1b[31m\x1b[5mFAILED\x1b[0m\x1b[31m: System checks not satisifed. Halting application.`)
         console.error(err)
         process.exit(0)
     }).then(() => {
