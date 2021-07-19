@@ -35,7 +35,7 @@ startSocketClient = () => {
     socket.on('connect', (error) => {
         if (error) throw error
         // Message to show that the connection has been established.
-        console.log('\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[1m\x1b[34mOK\x1b[0m: Connection to internal socket server succeeded.\x1b[0m')
+        console.log('\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[1m\x1b[34mOK\x1b[0m: Connection established successfully.\x1b[0m')
     })
 
     socket.io.on('reconnect_attempt', (attempt) => {
@@ -44,7 +44,7 @@ startSocketClient = () => {
 
     // Handle connection failures
     socket.io.on('error', () => {
-        console.log(`\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[0m\x1b[1m\x1b[31m\x1b[5mERROR\x1b[0m: Couldn't connect to internal socket server. Is the server dead?`)
+        console.log(`\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[0m\x1b[1m\x1b[31m\x1b[5mERROR\x1b[0m: Couldn't connect to Internal Socket Server. Is the server dead?`)
 
         reconnectionErrorCounter++
 
