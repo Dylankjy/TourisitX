@@ -18,6 +18,38 @@ const { Op } = require('sequelize')
 // UUID
 const uuid = require('uuid')
 
+// Socketio client
+const io = require('socket.io-client')
+const socket = io('http://127.0.0.1:5000', {
+    reconnectionDelayMax: 5000,
+})
+
+// Contain timeout function
+let reconnectionTimeout
+
+
+socket.on('connect', (error) => {
+    if (error) throw error
+    // Clears the timeout to prevent application from halting.
+    clearTimeout(reconnectionTimeout)
+
+    // Message to show that the connection has been established.
+    console.log('\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[1m\x1b[34mOK\x1b[0m: Connection to internal socket server succeeded.\x1b[0m')
+})
+
+// Handle connection failures
+socket.on('connect_failed', () => {
+    console.log(`\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[0m\x1b[1m\x1b[33m\x1b[5mERROR\x1b[0m\x1b[31m: Couldn't connect to internal socket server. Is the server dead?\nAttempting to reestablish connection...\x1b[0m`)
+
+    console.log(`\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[1m\x1b[2mPENDING\x1b[0m: Attempting reconnection...\x1b[0m`)
+
+    // Reconnection timeout.
+    reconnectionTimeout = setTimeout(() => {
+        console.log(`\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[0m\x1b[1m\x1b[31m\x1b[5mFAILED\x1b[0m\x1b[31m: 3 attempts were made to reconnect. All of which, have failed. Halting application.\x1b[0m`)
+        process.exit(2)
+    }, 16500)
+})
+
 addRoom = (participants, bookingId, callback) => {
     if (typeof (participants) !== 'object') {
         throw new Error('Participants must of type object in a valid format.')
