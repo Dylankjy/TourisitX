@@ -42,6 +42,17 @@ $(document).on('turbolinks:load', () => {
         if (data.senderId === $('#currentUserID').val()) {
             console.log(`[RECEIVE] ${data.senderId} がメッセージを送信しました.`)
             $(`#pending-${data.pendingCount}`).removeClass('sending')
+        } else if (data.flag === 'ACTIVITY' && data.senderId === '00000000-0000-0000-0000-000000000000') {
+            $('#timeline-container').append(`
+            <div class="timeline-item">
+                <div class="timeline-marker is-icon has-background-success has-text-white">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="timeline-content">
+                    <p class="has-text-weight-semibold">${data.msg}</p>
+                </div>
+            </div>
+            `)
         } else {
             // Sanitisation is handled by the server
             $('#timeline-container').append(`
