@@ -199,7 +199,7 @@ app.engine('hbs', exphbs({
             } else if (withThisList[1] === compareValue) {
                 return withThisList[0]
             }
-            return 'Unknown'
+            return 'Unknown User'
         },
 
         iteminWishList: (item, wishlist) => {
