@@ -8,7 +8,7 @@
 // Database operations
 require('../db')
 
-console.log('\x1b[1m\x1b[2m[SYSTEMIC] - \x1b[1m\x1b[2mPENDING\x1b[0m: Performing integrity checks...\x1b[0m')
+console.log('\x1b[1m\x1b[2m[SYSTEMIC] - \x1b[1m\x1b[35mPENDING\x1b[0m: Performing integrity checks...\x1b[0m')
 
 // Error Object
 const SystemIntegrityError = new Error('\x1b[1m\x1b[31mSuccessfully repaired missing system objects. Restart the application to resume normal boot.\n\nAdditional Info: One or more system objects have been regenerated. You are receiving this warning because we failed to detect certain system objects that are required for the application to function correctly. This is most likely caused by a fresh database setup.\n\nIf this is the case, you may ignore this warning. Else, you might want to panic.\x1b[0m')
