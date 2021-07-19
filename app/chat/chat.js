@@ -20,35 +20,41 @@ const uuid = require('uuid')
 
 // Socketio client
 const io = require('socket.io-client')
-const socket = io('http://127.0.0.1:5000', {
-    reconnectionDelayMax: 5000,
-})
 
 // Contain timeout function
-let reconnectionTimeout
+let reconnectionErrorCounter = 0
 
+startSocketClient = () => {
+    console.log('\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[1m\x1b[35mPENDING\x1b[0m: Waiting for the Internal Socket Server...\x1b[0m')
+    const socket = io('http://127.0.0.1:5000', {
+        timeout: 10000,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 10000,
+    })
 
-socket.on('connect', (error) => {
-    if (error) throw error
-    // Clears the timeout to prevent application from halting.
-    clearTimeout(reconnectionTimeout)
+    socket.on('connect', (error) => {
+        if (error) throw error
+        // Message to show that the connection has been established.
+        console.log('\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[1m\x1b[34mOK\x1b[0m: Connection to internal socket server succeeded.\x1b[0m')
+    })
 
-    // Message to show that the connection has been established.
-    console.log('\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[1m\x1b[34mOK\x1b[0m: Connection to internal socket server succeeded.\x1b[0m')
-})
+    socket.io.on('reconnect_attempt', (attempt) => {
+        console.log(`\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[1m\x1b[35mPENDING\x1b[0m: Attempting reconnection... (${attempt}/5 tries)\x1b[0m`)
+    })
 
-// Handle connection failures
-socket.on('connect_failed', () => {
-    console.log(`\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[0m\x1b[1m\x1b[33m\x1b[5mERROR\x1b[0m\x1b[31m: Couldn't connect to internal socket server. Is the server dead?\nAttempting to reestablish connection...\x1b[0m`)
+    // Handle connection failures
+    socket.io.on('error', () => {
+        console.log(`\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[0m\x1b[1m\x1b[31m\x1b[5mERROR\x1b[0m: Couldn't connect to internal socket server. Is the server dead?`)
 
-    console.log(`\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[1m\x1b[2mPENDING\x1b[0m: Attempting reconnection...\x1b[0m`)
+        reconnectionErrorCounter++
 
-    // Reconnection timeout.
-    reconnectionTimeout = setTimeout(() => {
-        console.log(`\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[0m\x1b[1m\x1b[31m\x1b[5mFAILED\x1b[0m\x1b[31m: 3 attempts were made to reconnect. All of which, have failed. Halting application.\x1b[0m`)
-        process.exit(2)
-    }, 16500)
-})
+        // If the reconnection counter is greater than 3, then the application will halt.
+        if (reconnectionErrorCounter > 5) {
+            console.log(`\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[0m\x1b[1m\x1b[31m\x1b[5mFAILED\x1b[0m\x1b[31m: 5 attempts were made to reconnect. All of which, have failed. Halting application.\x1b[0m`)
+            process.exit(2)
+        }
+    })
+}
 
 addRoom = (participants, bookingId, callback) => {
     if (typeof (participants) !== 'object') {
@@ -198,4 +204,5 @@ module.exports = {
     getUwUMessagesByRoomID,
     excludeSelfIDAsync,
     getListOfRoomsByUserIDAsync,
+    startSocketClient,
 }
