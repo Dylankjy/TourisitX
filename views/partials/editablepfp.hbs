@@ -1,0 +1,41 @@
+<head>
+    <link rel='stylesheet' href='/css/profile.css'/>
+</head>
+
+<div class='column is-one-fifth'>
+    <div class='profile-img-onprofile editable-img' id='renderImage' style="background-image: url('/static/users/{{uData.profile_img}}'); background-size: cover; ">
+        <p class='subtitle image-center-text' id="editText" hidden>Change Image</p>
+    </div>
+
+</div>
+
+<form class="form-horizontal" enctype="multipart/form-data" method="POST" id='editpfpForm' action='/u/profile/edit/{{uData.id}}'>
+    <input name="profile_img" type="file" accept="image/x-png,image/jpeg" hidden>
+</form>
+
+
+<script>
+    $(document).ready(() => {
+        $('#renderImage').on('click', () => {
+            $('input[name=profile_img]').click()
+        })
+
+        $('input[name=profile_img]').on('change', () => {
+            console.log('Changed')
+            $('#editpfpForm').submit()
+        })
+
+        $('.editable-img').on('mouseover', () => {
+            $('#renderImage').css({"background-color": "black", "opacity": 0.6, "z-index": 2})
+            $('#editText').css({"color": "white", "z-index": 3})
+            $('#editText').show()
+        })
+
+        $('.editable-img').on('mouseout', () => {
+            $('#renderImage').css({"background-color": "", "opacity": 1.0})
+            $('#editText').hide()
+        })
+    })
+
+
+</script>
