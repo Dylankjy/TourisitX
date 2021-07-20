@@ -285,7 +285,7 @@ require('./models').sequelize.sync().then((req) => {
     integrityCheck.check().catch((err) => {
         console.log(`\x1b[1m\x1b[2m[SYSTEMIC] - \x1b[0m\x1b[1m\x1b[31m\x1b[5mFAILED\x1b[0m\x1b[31m: System checks not satisifed. Halting application.\x1b[0m`)
         console.error(err)
-        process.exit(0)
+        process.exit(1)
     }).then(() => {
         // If all is well, start the webserver.
         webserver()
