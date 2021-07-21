@@ -253,17 +253,20 @@ router.post('/setting/general', async (req, res) => {
         .getResult()
     settingErrors.push(nameResult)
 
-    findDB('user', { 'email': req.fields.uemail }, (result) => {
-        if ((req.fields.uemail == result[0].dataValues.email) && (user.id != result[0].dataValues.id)) {
+    findDB('user', { 'email': req.fields.user_email }, (result) => {
+        console.log('Result:', result[0])
+        console.log(req.fields.user_email)
+        
+        if ((req.fields.user_email == result[0].dataValues.email)) {
             const emailResult = v
-                .notFound({
-                    name: 'uemail',
+                .Initialize({
+                    name: 'user_email',
                     errorMessage: 'This email address has already been taken',
                 })
-                .exists()
+                .setFalse()
                 .getResult()
             settingErrors.push(emailResult)
-        } else {
+        } else { 
         }
     })
 
