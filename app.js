@@ -37,71 +37,16 @@ app.use('/static', express.static('storage'))
 app.use('/third_party', express.static('third_party'))
 app.use('/usercontent', express.static('storage'))
 
-// Express: Middleware
-// Block all pages if not admin
-const adminAuthorisationRequired = (req, res, next) => {
-    genkan.isAdmin(req.signedCookies.sid, (result) => {
-        if (result !== true) {
-            const metadata = {
-                meta: {
-                    title: '403',
-                    path: false,
-                },
-                nav: {},
-                data: {
-                    currentUser: req.currentUser,
-                },
-            }
-            res.status = 403
-            return res.render('403', metadata)
-        }
-
-        return next()
-    })
-}
-
-// Genkan API
+// Genkan API & Middleware
 const genkan = require('./app/genkan/genkan')
-
-// Block if not logged in
-const loginRequired = (req, res, next) => {
-    genkan.isLoggedin(req.signedCookies.sid, (result) => {
-        if (result !== true) {
-            res.status = 401
-            return res.redirect(302, '/id/login?required=1')
-        }
-
-        return next()
-    })
-}
-
-// Block if not logged in
-const getCurrentUser = (req, res, next) => {
-    if (req.signedCookies.sid === undefined) {
-        req.currentUser = false
-        return next()
-    }
-
-    genkan.getUserBySession(req.signedCookies.sid, (user) => {
-        if (user === null) {
-            req.currentUser = false
-            return next()
-        }
-
-        // Updates the last seen
-        genkan.updateLastSeenByID(user.id)
-
-        req.currentUser = user
-        return next()
-    })
-}
+const { getCurrentUser, loginRequired, adminAuthorisationRequired } = require('./app/genkan/middleware')
 
 // Make all routes getCurrentUser
 app.use(getCurrentUser)
 
 // Module imports
 const dateFormat = require('dateformat')
-const { addMessage } = require('./app/chat/chat')
+const { addMessage, getAllTypesOfMessagesByRoomID, startSocketClient } = require('./app/chat/chat')
 const sanitizeHtml = require('sanitize-html')
 
 // Handlebars: Render engine
@@ -247,6 +192,16 @@ app.engine('hbs', exphbs({
             return value == 'true'
         },
 
+        // Give an opposing value.
+        oppositeValue: (compareValue, withThisList) => {
+            if (withThisList[0] === compareValue) {
+                return withThisList[1]
+            } else if (withThisList[1] === compareValue) {
+                return withThisList[0]
+            }
+            return 'Unknown User'
+        },
+
         iteminWishList: (item, wishlist) => {
             if (wishlist == null || wishlist == '') {
                 return false
@@ -325,8 +280,11 @@ const webserver = () => {
     })
 
     server.listen(5000, (err) => {
-        if (err) throw log.error(err)
-        console.log(`Web server listening on port 5000 | http://localhost:5000`)
+        if (err) {
+            console.log(`\x1b[1m\x1b[2m[WEBSERVER] - \x1b[0m\x1b[1m\x1b[31m\x1b[5mFAILED\x1b[0m\x1b[31m: Unable to bind to port 5000. Could there possibly be another instance alive?\x1b[0m`)
+        }
+        console.log(`\x1b[1m\x1b[2m[WEBSERVER] - \x1b[1m\x1b[34mOK\x1b[0m: Webserver binded on port 5000 | http://127.0.0.1:5000\x1b[0m`)
+        startSocketClient()
     })
 }
 
@@ -348,14 +306,17 @@ io.on('connection', (socket) => {
                 return io.emit('reloginRequired')
             }
 
-            getAllMessagesByRoomID(data.roomId, async (chatRoomObject) => {
+            // The reason why this is getAllTypesOfMessagesByRoomID is because getUwUMessagesByRoomID it only gets messages that are not of booking type.
+            getAllTypesOfMessagesByRoomID(data.roomId, async (chatRoomObject) => {
             // Checks whether chatroom exists and if the user requesting it has permissions to view it.
                 if (chatRoomObject === null || chatRoomObject.users.includes(data.senderId) === false) {
                     return false
                 }
 
-                addMessage(data.roomId, data.senderId, sanitizeHtml(data.msg), 'SENT', () => {
-                    return io.to(data.roomId).emit('msgReceive', { msg: sanitizeHtml(data.msg), roomId: data.roomId, senderId: data.senderId, pendingCount: data.pendingCount })
+                genkan.getUserByID(data.senderId, (userObject) => {
+                    addMessage(data.roomId, data.senderId, sanitizeHtml(data.msg), 'SENT', () => {
+                        return io.to(data.roomId).emit('msgReceive', { msg: sanitizeHtml(data.msg), roomId: data.roomId, senderId: data.senderId, senderName: userObject.name, pendingCount: data.pendingCount })
+                    })
                 })
             })
         })
@@ -374,8 +335,9 @@ require('./models').sequelize.sync().then((req) => {
     // At no point should this piece of code be disabled or commented out.
     const integrityCheck = require('./app/systemIntegrity/checks')
     integrityCheck.check().catch((err) => {
+        console.log(`\x1b[1m\x1b[2m[SYSTEMIC] - \x1b[0m\x1b[1m\x1b[31m\x1b[5mFAILED\x1b[0m\x1b[31m: System checks not satisifed. Halting application.\x1b[0m`)
         console.error(err)
-        process.exit(0)
+        process.exit(1)
     }).then(() => {
         // If all is well, start the webserver.
         webserver()

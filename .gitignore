@@ -88,3 +88,6 @@ storage/
 
 # Stupid apple shit
 .DS_STORE
+
+# Ignore JetBrains IDEs
+.idea

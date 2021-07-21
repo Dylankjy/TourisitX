@@ -1,4 +1,8 @@
 $(document).on('turbolinks:load', () => {
+    if (!$('#thisIsAChatPageSoPleaseLoadTheChatScript').length) {
+        return
+    }
+
     // Force bottom of chat history
     $('#message-container-display').scrollTop($('#message-container-display')[0].scrollHeight)
 
@@ -51,6 +55,9 @@ $(document).on('turbolinks:load', () => {
     socket.emit('room', $('#currentChatID').val())
 
     $(document).on('turbolinks:before-cache turbolinks:before-render', () => {
+        if (!$('#thisIsAChatPageSoPleaseLoadTheChatScript').length) {
+            return
+        }
         console.log('[END] 接続を切りました')
         return socket.disconnect()
     })

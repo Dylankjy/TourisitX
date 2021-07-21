@@ -14,7 +14,7 @@ const { ChatRoom, ChatMessages } = require('../models')
 
 
 router.get('/:roomId', (req, res) => {
-    getAllMessagesByRoomID(req.params.roomId, async (chatRoomObject) => {
+    getUwUMessagesByRoomID(req.params.roomId, async (chatRoomObject) => {
         // Checks whether chatroom exists and if the user requesting it has permissions to view it.
         if (chatRoomObject === null || chatRoomObject.users.includes(req.currentUser.id) === false) {
             const metadata = {

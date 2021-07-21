@@ -18,6 +18,44 @@ const { Op } = require('sequelize')
 // UUID
 const uuid = require('uuid')
 
+// Socketio client
+const io = require('socket.io-client')
+
+// Contain timeout function
+let reconnectionErrorCounter = 0
+
+startSocketClient = () => {
+    console.log('\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[1m\x1b[35mPENDING\x1b[0m: Waiting for the Internal Socket Server...\x1b[0m')
+    const socket = io('http://127.0.0.1:5000', {
+        timeout: 10000,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 10000,
+    })
+
+    socket.on('connect', (error) => {
+        if (error) throw error
+        // Message to show that the connection has been established.
+        console.log('\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[1m\x1b[34mOK\x1b[0m: Connection established successfully.\x1b[0m')
+    })
+
+    socket.io.on('reconnect_attempt', (attempt) => {
+        console.log(`\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[1m\x1b[35mPENDING\x1b[0m: Attempting reconnection... (${attempt}/5 tries)\x1b[0m`)
+    })
+
+    // Handle connection failures
+    socket.io.on('error', () => {
+        console.log(`\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[0m\x1b[1m\x1b[31m\x1b[5mERROR\x1b[0m: Couldn't connect to Internal Socket Server. Is the server dead?`)
+
+        reconnectionErrorCounter++
+
+        // If the reconnection counter is greater than 3, then the application will halt.
+        if (reconnectionErrorCounter > 5) {
+            console.log(`\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[0m\x1b[1m\x1b[31m\x1b[5mFAILED\x1b[0m\x1b[31m: 5 attempts were made to reconnect. All of which, have failed. Halting application.\x1b[0m`)
+            process.exit(2)
+        }
+    })
+}
+
 addRoom = (participants, bookingId, callback) => {
     if (typeof (participants) !== 'object') {
         throw new Error('Participants must of type object in a valid format.')
@@ -51,7 +89,13 @@ addMessage = (roomId, senderId, messageText, flag, callback) => {
         }
 
         if (senderId === 'SYSTEM') {
-            senderId = '00000000-0000-0000-0000-000000000000'
+            senderId = uuid.NIL
+
+            socket.emit('room', roomId, () => {
+                socket.emit('msgSend', { msg: messageText, roomId: roomId, senderId: senderId, pendingCount: -1, flag: flag }, () => {
+                    console.log('\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[1m\x1b[34mOK\x1b[0m: System is interacting with the internal socket server.\x1b[0m')
+                })
+            })
         }
 
         const AddMessagePayload = {
@@ -68,8 +112,8 @@ addMessage = (roomId, senderId, messageText, flag, callback) => {
     })
 }
 
-// Chloe!!! Please use this one for your booking chat. Don't use getAllMessagesByRoomID() <- this doesn't allow you to get booking chat
-getAllBookingMessagesByRoomID = (roomId, callback) => {
+// Chloe!!! Please use this one for your booking chat. Don't use getUwUMessagesByRoomID() <- this doesn't allow you to get booking chat
+getAllTypesOfMessagesByRoomID = (roomId, callback) => {
     findDB('chatroom', { 'chatId': roomId }, (roomResult) => {
         if (roomResult.length !== 1) {
             return callback(null)
@@ -84,7 +128,7 @@ getAllBookingMessagesByRoomID = (roomId, callback) => {
     })
 }
 
-getAllMessagesByRoomID = (roomId, callback) => {
+getUwUMessagesByRoomID = (roomId, callback) => {
     findDB('chatroom', { 'chatId': roomId, 'bookingId': null }, (roomResult) => {
         if (roomResult.length !== 1) {
             return callback(null)
@@ -100,11 +144,11 @@ getAllMessagesByRoomID = (roomId, callback) => {
 }
 
 
-// getAllMessagesByRoomID('ec62a190-df1b-11eb-9fe2-db3cd0c5592f', (result) => {
+// getUwUMessagesByRoomID('ec62a190-df1b-11eb-9fe2-db3cd0c5592f', (result) => {
 //     console.log(result)
 // })
 
-excludeSelfIDAsync = async (uid, listOfChats) => {
+excludeSelfIDAsync = (uid, listOfChats) => {
     return new Promise((res) => {
         reconstructedChatList = listOfChats
         syncLoop(listOfChats.length, (loop) => {
@@ -122,6 +166,7 @@ excludeSelfIDAsync = async (uid, listOfChats) => {
                 if (userObject === null) {
                     return res(null)
                 }
+                reconstructedChatList[i].receiverUid = userObject.id
                 reconstructedChatList[i].receiverName = userObject.name
                 loop.next()
             })
@@ -155,8 +200,9 @@ getListOfRoomsByUserIDAsync = (uid) => {
 module.exports = {
     addRoom,
     addMessage,
-    getAllBookingMessagesByRoomID,
-    getAllMessagesByRoomID,
+    getAllTypesOfMessagesByRoomID,
+    getUwUMessagesByRoomID,
     excludeSelfIDAsync,
     getListOfRoomsByUserIDAsync,
+    startSocketClient,
 }
