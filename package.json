@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app",
+    "prestart": "npm run install-prod",
     "watch": "nodemon app",
     "install-prod": "npm i",
     "install-dev": "npm i --save-dev",
