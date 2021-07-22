@@ -1332,12 +1332,12 @@ router.post('/:id/purchase/customise', async (req, res) => {
                         updateDB('booking', { bookId: genId }, { chatId: roomId }, () => {
                             console.log('updated successfully')
                             // c-c-callback hell,,?
-                            timelineMsg = userData.name + ' placed an order for this tour with custom requirements.'
+                            timelineMsg = '<customer> placed an order for this tour with custom requirements.'
                             addMessage(roomId, 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
                                 //  will be removed once TG accept/reject system is in place
-                                addMessage(roomId, 'SYSTEM', 'Tour Guide accepted the order.', 'ACTIVITY', () => {
+                                addMessage(roomId, 'SYSTEM', '<tourguide> accepted the order.', 'ACTIVITY', () => {
                                     //  will be removed once payment system is in place
-                                    timelineMsg = userData.name + ' paid the customisation fee.'
+                                    timelineMsg = '<customer> paid the customisation fee.'
                                     addMessage(roomId, 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
                                         res.redirect(`/bookings`)
                                     })

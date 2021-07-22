@@ -100,7 +100,10 @@
                                                 <i class="fas fa-check"></i>
                                             </div>
                                             <div class="timeline-content">
-                                                <p class="has-text-weight-semibold">{{this.messageText}}</p>
+                                                {{data.currentUser.name}}
+                                                {{../currentUser}}
+                                                {{#with (lookup ../currentUser (this.name))}}{{/with}}
+                                                <p class="has-text-weight-semibold">{{bookActivityName this.messageText @root.data.currentUser.name @root.data.tg.name}}</p>
                                             </div>
                                         </div>
                                     {{/ifEquals}}
@@ -617,7 +620,7 @@
                     <a href="/u/messages">
                     <button class="button is-fullwidth has-text-weight-semibold is-rounded is-warning is-light">
                         <span class="icon"><i class="fas fa-comment-alt"></i></span>
-                        Chat with <span class="has-text-primary ml-1 has-text-weight-bold">Tour Guide</span>
+                        Chat with <span class="has-text-primary ml-1 has-text-weight-bold">{{data.tg.name}}</span>
                     </button></a>
                     <br>
 
@@ -637,7 +640,7 @@
                             </tr>
                             <tr>
                                 <th>Ordered from</th>
-                                <td class="has-text-link">Tour Guide</td>
+                                <td class="has-text-link">{{data.tg.name}}</td>
                             </tr>
                         </table>
                     </div>

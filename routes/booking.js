@@ -12,6 +12,7 @@ const Validator = formidableValidator.Validator
 
 const genkan = require('../app/genkan/genkan')
 const { requireLogin, requirePermission, removeNull, emptyArray, removeFromArray, getUserfromSid } = require('../app/helpers')
+const { addRoom, getAllBookingMessagesByRoomID } = require('../app/chat/chat')
 
 // Sync loops
 const syncLoop = require('sync-loop')
@@ -82,6 +83,7 @@ router.get('/', async (req, res) => {
 })
 
 router.get('/:id', (req, res) => {
+    // console.log(req.currentUser.name)
     const bookID = req.params.id
     // const booking = bookingList.filter((obj) => {
     //     return obj.id == bookID
@@ -97,9 +99,8 @@ router.get('/:id', (req, res) => {
         // const sid = req.signedCookies.sid
         // const userId = await genkan.getUserBySessionAsync(sid)
 
-        // Hi Chloe, I changed the code here to use the chat API method instead of using sequalize.
-        // because I needed a way to get the list of participants in a chat room in order to get their names.
-        // Hope you don't mind. (^ ω ^)
+        // (^ ω ^) thx
+        // are u reading the commit logs again lmaoo
         getAllTypesOfMessagesByRoomID(result.chatId, (chatroomObject) => {
             console.log(chatroomObject)
 
@@ -110,24 +111,29 @@ router.get('/:id', (req, res) => {
                 const i = loop.iteration()
 
                 genkan.getUserByID(chatroomObject.users[i], (userObject) => {
+                    // console.log(userObject)
                     listOfParticipantNames.push(userObject.name)
                     loop.next()
                 })
             }, () => {
-                const metadata = {
-                    meta: {
-                        title: result['Shop.tourTitle'],
-                    },
-                    data: {
-                        currentUser: req.currentUser,
-                        book: result,
-                        timeline: chatroomObject.msg,
-                        // This is the list of names of participants in the chat room.
-                        participants: listOfParticipantNames,
-                    },
-                    tourPlans: tourPlans,
-                }
-                return res.render('myBooking.hbs', metadata)
+                genkan.getUserByID(result['Shop.userId'], (tgData) => {
+                    console.log(tgData)
+                    const metadata = {
+                        meta: {
+                            title: result['Shop.tourTitle'],
+                        },
+                        data: {
+                            currentUser: req.currentUser,
+                            book: result,
+                            timeline: chatroomObject.msg,
+                            // This is the list of names of participants in the chat room.
+                            participants: listOfParticipantNames,
+                            tg: tgData,
+                        },
+                        tourPlans: tourPlans,
+                    }
+                    return res.render('myBooking.hbs', metadata)
+                })
             })
         })
     })

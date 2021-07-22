@@ -222,6 +222,12 @@ app.engine('hbs', exphbs({
             }
             return accum
         },
+
+        bookActivityName: (msg, custName, tgName, options) =>{
+            let newMsg = msg.replace('<customer>', custName)
+            newMsg = newMsg.replace('<tourguide>', tgName)
+            return newMsg
+        },
     },
 }))
 
