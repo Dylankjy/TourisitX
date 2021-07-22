@@ -149,7 +149,6 @@ router.get('/', (req, res) => {
 // To get a specific listing
 router.get('/info/:id', (req, res) => {
     const itemID = req.params.id
-
     Shop.findAll({
         where: {
             id: itemID,
@@ -157,16 +156,19 @@ router.get('/info/:id', (req, res) => {
     })
         .then(async (items) => {
             const tourData = await items[0]['dataValues']
-            console.log(tourData)
+            const tourguideName = await genkan.getUserByIDAsync(tourData.userId)
             const sid = req.signedCookies.sid
 
             // If person is not logged in
             if (sid == undefined) {
                 if (tourData.hidden == 'true') {
-                    res.redirect('/marketplace')
+                    return res.redirect('/marketplace')
                 }
+                console.log("THIS IS THIS")
+                console.log(tourguideName.name)
                 return res.render('listing.hbs', {
                     tourData: tourData,
+                    tourguideName: tourguideName.name,
                     isOwner: false,
                 })
             } else {
@@ -175,6 +177,8 @@ router.get('/info/:id', (req, res) => {
                 // Redirect to login page
                     return requireLogin(res)
                 }
+
+                // Alex you suck!!! >:(
 
                 // If user is logged in and has a valid session
                 const userData = await genkan.getUserBySessionAsync(sid)
@@ -204,7 +208,9 @@ router.get('/info/:id', (req, res) => {
 
                     const metadata = {
                         tourData: tourData,
+                        // tourguideName: (await genkan.getUserByIDAsync(tourData.userId)).name,
                         isOwner: owner,
+                        tourguideName: tourguideName.name,
                         errMsg: errMsg,
                         wishlistArr: userWishlist,
                         bannedStatus: banStatus,
@@ -224,6 +230,7 @@ router.get('/info/:id', (req, res) => {
                             data: {
                                 currentUser: req.currentUser,
                             },
+                            tourguideName: tourguideName.name,
                             tourData: tourData,
                             isOwner: owner,
                             wishlistArr: userWishlist,

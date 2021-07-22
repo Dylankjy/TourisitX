@@ -1,33 +1,28 @@
-<link rel='stylesheet' href='../third_party/alex/market.css'>
+<link href="/css/marketplace.css" rel="stylesheet">
 
-
-<section class="hero small-hero-market has-text-centered is-light">
-  <div class='columns'>
-      <div class='column is-6 is-offset-1' id='market-banner'>
-            <div class="hero-body">
-                <p class="title is-2">
-                Search for your Ideal Tour
-                </p>
-                <p class="subtitle is-4">
-                Browse new tours 
-                </p>
-            </div>
-      </div>
-  </div>
+<section id="hero" class="section has-background-black is-medium">
+    <div class="container">
+        <h1 class="title has-text-white is-2">Browse for your ideal tour</h1>
+        <p class="subtitle has-text-grey-light">Over {{data.tourCount}} tours to choose from.</p>
+        <div class="control has-icons-left">
+            <input class="input" type="text" id='searchText' placeholder="Search for tours">
+            <span class="icon is-left">
+                <i class="fas fa-search" aria-hidden="true"></i>
+            </span>
+        </div>
+    </div>
 </section>
 
-
-
-<div class='container market-searchbox'>
-    <p class="control has-icons-left">
-    <input class="input" type="text" id='searchText' placeholder="Search">
-    <span class="icon is-left">
-        <i class="fas fa-search" aria-hidden="true"></i>
-    </span>
-    </p>
-</div>
-
-
+{{!-- <section class="section">
+    <div class="container">
+        <div class="control has-icons-left">
+            <input class="input" type="text" id='searchText' placeholder="Search">
+            <span class="icon is-left">
+                <i class="fas fa-search" aria-hidden="true"></i>
+            </span>
+        </div>
+    </div>
+</section> --}}
 
 <main id="index-section" class="section">
     <div class="container market-listing-container">
@@ -36,27 +31,36 @@
             {{>listingCard}}
             {{/each}}
         </div>
+
+        <div class="columns is-multiline is-variable is-5" id='displayedListingsSkeleton' style="display: none;">
+                {{>listingCardSkeleton}}
+        </div>
+
+        <div class="has-text-centered pt-6 pb-6" id='nothingToBeFound' style="display: none;">
+            <p class="title has-text-grey-light has-text-weight-bold" style="font-size: 4.5rem;">(＞﹏＜)</p>
+            <p class="subtitle is-4 has-text-grey">We couldn't find any related tours</p>
+            <p class="has-text-grey">Ensure that your search query isn't too short or too specific.</p>
+        </div>
     </div>
 </main>
 
-
 <script>
-    console.log('OK')
-    $(document).ready(()=>{
-        $('#searchText').on('keyup', ()=>{
-            if ($.trim($('#searchText').val())!= "") {
-                console.log("RUNNING THIS")
-                // Clear all the displayed choices
-                $("#displayedListings").empty()
-                fetch(`http://localhost:5000/es-api/search?text=${$('#searchText').val()}`)
-                .then((res)=>{
+    const keyTimeout = () => {
+        if ($.trim($('#searchText').val()) != "") {
+            console.log("RUNNING THIS")
+            // Clear all the displayed choices
+            $("#displayedListings").empty()
+            fetch(`http://localhost:5000/es-api/search?text=${$('#searchText').val()}`)
+                .then((res) => {
                     return res.json()
                 })
-                .then((data)=>{
+                .then((data) => {
                     $("#displayedListings").html("")
+
                     if (data["hits"]["hits"].length > 0) {
-                            data["hits"]["hits"].forEach((elem)=>{
+                        data["hits"]["hits"].forEach((elem) => {
                             var d = elem["_source"]
+                            $("#displayedListingsSkeleton").hide()
                             $("#displayedListings").append(`
                                 <div class="column is-one-quarter">
                                     <a class="listing-clickable" href='/listing/info/${d.id}'>
@@ -73,19 +77,35 @@
                             `)
                         })
                     } else {
-                        $("#displayedListings").html('Can"t find')
+                        $("#displayedListingsSkeleton").hide(0, () => {
+                            $("#nothingToBeFound").fadeIn('fast')
+                        })
                     }
                 })
-                .catch((err)=>{
+                .catch((err) => {
                     console.log(err)
                 })
-            } else {
-                $("#displayedListings").html(`
+        } else {
+            $("#displayedListings").html(`
                     {{#each listings}}
                     {{>listingCard}}
                     {{/each}}
-                `)
-            }
+                `, () => {
+                $("#displayedListings").fadeIn(100)
+            })
+        }
+    }
+
+    var runCounter = setTimeout(keyTimeout, 1500)
+
+
+    $(document).ready(() => {
+        $('#searchText').on('keyup', () => {
+            $("#displayedListings").html("")
+            $("#nothingToBeFound").hide()
+            $("#displayedListingsSkeleton").fadeIn("fast")
+            clearTimeout(runCounter)
+            runCounter = setTimeout(keyTimeout, 1500)
         })
     })
 </script>
