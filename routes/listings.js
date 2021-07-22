@@ -164,7 +164,7 @@ router.get('/info/:id', (req, res) => {
                 if (tourData.hidden == 'true') {
                     return res.redirect('/marketplace')
                 }
-                console.log("THIS IS THIS")
+                console.log('THIS IS THIS')
                 console.log(tourguideName.name)
                 return res.render('listing.hbs', {
                     tourData: tourData,
