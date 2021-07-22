@@ -157,7 +157,6 @@ router.get('/info/:id', (req, res) => {
         .then(async (items) => {
             const tourData = await items[0]['dataValues']
             const tourguideName = await genkan.getUserByIDAsync(tourData.userId)
-            console.log(tourguideName)
             const sid = req.signedCookies.sid
 
             // If person is not logged in
@@ -165,6 +164,8 @@ router.get('/info/:id', (req, res) => {
                 if (tourData.hidden == 'true') {
                     return res.redirect('/marketplace')
                 }
+                console.log("THIS IS THIS")
+                console.log(tourguideName.name)
                 return res.render('listing.hbs', {
                     tourData: tourData,
                     tourguideName: tourguideName.name,
