@@ -165,6 +165,11 @@ app.engine('hbs', exphbs({
 
         dateParseISO: (value) => {
             return dateFormat(value, 'dS mmmm yyyy')
+            // return dateFormat(value, 'dd/mm/yyyy')
+        },
+
+        DateISOToHTML: (value) => {
+            return dateFormat(value, 'yyyy-mm-dd')
         },
 
         onlyTime: (value) => {
