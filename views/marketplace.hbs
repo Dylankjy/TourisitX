@@ -47,7 +47,7 @@
 <script>
     const keyTimeout = () => {
         if ($.trim($('#searchText').val()) != "") {
-            console.log("RUNNING THIS")
+
             // Clear all the displayed choices
             $("#displayedListings").empty()
             fetch(`http://localhost:5000/es-api/search?text=${$('#searchText').val()}`)
@@ -105,7 +105,7 @@
             $("#nothingToBeFound").hide()
             $("#displayedListingsSkeleton").fadeIn("fast")
             clearTimeout(runCounter)
-            runCounter = setTimeout(keyTimeout, 1500)
+            runCounter = setTimeout(keyTimeout, 100)
         })
     })
 </script>
