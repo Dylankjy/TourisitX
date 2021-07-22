@@ -22,6 +22,17 @@ getUserByID = (uid, callback) => {
     })
 }
 
+getUserByIDAsync = (uid, callback) => {
+    return new Promise((res) => {
+        findDB('user', { 'id': uid }, (userResult) => {
+            if (userResult.length !== 1) {
+                return res(null)
+            }
+
+            return res(userResult[0].dataValues)
+        })
+    })
+}
 
 getUserBySession = (sid, callback) => {
     findDB('session', { 'sessionId': sid }, (sessionResult) => {
@@ -174,6 +185,7 @@ setPassword = (sid, newPassword, callback) => {
 
 module.exports = {
     getUserByID,
+    getUserByIDAsync,
     getUserBySession,
     getUserBySessionAsync,
     getUserBySessionDangerous,
