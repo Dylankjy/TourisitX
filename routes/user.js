@@ -253,23 +253,25 @@ router.post('/setting/general', async (req, res) => {
         .getResult()
     settingErrors.push(nameResult)
 
-    findDB('user', { 'email': req.fields.user_email }, (result) => {
-        console.log('Result:', result[0])
-        console.log(req.fields.user_email)
-        
-        if ((req.fields.user_email == result[0].dataValues.email)) {
-            const emailResult = v
-                .Initialize({
-                    name: 'user_email',
-                    errorMessage: 'This email address has already been taken',
-                })
-                .setFalse()
-                .getResult()
-            settingErrors.push(emailResult)
-        } else { 
-        }
-    })
-
+    const emailData = await User.findAll({where:{
+        'email': req.fields.user_email
+    }})
+    
+    if ((emailData == '') || (req.fields.user_email == user.email) || (req.fields.user_email.includes('@tourisit.local') == false)) {
+        console.log('OK GOOD TO GO') 
+    } else {
+        console.log('Email error')
+        const emailResult = v
+        .Initialize({
+            name: 'user_email',
+            errorMessage: 'This email address has already been taken',
+        })
+        .setFalse()
+        .getResult()
+        settingErrors.push(emailResult)
+    }
+    
+    
 
     if (req.fields.phone_number == '') {
     } else {
@@ -330,7 +332,7 @@ router.post('/setting/general', async (req, res) => {
         if (req.fields.mode == 'true') {
             const AccDetails = {
                 'name': req.fields.uname,
-                'email': req.fields.uemail,
+                'email': req.fields.user_email,
                 'phone_number': req.fields.phone_number,
                 'is_tourguide': 1,
                 'fb': req.fields.fb,
@@ -343,7 +345,7 @@ router.post('/setting/general', async (req, res) => {
         } else {
             const AccDetails = {
                 'name': req.fields.uname,
-                'email': req.fields.uemail,
+                'email': req.fields.user_email,
                 'phone_number': req.fields.phone_number,
                 'is_tourguide': 0,
                 'fb': req.fields.fb,

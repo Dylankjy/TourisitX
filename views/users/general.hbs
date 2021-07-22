@@ -8,7 +8,7 @@
         <div class='section'>
             <div class='columns'>
                 <div class='column is-8'>
-                    <article class='message is-danger'>
+                    <article class='message is-success'>
                         <div class='message-header'>
                             <p>Errors</p>
                             <button class='delete' onclick='this.parentElement.parentElement.remove()'></button>
@@ -23,6 +23,22 @@
             </div>
         </div>
     {{/if}}
+    {{else}}
+    <div class='section'>
+            <div class='columns'>
+                <div class='column is-8'>
+                    <article class='message is-danger'>
+                        <div class='message-header'>
+                            <p>Success</p>
+                            <button class='delete' onclick='this.parentElement.parentElement.remove()'></button>
+                        </div>
+                        <div class='message-body'>
+                            <blockquote>Account Information updated successfully</blockquote>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
 {{/if}}
 
 <div class='container'>
