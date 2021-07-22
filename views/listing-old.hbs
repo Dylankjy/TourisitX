@@ -1,28 +1,56 @@
 <link rel='stylesheet' href='/third_party/bulma/bulma-timeline.min.css'>
 <link rel='stylesheet' href='/third_party/alex/listing.css'>
 
-<section class="hero is-large is-primary" style="height: 30rem">
-    <div class="hero-fadein"></div>
-    <div class="hero-body">
-        <div class="container">
-            <h1 class="title is-1">{{tourData.tourTitle}}</h1>
-            <p class="subtitle">By {{tourguideName}}</p>
-        </div>
-    </div>
+
+<section class='section'>
+    {{!-- <a href='/listing'>
+        <button class='button mr-4 is-danger is-lighted'>
+            <span class='icon'>
+                <i class="fas fa-arrow-left"></i>
+            </span>
+            <span>
+                Back to Home
+            </span>
+        </button>
+    </a> --}}
+    <a href='/marketplace'>
+        <button class='button mr-4 is-danger is-lighted'>
+            <span class='icon'>
+                <i class="fas fa-arrow-left"></i>
+            </span>
+            <span>
+                Marketplace
+            </span>
+        </button>
+    </a>
 </section>
 
-<section class="section" style="margin-top: -8rem">
-    <div class="container block">
-        <div class="box p-6">
+
+<section class="section" style="padding-top: 0rem">
+    <div class='container'>
+
+        {{#if isOwner}}
+            {{#if (isDefined errMsg)}}
             <div class='container'>
-                            <div class='columns'>
+                <p>{{errMsg}}</p>
+            </div>
+            {{/if}}
+        {{>editableImage}}
+
+        {{else}}
+        <div class='listing-img' style='background: url("/static/listings/{{tourData.tourImage}}") center; background-size: cover;'></div>
+
+        {{/if}}
+
+        <div class='box' img='content-box'>
+            <div class='columns'>
                 <!-- For name and description -->
                 <div class='column is-5'>
                     <div class='content'>
                         <h1 class='title is-4'>Tour Title:</h1>
                         <p class='subtitle is-6'>{{tourData.tourTitle}}</p>
                     </div>
-
+                    
                     <br>
                     <div class='content'>
                         <h1 class='title is-4'>Tour Description:</h1>
@@ -38,7 +66,7 @@
 
 
                 <div class="column is-4">
-
+                    
                     <div class="timeline">
 
                         <header class="timeline-header">
@@ -57,9 +85,9 @@
                         {{/each}}
 
                         <div class="timeline-header">
-                            <span class="tag is-medium is-info">End</span>
+                          <span class="tag is-medium is-info">End</span>
                         </div>
-                    </div>
+                      </div>
                 </div>
 
                 <div class='column is-3'>
@@ -81,18 +109,20 @@
                         <p class='subtitle is-6'>{{this}}</p>
                         {{/each}}
                     </div>
-
+                    
                     <div class='content'>
                         <h1 class='title is-4'>Tour Locations:</h1>
                         {{#each (readArrWithReplace tourData.finalLocations)}}
                         <p class='subtitle is-6'>{{this}}</p>
                         {{/each}}
                     </div>
-
+                    
                 </div>
 
             </div>
-                <hr>
+            
+            <br><br>
+            <div class='container'>
                 {{#if isOwner}}
                 <a class='button mr-4 is-dark' href='/listing/edit/{{tourData.id}}'>
                     <span class='icon'>
@@ -181,6 +211,7 @@
                 
                 {{/if}}
         </div>
-        </div>
     </div>
 </section>
+
+
