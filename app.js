@@ -48,6 +48,7 @@ app.use(getCurrentUser)
 const dateFormat = require('dateformat')
 const { addMessage, getAllTypesOfMessagesByRoomID, startSocketClient } = require('./app/chat/chat')
 const sanitizeHtml = require('sanitize-html')
+const ta = require('time-ago')
 
 // Handlebars: Render engine
 app.set('view engine', 'hbs')
@@ -181,6 +182,13 @@ app.engine('hbs', exphbs({
 
         timestampParseISO: (value) => {
             return dateFormat(value, 'dS mmmm yyyy, HH:MM:ss')
+        },
+
+        parseTimeAgo: (value) => {
+            if ((new Date() - value) / 1000 < 120) {
+                return 'Just now'
+            }
+            return ta.ago(value)
         },
 
         toNum: (value) => {
