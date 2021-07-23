@@ -33,7 +33,7 @@
         </div>
 
         <div class="columns is-multiline is-variable is-5" id='displayedListingsSkeleton' style="display: none;">
-                {{>listingCardSkeleton}}
+            {{>listingCardSkeleton}}
         </div>
 
         <div class="has-text-centered pt-6 pb-6" id='nothingToBeFound' style="display: none;">
@@ -60,8 +60,8 @@
                     if (data["hits"]["hits"].length > 0) {
                         data["hits"]["hits"].forEach((elem) => {
                             var d = elem["_source"]
-                            $("#displayedListingsSkeleton").hide()
-                            $("#displayedListings").append(`
+                            $("#displayedListingsSkeleton").hide(0, () => {
+                                $("#displayedListings").append(`
                                 <div class="column is-one-quarter">
                                     <a class="listing-clickable" href='/listing/info/${d.id}'>
                                         <div class="box listing-image" style='background-image: url("/static/listings/${d.image}")'>
@@ -75,6 +75,7 @@
                                     </a>
                                 </div>
                             `)
+                            })
                         })
                     } else {
                         $("#displayedListingsSkeleton").hide(0, () => {
@@ -90,14 +91,12 @@
                     {{#each listings}}
                     {{>listingCard}}
                     {{/each}}
-                `, () => {
-                $("#displayedListings").fadeIn(100)
-            })
+            `)
+            $("#displayedListingsSkeleton").hide()
         }
     }
 
     var runCounter = setTimeout(keyTimeout, 800)
-
 
     $(document).ready(() => {
         $('#searchText').on('keyup', () => {
