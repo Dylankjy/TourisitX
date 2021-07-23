@@ -96,7 +96,7 @@
         }
     }
 
-    var runCounter = setTimeout(keyTimeout, 1500)
+    var runCounter = setTimeout(keyTimeout, 800)
 
 
     $(document).ready(() => {
@@ -105,7 +105,7 @@
             $("#nothingToBeFound").hide()
             $("#displayedListingsSkeleton").fadeIn("fast")
             clearTimeout(runCounter)
-            runCounter = setTimeout(keyTimeout, 100)
+            runCounter = setTimeout(keyTimeout, 800)
         })
     })
 </script>
