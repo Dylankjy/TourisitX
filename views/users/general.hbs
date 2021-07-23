@@ -5,25 +5,17 @@
 
 
 <!-- If validationErrors is defined and there are validationErrors -->
-{{#if (isDefined settingErrors)}}
-{{#if (haveErr settingErrors)}}
-<div class='section'>
-    <div class='columns'>
-        <div class='column is-8'>
-            <article class='message is-danger'>
-                <div class='message-header'>
-                    <p>Errors</p>
-                    <button class='delete' onclick='this.parentElement.parentElement.remove()'></button>
-                </div>
-                <div class='message-body'>
-                    {{#each settingErrors}}
-                    <blockquote>{{this.msg}}</blockquote>
-                    {{/each}}
-                </div>
-            </article>
-        </div>
-    </div>
+{{#if (isDefined passwordErrors)}}
+{{#if (haveErr passwordErrors)}}
+<div id="errorMessage" class="notification is-danger">
+    {{#each settingErrors}}
+    <p>{{this.msg}}</p>
+    {{/each}}
 </div>
+
+<script>
+    $('#errorMessage').delay(10000).slideUp();
+</script>
 {{/if}}
 {{/if}}
 
@@ -96,7 +88,8 @@
         </div>
         <div class='field'>
             <div class='control'>
-                <button class='button is-dark' type='submit' id='s1'><i class="fas fa-save"></i>&ensp;Save changes</button>
+                <button class='button is-dark' type='submit' id='s1'><i class="fas fa-save"></i>&ensp;Save
+                    changes</button>
             </div>
         </div>
     </form>
