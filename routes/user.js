@@ -415,13 +415,6 @@ router.post('/setting/password', async (req, res) => {
 
     const v = new Validator(req.fields)
     genkan.getUserBySessionDangerous(sid, (user) => {
-        const newResult = v
-            .Initialize({
-                name: 'new',
-                errorMessage: 'Both passwords do not match',
-            })
-            .exists()
-            .getResult()
 
         const repeatResult = v
             .Initialize({

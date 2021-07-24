@@ -1,45 +1,31 @@
 {{#if (isDefined supportErrors)}}
-    {{#if (haveErr supportErrors)}}
-        <div class='section'>
-            <div class='columns'>
-                <div class='column is-8'>
-                    <article class='message is-danger'>
-                        <div class='message-header'>
-                            <p>Errors</p>
-                            <button class='delete' onclick='this.parentElement.parentElement.remove()'></button>
-                        </div>
-                        <div class='message-body'>
-                            {{#each supportErrors}}
-                                <blockquote>{{this.msg}}</blockquote>
-                            {{/each}}
-                        </div>
-                    </article>
-                </div>
-            </div>
-        </div>
-    {{/if}}
+{{#if (haveErr supportErrors)}}
+<div id="errorSupport" class="notification is-danger">
+    {{#each supportErrors}}
+    <p>{{this.msg}}</p>
+    {{/each}}
+</div>
+
+<script>
+    $('#errorSupport').delay(10000).slideUp();
+</script>
 {{/if}}
+{{/if}}
+
 {{#if (isDefined successSupport)}}
-    {{#if (haveErr successSupport)}}
-        <div class='section'>
-            <div class='columns'>
-                <div class='column is-8'>
-                    <article class='message is-success'>
-                        <div class='message-header'>
-                            <p>Success</p>
-                            <button class='delete' onclick='this.parentElement.parentElement.remove()'></button>
-                        </div>
-                        <div class='message-body'>
-                            {{#each successSupport}}
-                                <blockquote>{{this.msg}}</blockquote>
-                            {{/each}}
-                        </div>
-                    </article>
-                </div>
-            </div>
-        </div>
-    {{/if}}
+{{#if (haveErr successSupport)}}
+<div id="successSup" class="notification is-success">
+    {{#each successSupport}}
+    <p>{{this.msg}}</p>
+    {{/each}}
+</div>
+
+<script>
+    $('#successSup').delay(10000).slideUp();
+</script>
 {{/if}}
+{{/if}}
+
 <section class='section'>
 	<div class='container'>
 		<h1 class='is-size-3 has-text-weight-bold mt-6 has-text-centered is-vcentered'>Support & Help</h1>
