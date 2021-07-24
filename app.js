@@ -332,26 +332,19 @@ io.on('connection', (socket) => {
             return
         }
         // require('./config/genkan.json').genkan.secretKey
-        console.log(reqCookies)
         const reqCookies = require('cookie').parse(socket.handshake.headers.cookie)
 
-        const decryptedSID = cookieParser.signedCookie(
-            reqCookies.sid,
-            require('./config/genkan.json').genkan.secretKey,
-        )
+        const decryptedSID = cookieParser.signedCookie(reqCookies.sid, require('./config/genkan.json').genkan.secretKey) || reqCookies.apikey || 'null'
 
         genkan.isLoggedin(decryptedSID, (result) => {
             if (result !== true) {
-                return io.emit('reloginRequired')
+                return io.emit('reloginRequired', data.senderId)
             }
 
             // The reason why this is getAllTypesOfMessagesByRoomID is because getUwUMessagesByRoomID it only gets messages that are not of booking type.
             getAllTypesOfMessagesByRoomID(data.roomId, async (chatRoomObject) => {
                 // Checks whether chatroom exists and if the user requesting it has permissions to view it.
-                if (
-                    chatRoomObject === null ||
-          chatRoomObject.users.includes(data.senderId) === false
-                ) {
+                if (chatRoomObject === null || chatRoomObject.users.includes(data.senderId) === false) {
                     return false
                 }
 
@@ -362,6 +355,7 @@ io.on('connection', (socket) => {
                         sanitizeHtml(data.msg),
                         'SENT',
                         () => {
+                            console.log('Socket Message activity')
                             return io
                                 .to(data.roomId)
                                 .emit('msgReceive', {

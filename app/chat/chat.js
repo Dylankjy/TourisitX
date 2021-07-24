@@ -18,36 +18,20 @@ const { Op } = require('sequelize')
 // UUID
 const uuid = require('uuid')
 
-// For SID
-const tokenGenerator = require('../genkan/tokenGenerator')
-const cookieParser = require('cookie-parser')
-cookieParser(require('../../config/genkan.json').genkan.secretKey)
-
 // Socketio client
 const io = require('socket.io-client')
+
+// System login invoker
+const { invokeSystemLogin } = require('./invokeSystemLogin')
 
 // Contain timeout function
 let reconnectionErrorCounter = 0
 
 let socket
-startSocketClient = () => {
+startSocketClient = async () => {
     console.log(
         '\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[1m\x1b[35mPENDING\x1b[0m: Waiting for the Internal Socket Server...\x1b[0m',
     )
-
-    const UnsignedSystemSession = tokenGenerator()
-
-    Session.destroy({
-        where: {
-            userId: uuid.NIL,
-        },
-    }).then((data) => {
-    // Get cookie from database
-        Session.create({
-            userId: uuid.NIL,
-            sessionId: UnsignedSystemSession,
-        }).then(() => {})
-    })
 
     socket = io('http://127.0.0.1:5000', {
         timeout: 10000,
@@ -56,7 +40,7 @@ startSocketClient = () => {
         transportOptions: {
             polling: {
                 extraHeaders: {
-                    Cookie: `systemSessionId=${UnsignedSystemSession}`,
+                    Cookie: `apikey=${await invokeSystemLogin()}`,
                 },
             },
         },
