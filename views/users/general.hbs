@@ -8,7 +8,7 @@
         <div class='section'>
             <div class='columns'>
                 <div class='column is-8'>
-                    <article class='message is-success'>
+                    <article class='message is-danger'>
                         <div class='message-header'>
                             <p>Errors</p>
                             <button class='delete' onclick='this.parentElement.parentElement.remove()'></button>
@@ -23,22 +23,27 @@
             </div>
         </div>
     {{/if}}
-    {{else}}
-    <div class='section'>
+{{/if}}
+{{#if (isDefined successMsg)}}
+    {{#if (haveErr successMsg)}}
+        <div class='section'>
             <div class='columns'>
                 <div class='column is-8'>
-                    <article class='message is-danger'>
+                    <article class='message is-success'>
                         <div class='message-header'>
                             <p>Success</p>
                             <button class='delete' onclick='this.parentElement.parentElement.remove()'></button>
                         </div>
                         <div class='message-body'>
-                            <blockquote>Account Information updated successfully</blockquote>
+                            {{#each successMsg}}
+                                <blockquote>{{this.msg}}</blockquote>
+                            {{/each}}
                         </div>
                     </article>
                 </div>
             </div>
         </div>
+    {{/if}}
 {{/if}}
 
 <div class='container'>

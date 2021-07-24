@@ -41,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
             profile_img: {
                 type: DataTypes.STRING(64),
                 allowNull: false,
-                defaultValue: 'TODO', // TODO: Please set this to the value of the default profile picture.
+                defaultValue: "../public/static/uwu.png", // TODO: Please set this to the value of the default profile picture.
             },
 
             bio: {

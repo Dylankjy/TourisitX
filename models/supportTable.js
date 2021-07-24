@@ -33,11 +33,6 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull: false,
             },
 
-            link: {
-                type: DataTypes.STRING(254),
-                allowNull: true,
-            },
-
             status: {
                 type: DataTypes.STRING(64),
                 allowNull: false,

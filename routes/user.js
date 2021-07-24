@@ -207,6 +207,7 @@ router.get('/setting/general', async (req, res) => {
             },
             user,
             settingErrors: req.cookies.settingErrors,
+            successMsg: req.cookies.successMsg,
         }
         return res.render('users/general.hbs', metadata)
     } else {
@@ -224,6 +225,7 @@ router.get('/setting/general', async (req, res) => {
             },
             user,
             settingErrors: req.cookies.settingErrors,
+            successMsg: req.cookies.successMsg,
         }
         return res.render('users/general.hbs', metadata)
     }
@@ -270,7 +272,6 @@ router.post('/setting/general', async (req, res) => {
         .getResult()
         settingErrors.push(emailResult)
     }
-    
     
 
     if (req.fields.phone_number == '') {
@@ -329,6 +330,15 @@ router.post('/setting/general', async (req, res) => {
     } else {
         res.clearCookie('settingErrors')
         res.clearCookie('storedValues')
+        successMsg = []
+        const formU = v
+            .Initialize({
+                errorMessage: 'Account Information updated successfully',
+            })
+            .setFalse()
+            .getResult()
+        successMsg.push(formU)
+        res.cookie('successMsg', successMsg, { maxAge: 5000 })
         if (req.fields.mode == 'true') {
             const AccDetails = {
                 'name': req.fields.uname,
