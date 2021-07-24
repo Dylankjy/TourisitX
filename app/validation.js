@@ -15,11 +15,8 @@ class Validator {
         return this
     }
 
-    notFound(options) {
-        // Reset the result attribute to true (Make result an instance attribute, not a class attribute so I remove it from the constructor)
+    setFalse() {
         this.result = false
-        this.name = options.name
-        this.errMsg = options.errorMessage
         return this
     }
     // Checks if the element is empty

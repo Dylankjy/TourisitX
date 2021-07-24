@@ -2,7 +2,7 @@
 // 僕はSequelizeが嫌いなので、このコードは僕のGPAについてに必要です。自殺させていただけないでしょうかなああああ？？？
 
 // SQLize imports
-const { Shop, User, Session, Token, ChatRoom, ChatMessages, Booking, TourPlans } = require('../models')
+const { Shop, User, Support, Session, Token, ChatRoom, ChatMessages, Booking, TourPlans } = require('../models')
 
 governor = (table) => {
     switch (table.toLowerCase()) {
@@ -10,6 +10,8 @@ governor = (table) => {
         return Shop
     case 'user':
         return User
+    case 'support':
+        return Support
     case 'session':
         return Session
     case 'token':

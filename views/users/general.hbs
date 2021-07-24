@@ -18,6 +18,27 @@
 </script>
 {{/if}}
 {{/if}}
+{{#if (isDefined successMsg)}}
+    {{#if (haveErr successMsg)}}
+        <div class='section'>
+            <div class='columns'>
+                <div class='column is-8'>
+                    <article class='message is-success'>
+                        <div class='message-header'>
+                            <p>Success</p>
+                            <button class='delete' onclick='this.parentElement.parentElement.remove()'></button>
+                        </div>
+                        <div class='message-body'>
+                            {{#each successMsg}}
+                                <blockquote>{{this.msg}}</blockquote>
+                            {{/each}}
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </div>
+    {{/if}}
+{{/if}}
 
 <div class='container'>
     <!-- Update account settings -->
@@ -49,20 +70,21 @@
             </div>
         </div>
 
-        <!-- Email -->
-        <div class='field'>
-            <label class='label has-text-weight-medium has-text-grey-dark' for='email'>Email:</label>
-            <div class='control'>
-                <input class='input' type='text' name='uemail' value='{{user.email}}' />
-            </div>
-        </div>
-        <!-- Phone Number -->
-        <div class='field'>
-            <label class='label has-text-weight-medium has-text-grey-dark' for='phone_number'>Phone Number:</label>
-            <div class='control'>
-                <input class='input' type='text' name='phone_number' value='{{user.phone_number}}' />
-            </div>
-        </div>
+
+                    <!-- Email -->
+                    <div class='field'>
+                        <label class='label has-text-weight-medium has-text-grey-dark' for='user_email'>Email:</label>
+                        <div class='control'>
+                            <input class='input' type='text' style='height:50px;' name='user_email' value='{{user.email}}'/>
+                        </div>
+                    </div>
+                    <!-- Phone Number -->
+                    <div class='field'>
+                        <label class='label has-text-weight-medium has-text-grey-dark' for='phone_number'>Phone Number:</label>
+                        <div class='control'>
+                            <input class='input' type='text' style='height:50px;' name='phone_number' value='{{user.phone_number}}'/>
+                        </div>
+                    </div>
 
         <hr>
         <!-- Facebook -->

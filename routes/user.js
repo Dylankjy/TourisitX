@@ -207,6 +207,7 @@ router.get('/setting/general', async (req, res) => {
             },
             user,
             settingErrors: req.cookies.settingErrors,
+            successMsg: req.cookies.successMsg,
         }
         return res.render('users/general.hbs', metadata)
     } else {
@@ -224,6 +225,7 @@ router.get('/setting/general', async (req, res) => {
             },
             user,
             settingErrors: req.cookies.settingErrors,
+            successMsg: req.cookies.successMsg,
         }
         return res.render('users/general.hbs', metadata)
     }
@@ -253,19 +255,23 @@ router.post('/setting/general', async (req, res) => {
         .getResult()
     settingErrors.push(nameResult)
 
-    findDB('user', { 'email': req.fields.uemail }, (result) => {
-        if ((req.fields.uemail == result[0].dataValues.email) && (user.id != result[0].dataValues.id)) {
-            const emailResult = v
-                .notFound({
-                    name: 'uemail',
-                    errorMessage: 'This email address has already been taken',
-                })
-                .exists()
-                .getResult()
-            settingErrors.push(emailResult)
-        } else {
-        }
-    })
+    const emailData = await User.findAll({ where: {
+        'email': req.fields.user_email,
+    } })
+
+    if ((emailData == '') || (req.fields.user_email == user.email) || (req.fields.user_email.includes('@tourisit.local') == false)) {
+        console.log('OK GOOD TO GO')
+    } else {
+        console.log('Email error')
+        const emailResult = v
+            .Initialize({
+                name: 'user_email',
+                errorMessage: 'This email address has already been taken',
+            })
+            .setFalse()
+            .getResult()
+        settingErrors.push(emailResult)
+    }
 
 
     if (req.fields.phone_number == '') {
@@ -324,10 +330,19 @@ router.post('/setting/general', async (req, res) => {
     } else {
         res.clearCookie('settingErrors')
         res.clearCookie('storedValues')
+        successMsg = []
+        const formU = v
+            .Initialize({
+                errorMessage: 'Account Information updated successfully',
+            })
+            .setFalse()
+            .getResult()
+        successMsg.push(formU)
+        res.cookie('successMsg', successMsg, { maxAge: 5000 })
         if (req.fields.mode == 'true') {
             const AccDetails = {
                 'name': req.fields.uname,
-                'email': req.fields.uemail,
+                'email': req.fields.user_email,
                 'phone_number': req.fields.phone_number,
                 'is_tourguide': 1,
                 'fb': req.fields.fb,
@@ -340,7 +355,7 @@ router.post('/setting/general', async (req, res) => {
         } else {
             const AccDetails = {
                 'name': req.fields.uname,
-                'email': req.fields.uemail,
+                'email': req.fields.user_email,
                 'phone_number': req.fields.phone_number,
                 'is_tourguide': 0,
                 'fb': req.fields.fb,
