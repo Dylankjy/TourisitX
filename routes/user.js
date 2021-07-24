@@ -16,7 +16,7 @@ const config = require('../config/genkan.json')
 
 // Globals
 const router = express.Router()
-const { User } = require('../models')
+const { User, Shop } = require('../models')
 const elasticSearchHelper = require('../app/elasticSearch')
 
 const esClient = require('../app/elasticSearch').esClient
@@ -65,75 +65,64 @@ storeImage = (filePath, fileName, folder) => {
 
 // router.get('/', (req, res) => { ... }
 router.get('/profile/:id', async (req, res) => {
-    const userID = req.params.id
-
-    User.findAll({
+    
+    const userD = await User.findAll({
         where: {
-            id: userID,
-        },
+            'id': req.params.id,
+        }
     })
-        .then(async (items) => {
-            const uData = await items[0]['dataValues']
-            console.log(uData)
-            const sid = req.signedCookies.sid
+    const tours = await Shop.findAll({
+        where: {
+            'userId': req.params.id,
+        }
+    })
+    const sid = req.signedCookies.sid
+    if (sid == undefined) {
+        return requireLogin(res)
+    } else if ((await genkan.isLoggedinAsync(sid)) == false) {
+        return requireLogin(res)
+    }
 
-            // If person is not logged in
-            if (sid == undefined) {
-                return res.render('profile.hbs', {
-                    uData: uData,
-                    isOwner: false,
-                })
-            } else {
-                // Check if session is up to date. Else, require person to reloggin
-                if ((await genkan.isLoggedinAsync(sid)) == false) {
-                    // Redirect to login page
-                    return requireLogin(res)
-                }
-                if (req.cookies.storedValues) {
-                    const storedValues = JSON.parse(req.cookies.storedValues)
-                } else {
-                    const storedValues = {}
-                }
-                // If user is logged in and has a valid session
-                const userData = await genkan.getUserBySessionAsync(sid)
-
-                // Check if user is the owner of the current listing being browsed
-                const isOwner = userData.id == uData.id
-                if (isOwner) {
-                    // Manually set to true now.. while waiting for the validation library
-                    owner = true
-                    const metadata = {
-                        meta: {
-                            title: 'Profile',
-                            path: false,
-                        },
-                        data: {
-                            currentUser: req.currentUser,
-                        },
-                        uData: uData,
-                        isOwner: owner,
-                        bioErrors: req.cookies.bioErrors,
-                    }
-                    return res.render('users/profile.hbs', metadata)
-                } else {
-                    owner = false
-
-                    const metadata = {
-                        meta: {
-                            title: 'Profile',
-                            path: false,
-                        },
-                        data: {
-                            currentUser: req.currentUser,
-                        },
-                        uData: uData,
-                        isOwner: owner,
-                    }
-                    return res.render('users/profile.hbs', metadata)
-                }
-            }
-        })
-        .catch((err) => console.log)
+    if (req.cookies.storedValues) {
+        const storedValues = JSON.parse(req.cookies.storedValues)
+    } else {
+        const storedValues = {}
+    }
+    console.log(tours)
+    const isOwner = userD.id == req.currentUser.id
+    if (isOwner) {
+        // Manually set to true now.. while waiting for the validation library
+        owner = true
+        const metadata = {
+            meta: {
+                title: 'Profile',
+                path: false,
+            },
+            data: {
+                currentUser: req.currentUser,
+                tours: tours,
+            },
+            uData: userD,
+            isOwner: owner,
+            bioErrors: req.cookies.bioErrors,
+        }
+        return res.render('users/profile.hbs', metadata)
+    } else {
+        owner = false
+        const metadata = {
+            meta: {
+                title: 'Profile',
+                path: false,
+            },
+            data: {
+                currentUser: req.currentUser,
+                tours: tours,
+            },
+            uData: userD,
+            isOwner: owner,
+        }
+        return res.render('users/profile.hbs', metadata)
+    }
 })
 
 router.post('/profile/:id', async (req, res) => {
@@ -415,6 +404,14 @@ router.post('/setting/password', async (req, res) => {
 
     const v = new Validator(req.fields)
     genkan.getUserBySessionDangerous(sid, (user) => {
+        const newResult = v
+            .Initialize({
+                name: 'new',
+                errorMessage: 'Both passwords do not match',
+            })
+            .exists()
+            .getResult()
+
         const repeatResult = v
             .Initialize({
                 name: 'confirm',
