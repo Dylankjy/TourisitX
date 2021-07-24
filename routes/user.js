@@ -415,7 +415,6 @@ router.post('/setting/password', async (req, res) => {
 
     const v = new Validator(req.fields)
     genkan.getUserBySessionDangerous(sid, (user) => {
-
         const repeatResult = v
             .Initialize({
                 name: 'confirm',
