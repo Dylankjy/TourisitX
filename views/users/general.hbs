@@ -18,26 +18,19 @@
 </script>
 {{/if}}
 {{/if}}
+
 {{#if (isDefined successMsg)}}
-    {{#if (haveErr successMsg)}}
-        <div class='section'>
-            <div class='columns'>
-                <div class='column is-8'>
-                    <article class='message is-success'>
-                        <div class='message-header'>
-                            <p>Success</p>
-                            <button class='delete' onclick='this.parentElement.parentElement.remove()'></button>
-                        </div>
-                        <div class='message-body'>
-                            {{#each successMsg}}
-                                <blockquote>{{this.msg}}</blockquote>
-                            {{/each}}
-                        </div>
-                    </article>
-                </div>
-            </div>
-        </div>
-    {{/if}}
+{{#if (haveErr successMsg)}}
+<div id="successMessage" class="notification is-success">
+    {{#each successMsg}}
+    <p>{{this.msg}}</p>
+    {{/each}}
+</div>
+
+<script>
+    $('#successMessage').delay(10000).slideUp();
+</script>
+{{/if}}
 {{/if}}
 
 <div class='container'>
