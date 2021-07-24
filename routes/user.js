@@ -65,17 +65,27 @@ storeImage = (filePath, fileName, folder) => {
 
 // router.get('/', (req, res) => { ... }
 router.get('/profile/:id', async (req, res) => {
-    
+
     const userD = await User.findAll({
         where: {
             'id': req.params.id,
         }
     })
-    const tours = await Shop.findAll({
+    const listings = []
+    Shop.findAll({
+        attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
         where: {
             'userId': req.params.id,
         }
+    }).then(async (data) => {
+        await data.forEach((doc) => {
+            listings.push(doc['dataValues'])
+        })
+        return listings
+        // return res.render('marketplace.hbs', { listings: listings })
     })
+
+
     const sid = req.signedCookies.sid
     if (sid == undefined) {
         return requireLogin(res)
@@ -88,8 +98,9 @@ router.get('/profile/:id', async (req, res) => {
     } else {
         const storedValues = {}
     }
-    console.log(tours)
+    console.log('Tours', listings)
     const isOwner = userD.id == req.currentUser.id
+
     if (isOwner) {
         // Manually set to true now.. while waiting for the validation library
         owner = true
@@ -100,8 +111,9 @@ router.get('/profile/:id', async (req, res) => {
             },
             data: {
                 currentUser: req.currentUser,
-                tours: tours,
+                
             },
+            listings: listings,
             uData: userD,
             isOwner: owner,
             bioErrors: req.cookies.bioErrors,
@@ -116,13 +128,14 @@ router.get('/profile/:id', async (req, res) => {
             },
             data: {
                 currentUser: req.currentUser,
-                tours: tours,
             },
+            listings: listings,
             uData: userD,
             isOwner: owner,
         }
         return res.render('users/profile.hbs', metadata)
     }
+
 })
 
 router.post('/profile/:id', async (req, res) => {
@@ -244,9 +257,11 @@ router.post('/setting/general', async (req, res) => {
         .getResult()
     settingErrors.push(nameResult)
 
-    const emailData = await User.findAll({ where: {
-        'email': req.fields.user_email,
-    } })
+    const emailData = await User.findAll({
+        where: {
+            'email': req.fields.user_email,
+        }
+    })
 
     if ((emailData == '') || (req.fields.user_email == user.email) || (req.fields.user_email.includes('@tourisit.local') == false)) {
         console.log('OK GOOD TO GO')
@@ -450,7 +465,7 @@ router.post('/profile/edit/:savedId', (req, res) => {
     console.log('Image edited')
     const v = new fileValidator(req.files['profile_img'])
     const imageResult = v
-        .Initialize({ errorMessage: 'Please supply a valid Image' } )
+        .Initialize({ errorMessage: 'Please supply a valid Image' })
         .fileExists()
         .sizeAllowed({ maxSize: 5000000 })
         .getResult()

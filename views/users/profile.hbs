@@ -52,8 +52,10 @@
 <section class="section">
     <div class="container">
         <h2 class="title">Tours by this user</h2>
-        {{#if data.tours}}
+        {{#if listings}}
+        {{#each listings}}
         {{>listingCard}}
+        {{/each}}
         {{else}}
         <p class="has-text-grey-light">No tours created yet.</p>
         {{/if}}
