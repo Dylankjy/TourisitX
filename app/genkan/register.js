@@ -30,13 +30,16 @@ const Handlebars = require('handlebars')
 
 // Email Template
 const fs = require('fs')
-const confirmEmailSource = fs.readFileSync(`node_modules/${config.genkan.theme}/mail/confirmation.hbs`, 'utf8')
+const confirmEmailSource = fs.readFileSync(
+    `node_modules/${config.genkan.theme}/mail/confirmation.hbs`,
+    'utf8',
+)
 const confirmEmailTemplate = Handlebars.compile(confirmEmailSource)
 
 newAccount = (name, email, password, ip, callback) => {
     // Check for duplicate accounts
-    findDB('user', { 'email': email }, (result) => {
-        // Reject if duplicate
+    findDB('user', { email: email }, (result) => {
+    // Reject if duplicate
         if (result.length !== 0) {
             return callback(false)
         }
@@ -48,28 +51,30 @@ newAccount = (name, email, password, ip, callback) => {
         })
 
         // Bcrypt Hashing
-        const hashedPasswordSHA512Bcrypt = bcrypt.hashSync(hashedPasswordSHA512, saltRounds)
+        const hashedPasswordSHA512Bcrypt = bcrypt.hashSync(
+            hashedPasswordSHA512,
+            saltRounds,
+        )
 
         // Generate email confirmation token
         const emailConfirmationToken = tokenGenerator()
-
 
         // Generate userId
         const userId = uuid.v1()
 
         const NewUserSchema = {
-            'id': userId,
-            'name': name,
-            'email': email,
-            'password': hashedPasswordSHA512Bcrypt,
-            'lastseen_time': new Date(),
-            'ip_address': ip,
+            id: userId,
+            name: name,
+            email: email,
+            password: hashedPasswordSHA512Bcrypt,
+            lastseen_time: new Date(),
+            ip_address: ip,
         }
 
         const TokenSchema = {
-            'token': emailConfirmationToken,
-            'type': 'EMAIL',
-            'userId': userId,
+            token: emailConfirmationToken,
+            type: 'EMAIL',
+            userId: userId,
         }
 
         // Insert new user into database
@@ -77,7 +82,7 @@ newAccount = (name, email, password, ip, callback) => {
             // Insert new email confirmation token into database
             insertDB('token', TokenSchema, (a) => {
                 sendConfirmationEmail(email, emailConfirmationToken)
-                return callback(true)
+                return callback(userId)
             })
         })
     })
@@ -103,21 +108,26 @@ sendConfirmationEmail = (email, token) => {
 }
 
 confirmEmail = (token, callback) => {
-    findDB('token', { 'token': token, 'type': 'EMAIL' }, (result) => {
-        // console.log(result[0].dataValues)
+    findDB('token', { token: token, type: 'EMAIL' }, (result) => {
+    // console.log(result[0].dataValues)
         if (result.length !== 1) {
             return callback(false)
         }
         const AccountActivatePayload = {
-            'email_status': true,
+            email_status: true,
         }
 
         // Delete token from database
-        deleteDB('token', { 'token': token, 'type': 'EMAIL' }, () => {
+        deleteDB('token', { token: token, type: 'EMAIL' }, () => {
             // Set email_status to true in User Table
-            updateDB('user', { id: result[0].dataValues.userId }, AccountActivatePayload, () => {
-                return callback(true)
-            })
+            updateDB(
+                'user',
+                { id: result[0].dataValues.userId },
+                AccountActivatePayload,
+                () => {
+                    return callback(true)
+                },
+            )
         })
     })
 }
