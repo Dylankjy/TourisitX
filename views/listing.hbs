@@ -1,217 +1,222 @@
 <link rel='stylesheet' href='/third_party/bulma/bulma-timeline.min.css'>
 <link rel='stylesheet' href='/third_party/alex/listing.css'>
 
-
-<section class='section'>
-    {{!-- <a href='/listing'>
-        <button class='button mr-4 is-danger is-lighted'>
-            <span class='icon'>
-                <i class="fas fa-arrow-left"></i>
-            </span>
-            <span>
-                Back to Home
-            </span>
-        </button>
-    </a> --}}
-    <a href='/marketplace'>
-        <button class='button mr-4 is-danger is-lighted'>
-            <span class='icon'>
-                <i class="fas fa-arrow-left"></i>
-            </span>
-            <span>
-                Marketplace
-            </span>
-        </button>
-    </a>
+<section class="hero is-black"
+    style="background: url('/static/listings/{{tourData.tourImage}}'); background-position: center center; background-size: cover; background-color: rgba(0,0,0,.5) !important; background-blend-mode: overlay !important;">
+    <div class="hero-fadein"></div>
+    <div class="hero-body">
+        <div class="container">
+            <h1 class="title is-1">{{tourData.tourTitle}}</h1>
+            <p class="subtitle">By <a href="/u/profile/{{tourData.userId}}">{{tourguideName}}</a></p>
+        </div>
+    </div>
 </section>
 
+<section class="section">
+    <div class="container block">
+        <div class="columns is-variable is-5">
+            <div class="column is-one-quarter">
+                <div class="box p-5">
+                    <div class="block">
+                        <h3 class="title is-4">Booking</h3>
+                        <p><span class="has-text-weight-bold">Price:</span> ${{tourData.tourPrice}}</p>
+                        <p>
+                            <span class="has-text-weight-bold">Average tour duration:</span>
+                            {{tourData.tourDuration}}h
+                        </p>
 
-<section class="section" style="padding-top: 0rem">
-    <div class='container'>
-
-        {{#if isOwner}}
-            {{#if (isDefined errMsg)}}
-            <div class='container'>
-                <p>{{errMsg}}</p>
-            </div>
-            {{/if}}
-        {{>editableImage}}
-
-        {{else}}
-        <div class='listing-img' style='background: url("/static/listings/{{tourData.tourImage}}") center; background-size: cover;'></div>
-
-        {{/if}}
-
-        <div class='box' img='content-box'>
-            <div class='columns'>
-                <!-- For name and description -->
-                <div class='column is-5'>
-                    <div class='content'>
-                        <h1 class='title is-4'>Tour Title:</h1>
-                        <p class='subtitle is-6'>{{tourData.tourTitle}}</p>
-                    </div>
-                    
-                    <br>
-                    <div class='content'>
-                        <h1 class='title is-4'>Tour Description:</h1>
-                        <p class='subtitle is-6'>{{tourData.tourDesc}}</p>
+                        <p>
+                            <span class="has-text-weight-bold">Visited locations:</span>
+                            <span class="tags">
+                                {{#each (readArrWithReplace tourData.finalLocations)}}
+                                <span class="tag">
+                                    {{this}}
+                                </span>
+                                {{/each}}
+                            </span>
+                        </p>
                     </div>
 
-                    <br>
-                    <div class='content'>
-                        <h1 class='title is-4'>Tour Price:</h1>
-                        <p class='subtitle is-6'>${{tourData.tourPrice}}</p>
+                    <hr>
+
+                    <div class="block">
+                        <h3 class="title is-4">Availability</h3>
+                        <p><span class="has-text-weight-bold">Days:</span>
+                            {{#each (readArr tourData.finalTimings)}}
+                            {{this}}
+                            {{/each}}
+                        </p>
+                        <p>
+                            <span class="has-text-weight-bold">Timings:</span>
+                            {{#each (readArr tourData.finalDays)}}
+                            {{this}}
+                            {{/each}}
+                        </p>
                     </div>
                 </div>
-
-
-                <div class="column is-4">
-                    
-                    <div class="timeline">
-
+                <div class="box pt-6 pb-6 has-background-black">
+                    <div class="timeline is-centered">
                         <header class="timeline-header">
-                            <span class="tag is-medium is-info">Tour Start</span>
+                            <span class="tag is-medium is-info">Start</span>
                         </header>
-
                         {{#each (readArrWithReplace tourData.finalItinerary)}}
                         <div class="timeline-item">
                             <div class="timeline-marker is-icon">
                                 <i class="fa fa-flag"></i>
                             </div>
-                            <div class="timeline-content">
+                            <div class="timeline-content has-text-white">
                                 <p>{{this}}</p>
                             </div>
                         </div>
                         {{/each}}
-
                         <div class="timeline-header">
-                          <span class="tag is-medium is-info">End</span>
+                            <span class="tag is-medium is-info">End</span>
                         </div>
-                      </div>
+                    </div>
                 </div>
-
-                <div class='column is-3'>
-                    <div class='content'>
-                        <h1 class='title is-4'>Tour Duration:</h1>
-                        <p class='subtitle is-6'>{{tourData.tourDuration}} hours</p>
-                    </div>
-
-                    <div class='content'>
-                        <h1 class='title is-4'>Tour Timing:</h1>
-                        {{#each (readArr tourData.finalTimings)}}
-                        <p class='subtitle is-6'>{{this}}</p>
-                        {{/each}}
-                    </div>
-
-                    <div class='content'>
-                        <h1 class='title is-4'>Tour Days:</h1>
-                        {{#each (readArr tourData.finalDays)}}
-                        <p class='subtitle is-6'>{{this}}</p>
-                        {{/each}}
-                    </div>
-                    
-                    <div class='content'>
-                        <h1 class='title is-4'>Tour Locations:</h1>
-                        {{#each (readArrWithReplace tourData.finalLocations)}}
-                        <p class='subtitle is-6'>{{this}}</p>
-                        {{/each}}
-                    </div>
-                    
-                </div>
-
             </div>
-            
-            <br><br>
-            <div class='container'>
-                {{#if isOwner}}
-                <a class='button mr-4 is-dark' href='/listing/edit/{{tourData.id}}'>
-                    <span class='icon'>
-                        <i class="fas fa-edit"></i>
-                    </span>
-                    <span>
-                        Edit Listing
-                    </span>
-                </a>
+            <div class="column">
+                <div class="block">
+                    <h2 class="title">About</h2>
+                    <p class="subtitle">Learn more before going</p>
+                    <p>{{tourData.tourDesc}}</p>
+                </div>
+                <div>
 
-                <!-- Check if hidden or not -->
-                {{#if (evalBoolean tourData.hidden)}}
-                {{#if bannedStatus}}
-                <a class='button mr-4 is-success is-light' href='/listing/info/{{tourData.id}}'>
-                    <span class='icon'>
-                        <i class="fas fa-eye"></i>
-                    </span>
-                    <span>
-                        Apply to Unban
-                    </span>
-                </a>
-                {{else}}
-                <a class='button mr-4 is-success is-light' href='/listing/unhide/{{tourData.id}}'>
-                    <span class='icon'>
-                        <i class="fas fa-eye"></i>
-                    </span>
-                    <span>
-                        Unhide Listing
-                    </span>
-                </a>
-                {{/if}}
-                {{else}}
-
-                <a class='button mr-4 is-danger is-light' href='/listing/hide/{{tourData.id}}'>
-                    <span class='icon'>
-                        <i class="fas fa-eye-slash"></i>
-                    </span>
-                    <span>
-                        Hide Listing
-                    </span>
-                </a>
-                
-                {{/if}}
-
-                <a class='button mr-4 is-danger is-light' href="/listing/delete/{{tourData.id}}">
-                    <span class='icon'>
-                        <i class="fas fa-trash"></i>
-                    </span>
-                    <span>
-                        Delete Listing
-                    </span>
-                </a>
-
-                {{else}}
-                <a class='button mr-4 is-success is-outlined' href="/listing/{{tourData.id}}/purchase">
-                    <span class='icon'>
-                        <i class="fas fa-shopping-cart"></i>
-                    </span>
-                    <span>
-                        Purchase
-                    </span>
-                </a>
-
-                {{#if (iteminWishList tourData.id wishlistArr )}}
-                <a class='button mr-4 is-danger is-outlined' href="/listing/{{tourData.id}}/unfavourite">
-                    <span class='icon'>
-                        <i class="fas fa-heart-broken"></i>
-                    </span>
-                    <span>
-                        Remove from favourite
-                    </span>
-                </a>
-
-                {{else}}
-                <a class='button mr-4 is-danger is-outlined' href="/listing/{{tourData.id}}/favourite">
-                    <span class='icon'>
-                        <i class="fas fa-heart"></i>
-                    </span>
-                    <span>
-                        Add to favourite
-                    </span>
-                </a>
-                
-                {{/if}}
-
-                
-                {{/if}}
+                </div>
+                <hr>
+                <div class="block">
+                    <h2 class="title">Reviews</h2>
+                    <p class="subtitle">See what past tourisits have to say</p>
+                    <div>
+                        <div class="box p-5">
+                            <p>
+                                <span class="has-text-weight-bold">
+                                    <a href="/u/profile/{{Changethis}}">Ri Takamochi</a>
+                                </span>
+                                <span>
+                                    &nbsp;
+                                    &bull;
+                                    &nbsp;
+                                </span>
+                                <span>
+                                    10/12/2021
+                                </span>
+                                <span>
+                                    &nbsp;
+                                    &bull;
+                                    &nbsp;
+                                </span>
+                                <span class="has-text-grey-lighter">
+                                    <i class="fas fa-star has-text-dark"></i>
+                                    <i class="fas fa-star has-text-dark"></i>
+                                    <i class="fas fa-star has-text-dark"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </span>
+                            </p>
+                            <p class="content">The tour guide is very friendly. Would buy again</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
+<div class="navbar is-fixed-bottom pb-4 pt-3 is-glass-black">
+    <div class="container">
+        <div class="navbar-menu">
+            <div class="navbar-start">
+                <div class="navbar-item">
+                    <div class="buttons">
+                        {{#if isOwner}}
+                        <a class='navbar-item button is-link is-light' href='/listing/edit/{{tourData.id}}'>
+                            <span class='icon'>
+                                <i class="fas fa-edit"></i>
+                            </span>
+                            <span>
+                                Edit Listing
+                            </span>
+                        </a>
+                        <!-- Check if hidden or not -->
+                        {{#if (evalBoolean tourData.hidden)}}
+                        {{#if bannedStatus}}
+                        <a class='button is-success is-light' href='/listing/info/{{tourData.id}}'>
+                            <span class='icon'>
+                                <i class="fas fa-eye"></i>
+                            </span>
+                            <span>
+                                Request suspension review
+                            </span>
+                        </a>
+                        {{else}}
+                        <a class='button is-success is-light' href='/listing/unhide/{{tourData.id}}'>
+                            <span class='icon'>
+                                <i class="fas fa-eye"></i>
+                            </span>
+                            <span>
+                                Unhide Listing
+                            </span>
+                        </a>
+                        {{/if}}
+                        {{else}}
+                        <a class='button is-danger is-light' href='/listing/hide/{{tourData.id}}'>
+                            <span class='icon'>
+                                <i class="fas fa-eye-slash"></i>
+                            </span>
+                            <span>
+                                Hide Listing
+                            </span>
+                        </a>
 
+                        {{/if}}
+                        <a class='button is-danger is-light' href="/listing/delete/{{tourData.id}}">
+                            <span class='icon'>
+                                <i class="fas fa-trash"></i>
+                            </span>
+                            <span>
+                                Delete Listing
+                            </span>
+                        </a>
+
+                        {{else}}
+                        <a class='navbar-item button is-success' href="/listing/{{tourData.id}}/purchase">
+                            <span class='icon'>
+                                <i class="fas fa-shopping-cart"></i>
+                            </span>
+                            <span>
+                                Book now
+                            </span>
+                        </a>
+
+                        {{#if (iteminWishList tourData.id wishlistArr )}}
+                        <a class='button is-danger' href="/listing/{{tourData.id}}/unfavourite">
+                            <span class='icon'>
+                                <i class="fas fa-heart-broken"></i>
+                            </span>
+                            <span>
+                                Remove from favourite
+                            </span>
+                        </a>
+
+                        {{else}}
+                        <a class='button is-danger' href="/listing/{{tourData.id}}/favourite">
+                            <span class='icon'>
+                                <i class="fas fa-heart"></i>
+                            </span>
+                            <span>
+                                Add to favourite
+                            </span>
+                        </a>
+
+                        {{/if}}
+
+
+                        {{/if}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

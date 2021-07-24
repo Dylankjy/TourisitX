@@ -26,6 +26,7 @@ router.get('/', (req, res) => {
                 listings: listings,
                 data: {
                     currentUser: req.currentUser,
+                    tourCount: listings.length,
                 },
             }
             return res.render('marketplace.hbs', metadata)

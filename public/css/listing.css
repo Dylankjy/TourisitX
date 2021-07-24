@@ -1,3 +1,8 @@
+.hero-fadein {
+    height: 15rem;
+    background: linear-gradient(0deg, transparent 0, #0a0a0a 100%);
+}
+
 .listing-image {
     background-position: center center;
     background-repeat: no-repeat;
@@ -29,62 +34,4 @@
 .listing-clickable .subtitle {
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-/* Alex's stuff */
-
-/* .button {
-    margin-right: 30px;
-    width: 12%;
-  } */
-
-.is-darker-warning {
-    background-color: #fff5cb;
-    color: #ffae00;
-    border: none;
-}
-
-.is-darker-warning:hover {
-    filter: brightness(0.97);
-    color: #ffae00;
-}
-
-.listing-banner {
-    padding: 15px;
-    box-sizing: border-box;
-    border-radius: 15px;
-    background-color: #c2fbd7;
-}
-
-.listing-banner p {
-    line-height: 100px;
-    text-align: center;
-}
-
-.listing-banner+.listing-banner {
-    margin-top: 50px;
-}
-
-.listing-img {
-    height: 25em;
-    background-size: cover
-}
-
-.image-center-text {
-    position: relative;
-    text-align: center;
-    top: 50%;
-    color: azure;
-}
-
-.editable-img:hover {
-    filter: blur(0.2px);
-}
-
-.favourite-button {
-    background-color: rgba(255, 254, 254, 0.5);
-    border-radius: 8px;
-    padding: 7px;
-    position: absolute;
-    left: 85%;
 }

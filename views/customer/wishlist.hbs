@@ -1,21 +1,20 @@
 <link rel='stylesheet' href='../../third_party/alex/market.css'>
 
-<section class='hero is-danger-lighter wishlist-banner'>
-    <p class='wishlist-title'>Wishlist 💕</p>
+<section class='section has-background-black'>
+    <div class='container'>
+        <h1 class="title has-text-white is-2">Wishlist</h1>
+        <p class="subtitle has-text-grey-light">Tours to save for later</p>
+    </div>
 </section>
 
 {{#if (emptyArr wishlist)}}
-<div class='section has-text-centered'>
-    <p class='subtitle is-4'>
-        Wishlist is currently empty
-    </p>
-    <a class="button is-warning" href='/marketplace'>
-        <span class="icon is-small">
-            <i class="fas fa-cart-plus"></i>
-        </span>
-        <span>Browse Tours</span>
-    </a>
-</div>
+<section class="section is-medium">
+    <div class="container has-text-centered">
+        <p class="title has-text-grey-light has-text-weight-bold" style="font-size: 4.5rem;">(」・﹏・)」</p>
+        <p class="subtitle is-4 has-text-grey">Nothing to show<br><small>Start adding tours to your wishlist to keep for later.</small></p>
+        <a class="button is-dark"><i class="fas fa-store"></i>&ensp;Explore tours</a>
+    </div>
+</section>
 {{else}}
 <div class='section'>
     <div class='container'>
@@ -29,4 +28,3 @@
     </div>
 </div>
 {{/if}}
-

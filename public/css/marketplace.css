@@ -1,0 +1,91 @@
+#hero {
+    background: url('/static/marketplace/hero.jpg') no-repeat;
+    background-size: cover !important;
+    background-position: 0 -15rem  !important;
+    background-attachment: scroll !important;
+    background-color: rgba(0,0,0,.8) !important;
+    background-blend-mode: overlay !important;
+}
+
+#searchText {
+    box-shadow: none;
+    border: none;
+    background: rgba(255,255,255, 0.25);
+    color: #fff;
+}
+
+#searchText::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+:root {
+    --skeleton-color: rgba(0,0,0,0.08);
+}
+
+/* For skeletons */
+#displayedListingsSkeleton {
+    animation: infinite blinkFade 1.25s ease-in-out;
+    /* overflow: hidden;
+    position: relative; */
+}
+
+/* #displayedListingsSkeleton::before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: -150px;
+    top: 0;
+    height: 100%;
+    width: 150px;
+    background: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.05) 50%, transparent 100%);
+    animation: load 1s ease-in-out infinite;
+} */
+
+.skeleton-image {
+    height: 20rem;
+    /* width: 100rem; */
+    background: var(--skeleton-color);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+
+.skeleton-title {
+    margin-top: 1.5rem;
+    height: 2.5rem;
+    border-radius: 999999px;
+    background: var(--skeleton-color);
+}
+
+.skeleton-title.short {
+    width: 7rem;
+}
+
+.skeleton-title.medium {
+    width: 10rem;
+}
+
+.skeleton-title.long {
+    width: 15rem;
+}
+
+@keyframes blinkFade {
+    0% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.5;
+    }
+}
+
+/* @keyframes load {
+    from {
+        left: -150px;
+    }
+    to {
+        left: 100%;
+    }
+} */
