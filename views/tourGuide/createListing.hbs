@@ -793,6 +793,7 @@
                 .then((res)=>{
                     return res.json()
                 }).then((data)=>{
+                    selector.html("")
                     // console.log(data["data"])
                     data["data"].forEach((elem)=>{
                         // If the location was previously selected, won't render again
