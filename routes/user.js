@@ -255,24 +255,24 @@ router.post('/setting/general', async (req, res) => {
         .getResult()
     settingErrors.push(nameResult)
 
-    const emailData = await User.findAll({where:{
-        'email': req.fields.user_email
-    }})
-    
+    const emailData = await User.findAll({ where: {
+        'email': req.fields.user_email,
+    } })
+
     if ((emailData == '') || (req.fields.user_email == user.email) || (req.fields.user_email.includes('@tourisit.local') == false)) {
-        console.log('OK GOOD TO GO') 
+        console.log('OK GOOD TO GO')
     } else {
         console.log('Email error')
         const emailResult = v
-        .Initialize({
-            name: 'user_email',
-            errorMessage: 'This email address has already been taken',
-        })
-        .setFalse()
-        .getResult()
+            .Initialize({
+                name: 'user_email',
+                errorMessage: 'This email address has already been taken',
+            })
+            .setFalse()
+            .getResult()
         settingErrors.push(emailResult)
     }
-    
+
 
     if (req.fields.phone_number == '') {
     } else {

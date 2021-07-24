@@ -82,7 +82,7 @@ router.post('/', async (req, res) => {
     const contentResult = v
         .Initialize({
             name: 'content',
-            errorMessage: 'Content must not be empty and not longer than 254 characters'
+            errorMessage: 'Content must not be empty and not longer than 254 characters',
         })
         .exists()
         .isLength({ min: 10, max: 254 })
