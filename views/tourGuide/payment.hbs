@@ -1,13 +1,16 @@
+<script src="https://js.stripe.com/v3/"></script>
+<script src="/third_party/cardForm/stripeCard.js"></script>
 
-<form action="payment" method="POST"> 
-<script
-    src="//checkout.stripe.com/v2/checkout.js"
-    class="stripe-button"
-    data-key="{{key}}" 
-    data-amount="{{price}}" 
-    data-currency="SGD" 
-    data-name="{{payeeName}}" 
-    data-description="{{tourName}}" 
-    data-locale="auto" > 
-    </script> 
-</form> 
+<div id="card-element"></div>
+
+<!-- We'll put the error messages in this element -->
+<div id="card-errors" role="alert"></div>
+
+<button id="submit">Pay</button>
+
+<script>
+    var stripe = Stripe("pk_test_51IKegmG1eRiRVhCZGymWtnNkRO6YHAbodD9BrDGm4NUKwOC6l3Xe8UmEdnNpKONl0LrZmnDQ54RhPZPuSdlJOTBF00FBF8lGoe");
+    var elements = stripe.elements();
+    var cardElement = elements.create('card')
+    cardElement.mount('#card-element');
+</script>
