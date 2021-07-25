@@ -19,6 +19,20 @@
 {{/if}}
 {{/if}}
 
+{{#if (isDefined successMsg)}}
+{{#if (haveErr successMsg)}}
+<div id="successMessage" class="notification is-success">
+    {{#each successMsg}}
+    <p>{{this.msg}}</p>
+    {{/each}}
+</div>
+
+<script>
+    $('#successMessage').delay(10000).slideUp();
+</script>
+{{/if}}
+{{/if}}
+
 <div class='container'>
     <!-- Update account settings -->
     <form class='form-horizontal formfield' enctype='multipart/form-data' method='POST' id='editSettingForm'>
@@ -49,20 +63,21 @@
             </div>
         </div>
 
-        <!-- Email -->
-        <div class='field'>
-            <label class='label has-text-weight-medium has-text-grey-dark' for='email'>Email:</label>
-            <div class='control'>
-                <input class='input' type='text' name='uemail' value='{{user.email}}' />
-            </div>
-        </div>
-        <!-- Phone Number -->
-        <div class='field'>
-            <label class='label has-text-weight-medium has-text-grey-dark' for='phone_number'>Phone Number:</label>
-            <div class='control'>
-                <input class='input' type='text' name='phone_number' value='{{user.phone_number}}' />
-            </div>
-        </div>
+
+                    <!-- Email -->
+                    <div class='field'>
+                        <label class='label has-text-weight-medium has-text-grey-dark' for='user_email'>Email:</label>
+                        <div class='control'>
+                            <input class='input' type='text' style='height:50px;' name='user_email' value='{{user.email}}'/>
+                        </div>
+                    </div>
+                    <!-- Phone Number -->
+                    <div class='field'>
+                        <label class='label has-text-weight-medium has-text-grey-dark' for='phone_number'>Phone Number:</label>
+                        <div class='control'>
+                            <input class='input' type='text' style='height:50px;' name='phone_number' value='{{user.phone_number}}'/>
+                        </div>
+                    </div>
 
         <hr>
         <!-- Facebook -->
