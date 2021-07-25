@@ -3,11 +3,14 @@
 <section class="section has-background-black">
     <div class="container">
         <div class="columns is-vcentered">
+            {{#if isOwner}}
+                {{>editablepfp}}
+            {{else}}
             <div class="column is-one-fifth">
-                {{!-- <div class='profile-img-onprofile'
-                    style="background-image: url('')"></div> --}}
                 <div class='profile-img-onprofile' style="background-image: url('/static/users/{{uData.profile_img}}')"></div>
             </div>
+            {{/if}}
+            
             <div class="column has-text-white">
                 <h1 class="title has-text-white is-2">{{uData.name}}</h1>
                 <p class="subtitle has-text-grey-light">{{uData.bio}}</p>

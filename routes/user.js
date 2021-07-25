@@ -65,27 +65,6 @@ storeImage = (filePath, fileName, folder) => {
 
 // router.get('/', (req, res) => { ... }
 router.get('/profile/:id', async (req, res) => {
-
-    const userD = await User.findAll({
-        where: {
-            'id': req.params.id,
-        }
-    })
-    const listings = []
-    Shop.findAll({
-        attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
-        where: {
-            'userId': req.params.id,
-        }
-    }).then(async (data) => {
-        await data.forEach((doc) => {
-            listings.push(doc['dataValues'])
-        })
-        return listings
-        // return res.render('marketplace.hbs', { listings: listings })
-    })
-
-
     const sid = req.signedCookies.sid
     if (sid == undefined) {
         return requireLogin(res)
@@ -98,44 +77,67 @@ router.get('/profile/:id', async (req, res) => {
     } else {
         const storedValues = {}
     }
-    console.log('Tours', listings)
-    const isOwner = userD.id == req.currentUser.id
-
-    if (isOwner) {
-        // Manually set to true now.. while waiting for the validation library
-        owner = true
-        const metadata = {
-            meta: {
-                title: 'Profile',
-                path: false,
-            },
-            data: {
-                currentUser: req.currentUser,
-                
-            },
-            listings: listings,
-            uData: userD,
-            isOwner: owner,
-            bioErrors: req.cookies.bioErrors,
+    const user = await genkan.getUserBySessionAsync(sid)
+    const userD = await User.findAll({
+        where: {
+            'id': req.params.id,
         }
-        return res.render('users/profile.hbs', metadata)
-    } else {
-        owner = false
-        const metadata = {
-            meta: {
-                title: 'Profile',
-                path: false,
-            },
-            data: {
-                currentUser: req.currentUser,
-            },
-            listings: listings,
-            uData: userD,
-            isOwner: owner,
+    })
+    const isOwner = user.id == userD[0]['dataValues'].id
+    console.log('Current User:', req.currentUser)
+    console.log('Profile', userD[0]['dataValues'])
+    const listings = []
+    Shop.findAll({
+        attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
+        where: {
+            'userId': req.params.id,
         }
-        return res.render('users/profile.hbs', metadata)
-    }
+    }).then(async (data) => {
+        await data.forEach((doc) => {
+            listings.push(doc['dataValues'])
+        })
+        return listings
+    }).then((listings) => {
+        
+        console.log('Tours', listings)
 
+        if (isOwner) {
+            // Manually set to true now.. while waiting for the validation library
+            owner = true
+            const metadata = {
+                meta: {
+                    title: 'Profile',
+                    path: false,
+                },
+                data: {
+                    currentUser: req.currentUser,
+                },
+                listings: listings,
+                uData: userD[0]['dataValues'],
+                isOwner: owner,
+                bioErrors: req.cookies.bioErrors,
+            }
+            return res.render('users/profile.hbs', metadata)
+        } else {
+            owner = false
+            const metadata = {
+                meta: {
+                    title: 'Profile',
+                    path: false,
+                },
+                data: {
+                    currentUser: req.currentUser,
+                },
+                listings: listings,
+                uData: userD[0]['dataValues'],
+                isOwner: owner,
+            }
+            return res.render('users/profile.hbs', metadata)
+        }
+    }).catch((err) => {
+            console.log(err)
+            res.json({ 'Message': 'Failed' })
+        })
 })
 
 router.post('/profile/:id', async (req, res) => {
