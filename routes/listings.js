@@ -697,42 +697,22 @@ router.get('/unhide/:id', async (req, res)=>{
 })
 
 
-router.get('/payment/customer/create', loginRequired, async (req, res)=>{
-    const sid = req.signedCookies.sid
-
-    const userData = await genkan.getUserBySessionAsync(sid)
-
-    const cardNumber = '4242424242424242'
-    const cvc = '424'
-
-    const paymentMethod = await stripe.paymentMethods.create({
-        type: 'card',
-        card: {
-            number: cardNumber,
-            exp_month: 9,
-            exp_year: 2022,
-            cvc: cvc,
-        },
-    })
-
-    console.log(paymentMethod)
-
-    const customer = await stripe.customers.create({
-        email: userData.email,
-        name: userData.name,
-        payment_method: paymentMethod.id,
-    })
-
-    res.json(customer)
-})
-
-
 router.post('/:id/stripe-create-checkout', async (req, res) => {
     console.log("THiS GO TPOSTED")
     console.log('\n\n\n\n')
-    const itemID = req.params.id
+
+    const bookId = req.params.id
     const userData = req.currentUser
     const sid = req.signedCookies.sid
+
+    var bookData = await Booking.findAll({
+        where: {
+            bookId: bookId
+        },
+        raw: true
+    })
+
+    var itemID = bookData[0]["listingId"]
 
     var itemData = await Shop.findAll({
         where: {
@@ -748,8 +728,27 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
         raw: true
     })
 
+    bookData = bookData[0]
     itemData = itemData[0]
     savedUserData = savedUserData[0]
+
+    console.log(bookData)
+
+    // Step 4 means its paying for base tour
+    if (bookData["processStep"] == "4") {
+        var priceToPay = itemData["tourPrice"] * 100
+        var paymentName = itemData["tourTitle"]
+    } 
+    // Step 1 means its paying for customise tour *10% of base tour)
+    else if (bookData["processStep"] == "1") {
+        var priceToPay = itemData["tourPrice"] * 100 * 0.1
+        var paymentName = itemData["tourTitle"] + " Customization fee"
+    }
+
+    else {
+        console.log("ERROR")
+        var priceToPay = 0
+    }
 
     var baseUrl = routesConfig["base_url"]
 
@@ -764,16 +763,17 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
               price_data: {
                 currency: 'sgd',
                 product_data: {
-                  name: itemData["tourTitle"],
+                  name: paymentName,
                 },
-                unit_amount: itemData["tourPrice"] * 100,
+                unit_amount: priceToPay,
               },
               quantity: 1,
             },
           ],
         mode: 'payment',
-        success_url: `${baseUrl}/listing/info/${itemID}/`,
-        cancel_url: `${baseUrl}/listing/${itemID}/payment`,
+        // Where to redirect after payment is done
+        success_url: `${baseUrl}/bookings/${bookId}`,
+        cancel_url: `${baseUrl}/${itemID}/purchase`,
     });
   
     res.redirect(303, session.url);
@@ -827,33 +827,6 @@ router.get('/:id/payment', loginRequired, async (req, res) => {
 })
 
 
-router.post('/:id/payment', async (req, res) => {
-    const itemID = req.params.id
-
-    const itemData = await Shop.findAll({
-        where: {
-            id: itemID,
-        },
-    })
-
-    const tourPrice = itemData[0]['dataValues']['tourPrice'] * 100
-    console.log(tourPrice)
-
-    const charge = await stripe.charges.create({
-        amount: tourPrice,
-        currency: 'sgd',
-        source: 'tok_visa',
-        description: 'Just testing',
-        capture: false,
-    })
-
-    console.log(charge.id)
-
-    const capture = await stripe.charges.capture(
-        charge.id,
-    )
-    res.json(capture)
-})
 
 
 router.get('/charges', async (req, res)=>{
@@ -1245,7 +1218,8 @@ router.post('/:id/purchase', loginRequired, async (req, res) => {
                                     //  will be removed once payment system is in place
                                     timelineMsg = userData.name + ' made payment. You are now ready to go on your tour!'
                                     addMessage(roomId, 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
-                                        res.redirect(`/bookings`)
+                                        // res.redirect(`/bookings`)
+                                        res.redirect(307, `/listing/${genId}/stripe-create-checkout`)
                                     })
                                 })
                             })
@@ -1371,7 +1345,7 @@ router.post('/:id/purchase/customise', async (req, res) => {
                                     //  will be removed once payment system is in place
                                     timelineMsg = '<customer> paid the customisation fee.'
                                     addMessage(roomId, 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
-                                        res.redirect(`/bookings`)
+                                        res.redirect(307, `/listing/${genId}/stripe-create-checkout`)
                                     })
                                 })
                             })
