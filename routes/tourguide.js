@@ -186,7 +186,6 @@ router.get('/bookings/:id', (req, res) => {
         include: Shop, TourPlans,
         raw: true,
     }) .then(async (result) => {
-        res.cookie('result', JSON.stringify(result), { maxAge: 5000 })
         // const sid = req.signedCookies.sid
         // const userId = await genkan.getUserBySessionAsync(sid)
 
@@ -239,120 +238,6 @@ router.get('/bookings/:id', (req, res) => {
             })
         })
     }).catch((err) => console.log)
-})
-
-router.post('/bookings/:id', async (req, res) => {
-    console.log(req.fields)
-    res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
-    const bookID = req.params.id
-    const sid = req.signedCookies.sid
-
-    const userData = await genkan.getUserBySessionAsync(sid)
-    Booking.findOne({
-        where: {
-            bookId: bookID,
-        },
-        include: Shop, TourPlans,
-        raw: true,
-    })
-        .then(async (result) => {
-            console.log(result)
-            // const listing = await items[0]['dataValues']
-
-            const v = new Validator(req.fields)
-
-            const tourDateResult = v
-                .Initialize({
-                    name: 'tourDate',
-                    errorMessage: 'Please select a tour date.',
-                })
-                .exists()
-                .getResult()
-
-            const tourTimeResult = v
-                .Initialize({
-                    name: 'tourTime',
-                    errorMessage: 'Please select a tour time.',
-                })
-                .exists()
-                .getResult()
-
-            const bookPaxResult = v
-                .Initialize({
-                    name: 'tourPax',
-                    errorMessage: 'Please select number of participants.',
-                })
-                .exists()
-                .getResult()
-
-            const bookTOCResult = v
-                .Initialize({
-                    name: 'bookTOC',
-                    errorMessage: 'Please agree to the Terms & Conditions before booking a tour.',
-                })
-                .exists()
-                .getResult()
-
-            // // Evaluate the files and fields data separately
-            const validationErrors = removeNull([
-                tourDateResult,
-                tourTimeResult,
-                bookPaxResult,
-                bookTOCResult,
-            ])
-
-            // If there are errors, re-render the create listing page with the valid error messages
-            if (!emptyArray(validationErrors)) {
-                res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
-                res.redirect(`/listing/${tourID}/purchase`)
-            } else {
-                // If successful
-                // Remove cookies for stored form values + validation errors
-                res.clearCookie('validationErrors')
-                res.clearCookie('storedValues')
-                const genId = uuid.v4()
-
-                const rawTourDate = req.fields.tourDate
-                const darr = rawTourDate.split('/')
-
-                const rawTourTime = req.fields.tourTime
-                const timeArr = rawTourTime.split(' - ')
-                const startTimeArr = timeArr[0].split(':')
-                const endTimeArr = timeArr[1].split(':')
-                formatTime = (arr) => {
-                    if (arr[1].slice(-2) == 'PM' && parseInt(arr[0])<12) {
-                        arr[0] = parseInt(arr[0]) + 12
-                    } else if (arr[1].slice(-2) == 'AM' && parseInt(arr[0])==12) {
-                        arr[0] = parseInt(arr[0]) -12
-                    }
-                    arr[1] = arr[1].slice(0, -3)
-                    if (arr[0].toString().length == 1) {
-                        arr[0] = '0' + arr[0]
-                    }
-                }
-                formatTime(startTimeArr)
-                formatTime(endTimeArr)
-                const startTour = new Date(parseInt(darr[2]), parseInt(darr[1])-1, parseInt(darr[0]), parseInt(startTimeArr[0]), parseInt(startTimeArr[1])).toISOString()
-                const endTour = new Date(parseInt(darr[2]), parseInt(darr[1])-1, parseInt(darr[0]), parseInt(endTimeArr[0]), parseInt(endTimeArr[1])).toISOString()
-                const orderDateTime = new Date().toISOString()
-
-                TourPlans.create({
-                    planId: genId,
-                    bookId: bookID,
-                    index: 0,
-                    tourStart: 0,
-                    tourEnd: 0,
-                    tourPax: 0,
-                    tourPrice: 0,
-                    tourItinerary: 0,
-                    accepted: 0,
-                }).then(async (data) => {
-                    console.log('hi')
-                }).catch((err) => {
-                    console.log(err)
-                })
-            }
-        }).catch((err) => console.log)
 })
 
 router.get('/payments', (req, res) => {
