@@ -332,8 +332,8 @@ io.on('connection', (socket) => {
             return
         }
         // require('./config/genkan.json').genkan.secretKey
-        console.log(reqCookies)
         const reqCookies = require('cookie').parse(socket.handshake.headers.cookie)
+        console.log(reqCookies)
 
         const decryptedSID = cookieParser.signedCookie(
             reqCookies.sid,

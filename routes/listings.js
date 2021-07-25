@@ -19,6 +19,7 @@ const { removeNull, emptyArray, removeFromArray } = require('../app/helpers')
 
 // Config file
 const config = require('../config/apikeys.json')
+const routesConfig = require('../config/routes.json')
 
 // Globals
 const router = express.Router()
@@ -34,6 +35,7 @@ const TIH_API_KEY = config.secret.TIH_API_KEY
 
 const STRIPE_PUBLIC_KEY = config.stripe.STRIPE_PUBLIC_KEY
 const STRIPE_SECRET_KEY = config.stripe.STRIPE_SECRET_KEY
+
 
 const stripe = require('stripe')(STRIPE_SECRET_KEY)
 
@@ -725,6 +727,59 @@ router.get('/payment/customer/create', loginRequired, async (req, res)=>{
 })
 
 
+router.post('/:id/stripe-create-checkout', async (req, res) => {
+    console.log("THiS GO TPOSTED")
+    console.log('\n\n\n\n')
+    const itemID = req.params.id
+    const userData = req.currentUser
+    const sid = req.signedCookies.sid
+
+    var itemData = await Shop.findAll({
+        where: {
+            id: itemID
+        },
+        raw: true
+    })
+
+    var savedUserData = await User.findAll({
+        where: {
+            id: userData["id"]
+        },
+        raw: true
+    })
+
+    itemData = itemData[0]
+    savedUserData = savedUserData[0]
+
+    var baseUrl = routesConfig["base_url"]
+
+    const session = await stripe.checkout.sessions.create({
+        payment_intent_data: {
+            setup_future_usage: 'on_session',
+        },
+        customer: savedUserData["stripe_id"],
+        payment_method_types: ['card'],
+        line_items: [
+            {
+              price_data: {
+                currency: 'sgd',
+                product_data: {
+                  name: itemData["tourTitle"],
+                },
+                unit_amount: itemData["tourPrice"] * 100,
+              },
+              quantity: 1,
+            },
+          ],
+        mode: 'payment',
+        success_url: `${baseUrl}/listing/info/${itemID}/`,
+        cancel_url: `${baseUrl}/listing/${itemID}/payment`,
+    });
+  
+    res.redirect(303, session.url);
+  });
+
+
 router.get('/:id/payment', loginRequired, async (req, res) => {
     const itemID = req.params.id
     const userData = req.currentUser
@@ -764,7 +819,8 @@ router.get('/:id/payment', loginRequired, async (req, res) => {
         },
         stripeApi: {
             "pubKey": STRIPE_PUBLIC_KEY
-        }
+        },
+        tourData: itemData
     }
 
     return res.render('tourGuide/payment.hbs', metadata)

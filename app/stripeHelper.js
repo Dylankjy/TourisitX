@@ -5,13 +5,16 @@ const cardValidator = require('card-validator')
 const STRIPE_PUBLIC_KEY = config.stripe.STRIPE_PUBLIC_KEY
 const STRIPE_SECRET_KEY = config.stripe.STRIPE_SECRET_KEY
 
+
 const stripe = require('stripe')(STRIPE_SECRET_KEY)
 
 
 var userParams = {
-    "email": "mymail@nyp.test.com",
+    "email": "werewre@ere.fer",
     "name": "Bezoos",
 }
+
+
 
 createPaymentMethod = async () => {
     params = {
@@ -65,6 +68,8 @@ chargeCustomer = async (chargeParam) => {
     var resp = await stripe.charges.create(chargeParam)
     console.log(resp)
 }
+
+
 
 
 stripe.customers.create(userParams)
