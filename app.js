@@ -349,24 +349,23 @@ io.on('connection', (socket) => {
                 }
 
                 genkan.getUserByID(data.senderId, (userObject) => {
-                    addMessage(
-                        data.roomId,
-                        data.senderId,
-                        sanitizeHtml(data.msg),
-                        'SENT',
-                        () => {
-                            console.log('Socket Message activity')
-                            return io
-                                .to(data.roomId)
-                                .emit('msgReceive', {
-                                    msg: sanitizeHtml(data.msg),
-                                    roomId: data.roomId,
-                                    senderId: data.senderId,
-                                    senderName: userObject.name,
-                                    pendingCount: data.pendingCount,
-                                })
-                        },
-                    )
+                    // Prevents double sending of messages by the SYSTEM account
+                    // When SYSTEM uses addMessage(), the socket is invoked by the Chat API and added to the database accordingly.
+                    // The socket message will then be picked up by this eventHandler and then added again.
+                    // This if essentially prevents SYSTEM messages from being added to the database twice.
+                    if (userObject.senderId === '00000000-0000-0000-0000-000000000000') return
+
+                    // Else send message
+                    addMessage(data.roomId, data.senderId, sanitizeHtml(data.msg), 'SENT', () => {
+                        console.log('Socket Message activity')
+                        return io.to(data.roomId).emit('msgReceive', {
+                            msg: sanitizeHtml(data.msg),
+                            roomId: data.roomId,
+                            senderId: data.senderId,
+                            senderName: userObject.name,
+                            pendingCount: data.pendingCount,
+                        })
+                    })
                 })
             })
         })
