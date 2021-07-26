@@ -98,7 +98,7 @@ router.get('/profile/:id', async (req, res) => {
         })
         return listings
     }).then((listings) => {
-        
+
         console.log('Tours', listings)
 
         if (isOwner) {
@@ -135,9 +135,9 @@ router.get('/profile/:id', async (req, res) => {
             return res.render('users/profile.hbs', metadata)
         }
     }).catch((err) => {
-            console.log(err)
-            res.json({ 'Message': 'Failed' })
-        })
+        console.log(err)
+        res.json({ 'Message': 'Failed' })
+    })
 })
 
 router.get('/setting/general', async (req, res) => {
@@ -375,6 +375,7 @@ router.get('/setting/password', async (req, res) => {
         },
         user,
         passwordErrors: req.cookies.passwordErrors,
+        passwordSuccess: req.cookies.passwordSuccess,
     }
     return res.render('users/password.hbs', metadata)
 })
@@ -391,37 +392,62 @@ router.post('/setting/password', async (req, res) => {
 
     const v = new Validator(req.fields)
     genkan.getUserBySessionDangerous(sid, (user) => {
-        const newResult = v
-            .Initialize({
-                name: 'new',
-                errorMessage: 'Both passwords do not match',
-            })
-            .exists()
-            .getResult()
 
-        const repeatResult = v
-            .Initialize({
-                name: 'confirm',
-                errorMessage: 'Both passwords do not match',
-            })
-            .exists()
-            .isLength({ min: 8 })
-            .isEqual(req.fields.new)
-            .getResult()
-
-        const passwordErrors = removeNull([newResult, repeatResult])
         // SHA512 Hashing
         const incomingHashedPasswordSHA512 = sha512({
             a: req.fields.old_password,
             b: config.genkan.secretKey,
         })
-
+        passwordErrors = []
         result = bcrypt.compareSync(incomingHashedPasswordSHA512, user.password)
+        if (result === false) {
+            const oldResult = v
+                .Initialize({
+                    name: 'old_password',
+                    errorMessage: 'Wrong password, please try again'
+                })
+                .setFalse()
+                .getResult()
+            passwordErrors.push(oldResult)
+        }
+        else if (req.fields.new.length < 8) {
+            const repeatResult = v
+                .Initialize({
+                    name: 'new',
+                    errorMessage: 'New password should be more than 8 characters',
+                })
+                .exists()
+                .isLength({ min: 8 })
+                .isEqual(req.fields.new)
+                .getResult()
+            passwordErrors.push(repeatResult) 
+    
+        } else if (req.fields.new != req.fields.confirm) {
+            const confirmResult = v
+                .Initialize({
+                    name: 'new',
+                    errorMessage: 'Both passwords do not match, please try again',
+                })
+                .exists()
+                .isEqual(req.fields.confirm)
+                .getResult()
+            passwordErrors.push(confirmResult)
+        }
 
+        passwordErrors = removeNull(passwordErrors)
         if (result === true && emptyArray(passwordErrors)) {
             res.clearCookie('passwordErrors')
             res.clearCookie('storedValues')
             // do password change
+            passwordSuccess = []
+            const formP = v
+                .Initialize({
+                    errorMessage: 'Password changed successfully',
+                })
+                .setFalse()
+                .getResult()
+            passwordSuccess.push(formP)
+            res.cookie('passwordSuccess', passwordSuccess, { maxAge: 5000 })
             genkan.setPassword(sid, req.fields.new, () => {
                 res.redirect(`/u/setting/password`)
                 return callback(true)
