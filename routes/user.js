@@ -81,7 +81,7 @@ router.get('/profile/:id', async (req, res) => {
     const userD = await User.findAll({
         where: {
             'id': req.params.id,
-        }
+        },
     })
     const isOwner = user.id == userD[0]['dataValues'].id
     console.log('Current User:', req.currentUser)
@@ -91,14 +91,13 @@ router.get('/profile/:id', async (req, res) => {
         attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
         where: {
             'userId': req.params.id,
-        }
+        },
     }).then(async (data) => {
         await data.forEach((doc) => {
             listings.push(doc['dataValues'])
         })
         return listings
     }).then((listings) => {
-
         console.log('Tours', listings)
 
         if (isOwner) {
@@ -221,7 +220,7 @@ router.post('/setting/general', async (req, res) => {
     const emailData = await User.findAll({
         where: {
             'email': req.fields.user_email,
-        }
+        },
     })
 
     if ((emailData == '') || (req.fields.user_email == user.email) || (req.fields.user_email.includes('@tourisit.local') == false)) {
@@ -392,7 +391,6 @@ router.post('/setting/password', async (req, res) => {
 
     const v = new Validator(req.fields)
     genkan.getUserBySessionDangerous(sid, (user) => {
-
         // SHA512 Hashing
         const incomingHashedPasswordSHA512 = sha512({
             a: req.fields.old_password,
@@ -404,13 +402,12 @@ router.post('/setting/password', async (req, res) => {
             const oldResult = v
                 .Initialize({
                     name: 'old_password',
-                    errorMessage: 'Wrong password, please try again'
+                    errorMessage: 'Wrong password, please try again',
                 })
                 .setFalse()
                 .getResult()
             passwordErrors.push(oldResult)
-        }
-        else if (req.fields.new.length < 8) {
+        } else if (req.fields.new.length < 8) {
             const repeatResult = v
                 .Initialize({
                     name: 'new',
@@ -420,8 +417,7 @@ router.post('/setting/password', async (req, res) => {
                 .isLength({ min: 8 })
                 .isEqual(req.fields.new)
                 .getResult()
-            passwordErrors.push(repeatResult) 
-    
+            passwordErrors.push(repeatResult)
         } else if (req.fields.new != req.fields.confirm) {
             const confirmResult = v
                 .Initialize({
