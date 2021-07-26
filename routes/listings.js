@@ -7,13 +7,19 @@ const path = require('path')
 const formidableValidator = require('../app/validation')
 const formidable = require('express-formidable')
 const genkan = require('../app/genkan/genkan')
+
+const {
+    loginRequired
+} = require('../app/genkan/middleware')
+
 const cookieParser = require('cookie-parser')
 const { convert } = require('image-file-resize')
 
-const { requireLogin, requirePermission, removeNull, emptyArray, removeFromArray } = require('../app/helpers')
+const { removeNull, emptyArray, removeFromArray } = require('../app/helpers')
 
 // Config file
 const config = require('../config/apikeys.json')
+const routesConfig = require('../config/routes.json')
 
 // Globals
 const router = express.Router()
@@ -26,10 +32,13 @@ const { addRoom, addMessage } = require('../app/chat/chat.js')
 const { insertDB, updateDB, deleteDB, findDB } = require('../app/db.js')
 
 const TIH_API_KEY = config.secret.TIH_API_KEY
+
 const STRIPE_PUBLIC_KEY = config.stripe.STRIPE_PUBLIC_KEY
 const STRIPE_SECRET_KEY = config.stripe.STRIPE_SECRET_KEY
 
-// const stripe = require('stripe')(STRIPE_SECRET_KEY)
+
+const stripe = require('stripe')(STRIPE_SECRET_KEY)
+
 
 const esClient = require('../app/elasticSearch').esClient
 
@@ -175,10 +184,10 @@ router.get('/info/:id', (req, res) => {
                 // Check if session is up to date. Else, require person to reloggin
                 if ((await genkan.isLoggedinAsync(sid)) == false) {
                 // Redirect to login page
-                    return requireLogin(res)
+                    return res.redirect('/id/login')
                 }
 
-                // Alex you suck!!! >:(
+                // Alex you suck!!! >:( <:3
 
                 // If user is logged in and has a valid session
                 const userData = await genkan.getUserBySessionAsync(sid)
@@ -245,17 +254,8 @@ router.get('/info/:id', (req, res) => {
 
 // can we use shards? (Like how we did product card that time, pass in a json and will fill in the HTML template)
 // To create the listing
-router.get('/create', async (req, res) => {
+router.get('/create', loginRequired, async (req, res) => {
     const sid = req.signedCookies.sid
-
-    if (sid == undefined) {
-        return requireLogin(res)
-    }
-
-    if ((await genkan.isLoggedinAsync(sid)) == false) {
-    // Redirect to login page
-        return requireLogin(res)
-    }
 
     // If you have to re-render the page due to errors, there will be cookie storedValue and you use this
     // To use cookie as JSON in javascipt, must URIdecode() then JSON.parse() it
@@ -277,19 +277,10 @@ router.get('/create', async (req, res) => {
 })
 
 // To create the listing
-router.post('/create', async (req, res) => {
+router.post('/create',loginRequired, async (req, res) => {
     res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
 
     const sid = req.signedCookies.sid
-
-    if (sid == null) {
-        return requireLogin(res)
-    }
-
-    if ((await genkan.isLoggedinAsync(sid)) == false) {
-    // Redirect to login page
-        return requireLogin(res)
-    }
 
     const userData = await genkan.getUserBySessionAsync(sid)
 
@@ -448,15 +439,8 @@ router.post('/create', async (req, res) => {
     }
 })
 
-router.get('/edit/:savedId', async (req, res) => {
+router.get('/edit/:savedId', loginRequired, async (req, res) => {
     const sid = req.signedCookies.sid
-    if (sid == null) {
-        return requireLogin(res)
-    }
-    if ((await genkan.isLoggedinAsync(sid)) == false ) {
-    // Redirect to login page
-        return requireLogin(res)
-    }
 
     const userData = await genkan.getUserBySessionAsync(sid)
     Shop.findAll({
@@ -713,97 +697,136 @@ router.get('/unhide/:id', async (req, res)=>{
 })
 
 
-router.get('/payment/customer/create', async (req, res)=>{
+router.post('/:id/stripe-create-checkout', async (req, res) => {
+    console.log("THiS GO TPOSTED")
+    console.log('\n\n\n\n')
+
+    const bookId = req.params.id
+    const userData = req.currentUser
     const sid = req.signedCookies.sid
 
-    if (sid == undefined) {
-        return requireLogin(res)
-    }
-
-    if ((await genkan.isLoggedinAsync(sid)) == false) {
-        // Redirect to login page
-        return requireLogin(res)
-    }
-
-    const userData = await genkan.getUserBySessionAsync(sid)
-
-    const cardNumber = '4242424242424242'
-    const cvc = '424'
-
-    const paymentMethod = await stripe.paymentMethods.create({
-        type: 'card',
-        card: {
-            number: cardNumber,
-            exp_month: 9,
-            exp_year: 2022,
-            cvc: cvc,
+    var bookData = await Booking.findAll({
+        where: {
+            bookId: bookId
         },
+        raw: true
     })
 
-    console.log(paymentMethod)
+    var itemID = bookData[0]["listingId"]
 
-    const customer = await stripe.customers.create({
-        email: userData.email,
-        name: userData.name,
-        payment_method: paymentMethod.id,
+    var itemData = await Shop.findAll({
+        where: {
+            id: itemID
+        },
+        raw: true
     })
 
-    res.json(customer)
-})
+    var savedUserData = await User.findAll({
+        where: {
+            id: userData["id"]
+        },
+        raw: true
+    })
+
+    bookData = bookData[0]
+    itemData = itemData[0]
+    savedUserData = savedUserData[0]
+
+    console.log(bookData)
+
+    // Step 4 means its paying for base tour
+    if (bookData["processStep"] == "4") {
+        var priceToPay = itemData["tourPrice"] * 100
+        var paymentName = itemData["tourTitle"]
+    } 
+    // Step 1 means its paying for customise tour *10% of base tour)
+    else if (bookData["processStep"] == "1") {
+        var priceToPay = itemData["tourPrice"] * 100 * 0.1
+        var paymentName = itemData["tourTitle"] + " Customization fee"
+    }
+
+    else {
+        console.log("ERROR")
+        var priceToPay = 0
+    }
+
+    var baseUrl = routesConfig["base_url"]
+
+    const session = await stripe.checkout.sessions.create({
+        payment_intent_data: {
+            setup_future_usage: 'on_session',
+        },
+        customer: savedUserData["stripe_id"],
+        payment_method_types: ['card'],
+        line_items: [
+            {
+              price_data: {
+                currency: 'sgd',
+                product_data: {
+                  name: paymentName,
+                },
+                unit_amount: priceToPay,
+              },
+              quantity: 1,
+            },
+          ],
+        mode: 'payment',
+        // Where to redirect after payment is done
+        success_url: `${baseUrl}/bookings/${bookId}`,
+        cancel_url: `${baseUrl}/${itemID}/purchase`,
+    });
+  
+    res.redirect(303, session.url);
+  });
 
 
-router.get('/:id/payment', async (req, res) => {
+router.get('/:id/payment', loginRequired, async (req, res) => {
     const itemID = req.params.id
+    const userData = req.currentUser
 
     const sid = req.signedCookies.sid
 
-    if (sid == undefined) {
-        return requireLogin(res)
+    var itemData = await Shop.findAll({
+        where: {
+            id: itemID
+        },
+        raw: true
+    })
+
+    var savedUserData = await User.findAll({
+        where: {
+            id: userData["id"]
+        },
+        raw: true
+    })
+
+    itemData = itemData[0]
+    savedUserData = savedUserData[0]
+    // Boolean to check if user has stripeId. If no have, then add card details
+    var requireRegisterCustomer = savedUserData["stripe_id"] == null
+    
+    // Redirect to register customer first
+    if (requireRegisterCustomer) {
+
     }
 
-    if ((await genkan.isLoggedinAsync(sid)) == false) {
-        // Redirect to login page
-        return requireLogin(res)
-    }
-
+    // User already has a stripe account, can proceed to charge card
 
     // Replace wth res.redirect()
-    res.render('tourGuide/payment.hbs', {
-        key: 'blahblah',
-        payeeName: 'tester',
-        tourName: 'Best Tours',
-        price: 'Blah Price',
-    })
-})
-
-
-router.post('/:id/payment', async (req, res) => {
-    const itemID = req.params.id
-
-    const itemData = await Shop.findAll({
-        where: {
-            id: itemID,
+    const metadata = {
+        data: {
+            currentUser: req.currentUser,
         },
-    })
+        stripeApi: {
+            "pubKey": STRIPE_PUBLIC_KEY
+        },
+        tourData: itemData
+    }
 
-    const tourPrice = itemData[0]['dataValues']['tourPrice'] * 100
-    console.log(tourPrice)
-
-    const charge = await stripe.charges.create({
-        amount: tourPrice,
-        currency: 'sgd',
-        source: 'tok_visa',
-        description: 'Just testing',
-        capture: false,
-    })
-
-    console.log(charge.id)
-
-    const capture = await stripe.charges.capture(
-        charge.id,
-    )
-    res.json(capture)
+    return res.render('tourGuide/payment.hbs', metadata)
 })
+
+
 
 
 router.get('/charges', async (req, res)=>{
@@ -812,21 +835,12 @@ router.get('/charges', async (req, res)=>{
     res.json(txs)
 })
 
-router.get('/:id/favourite', async (req, res) => {
+router.get('/:id/favourite', loginRequired, async (req, res) => {
     const itemID = req.params.id
 
     const sid = req.signedCookies.sid
 
-    if (sid == undefined) {
-        return requireLogin(res)
-    }
-
-    if ((await genkan.isLoggedinAsync(sid)) == false) {
-        // Redirect to login page
-        return requireLogin(res)
-    }
-
-    const userData = await genkan.getUserBySessionAsync(sid)
+    const userData = req.currentUser
     const userId = userData.id
     const userWishlist = userData.wishlist
     if (userWishlist == null || userWishlist == '') {
@@ -858,21 +872,12 @@ router.get('/:id/favourite', async (req, res) => {
 })
 
 
-router.get('/:id/unfavourite', async (req, res) => {
+router.get('/:id/unfavourite', loginRequired, async (req, res) => {
     const itemID = req.params.id
 
     const sid = req.signedCookies.sid
 
-    if (sid == undefined) {
-        return requireLogin(res)
-    }
-
-    if ((await genkan.isLoggedinAsync(sid)) == false) {
-        // Redirect to login page
-        return requireLogin(res)
-    }
-
-    const userData = await genkan.getUserBySessionAsync(sid)
+    const userData = req.currentUser
     const userId = userData.id
 
     const userWishlist = userData.wishlist
@@ -894,7 +899,7 @@ router.get('/:id/unfavourite', async (req, res) => {
 router.get('/tt', async (req, res)=>{
     const sid = req.signedCookies.sid
 
-    const userData = await genkan.getUserBySessionAsync(sid)
+    const userData = req.currentUser
     const userId = userData.id
     const userWishlist = userData.wishlist
     const userWishlistArr = userWishlist.split(';!;')
@@ -982,18 +987,11 @@ router.post('/edit/image/:savedId', (req, res) => {
     }
 })
 
-router.get('/delete/:savedId', async (req, res) => {
+router.get('/delete/:savedId', loginRequired, async (req, res) => {
     const itemID = req.params.savedId
     const sid = req.signedCookies.sid
-    if (sid == null) {
-        return requireLogin(res)
-    }
-    if ((await genkan.isLoggedinAsync(sid)) == false) {
-    // Redirect to login page
-        return requireLogin(res)
-    }
 
-    const userData = await genkan.getUserBySessionAsync(sid)
+    const userData = req.currentUser
 
     const listingOwner = await Shop.findAll({
         attributes: ['userId'],
@@ -1086,13 +1084,13 @@ router.get('/:id/purchase', async (req, res) => {
 })
 
 // Default booking
-router.post('/:id/purchase', async (req, res) => {
+router.post('/:id/purchase', loginRequired, async (req, res) => {
     console.log(req.fields)
     res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
     const tourID = req.params.id
     const sid = req.signedCookies.sid
 
-    const userData = await genkan.getUserBySessionAsync(sid)
+    const userData = req.currentUser
     Shop.findAll({
         where: {
             id: tourID,
@@ -1220,7 +1218,8 @@ router.post('/:id/purchase', async (req, res) => {
                                     //  will be removed once payment system is in place
                                     timelineMsg = userData.name + ' made payment. You are now ready to go on your tour!'
                                     addMessage(roomId, 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
-                                        res.redirect(`/bookings`)
+                                        // res.redirect(`/bookings`)
+                                        res.redirect(307, `/listing/${genId}/stripe-create-checkout`)
                                     })
                                 })
                             })
@@ -1240,7 +1239,7 @@ router.post('/:id/purchase/customise', async (req, res) => {
     const tourID = req.params.id
     const sid = req.signedCookies.sid
 
-    const userData = await genkan.getUserBySessionAsync(sid)
+    const userData = req.currentUser
     Shop.findAll({
         where: {
             id: tourID,
@@ -1346,7 +1345,7 @@ router.post('/:id/purchase/customise', async (req, res) => {
                                     //  will be removed once payment system is in place
                                     timelineMsg = '<customer> paid the customisation fee.'
                                     addMessage(roomId, 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
-                                        res.redirect(`/bookings`)
+                                        res.redirect(307, `/listing/${genId}/stripe-create-checkout`)
                                     })
                                 })
                             })

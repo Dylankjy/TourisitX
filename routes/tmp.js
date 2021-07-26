@@ -1,27 +1,57 @@
-const { ChatRoom } = require('../models')
-const chat = require('../app/chat/chat')
-const { Op } = require('sequelize')
+const { Shop, User } = require("../models");
 
-a = async () => {
-    const tourGuideId = '1ac140a0-ec55-11eb-9654-4f78fedafb73'
-    const adminID = '00000000-0000-0000-0000-000000000000'
-    const revokeMessage = 'THis is revoed'
+// Config file
+const config = require('../config/apikeys.json')
 
-    const chatData = await ChatRoom.findAll(
-        {
-            where: {
-                participants: {
-                    [Op.like]: `%${tourGuideId}%${adminID}%`,
-                },
-            },
+
+const STRIPE_PUBLIC_KEY = config.stripe.STRIPE_PUBLIC_KEY
+const STRIPE_SECRET_KEY = config.stripe.STRIPE_SECRET_KEY
+
+const stripe = require('stripe')(STRIPE_SECRET_KEY)
+
+
+test = async () => {
+  var itemData = await Shop.findAll({
+    where: {
+        id: "332f5448-aed0-492e-b287-0fba9dffdedd"
+    },
+    raw: true
+  })
+  
+  var savedUserData = await User.findAll({
+    where: {
+        id: "2a84c8e0-ecf5-11eb-9840-a31b685bb3e4"
+    },
+    raw: true
+  })
+  
+  itemData = itemData[0]
+  savedUserData = savedUserData[0]
+  
+  const session = await stripe.checkout.sessions.create({
+    payment_intent_data: {
+        setup_future_usage: 'off_session',
+    },
+    customer: savedUserData["stripe_id"],
+    payment_method_types: ['card'],
+    line_items: [
+      {
+        price_data: {
+          currency: 'sgd',
+          product_data: {
+            name: itemData["tourTitle"],
+          },
+          unit_amount: itemData["tourPrice"] * 100,
         },
-        (raw = true),
-    )
+        quantity: 1,
+      },
+    ],
+    mode: 'payment',
+    success_url: 'https://example.com/success.html',
+    cancel_url: 'https://example.com/cancel.html',
+  });
 
-    const chatRoomID = chatData[0]['chatId']
-    console.log('THIS IS CHAT ROOM ID' + chatRoomID)
-    console.log(revokeMessage)
-    chat.addMessage(chatRoomID, 'SYSTEM', revokeMessage, 'SENT', () => {})
+  console.log(session)
 }
 
-a()
+test()
