@@ -1,3 +1,5 @@
+// Provides syntax compatibility with Genkan.
+
 // This is a sequelize wrapper that accepts MongoDB-like code syntax that I always use.
 // 僕はSequelizeが嫌いなので、このコードは僕のGPAについてに必要です。自殺させていただけないでしょうかなああああ？？？
 
@@ -69,10 +71,5 @@ deleteDB = (table, query, callback) => {
         return callback(false)
     })
 }
-
-// module.exports = insertDB
-// module.exports = updateDB
-// module.exports = deleteDB
-// module.exports = findDB
 
 module.exports = { insertDB, updateDB, deleteDB, findDB }
