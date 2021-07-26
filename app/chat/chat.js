@@ -211,10 +211,6 @@ excludeSelfIDAsync = (uid, listOfChats) => {
 
 getListOfRoomsByUserIDAsync = (uid) => {
     return new Promise((res, rej) => {
-        if (uuid.validate(uid) !== true) {
-            return rej(new Error('Invalid User ID'))
-        }
-
         ChatRoom.findAll({
             where: {
                 participants: {
