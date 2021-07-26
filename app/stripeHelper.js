@@ -70,14 +70,60 @@ chargeCustomer = async (chargeParam) => {
 }
 
 
+createPayout = async (amt) => {
+    const payout = await stripe.payouts.create({
+        amount: amt*100,
+        currency: 'sgd',
+        destination: "000123456"
+    });
+
+    console.log(payout)
+}
 
 
-stripe.customers.create(userParams)
-.then((data)=>{
-    console.log(data["id"])
-}).catch((err)=>{
-    console.log(err)
-})
+viewBalance = async () => {
+    stripe.balance.retrieve(function(err, balance) {
+        console.log(balance)
+    });
+}
+
+addBankAcc = async () => {
+    const source = {
+        object: 'bank_account',
+        country: 'SG',
+        currency: 'sgd',
+        routing_number: '1100-000',
+        account_number: '000123456'
+    }
+
+
+    const bankAccount = await stripe.customers.createSource(
+        'cus_JuoDlpsygwIlPB',
+        {source: source}
+    );
+    console.log(bankAccount)
+}
+
+// addBankAcc()
+
+// Payout to seller account
+// stripe.transfers.create({
+//     amount: 10 * 1000,
+//     currency: "sgd",
+//     destination: "acct_1JHIw4QAjLjpblZf",
+//   }).then((data)=>{
+//     console.log(data)
+// })
+
+stripe.topups.create({
+    amount: 2000,
+    currency: 'usd',
+    description: 'Top-up for week of May 31',
+    statement_descriptor: 'Weekly top-up',
+  }).then((data)=>{
+      console.log(data)
+  })
+
 
 // var resp = cardValidator.number('4242424242424242')
 // console.log(cardValidator.expirationDate("10/21"))

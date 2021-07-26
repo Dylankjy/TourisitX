@@ -696,11 +696,36 @@ router.get('/unhide/:id', async (req, res)=>{
     }
 })
 
+router.post('/add-card', async (req, res)=> {
+
+    const userData = req.currentUser
+    var savedUserData = await User.findAll({
+        where: {
+            id: userData["id"]
+        },
+        raw: true
+    })
+    savedUserData = savedUserData[0]
+
+    const account = await stripe.accounts.create({
+        type: 'express',
+    });
+
+    console.log(account)
+    var baseUrl = routesConfig["base_url"]
+
+    const accountLinks = await stripe.accountLinks.create({
+        account: account["id"],
+        refresh_url: `${baseUrl}`,
+        return_url: `${baseurl}`,
+        type: 'account_onboarding',
+    });
+
+    res.redirect(303, accountLinks.url)
+} )
+
 
 router.post('/:id/stripe-create-checkout', async (req, res) => {
-    console.log("THiS GO TPOSTED")
-    console.log('\n\n\n\n')
-
     const bookId = req.params.id
     const userData = req.currentUser
     const sid = req.signedCookies.sid
@@ -773,7 +798,7 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
         mode: 'payment',
         // Where to redirect after payment is done
         success_url: `${baseUrl}/bookings/${bookId}`,
-        cancel_url: `${baseUrl}/${itemID}/purchase`,
+        cancel_url: `${baseUrl}/listing/${itemID}/purchase`,
     });
   
     res.redirect(303, session.url);
