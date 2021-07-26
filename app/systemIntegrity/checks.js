@@ -43,7 +43,7 @@ const GodUserSchema = {
     'id': '00000000-0000-0000-0000-000000000002',
     'name': 'ADMINISTRATOR',
     'email': 'administrator@tourisit.local',
-    'password': 'password#123',
+    'password': '$2b$12$mXBsVKpKYhxd7tWvHXvmd.o3Kd1QuqIJaJdzfL8RkcxAJ66X4Nsba', // Defaults to 'Password-123'
     'ip_address': '127.0.0.1',
     'lastseen_time': new Date(),
     'is_admin': true,

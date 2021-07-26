@@ -1,109 +1,100 @@
-<head>
-    <link rel='stylesheet' href='/css/profile.css'/>
-</head>
+<link rel='stylesheet' href='/css/profile.css' />
 
-{{#if (isDefined bioErrors)}}
-    {{#if (haveErr bioErrors)}}
-        <div class='section'>
-            <div class='columns'>
-                <div class='column is-half is-offset-3'>
-                    <article class='message is-danger'>
-                        <div class='message-header'>
-                            <p>Errors</p>
-                            <button class='delete' onclick='this.parentElement.parentElement.remove()'></button>
-                        </div>
-                        <div class='message-body'>
-                            {{#each bioErrors}}
-                                <blockquote>{{this.msg}}</blockquote>
-                            {{/each}}
-                        </div>
-                    </article>
-                </div>
+<section class="section has-background-black">
+    <div class="container">
+        <div class="columns is-vcentered">
+            <div class="column is-one-fifth">
+                {{!-- <div class='profile-img-onprofile'
+                    style="background-image: url('')"></div> --}}
+                <div class='profile-img-onprofile' style="background-image: url('/static/users/{{uData.profile_img}}')"></div>
             </div>
-        </div>
-    {{/if}}
-{{/if}}
-<section class='section is-medium pt-3'>
-    <div class='container profile-container box p-6' style="background-image: url('/static/users/{{uData.profile_img}}')">
-        <div class='profile-card-blur'></div>
-        <div class='columns is-vcentered' style='position: inherit; z-index: 1'>
-            {{#if isOwner}}
-                {{>editablepfp}}
-            {{else}}
-                <div class='column is-one-fifth'>
-                    <div class='profile-img-onprofile' style="background-image: url('/static/users/{{uData.profile_img}}')"></div>
-                </div>
-            {{/if}}
-
-            <div class='column'>
-                <p class='title is-1 has-text-white'>
-                    {{uData.name}}
-                    {{#if uData.is_verified}}
-                        <span class='tag is-success'>
-							<i class='fas fa-check'></i>&ensp;Verified Guide
-						</span>
-                    {{/if}}
-                    {{#if uData.is_admin}}
-                        <span class='tag is-danger is-dark'>
-							<i class='fas fa-id-badge'></i>&ensp;Tourisit Admin
-						</span>
-                    {{/if}}
+            <div class="column has-text-white">
+                <h1 class="title has-text-white is-2">{{uData.name}}</h1>
+                <p class="subtitle has-text-grey-light">{{uData.bio}}</p>
+                <p class="has-text-grey-lighter">
+                    <span title="{{timestampParseISO uData.lastseen_time}}">
+                        <i class="fas fa-clock"></i>&ensp;{{parseTimeAgo uData.lastseen_time}}
+                    </span>
+                    <span>
+                        &nbsp;
+                        &bull;
+                        &nbsp;
+                    </span>
+                    <span title="{{timestampParseISO uData.createdAt}}">
+                        Joined on {{dateParseISO uData.createdAt}}
+                    </span>
                 </p>
-                <p id='bioContainer' class='is-size-5 has-text-grey-lighter'>
-                    {{uData.bio}}
-                    <span class='has-text-grey'>
-						<i onclick="$('#bioContainer').fadeOut('fast', () => { $('#bioEditFormContainer').slideDown() });"
-                           class='fa fa-edit'></i>
-					</span>
-
-                </p>
-
-                <div id='bioEditFormContainer' style='display: none;'>
-                    <form class='form-horizontal' method='POST' id='editBioForm'>
-                        <fieldset>
-                            <div class='field'>
-                                <div class='control'>
-                                    <input class='input' type='text' style='height:50px;' name='bio'
-                                           value="{{uData.bio}}"/>
-                                </div>
-                            </div>
-                            <div class='field is-small has-text-right'>
-                                <label class='label' for='bio-submit'></label>
-                                <button type='submit' class='button is-success' id='bio-submit'><i
-                                        class='fas fa-save'></i>&nbsp; Save
-                                </button>
-                                <a class='button is-danger is-light'
-                                   onclick="$('#bioEditFormContainer').slideUp('', () => { $('#bioContainer').fadeIn() });">
-                                    <i class='fas fa-times'></i>&nbsp; Cancel</a>
-                            </div>
-                        </fieldset>
-                    </form>
-                </div>
-
-                {{! <a href='' id='reportbtn'>
-                    <button class='button is-danger is-outlined mt-4'>Report Abuse</button>
-                </a> }}
-
                 <div class='field is-grouped has-text-right mt-3'>
                     {{#if uData.fb}}
-                        <a id='fb' href='{{uData.fb}}'>
-                            <i class='fab fa-facebook-square fa-2x mr-3' style='color: #3B5998;'></i>
-                        </a>
+                    <a id='fb' href='{{uData.fb}}' target="_blank">
+                        <i class='fab fa-facebook fa-2x mr-3 has-text-grey'></i>
+                    </a>
                     {{/if}}
 
                     {{#if uData.insta}}
-                        <a id='fb' href='{{uData.insta}}'>
-                            <i class='fab fa-instagram-square fa-2x mr-3' style='color: #DD2A7D;'></i>
-                        </a>
+                    <a id='fb' href='{{uData.insta}}' target="_blank">
+                        <i class='fab fa-instagram fa-2x mr-3 has-text-grey'></i>
+                    </a>
                     {{/if}}
 
                     {{#if uData.li}}
-                        <a id='fb' href='{{uData.li}}'>
-                            <i class='fab fa-linkedin fa-2x' style='color: #0077B5;'></i>
-                        </a>
+                    <a id='fb' href='{{uData.li}}' target="_blank">
+                        <i class='fab fa-linkedin-in fa-2x has-text-grey'></i>
+                    </a>
                     {{/if}}
                 </div>
             </div>
         </div>
+    </div>
+</section>
+
+{{!-- TODO: Show a list of tours this user has created --}}
+<section class="section">
+    <div class="container">
+        <h2 class="title">Tours by this user</h2>
+        {{#if data.tours}}
+        {{>listingCard}}
+        {{else}}
+        <p class="has-text-grey-light">No tours created yet.</p>
+        {{/if}}
+    </div>
+</section>
+
+{{!-- TODO: Show list of reviews this user has created --}}
+<section class="section has-background-light">
+    <div class="container">
+        <h2 class="title">Reviews by this user</h2>
+        {{#if data.reviews}}
+        <div class="box p-5">
+            <p>
+                <span class="has-text-weight-bold">
+                    <a href="/u/profile/{{Changethis}}">Ri Takamochi</a>
+                </span>
+                <span>
+                    &nbsp;
+                    &bull;
+                    &nbsp;
+                </span>
+                <span>
+                    10/12/2021
+                </span>
+                <span>
+                    &nbsp;
+                    &bull;
+                    &nbsp;
+                </span>
+                <span class="has-text-grey-lighter">
+                    <i class="fas fa-star has-text-dark"></i>
+                    <i class="fas fa-star has-text-dark"></i>
+                    <i class="fas fa-star has-text-dark"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </span>
+            </p>
+            <p class="content">The tour guide is very friendly. Would buy again</p>
+        </div>
+        {{else}}
+        <p class="has-text-grey-light">No reviews created yet.</p>
+        {{/if}}
     </div>
 </section>

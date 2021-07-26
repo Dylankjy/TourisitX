@@ -47,6 +47,7 @@ app.use(getCurrentUser)
 
 // Module imports
 const dateFormat = require('dateformat')
+const ta = require('time-ago')
 
 // Handlebars: Render engine
 app.set('view engine', 'hbs')
@@ -182,6 +183,13 @@ app.engine('hbs', exphbs({
             return dateFormat(value, 'dS mmmm yyyy, HH:MM:ss')
         },
 
+        parseTimeAgo: (value) => {
+            if ((new Date() - value) / 1000 < 120) {
+                return 'Just now'
+            }
+            return ta.ago(value)
+        },
+
         toNum: (value) => {
             return parseInt(value)
         },
@@ -274,7 +282,7 @@ const webserver = () => {
         if (err) {
             console.log(`\x1b[1m\x1b[2m[WEBSERVER] - \x1b[0m\x1b[1m\x1b[31m\x1b[5mFAILED\x1b[0m\x1b[31m: Unable to bind to port 5000. Could there possibly be another instance alive?\x1b[0m`)
         }
-        console.log(`\x1b[1m\x1b[2m[WEBSERVER] - \x1b[1m\x1b[34mOK\x1b[0m: Webserver binded on port 5000 | http://127.0.0.1:5000\x1b[0m`)
+        console.log(`\x1b[1m\x1b[2m[WEBSERVER] - \x1b[1m\x1b[34mOK\x1b[0m: Webserver binded on port 5000 | http://localhost:5000\x1b[0m`)
     })
 }
 
@@ -287,7 +295,7 @@ require('./models').sequelize.sync().then((req) => {
     integrityCheck.check().catch((err) => {
         console.log(`\x1b[1m\x1b[2m[SYSTEMIC] - \x1b[0m\x1b[1m\x1b[31m\x1b[5mFAILED\x1b[0m\x1b[31m: System checks not satisifed. Halting application.\x1b[0m`)
         console.error(err)
-        process.exit(0)
+        process.exit(1)
     }).then(() => {
         // If all is well, start the webserver.
         webserver()
