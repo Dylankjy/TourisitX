@@ -40,13 +40,13 @@
 			{{#if user.is_tourguide}}
 				<label class='has-text-weight-medium has-text-grey-dark' for='account_mode'>Tour Guide Mode:</label>
 				&nbsp;
-				<input class='switch is-rounded' type='checkbox' name='account_modes' id='account_modes' checked='checked' />
+				<input class='switch is-rounded' type='checkbox' name='account_modes' id='account_modes' checked='checked'>
 				<!-- Empty label -->
 				<label class='has-text-weight-medium has-text-grey-dark' for='account_modes'></label>
 			{{else}}
 				<label class='has-text-weight-medium has-text-grey-dark' for='account_mode'>Tour Guide Mode:</label>
 				&nbsp;
-				<input class='switch is-rounded' type='checkbox' name='account_modes' id='account_modes' />
+				<input class='switch is-rounded' type='checkbox' name='account_modes' id='account_modes' >
 				<!-- Empty label -->
 				<label class='has-text-weight-medium has-text-grey-dark' for='account_modes'></label>
 			{{/if}}
@@ -55,7 +55,7 @@
 
 		<!-- Name -->
 		<div class='field'>
-			<label class='label has-text-weight-medium has-text-grey-dark' for='uname'>Name</label>
+			<label class='label has-text-weight-medium has-text-grey-dark' for='uname'>Name:</label>
 			<div class='control'>
 				<input class='input' type='text' name='uname' value='{{user.name}}' />
 			</div>
@@ -68,6 +68,7 @@
 				<input class='input' type='text' style='height:50px;' name='user_email' value='{{user.email}}' />
 			</div>
 		</div>
+
 		<!-- Phone Number -->
 		<div class='field'>
 			<label class='label has-text-weight-medium has-text-grey-dark' for='phone_number'>Phone Number:</label>
@@ -76,23 +77,31 @@
 			</div>
 		</div>
 
+		<!-- Bio -->
+		<div class='field'>
+			<label class='label has-text-weight-medium has-text-grey-dark' for='user_bio'>Bio:</label>
+			<div class='control'>
+				<input class='input' type='text' style='height:50px;' name='user_bio' value='{{user.bio}}' />
+			</div>
+		</div>
+
 		<!-- Facebook -->
 		<div class='field'>
-			<label class='label has-text-weight-medium has-text-grey-dark' for='fb'>Facebook</label>
+			<label class='label has-text-weight-medium has-text-grey-dark' for='fb'>Facebook:</label>
 			<div class='control'>
 				<input class='input' type='text' name='fb' value='{{user.fb}}' />
 			</div>
 		</div>
 		<!-- Instagram -->
 		<div class='field'>
-			<label class='label has-text-weight-medium has-text-grey-dark' for='insta'>Instagram</label>
+			<label class='label has-text-weight-medium has-text-grey-dark' for='insta'>Instagram:</label>
 			<div class='control'>
 				<input class='input' type='text' name='insta' value='{{user.insta}}' />
 			</div>
 		</div>
 		<!-- LinkedIn -->
 		<div class='field'>
-			<label class='label has-text-weight-medium has-text-grey-dark' for='linkedin'>LinkedIn</label>
+			<label class='label has-text-weight-medium has-text-grey-dark' for='linkedin'>LinkedIn:</label>
 			<div class='control'>
 				<input class='input' type='text' name='li' value='{{user.li}}' />
 			</div>
@@ -108,9 +117,9 @@
 <!-- Retrieve selected file name-->
 <script>
     $("#s1").click(function () {
-        if ($('#account_mode').prop("checked") == true) {
+        if ($('#account_modes').prop("checked") == true) {
             $('#mode').val('true')
-        } else if ($('#account_mode').prop("checked") == false) {
+        } else if ($('#account_modes').prop("checked") == false) {
             $('#mode').val('false')
         }
     });

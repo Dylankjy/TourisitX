@@ -140,47 +140,6 @@ router.get('/profile/:id', async (req, res) => {
         })
 })
 
-router.post('/profile/:id', async (req, res) => {
-    res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
-    const sid = req.signedCookies.sid
-    if (sid == undefined) {
-        return requireLogin(res)
-    }
-    if ((await genkan.isLoggedinAsync(sid)) == false) {
-        return requireLogin(res)
-    }
-
-    const user = await genkan.getUserBySessionAsync(sid)
-    const v = new Validator(req.fields)
-
-    bioErrors = []
-    if (req.fields.bio == '') {
-    } else {
-        const bioResult = v
-            .Initialize({ name: 'bio', errorMessage: 'Bio must be less than 200 characters' })
-            .isLength({ max: 200 })
-            .getResult()
-        bioErrors.push(bioResult)
-    }
-
-    bioErrors = removeNull(bioErrors)
-
-    if (!emptyArray(bioErrors)) {
-        res.cookie('bioErrors', bioErrors, { maxAge: 5000 })
-        res.redirect(`/u/profile/${req.params.id}`)
-    } else {
-        res.clearCookie('bioErrors')
-        res.clearCookie('storedValues')
-
-        const bioDetails = {
-            'bio': req.fields.bio,
-        }
-        updateDB('user', { 'id': user.id }, bioDetails, () => {
-            return res.redirect(`/u/profile/${req.params.id}`)
-        })
-    }
-})
-
 router.get('/setting/general', async (req, res) => {
     const sid = req.signedCookies.sid
     if (sid == undefined) {
@@ -292,6 +251,15 @@ router.post('/setting/general', async (req, res) => {
         settingErrors.push(phoneResult)
     }
 
+    if (req.fields.user_bio == '') {
+    } else {
+        const bioResult = v
+            .Initialize({ name: 'user_bio', errorMessage: 'Bio must be less than 250 characters' })
+            .isLength({ max: 250 })
+            .getResult()
+        settingErrors.push(bioResult)
+    }
+
     if (req.fields.fb == '') {
     } else {
         const fbResult = v
@@ -351,6 +319,7 @@ router.post('/setting/general', async (req, res) => {
                 'email': req.fields.user_email,
                 'phone_number': req.fields.phone_number,
                 'is_tourguide': 1,
+                'bio': req.fields.user_bio,
                 'fb': req.fields.fb,
                 'insta': req.fields.insta,
                 'li': req.fields.li,
@@ -364,6 +333,7 @@ router.post('/setting/general', async (req, res) => {
                 'email': req.fields.user_email,
                 'phone_number': req.fields.phone_number,
                 'is_tourguide': 0,
+                'bio': req.fields.user_bio,
                 'fb': req.fields.fb,
                 'insta': req.fields.insta,
                 'li': req.fields.li,
