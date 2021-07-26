@@ -1,121 +1,125 @@
 <head>
-    <link rel='stylesheet' href='/third_party/bulma/bulma-switch/dist/css/bulma-switch.min.css' />
-    <script src='/third_party/jquery-ui/jquery-ui.js'></script>
+	<link rel='stylesheet' href='/third_party/bulma/bulma-switch/dist/css/bulma-switch.min.css' />
+	<script src='/third_party/jquery-ui/jquery-ui.js'></script>
 </head>
-
 
 <!-- If validationErrors is defined and there are validationErrors -->
 {{#if (isDefined passwordErrors)}}
-{{#if (haveErr passwordErrors)}}
-<div id="errorMessage" class="notification is-danger">
-    {{#each settingErrors}}
-    <p>{{this.msg}}</p>
-    {{/each}}
-</div>
+	{{#if (haveErr passwordErrors)}}
+		<div id='errorMessage' class='notification is-danger'>
+			{{#each settingErrors}}
+				<p>{{this.msg}}</p>
+			{{/each}}
+		</div>
 
-<script>
-    $('#errorMessage').delay(10000).slideUp();
-</script>
-{{/if}}
+		<script>
+			$('#errorMessage').delay(10000).slideUp();
+		</script>
+	{{/if}}
 {{/if}}
 
 {{#if (isDefined successMsg)}}
-{{#if (haveErr successMsg)}}
-<div id="successMessage" class="notification is-success">
-    {{#each successMsg}}
-    <p>{{this.msg}}</p>
-    {{/each}}
-</div>
+	{{#if (haveErr successMsg)}}
+		<div id='successMessage' class='notification is-success'>
+			{{#each successMsg}}
+				<p>{{this.msg}}</p>
+			{{/each}}
+		</div>
 
-<script>
-    $('#successMessage').delay(10000).slideUp();
-</script>
-{{/if}}
+		<script>
+			$('#successMessage').delay(10000).slideUp();
+		</script>
+	{{/if}}
 {{/if}}
 
 <div class='container'>
-    <!-- Update account settings -->
-    <form class='form-horizontal formfield' enctype='multipart/form-data' method='POST' id='editSettingForm'>
-        <!-- Account Mode -->
-        <div class='field'>
-            {{#if user.is_tourguide}}
-            <label class='has-text-weight-medium has-text-grey-dark' for='account_mode'>Tour Guide Mode:</label>
-            &nbsp;
-            <input class='switch is-rounded' type='checkbox' name='account_modes' id='account_modes'
-                checked='checked' />
-            <!-- Empty label -->
-            <label class='has-text-weight-medium has-text-grey-dark' for='account_modes'></label>
-            {{else}}
-            <label class='has-text-weight-medium has-text-grey-dark' for='account_mode'>Tour Guide Mode:</label>
-            &nbsp;
-            <input class='switch is-rounded' type='checkbox' name='account_modes' id='account_modes' />
-            <!-- Empty label -->
-            <label class='has-text-weight-medium has-text-grey-dark' for='account_modes'></label>
-            {{/if}}
-            <input type="hidden" id="mode" name="mode">
-        </div>
+	<!-- Update account settings -->
+	<form class='form-horizontal formfield' enctype='multipart/form-data' method='POST' id='editSettingForm'>
+		<!-- Account Mode -->
+		<div class='field'>
+			{{#if user.is_tourguide}}
+				<label class='has-text-weight-medium has-text-grey-dark' for='account_mode'>Tour Guide Mode:</label>
+				&nbsp;
+				<input class='switch is-rounded' type='checkbox' name='account_modes' id='account_modes' checked='checked'>
+				<!-- Empty label -->
+				<label class='has-text-weight-medium has-text-grey-dark' for='account_modes'></label>
+			{{else}}
+				<label class='has-text-weight-medium has-text-grey-dark' for='account_mode'>Tour Guide Mode:</label>
+				&nbsp;
+				<input class='switch is-rounded' type='checkbox' name='account_modes' id='account_modes' >
+				<!-- Empty label -->
+				<label class='has-text-weight-medium has-text-grey-dark' for='account_modes'></label>
+			{{/if}}
+			<input type='hidden' id='mode' name='mode' />
+		</div>
 
-        <!-- Name -->
-        <div class='field'>
-            <label class='label has-text-weight-medium has-text-grey-dark' for='uname'>Name</label>
-            <div class='control'>
-                <input class='input' type='text' name='uname' value='{{user.name}}' />
-            </div>
-        </div>
+		<!-- Name -->
+		<div class='field'>
+			<label class='label has-text-weight-medium has-text-grey-dark' for='uname'>Name:</label>
+			<div class='control'>
+				<input class='input' type='text' name='uname' value='{{user.name}}' />
+			</div>
+		</div>
 
+		<!-- Email -->
+		<div class='field'>
+			<label class='label has-text-weight-medium has-text-grey-dark' for='user_email'>Email:</label>
+			<div class='control'>
+				<input class='input' type='text' style='height:50px;' name='user_email' value='{{user.email}}' />
+			</div>
+		</div>
 
-                    <!-- Email -->
-                    <div class='field'>
-                        <label class='label has-text-weight-medium has-text-grey-dark' for='user_email'>Email:</label>
-                        <div class='control'>
-                            <input class='input' type='text' style='height:50px;' name='user_email' value='{{user.email}}'/>
-                        </div>
-                    </div>
-                    <!-- Phone Number -->
-                    <div class='field'>
-                        <label class='label has-text-weight-medium has-text-grey-dark' for='phone_number'>Phone Number:</label>
-                        <div class='control'>
-                            <input class='input' type='text' style='height:50px;' name='phone_number' value='{{user.phone_number}}'/>
-                        </div>
-                    </div>
+		<!-- Phone Number -->
+		<div class='field'>
+			<label class='label has-text-weight-medium has-text-grey-dark' for='phone_number'>Phone Number:</label>
+			<div class='control'>
+				<input class='input' type='text' style='height:50px;' name='phone_number' value='{{user.phone_number}}' />
+			</div>
+		</div>
 
-        <hr>
-        <!-- Facebook -->
-        <div class='field'>
-            <label class='label has-text-weight-medium has-text-grey-dark' for='fb'>Facebook</label>
-            <div class='control'>
-                <input class='input' type='text' name='fb' value='{{user.fb}}' />
-            </div>
-        </div>
-        <!-- Instagram -->
-        <div class='field'>
-            <label class='label has-text-weight-medium has-text-grey-dark' for='insta'>Instagram</label>
-            <div class='control'>
-                <input class='input' type='text' name='insta' value='{{user.insta}}' />
-            </div>
-        </div>
-        <!-- LinkedIn -->
-        <div class='field'>
-            <label class='label has-text-weight-medium has-text-grey-dark' for='linkedin'>LinkedIn</label>
-            <div class='control'>
-                <input class='input' type='text' name='li' value='{{user.li}}' />
-            </div>
-        </div>
-        <div class='field'>
-            <div class='control'>
-                <button class='button is-dark' type='submit' id='s1'><i class="fas fa-save"></i>&ensp;Save
-                    changes</button>
-            </div>
-        </div>
-    </form>
+		<!-- Bio -->
+		<div class='field'>
+			<label class='label has-text-weight-medium has-text-grey-dark' for='user_bio'>Bio:</label>
+			<div class='control'>
+				<input class='input' type='text' style='height:50px;' name='user_bio' value='{{user.bio}}' />
+			</div>
+		</div>
+
+		<!-- Facebook -->
+		<div class='field'>
+			<label class='label has-text-weight-medium has-text-grey-dark' for='fb'>Facebook:</label>
+			<div class='control'>
+				<input class='input' type='text' name='fb' value='{{user.fb}}' />
+			</div>
+		</div>
+		<!-- Instagram -->
+		<div class='field'>
+			<label class='label has-text-weight-medium has-text-grey-dark' for='insta'>Instagram:</label>
+			<div class='control'>
+				<input class='input' type='text' name='insta' value='{{user.insta}}' />
+			</div>
+		</div>
+		<!-- LinkedIn -->
+		<div class='field'>
+			<label class='label has-text-weight-medium has-text-grey-dark' for='linkedin'>LinkedIn:</label>
+			<div class='control'>
+				<input class='input' type='text' name='li' value='{{user.li}}' />
+			</div>
+		</div>
+		<div class='field'>
+			<div class='control'>
+				<button class='button is-dark' type='submit' id='s1'><i class='fas fa-save'></i>&ensp;Save changes</button>
+			</div>
+		</div>
+	</form>
 </div>
 
 <!-- Retrieve selected file name-->
 <script>
     $("#s1").click(function () {
-        if ($('#account_mode').prop("checked") == true) {
+        if ($('#account_modes').prop("checked") == true) {
             $('#mode').val('true')
-        } else if ($('#account_mode').prop("checked") == false) {
+        } else if ($('#account_modes').prop("checked") == false) {
             $('#mode').val('false')
         }
     });
