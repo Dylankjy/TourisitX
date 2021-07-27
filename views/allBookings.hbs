@@ -9,28 +9,96 @@
 </section>
 
 {{#if data.bookList}}
-<div class="container mt-5">
-    <div class="box">
-        <div class="columns">
-            <div class="column">
-                <p class="subtitle has-text-weight-semibold">Upcoming Tours</p>
-                <table class='table is-striped is-fullwidth'>
-                    <tr>
-                        <th>Date</th>
-                        <th>Tour</th>
-                    </tr>
-                    {{#each data.bookList}}
-                    {{#ifEquals this.processStep '4'}}
-                    <tr>
-                        {{!-- formatting needed --}}
-                        <td>{{dateParseISO this.tourStart}}</td>
-                        {{!-- <td><a href="/{{this.bookId}}">{{#with (lookup ../listings
-                                @index)}}{{tourTitle}}{{/with}}</a> --}}
-                        <td><a href="/{{this.bookId}}">{{this.[Shop.tourTitle]}}</a></td>
-                    </tr>
-                    {{/ifEquals}}
-                    {{/each}}
-                </table>
+    <div class="container mt-5">
+            <div class="box">
+                <div class="columns">
+                    <div class="column">
+                        <p class="subtitle has-text-weight-semibold">Upcoming Tours</p>
+                        <table class='table is-striped is-fullwidth'>
+                            <tr>
+                                <th>Date</th>
+                                <th>Tour</th>
+                            </tr>
+                            {{#each data.bookList}}
+                            {{#ifEquals this.processStep '4'}}
+                                <tr>
+                                    {{!-- formatting needed --}}
+                                    <td>{{dateParseISO this.tourStart}}</td>
+                                    {{!-- <td><a href="/{{this.bookId}}">{{#with (lookup ../listings @index)}}{{tourTitle}}{{/with}}</a>  --}}
+                                    <td><a href="/bookings/{{this.bookId}}">{{this.[Shop.tourTitle]}}</a></td>
+                                </tr>
+                            {{/ifEquals}}
+                            {{/each}}
+                        </table>
+                    </div>
+
+                    
+
+                    <div class="divider is-vertical is-right"></div>
+                    <div class="column">
+                        <p class="subtitle has-text-weight-semibold">Required Action</p>
+                        <table class='table is-striped is-fullwidth'>
+                            {{!-- preferrably without creating new list --}}
+                            {{!-- names displayed incorrectly as listings is used to fetch names, listings contains all bookings, indexes do not align --}}
+                            {{#each data.bookList}}
+
+                            {{#ifEquals this.processStep '0'}}
+                                <tr>
+                                    <th>{{this.[Shop.tourTitle]}}</th>
+                                    <td><a href="/bookings/{{this.bookId}}">
+                                        <span class="tag is-link">Pay customisation fee&nbsp;
+                                            <i class="fas fa-arrow-right"></i></span>
+                                    </a></td>
+                                </tr>
+                            {{/ifEquals}}
+
+                            {{#ifEquals this.processStep '2'}}
+                                <tr>
+                                    <th>{{this.[Shop.tourTitle]}}</th>
+                                    <td><a href="/bookings/{{this.bookId}}">
+                                        <span class="tag is-link">Review Tour Plan&nbsp;
+                                            <i class="fas fa-arrow-right"></i></span>
+                                    </a></td>
+                                </tr>
+                            {{/ifEquals}}
+
+                            {{#ifEquals this.processStep '3'}}
+                                <tr>
+                                    <th>{{this.[Shop.tourTitle]}}</th>
+                                    <td><a href="/bookings/{{this.bookId}}">
+                                        <span class="tag is-link">Make Payment&nbsp;
+                                            <i class="fas fa-arrow-right"></i></span>
+                                    </a></td>
+                                </tr>
+                            {{/ifEquals}}
+
+                            {{#ifEquals this.processStep '4'}}
+                                {{#ifAfterToday this.tourStart}}
+                                {{this.revisions}}
+                                    <tr>
+                                        <th>{{this.[Shop.tourTitle]}}</th>
+                                        <td><a href="/bookings/{{this.bookId}}">
+                                            <span class="tag is-link">Declare that tour is complete&nbsp;
+                                                <i class="fas fa-arrow-right"></i></span>
+                                        </a></td>
+                                    </tr>
+                                {{/ifAfterToday}}
+                            {{/ifEquals}}
+
+                             {{#ifEquals this.processStep '5'}}
+                                <tr>
+                                    <th>{{this.[Shop.tourTitle]}}</th>
+                                    <td><a href="/bookings/{{this.bookId}}/review">
+                                        <span class="tag is-link">Leave a review&nbsp;
+                                            <i class="fas fa-arrow-right"></i></span>
+                                    </a></td>
+                                </tr>
+                            {{/ifEquals}}
+                            {{/each}}
+                        </table>
+                    </div>
+
+                </div>
             </div>
 
 

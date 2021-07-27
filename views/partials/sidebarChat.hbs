@@ -4,12 +4,18 @@
             Your chats
         </p>
         <ul class="menu-list">
+            {{#each data.availableChats}}
             <li>
-                <a class="{{#ifEquals nav.sidebarActive "aa"}}is-active{{else}}has-background-dark{{/ifEquals}}
+                <a href="./{{this.chatId}}" class="{{#ifEquals this.chatId @root.nav.chatSidebar}}is-active{{else}}has-background-dark{{/ifEquals}}
                     has-text-white">
-                    Oota Kanae
+                    {{#ifEquals this.receiverName "SYSTEM"}}
+                    Tourisit System<span class="ml-3 tag is-danger"><i class="fas fa-user-shield"></i>&nbsp;Staff</span>
+                    {{else}}
+                    {{this.receiverName}}
+                    {{/ifEquals}}
                 </a>
             </li>
+            {{/each}}
         </ul>
     </nav>
 </aside>

@@ -113,7 +113,7 @@ module.exports = (sequelize, DataTypes) => {
             },
 
             custom: {
-                type: DataTypes.BOOLEAN,
+                type: DataTypes.INTEGER,
                 allowNull: false,
                 defaultValue: false,
             },

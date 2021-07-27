@@ -13,6 +13,9 @@ router.get('/', (req, res) => {
         limit: 4,
         order:
             [['createdAt', 'ASC']],
+        where: {
+            hidden: 'false',
+        },
     })
         .then(async (data)=>{
             await data.forEach((doc)=>{
