@@ -13,7 +13,7 @@ const elasticSearchHelper = require('../app/elasticSearch')
 const router = express.Router()
 
 const routesConfig = require('../config/routes.json')
-var baseUrl = routesConfig["base_url"]
+const baseUrl = routesConfig['base_url']
 
 router.use(formidable())
 
