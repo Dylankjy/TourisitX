@@ -258,6 +258,8 @@ const webserver = () => {
 
     app.use('/es-api', routes.esApi)
 
+    app.use('/api', routes.api)
+
     app.use('/messages', routes.chat)
 
     // Don't put any more routes after this block, cuz they will get 404'ed
