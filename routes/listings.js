@@ -19,6 +19,8 @@ const { removeNull, emptyArray, removeFromArray } = require('../app/helpers')
 const config = require('../config/apikeys.json')
 const routesConfig = require('../config/routes.json')
 
+const nginxBaseUrl = routesConfig['base_url']
+
 // Globals
 const router = express.Router()
 const {
@@ -29,6 +31,7 @@ const {
     ChatRoom,
     ChatMessages,
 } = require('../models')
+
 const elasticSearchHelper = require('../app/elasticSearch')
 // const esClient = elasticSearch.Client({
 //     host: 'http://47.241.14.108:9200',
@@ -426,7 +429,7 @@ router.post('/create', loginRequired, async (req, res) => {
             hidden: 'false',
         })
             .then(async (data) => {
-                await axios.post('http://localhost:5000/es-api/upload', {
+                await axios.post(`${nginxBaseUrl}/es-api/upload`, {
                     id: genId,
                     name: req.fields.tourTitle,
                     description: req.fields.tourDesc,
@@ -680,7 +683,7 @@ router.get('/unhide/:id', async (req, res) => {
                     .then(async (data) => {
                         doc = data[0]['dataValues']
                         console.log('REINSERTING')
-                        await axios.post('http://localhost:5000/es-api/upload', {
+                        await axios.post(`${nginxBaseUrl}/es-api/upload`, {
                             id: doc.id,
                             name: doc.tourTitle,
                             description: doc.tourDesc,
@@ -718,12 +721,11 @@ router.post('/add-card', async (req, res) => {
     })
 
     console.log(account)
-    const baseUrl = routesConfig['base_url']
 
     const accountLinks = await stripe.accountLinks.create({
         account: account['id'],
-        refresh_url: `${baseUrl}`,
-        return_url: `${baseurl}`,
+        refresh_url: `${nginxBaseUrl}`,
+        return_url: `${nginxBaseUrl}`,
         type: 'account_onboarding',
     })
 
@@ -780,7 +782,7 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
         priceToPay = 0
     }
 
-    const baseUrl = routesConfig['base_url']
+    const nginxBaseUrl = routesConfig['base_url']
 
     const session = await stripe.checkout.sessions.create({
         payment_intent_data: {
@@ -802,8 +804,8 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
         ],
         mode: 'payment',
         // Where to redirect after payment is done
-        success_url: `${baseUrl}/bookings/${bookId}`,
-        cancel_url: `${baseUrl}/listing/${itemID}/purchase`,
+        success_url: `${nginxBaseUrl}/bookings/${bookId}`,
+        cancel_url: `${nginxBaseUrl}/listing/${itemID}/purchase`,
     })
 
     res.redirect(303, session.url)

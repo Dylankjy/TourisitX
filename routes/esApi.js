@@ -7,13 +7,13 @@ const { generateFakeEntry } =
 const { default: axios } = require('axios')
 const { Shop } = require('../models')
 
-const esClient = require('../app/elasticSearch').esClient
 const elasticSearchHelper = require('../app/elasticSearch')
+const esClient = elasticSearchHelper.esClient
 
 const router = express.Router()
 
 const routesConfig = require('../config/routes.json')
-const baseUrl = routesConfig['base_url']
+const nginxBaseUrl = routesConfig['base_url']
 
 router.use(formidable())
 
@@ -214,8 +214,9 @@ router.get('/dev/generateFakes', (req, res) => {
 
 // To populate the elastic search index using the Shop Database
 router.get('/getFromShopDB', async (req, res) => {
-    await axios('http://localhost:5000/es-api/delete')
-    await axios('http://localhost:5000/es-api/create-index')
+    await axios(`${nginxBaseUrl}/es-api/delete`)
+    await axios(`${nginxBaseUrl}/es-api/create-index`)
+    // await axios(`${nginxBaseUrl}`)
     // This array will contain all the JSON objects
     const docs = []
     // Specify the attributes to retrieve
@@ -241,10 +242,13 @@ router.get('/getFromShopDB', async (req, res) => {
         })
 })
 
-
 // To initialize the elastic search client for the first time
 router.get('/initFromDB', async (req, res) => {
-    await axios($`{base_url}/es-api/create-index`)
+    const requireDelete = await esClient.indices.exists({ index: 'products' })
+    if (requireDelete) {
+        await axios(`${nginxBaseUrl}/es-api/delete`)
+    }
+    await axios(`${nginxBaseUrl}/es-api/create-index`)
     // This array will contain all the JSON objects
     const docs = []
     // Specify the attributes to retrieve

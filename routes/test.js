@@ -1,7 +1,11 @@
-const { emptyArray } = require('../app/helpers')
+
+const { default: axios } = require('axios')
+const { Shop } = require('../models')
+
+const elasticSearchHelper = require('../app/elasticSearch')
+const esClient = elasticSearchHelper.esClient
 
 
-x = []
-
-console.log(emptyArray(x))
-
+esClient.indices.exists({ index: 'products' }).then((data)=>{
+    console.log(data)
+})
