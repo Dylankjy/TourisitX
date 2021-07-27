@@ -68,7 +68,7 @@
                         <div class="field">
                             <div class="control">
                                 <label class="checkbox">
-                                    <input type="checkbox" name="bookTOC">
+                                    <input type="checkbox" name="bookTOC" id="bookTOC">
                                     I agree to the <a class="has-tooltip-multiline has-text-centered has-tooltip-danger"
                                                       href="#"
                                                       data-tooltip="There should not be more than 8 people in a group. Safe distancing measures should be adhered to at all times.">
@@ -79,7 +79,7 @@
 
                         <div class="field">
                             <div class="control">
-                                <button type="submit" id="book_submit" class="button is-medium is-fullwidth is-link">
+                                <button type="submit" id="book_submit" class="button is-medium is-fullwidth is-link" disabled="disabled" value="submit">
                                     <p class="has-text-weight-semibold">Book Now</p>
                                 </button>
                             </div>
@@ -116,7 +116,7 @@
         minDate: 1,
         maxDate: 90,
         beforeShowDay: filterDays,
-        dateFormat: 'dd/mm/yy'});
+        dateFormat: 'dd/mm/yy'})
 
         const finalDays = document.getElementById('finalDays').innerText
         var tourPax = document.getElementById('tourPax').innerText 
@@ -181,5 +181,45 @@
 
         }
     }
+
+    
+    $('#book_form input').on("keyup change", function() {
+
+        var empty = false
+        $('#book_form :input').each(function() {
+            if ($(this).val() == '') {
+                empty = true
+            }
+        })
+
+        if(document.getElementById("bookTOC").checked == false){
+            empty = true
+        }
+
+        if (empty) {
+            $('#book_submit').attr('disabled', 'disabled')
+        } else {
+            $('#book_submit').removeAttr('disabled')
+        }
+    })
+
+    $('#req_form input, #req_form textarea').on("keyup change", function() {
+        var empty = false
+        $('#req_form :input').each(function() {
+            if ($(this).val() == '') {
+                empty = true
+            }
+        })
+
+        if(document.getElementById("req_bookTOC").checked == false){
+            empty = true
+        }
+
+        if (empty) {
+            $('#req_submit').attr('disabled', 'disabled')
+        } else {
+            $('#req_submit').removeAttr('disabled')
+        }
+    })
 
 </script>

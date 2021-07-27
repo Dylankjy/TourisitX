@@ -32,13 +32,18 @@ const NotificationCookieOptions = {
     path: '/',
 }
 
-
 // Dependencies for authentication system
 require('../app/genkan/login')
 require('../app/genkan/logout')
 require('../app/genkan/register')
 require('../app/genkan/resetPassword')
 require('../app/genkan/genkan') // This is the API
+
+// Chat API
+const chat = require('../app/chat/chat')
+
+// UUID
+const uuid = require('uuid')
 
 // Put all your routings below this line -----
 
@@ -75,9 +80,11 @@ router.post('/register', (req, res) => {
         const name = req.body.username
         const email = req.body.email.toLowerCase().replace(/\s+/g, '')
         const password = req.body.password
-        const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress
+        const ipAddress =
+      req.headers['x-forwarded-for'] || req.socket.remoteAddress
 
-        const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        const emailRegex =
+      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
         // Data validations
         if (emailRegex.test(email) === false || password.length < 8) return
@@ -89,7 +96,17 @@ router.post('/register', (req, res) => {
                 return res.redirect('/id/signup')
             }
 
-            console.log('Account creation OK')
+            // Upon sign up, the user should have a system chat precreated for them.
+            chat.addRoom([result, uuid.NIL], null, (resultantChatID) => {
+                // Send chat message using newly created room
+                chat.addMessage(
+                    resultantChatID,
+                    'SYSTEM',
+                    'Welcome to Tourisit! Feel free to browse around for tours. If you have any doubts, please do not hesitate to contact us using our help desk. Happy touring :)',
+                    'SENT',
+                    () => {},
+                )
+            })
 
             res.cookie('preData', email, NotificationCookieOptions)
             return res.redirect('/id/confirm')
@@ -236,7 +253,8 @@ router.post('/login', (req, res) => {
         }
         const email = req.body.email.toLowerCase().replace(/\s+/g, '')
         const password = req.body.password
-        const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress
+        const ipAddress =
+      req.headers['x-forwarded-for'] || req.socket.remoteAddress
 
         loginAccount(email, password, ipAddress, (result) => {
             if (result === false) {
@@ -295,6 +313,5 @@ router.post('/logout', (req, res) => {
         return res.redirect('/?loggedout=true')
     })
 })
-
 
 module.exports = router

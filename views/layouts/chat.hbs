@@ -33,29 +33,41 @@
     </script>
     <script>
         $(document).on('turbolinks:before-load', function () {
-            return $('main').fadeOut('fast');
+            return $('div#message-container-display').fadeOut('fast');
         });
         $(document).on('turbolinks:load', function () {
-            return $('main').fadeIn('fast');
+            return $('div#message-container-display').fadeIn('fast');
         });
     </script>
 
     <link href="https://use.fontawesome.com/releases/v5.15.1/css/all.css" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.min.js"
+        integrity="sha512-fB746S+jyTdN2LSWbYSGP2amFYId226wpOeV4ApumcDpIttPxvk1ZPOgnwqwQziRAtZkiFJVx9F64GLAtoIlCQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script defer src="/js/chat.js" data-turbolinks="false"></script>
 </head>
 
 <body>
     {{>navbar}}
-    <div class="section has-background-black chat-background">
-    </div>
-    <main style="display: none;">
-        {{{body}}}
-    </main>
+    <div class="section has-background-black chat-background"></div>
+    <section class="section chat-box">
+        <div class="container">
+            <div class="box">
+                <div class="columns p-0">
+                    {{>sidebarChat}}
+                    {{{body}}}
+                </div>
+            </div>
+        </div>
+    </section>
 
     {{>footer}}
-</body>
 
-{{#if meta.path}}
-<script defer src="/js/{{meta.path}}.js"></script>
-{{/if}}
+    {{!-- Information for Socket IO request --}}
+    <input id="currentChatID" type="hidden" value="{{nav.chatSidebar}}">
+    <input id="currentUserID" type="hidden" value="{{data.currentUser.id}}">
+</body>
 
 </html>

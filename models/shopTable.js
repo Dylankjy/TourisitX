@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
             },
 
             tourDesc: {
-                type: DataTypes.STRING(256),
+                type: DataTypes.STRING(2048),
                 allowNull: false,
             },
 

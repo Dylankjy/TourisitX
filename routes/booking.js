@@ -5,17 +5,17 @@ const router = express.Router()
 const { Shop, User, Booking, ChatRoom, TourPlans, ChatMessages } = require('../models')
 
 const uuid = require('uuid')
-const path = require('path')
 
 const formidableValidator = require('../app/validation')
 const formidable = require('express-formidable')
 const Validator = formidableValidator.Validator
 
 const genkan = require('../app/genkan/genkan')
-const db = require('../app/db.js')
 const { requireLogin, requirePermission, removeNull, emptyArray, removeFromArray, getUserfromSid } = require('../app/helpers')
-const { parse } = require('path')
-const chatMessagesTable = require('../models/chatMessagesTable')
+const { addRoom, getAllBookingMessagesByRoomID } = require('../app/chat/chat')
+
+// Sync loops
+const syncLoop = require('sync-loop')
 
 // Put all your routings below this line -----
 
@@ -83,6 +83,7 @@ router.get('/', async (req, res) => {
 })
 
 router.get('/:id', (req, res) => {
+    // console.log(req.currentUser.name)
     const bookID = req.params.id
     // const booking = bookingList.filter((obj) => {
     //     return obj.id == bookID
@@ -93,33 +94,49 @@ router.get('/:id', (req, res) => {
         },
         include: Shop, TourPlans,
         raw: true,
-    }) .then(async (result) => {
-        console.log(result)
+    }) .then((result) => {
+        // console.log(result)
         // const sid = req.signedCookies.sid
         // const userId = await genkan.getUserBySessionAsync(sid)
-        ChatMessages.findAll({
-            where: {
-                roomId: result.chatId,
-            },
-            order: [['createdAt', 'ASC']],
-            raw: true,
-        }) .then( async (msgs) => {
-            console.log(msgs)
 
-            const metadata = {
-                meta: {
-                    title: result['Shop.tourTitle'],
-                },
-                data: {
-                    currentUser: req.currentUser,
-                    book: result,
-                    timeline: msgs,
-                },
-                tourPlans: tourPlans,
-            }
-            return res.render('myBooking.hbs', metadata)
-        }).catch((err) => console.log)
-    }).catch((err) => console.log)
+        // (^ ω ^) thx
+        // are u reading the commit logs again lmaoo
+        getAllTypesOfMessagesByRoomID(result.chatId, (chatroomObject) => {
+            console.log(chatroomObject)
+
+            const listOfParticipantNames = []
+
+            // This is a hacky way to get the names of the participants in a chat room.
+            syncLoop(chatroomObject.users.length, (loop) => {
+                const i = loop.iteration()
+
+                genkan.getUserByID(chatroomObject.users[i], (userObject) => {
+                    // console.log(userObject)
+                    listOfParticipantNames.push(userObject.name)
+                    loop.next()
+                })
+            }, () => {
+                genkan.getUserByID(result['Shop.userId'], (tgData) => {
+                    console.log(tgData)
+                    const metadata = {
+                        meta: {
+                            title: result['Shop.tourTitle'],
+                        },
+                        data: {
+                            currentUser: req.currentUser,
+                            book: result,
+                            timeline: chatroomObject.msg,
+                            // This is the list of names of participants in the chat room.
+                            participants: listOfParticipantNames,
+                            tg: tgData,
+                        },
+                        tourPlans: tourPlans,
+                    }
+                    return res.render('myBooking.hbs', metadata)
+                })
+            })
+        })
+    })
 })
 
 module.exports = router

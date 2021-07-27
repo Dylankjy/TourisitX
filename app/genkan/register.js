@@ -25,18 +25,27 @@ const transporter = nodemailer.createTransport({
 // Database operations
 require('../db')
 
+// Stripe (Adds stripeId to customer on register)
+const STRIPE_PUBLIC_KEY = apikeys.stripe.STRIPE_PUBLIC_KEY
+const STRIPE_SECRET_KEY = apikeys.stripe.STRIPE_SECRET_KEY
+
+const stripe = require('stripe')(STRIPE_SECRET_KEY)
+
 // Handlebars
 const Handlebars = require('handlebars')
 
 // Email Template
 const fs = require('fs')
-const confirmEmailSource = fs.readFileSync(`node_modules/${config.genkan.theme}/mail/confirmation.hbs`, 'utf8')
+const confirmEmailSource = fs.readFileSync(
+    `node_modules/${config.genkan.theme}/mail/confirmation.hbs`,
+    'utf8',
+)
 const confirmEmailTemplate = Handlebars.compile(confirmEmailSource)
 
 newAccount = (name, email, password, ip, callback) => {
     // Check for duplicate accounts
-    findDB('user', { 'email': email }, (result) => {
-        // Reject if duplicate
+    findDB('user', { email: email }, (result) => {
+    // Reject if duplicate
         if (result.length !== 0) {
             return callback(false)
         }
@@ -48,38 +57,55 @@ newAccount = (name, email, password, ip, callback) => {
         })
 
         // Bcrypt Hashing
-        const hashedPasswordSHA512Bcrypt = bcrypt.hashSync(hashedPasswordSHA512, saltRounds)
+        const hashedPasswordSHA512Bcrypt = bcrypt.hashSync(
+            hashedPasswordSHA512,
+            saltRounds,
+        )
 
         // Generate email confirmation token
         const emailConfirmationToken = tokenGenerator()
 
-
         // Generate userId
         const userId = uuid.v1()
 
-        const NewUserSchema = {
-            'id': userId,
+        // Generate stripeId
+        const stripeCustParams = {
             'name': name,
             'email': email,
-            'password': hashedPasswordSHA512Bcrypt,
-            'lastseen_time': new Date(),
-            'ip_address': ip,
         }
 
-        const TokenSchema = {
-            'token': emailConfirmationToken,
-            'type': 'EMAIL',
-            'userId': userId,
-        }
 
-        // Insert new user into database
-        insertDB('user', NewUserSchema, () => {
-            // Insert new email confirmation token into database
-            insertDB('token', TokenSchema, (a) => {
-                sendConfirmationEmail(email, emailConfirmationToken)
-                return callback(true)
+        stripe.customers.create(stripeCustParams)
+            .then((data)=>{
+                stripeId = data['id']
+                const NewUserSchema = {
+                    id: userId,
+                    name: name,
+                    email: email,
+                    password: hashedPasswordSHA512Bcrypt,
+                    stripe_id: stripeId,
+                    lastseen_time: new Date(),
+                    ip_address: ip,
+                }
+
+                const TokenSchema = {
+                    token: emailConfirmationToken,
+                    type: 'EMAIL',
+                    userId: userId,
+                }
+
+                // Insert new user into database
+                insertDB('user', NewUserSchema, () => {
+                // Insert new email confirmation token into database
+                    insertDB('token', TokenSchema, (a) => {
+                        sendConfirmationEmail(email, emailConfirmationToken)
+                        return callback(userId)
+                    })
+                })
+            }).catch((err)=>{
+                console.log(err)
+                return callback(false)
             })
-        })
     })
 }
 
@@ -103,21 +129,26 @@ sendConfirmationEmail = (email, token) => {
 }
 
 confirmEmail = (token, callback) => {
-    findDB('token', { 'token': token, 'type': 'EMAIL' }, (result) => {
-        // console.log(result[0].dataValues)
+    findDB('token', { token: token, type: 'EMAIL' }, (result) => {
+    // console.log(result[0].dataValues)
         if (result.length !== 1) {
             return callback(false)
         }
         const AccountActivatePayload = {
-            'email_status': true,
+            email_status: true,
         }
 
         // Delete token from database
-        deleteDB('token', { 'token': token, 'type': 'EMAIL' }, () => {
+        deleteDB('token', { token: token, type: 'EMAIL' }, () => {
             // Set email_status to true in User Table
-            updateDB('user', { id: result[0].dataValues.userId }, AccountActivatePayload, () => {
-                return callback(true)
-            })
+            updateDB(
+                'user',
+                { id: result[0].dataValues.userId },
+                AccountActivatePayload,
+                () => {
+                    return callback(true)
+                },
+            )
         })
     })
 }

@@ -1,34 +1,13 @@
-const { urlencoded } = require('body-parser')
 const express = require('express')
-const formidable = require('express-formidable')
-const bodyParser = require('body-parser')
-const { route } = require('./admin')
-const ExpressFormidable = require('express-formidable')
-const fs = require('fs')
-const fsPromise = require('fs/promises')
-const exphbs = require('express-handlebars')
-const expressSession = require('express-session')
-const cors = require('cors')
-const { default: axios } = require('axios')
-const uuid = require('uuid')
-const fileType = require('file-type')
-const path = require('path')
-const elasticSearch = require('elasticsearch')
-const io = require('socket.io')
-const { generateFakeEntry } =
-  require('../app/listingGenerator').generateFakeEntry
-const formidableValidator = require('../app/validation')
-const { convert } = require('image-file-resize')
 
 const genkan = require('../app/genkan/genkan')
 
 // Globals
 const router = express.Router()
 const { Shop, Booking, ChatRoom, ChatMessages, TourPlans } = require('../models')
-const elasticSearchHelper = require('../app/elasticSearch')
 
-const Validator = formidableValidator.Validator
-const fileValidator = formidableValidator.FileValidator
+// Sync Loops
+const syncLoop = require('sync-loop')
 
 // Put all your routings below this line -----
 
@@ -209,43 +188,55 @@ router.get('/bookings/:id', (req, res) => {
     }) .then(async (result) => {
         // const sid = req.signedCookies.sid
         // const userId = await genkan.getUserBySessionAsync(sid)
-        ChatMessages.findAll({
-            where: {
-                roomId: result.chatId,
-            },
-            order: [['createdAt', 'ASC']],
-            raw: true,
-        }) .then( async (msgs) => {
-            const metadata = {
-                meta: {
-                    title: result['Shop.tourTitle'],
-                    path: false,
-                },
-                data: {
-                    currentUser: req.currentUser,
-                    book: result,
-                    timeline: msgs,
-                },
-                nav: {
-                    sidebarActive: 'bookings',
-                },
-                layout: 'main',
-                // tourPlans is a placeholder used for testing until the customisation features are in
-                tourPlans: [
-                    { planId: '00000000-0000-0000-0000-000000000000',
-                        bookId: '00000000-0000-0000-0000-000000000000',
-                        index: 0,
-                        tourStart: new Date().toISOString(),
-                        tourEnd: new Date().toISOString(),
-                        tourPax: '5',
-                        tourPrice: '300',
-                        tourItinerary: 'Go to the chopper at bshan an eat some duck rice,Ride to outskirts of SG e',
-                        accepted: '-1' },
-                ],
 
-            }
-            return res.render('tourguide/myJob', metadata)
-        }).catch((err) => console.log)
+        // Hi again, yes. I swapped this one out as well.
+        // Read booking.js at line 100 for more info.
+        getAllTypesOfMessagesByRoomID(result.chatId, (chatroomObject) => {
+            const listOfParticipantNames = []
+
+            // This is a hacky way to get the names of the participants in a chat room.
+            syncLoop(chatroomObject.users.length, (loop) => {
+                const i = loop.iteration()
+
+                genkan.getUserByID(chatroomObject.users[i], (userObject) => {
+                    listOfParticipantNames.push(userObject.name)
+                    loop.next()
+                })
+            }, () => {
+                const metadata = {
+                    meta: {
+                        title: result['Shop.tourTitle'],
+                        path: false,
+                    },
+                    data: {
+                        currentUser: req.currentUser,
+                        book: result,
+                        timeline: chatroomObject.msg,
+                        participants: listOfParticipantNames,
+                    },
+                    nav: {
+                        sidebarActive: 'bookings',
+                    },
+                    layout: 'main',
+                    // tourPlans is a placeholder used for testing until the customisation features are in
+                    tourPlans: [
+                        {
+                            planId: '00000000-0000-0000-0000-000000000000',
+                            bookId: '00000000-0000-0000-0000-000000000000',
+                            index: 0,
+                            tourStart: new Date().toISOString(),
+                            tourEnd: new Date().toISOString(),
+                            tourPax: '5',
+                            tourPrice: '300',
+                            tourItinerary: 'Go to the chopper at bshan an eat some duck rice,Ride to outskirts of SG e',
+                            accepted: '-1',
+                        },
+                    ],
+
+                }
+                return res.render('tourguide/myJob', metadata)
+            })
+        })
     }).catch((err) => console.log)
 })
 
