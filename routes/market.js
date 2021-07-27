@@ -1,5 +1,8 @@
 const express = require('express')
 const formidable = require('express-formidable')
+const routesConfig = require('../config/routes.json')
+
+const nginxBaseUrl = routesConfig['base_url']
 const { Shop } = require('../models')
 
 const router = express.Router()
@@ -28,6 +31,7 @@ router.get('/', (req, res) => {
                     currentUser: req.currentUser,
                     tourCount: listings.length,
                 },
+                nginxRoute: nginxBaseUrl,
             }
             return res.render('marketplace.hbs', metadata)
         })
