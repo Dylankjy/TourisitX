@@ -18,8 +18,8 @@ logoutAccount = (sid, isAll, callback) => {
         }
 
         if (isAll === true) {
-            deleteDB('session', { 'userId': result[0].dataValues.userId }, () => {
-                updateDB('user', { 'id': result[0].dataValues.userId }, UpdateLastSeenPayload, () => {
+            return deleteDB('session', { 'userId': result[0].dataValues.userId }, () => {
+                return updateDB('user', { 'id': result[0].dataValues.userId }, UpdateLastSeenPayload, () => {
                     return callback()
                 })
             })

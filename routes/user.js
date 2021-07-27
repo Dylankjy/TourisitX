@@ -16,7 +16,7 @@ const config = require('../config/genkan.json')
 
 // Globals
 const router = express.Router()
-const { User } = require('../models')
+const { User, Shop } = require('../models')
 const elasticSearchHelper = require('../app/elasticSearch')
 
 const esClient = require('../app/elasticSearch').esClient
@@ -65,116 +65,78 @@ storeImage = (filePath, fileName, folder) => {
 
 // router.get('/', (req, res) => { ... }
 router.get('/profile/:id', async (req, res) => {
-    const userID = req.params.id
-
-    User.findAll({
-        where: {
-            id: userID,
-        },
-    })
-        .then(async (items) => {
-            const uData = await items[0]['dataValues']
-            console.log(uData)
-            const sid = req.signedCookies.sid
-
-            // If person is not logged in
-            if (sid == undefined) {
-                return res.render('profile.hbs', {
-                    uData: uData,
-                    isOwner: false,
-                })
-            } else {
-                // Check if session is up to date. Else, require person to reloggin
-                if ((await genkan.isLoggedinAsync(sid)) == false) {
-                    // Redirect to login page
-                    return requireLogin(res)
-                }
-                if (req.cookies.storedValues) {
-                    const storedValues = JSON.parse(req.cookies.storedValues)
-                } else {
-                    const storedValues = {}
-                }
-                // If user is logged in and has a valid session
-                const userData = await genkan.getUserBySessionAsync(sid)
-
-                // Check if user is the owner of the current listing being browsed
-                const isOwner = userData.id == uData.id
-                if (isOwner) {
-                    // Manually set to true now.. while waiting for the validation library
-                    owner = true
-                    const metadata = {
-                        meta: {
-                            title: 'Profile',
-                            path: false,
-                        },
-                        data: {
-                            currentUser: req.currentUser,
-                        },
-                        uData: uData,
-                        isOwner: owner,
-                        bioErrors: req.cookies.bioErrors,
-                    }
-                    return res.render('users/profile.hbs', metadata)
-                } else {
-                    owner = false
-
-                    const metadata = {
-                        meta: {
-                            title: 'Profile',
-                            path: false,
-                        },
-                        data: {
-                            currentUser: req.currentUser,
-                        },
-                        uData: uData,
-                        isOwner: owner,
-                    }
-                    return res.render('users/profile.hbs', metadata)
-                }
-            }
-        })
-        .catch((err) => console.log)
-})
-
-router.post('/profile/:id', async (req, res) => {
-    res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
     const sid = req.signedCookies.sid
     if (sid == undefined) {
         return requireLogin(res)
-    }
-    if ((await genkan.isLoggedinAsync(sid)) == false) {
+    } else if ((await genkan.isLoggedinAsync(sid)) == false) {
         return requireLogin(res)
     }
 
+    if (req.cookies.storedValues) {
+        const storedValues = JSON.parse(req.cookies.storedValues)
+    } else {
+        const storedValues = {}
+    }
     const user = await genkan.getUserBySessionAsync(sid)
-    const v = new Validator(req.fields)
-
-    bioErrors = []
-    if (req.fields.bio == '') {
-    } else {
-        const bioResult = v
-            .Initialize({ name: 'bio', errorMessage: 'Bio must be less than 200 characters' })
-            .isLength({ max: 200 })
-            .getResult()
-        bioErrors.push(bioResult)
-    }
-
-    bioErrors = removeNull(bioErrors)
-
-    if (!emptyArray(bioErrors)) {
-        res.cookie('bioErrors', bioErrors, { maxAge: 5000 })
-        res.redirect(`/u/profile/${req.params.id}`)
-    } else {
-        res.clearCookie('bioErrors')
-        res.clearCookie('storedValues')
-
-        const bioDetails = {
-            'bio': req.fields.bio,
-        }
-        updateDB('user', { 'id': user.id }, bioDetails, () => {
-            return res.redirect(`/u/profile/${req.params.id}`)
+    const userD = await User.findAll({
+        where: {
+            'id': req.params.id,
+        },
+    })
+    const isOwner = user.id == userD[0]['dataValues'].id
+    console.log('Current User:', req.currentUser)
+    console.log('Profile', userD[0]['dataValues'])
+    const listings = []
+    Shop.findAll({
+        attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
+        where: {
+            'userId': req.params.id,
+        },
+    }).then(async (data) => {
+        await data.forEach((doc) => {
+            listings.push(doc['dataValues'])
         })
-    }
+        return listings
+    }).then((listings) => {
+        console.log('Tours', listings)
+
+        if (isOwner) {
+            // Manually set to true now.. while waiting for the validation library
+            owner = true
+            const metadata = {
+                meta: {
+                    title: 'Profile',
+                    path: false,
+                },
+                data: {
+                    currentUser: req.currentUser,
+                },
+                listings: listings,
+                uData: userD[0]['dataValues'],
+                isOwner: owner,
+                bioErrors: req.cookies.bioErrors,
+            }
+            return res.render('users/profile.hbs', metadata)
+        } else {
+            owner = false
+            const metadata = {
+                meta: {
+                    title: 'Profile',
+                    path: false,
+                },
+                data: {
+                    currentUser: req.currentUser,
+                },
+                listings: listings,
+                uData: userD[0]['dataValues'],
+                isOwner: owner,
+            }
+            return res.render('users/profile.hbs', metadata)
+        }
+    }).catch((err) => {
+        console.log(err)
+        res.json({ 'Message': 'Failed' })
+    })
 })
 
 router.get('/setting/general', async (req, res) => {
@@ -255,9 +217,11 @@ router.post('/setting/general', async (req, res) => {
         .getResult()
     settingErrors.push(nameResult)
 
-    const emailData = await User.findAll({ where: {
-        'email': req.fields.user_email,
-    } })
+    const emailData = await User.findAll({
+        where: {
+            'email': req.fields.user_email,
+        },
+    })
 
     if ((emailData == '') || (req.fields.user_email == user.email) || (req.fields.user_email.includes('@tourisit.local') == false)) {
         console.log('OK GOOD TO GO')
@@ -284,6 +248,15 @@ router.post('/setting/general', async (req, res) => {
             .isLength({ min: 8, max: 8 })
             .getResult()
         settingErrors.push(phoneResult)
+    }
+
+    if (req.fields.user_bio == '') {
+    } else {
+        const bioResult = v
+            .Initialize({ name: 'user_bio', errorMessage: 'Bio must be less than 250 characters' })
+            .isLength({ max: 250 })
+            .getResult()
+        settingErrors.push(bioResult)
     }
 
     if (req.fields.fb == '') {
@@ -345,6 +318,7 @@ router.post('/setting/general', async (req, res) => {
                 'email': req.fields.user_email,
                 'phone_number': req.fields.phone_number,
                 'is_tourguide': 1,
+                'bio': req.fields.user_bio,
                 'fb': req.fields.fb,
                 'insta': req.fields.insta,
                 'li': req.fields.li,
@@ -358,6 +332,7 @@ router.post('/setting/general', async (req, res) => {
                 'email': req.fields.user_email,
                 'phone_number': req.fields.phone_number,
                 'is_tourguide': 0,
+                'bio': req.fields.user_bio,
                 'fb': req.fields.fb,
                 'insta': req.fields.insta,
                 'li': req.fields.li,
@@ -399,6 +374,7 @@ router.get('/setting/password', async (req, res) => {
         },
         user,
         passwordErrors: req.cookies.passwordErrors,
+        passwordSuccess: req.cookies.passwordSuccess,
     }
     return res.render('users/password.hbs', metadata)
 })
@@ -415,29 +391,59 @@ router.post('/setting/password', async (req, res) => {
 
     const v = new Validator(req.fields)
     genkan.getUserBySessionDangerous(sid, (user) => {
-        const repeatResult = v
-            .Initialize({
-                name: 'confirm',
-                errorMessage: 'Both passwords do not match',
-            })
-            .exists()
-            .isLength({ min: 8 })
-            .isEqual(req.fields.new)
-            .getResult()
-
-        const passwordErrors = removeNull([newResult, repeatResult])
         // SHA512 Hashing
         const incomingHashedPasswordSHA512 = sha512({
             a: req.fields.old_password,
             b: config.genkan.secretKey,
         })
-
+        passwordErrors = []
         result = bcrypt.compareSync(incomingHashedPasswordSHA512, user.password)
+        if (result === false) {
+            const oldResult = v
+                .Initialize({
+                    name: 'old_password',
+                    errorMessage: 'Wrong password, please try again',
+                })
+                .setFalse()
+                .getResult()
+            passwordErrors.push(oldResult)
+        } else if (req.fields.new.length < 8) {
+            const repeatResult = v
+                .Initialize({
+                    name: 'new',
+                    errorMessage: 'New password should be more than 8 characters',
+                })
+                .exists()
+                .isLength({ min: 8 })
+                .isEqual(req.fields.new)
+                .getResult()
+            passwordErrors.push(repeatResult)
+        } else if (req.fields.new != req.fields.confirm) {
+            const confirmResult = v
+                .Initialize({
+                    name: 'new',
+                    errorMessage: 'Both passwords do not match, please try again',
+                })
+                .exists()
+                .isEqual(req.fields.confirm)
+                .getResult()
+            passwordErrors.push(confirmResult)
+        }
 
+        passwordErrors = removeNull(passwordErrors)
         if (result === true && emptyArray(passwordErrors)) {
             res.clearCookie('passwordErrors')
             res.clearCookie('storedValues')
             // do password change
+            passwordSuccess = []
+            const formP = v
+                .Initialize({
+                    errorMessage: 'Password changed successfully',
+                })
+                .setFalse()
+                .getResult()
+            passwordSuccess.push(formP)
+            res.cookie('passwordSuccess', passwordSuccess, { maxAge: 5000 })
             genkan.setPassword(sid, req.fields.new, () => {
                 res.redirect(`/u/setting/password`)
                 return callback(true)
@@ -453,7 +459,7 @@ router.post('/profile/edit/:savedId', (req, res) => {
     console.log('Image edited')
     const v = new fileValidator(req.files['profile_img'])
     const imageResult = v
-        .Initialize({ errorMessage: 'Please supply a valid Image' } )
+        .Initialize({ errorMessage: 'Please supply a valid Image' })
         .fileExists()
         .sizeAllowed({ maxSize: 5000000 })
         .getResult()

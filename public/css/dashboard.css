@@ -18,3 +18,46 @@
     width: 1.25rem;
     text-align: center;
 }
+
+:root {
+    --skeleton-color: rgba(0,0,0,0.08);
+}
+
+.skeleton-text.small {
+    height: 11px;
+    width: 4.5rem;
+    background: var(--skeleton-color);
+    margin-bottom: 0.5rem;
+    border-radius: 999999px;
+    animation: infinite blinkFade 1.25s ease-in-out;
+}
+
+.skeleton-text.value {
+    height: 2rem;
+    width: 4rem;
+    background: var(--skeleton-color);
+    margin-bottom: 2rem;
+    border-radius: 999999px;
+    animation: infinite blinkFade 1.25s ease-in-out;
+}
+
+.skeleton-text.value.small {
+    height: 1.25rem;
+    width: 3rem;
+    background: var(--skeleton-color);
+    margin-bottom: 0.25rem;
+    border-radius: 999999px;
+    animation: infinite blinkFade 1.25s ease-in-out;
+}
+
+@keyframes blinkFade {
+    0% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.5;
+    }
+}

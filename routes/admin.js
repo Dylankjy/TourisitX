@@ -1,6 +1,8 @@
 const express = require('express')
 
-const { Shop, User, Token, Ban, ChatRoom } = require('../models')
+
+const { Shop, User, Token, Ban, Support, ChatRoom } = require('../models')
+
 const { Op } = require('sequelize')
 
 const router = express.Router()
@@ -672,20 +674,56 @@ router.get('/payments', (req, res) => {
 })
 
 router.get('/tickets', (req, res) => {
-    const metadata = {
-        meta: {
-            title: 'Support Tickets',
-            path: false,
-        },
-        nav: {
-            sidebarActive: 'tickets',
-        },
-        layout: 'admin',
-        data: {
-            currentUser: req.currentUser,
-        },
+    if (req.query.page === undefined) {
+        return res.redirect('?page=1')
     }
-    return res.render('admin/tickets', metadata)
+
+    const pageNo = parseInt(req.query.page)
+    // Data only used if, before coming to this endpoint, a ticket was updated.
+    const notifs = req.signedCookies.notifs || 'null然シテnull然シテnull'
+    const notifsData = notifs.split('然シテ') // Why 然シテ as a splitter? Because the chances of anyone using soushite in their name is 0.000001% with the fact that this is written in Katakana instead of Hiragana like any normal human being would. Why not a comma, because people like Elon Musk exists and they name their child like they are playing osu!, just that they are smashing their keyboards.
+    const entriesPerPage = 15
+    Support.findAll({
+        limit: entriesPerPage,
+        offset: (pageNo - 1) * entriesPerPage,
+    })
+        .then(async (tickets) => {
+            const ticketObjects = tickets.map((tickets) => tickets.dataValues)
+            const totalNumberOfPages = Math.ceil(
+                (await Support.count()) / entriesPerPage,
+            )
+
+            const metadata = {
+                meta: {
+                    title: 'Support Tickets',
+                    path: false,
+                },
+                nav: {
+                    sidebarActive: 'tickets',
+                },
+                layout: 'admin',
+                data: {
+                    currentUser: req.currentUser,
+                    updatedMessage: {
+                        updatedUser: notifsData[1],
+                        status: notifsData[0],
+                        err: notifsData[2],
+                    },
+                    tickets: ticketObjects,
+                    pagination: {
+                        firstPage: 1,
+                        lastPage: totalNumberOfPages,
+                        previous: pageNo - 1,
+                        current: pageNo,
+                        next: pageNo + 1,
+                    },
+                },
+            }
+            return res.render('admin/tickets', metadata)
+        })
+        .catch((err) => {
+            throw err
+        })
 })
 
 module.exports = router
