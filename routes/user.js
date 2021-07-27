@@ -77,13 +77,13 @@ router.get('/profile/:id', async (req, res) => {
     } else {
         const storedValues = {}
     }
-    const user = await genkan.getUserBySessionAsync(sid)
+
     const userD = await User.findAll({
         where: {
             'id': req.params.id,
         },
     })
-    const isOwner = user.id == userD[0]['dataValues'].id
+    const isOwner = req.currentUser.id == userD[0]['dataValues'].id
     console.log('Current User:', req.currentUser)
     console.log('Profile', userD[0]['dataValues'])
     const listings = []
