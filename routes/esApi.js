@@ -12,6 +12,9 @@ const elasticSearchHelper = require('../app/elasticSearch')
 
 const router = express.Router()
 
+const routesConfig = require('../config/routes.json')
+var baseUrl = routesConfig["base_url"]
+
 router.use(formidable())
 
 router.get('/create-index', (req, res)=>{
@@ -241,7 +244,7 @@ router.get('/getFromShopDB', async (req, res) => {
 
 // To initialize the elastic search client for the first time
 router.get('/initFromDB', async (req, res) => {
-    await axios('http://localhost:5000/es-api/create-index')
+    await axios($`{base_url}/es-api/create-index`)
     // This array will contain all the JSON objects
     const docs = []
     // Specify the attributes to retrieve
