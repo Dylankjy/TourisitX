@@ -1,19 +1,28 @@
-<div class="columns is-multiline">
+<div id="dashboardDisplay" class="columns is-multiline" style="display: none">
     <div class="column">
         <div class="box">
-            <div class="heading">Gross Profit</div>
-            <div class="title">$7043 <span class="tag is-danger is-light">-$242</span></div>
+            <div class="heading">Estimated Net Profit</div>
+            <div class="title">
+                $<span id="netProfitField"></span>
+                <span id="netProfitDiffFieldTag" class="tag is-light">
+                    <span id="netProfitDiffField"></span>
+                </span>
+            </div>
             <div class="level">
                 <div class="level-item">
                     <div>
                         <div class="heading">Total Income</div>
-                        <div class="title is-5">$13278</div>
+                        <div class="title is-5">
+                            $<span id="profitField"></span>
+                        </div>
                     </div>
                 </div>
                 <div class="level-item">
                     <div>
                         <div class="heading">Total Bookings</div>
-                        <div class="title is-5">140</div>
+                        <div class="title is-5">
+                            <span id="totalBookingsField"></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -22,7 +31,9 @@
     <div class="column">
         <div class="box">
             <div class="heading">Customer Satisfaction</div>
-            <div class="title">87% <span class="tag is-success is-light">+1%</span></div>
+            <div class="title">87%
+                <span class="tag is-success is-light">aa</span>
+            </div>
             <div class="level">
                 <div class="level-item">
                     <div class="">
@@ -48,21 +59,137 @@
     <div class="column">
         <div class="box">
             <div class="heading">Active users (last 24 days)</div>
-            <div class="title">402 <span class="tag is-success is-light">+132</span></div>
+            <div class="title">
+                <span id="totalActiveUsersField"></span>
+                <span id="totalActiveUsersDiffFieldTag" class="tag is-light"><span
+                        id="totalActiveUsersDiffField"></span>
+                </span>
+            </div>
             <div class="level">
                 <div class="level-item">
                     <div class="">
                         <div class="heading">New sign ups</div>
-                        <div class="title is-5">12</div>
+                        <div class="title is-5">
+                            <span id="newUserField"></span>
+                        </div>
                     </div>
                 </div>
                 <div class="level-item">
                     <div class="">
-                        <div class="heading">Booking rate</div>
-                        <div class="title is-5">90%</div>
+                        <div class="heading">Total Users</div>
+                        <div class="title is-5">
+                            <span id="totalUsersField"></span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<div id="skeletonDisplay" class="columns is-multiline">
+    <div class="column">
+        <div class="box">
+            <div class="skeleton-text small"></div>
+            <div class="skeleton-text value"></div>
+            <div class="level">
+                <div class="level-item">
+                    <div>
+                        <div class="skeleton-text small"></div>
+                        <div class="skeleton-text value small"></div>
+                    </div>
+                </div>
+                <div class="level-item">
+                    <div>
+                        <div class="skeleton-text small"></div>
+                        <div class="skeleton-text value small"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="column">
+        <div class="box">
+            <div class="skeleton-text small"></div>
+            <div class="skeleton-text value"></div>
+            <div class="level">
+                <div class="level-item">
+                    <div>
+                        <div class="skeleton-text small"></div>
+                        <div class="skeleton-text value small"></div>
+                    </div>
+                </div>
+                <div class="level-item">
+                    <div>
+                        <div class="skeleton-text small"></div>
+                        <div class="skeleton-text value small"></div>
+                    </div>
+                </div>
+                <div class="level-item">
+                    <div>
+                        <div class="skeleton-text small"></div>
+                        <div class="skeleton-text value small"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="column">
+        <div class="box">
+            <div class="skeleton-text small"></div>
+            <div class="skeleton-text value"></div>
+            <div class="level">
+                <div class="level-item">
+                    <div>
+                        <div class="skeleton-text small"></div>
+                        <div class="skeleton-text value small"></div>
+                    </div>
+                </div>
+                <div class="level-item">
+                    <div>
+                        <div class="skeleton-text small"></div>
+                        <div class="skeleton-text value small"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script defer>
+    $(document).on('turbolinks:load', function () {
+        setTimeout(() => {
+            $.getJSON('/api/admin', function (data) {
+                // Set money fields
+                $('#netProfitField').text(data.money.currentPeriod.totalNetIncome);
+                $('#profitField').text(data.money.currentPeriod.totalIncome);
+                $('#totalBookingsField').text(data.money.currentPeriod.totalBookings);
+
+                if (data.money.currentPeriod.totalNetIncome - data.money.lastPeriod.totalNetIncome < 0) {
+                    $('#netProfitDiffField').text(`-$${data.money.currentPeriod.totalNetIncome - data.money.lastPeriod.totalNetIncome}`);
+                    $('#netProfitDiffFieldTag').addClass('is-danger');
+                } else {
+                    $('#netProfitDiffField').text(`+$${data.money.currentPeriod.totalNetIncome - data.money.lastPeriod.totalNetIncome}`);
+                    $('#netProfitDiffFieldTag').addClass('is-success');
+                }
+
+                // Set User fields
+                $('#totalUsersField').text(data.users.currentPeriod.totalUsers);
+                $('#newUserField').text(data.users.currentPeriod.totalNewUsers);
+                $('#totalActiveUsersField').text(data.users.currentPeriod.totalActiveUsers);
+
+                if (data.users.currentPeriod.totalActiveUsers - data.users.lastPeriod.totalActiveUsers < 0) {
+                    $('#totalActiveUsersDiffField').text(`-${data.users.currentPeriod.totalActiveUsers - data.users.lastPeriod.totalActiveUsers}`);
+                    $('#totalActiveUsersDiffFieldTag').addClass('is-danger');
+                } else {
+                    $('#totalActiveUsersDiffField').text(`+${data.users.currentPeriod.totalActiveUsers - data.users.lastPeriod.totalActiveUsers}`);
+                    $('#totalActiveUsersDiffFieldTag').addClass('is-success');
+                }
+            }).then(() => {
+                $('#skeletonDisplay').hide(0, () => {
+                    $('#dashboardDisplay').show();
+                })
+            });
+        }, 2000)
+    });
+</script>
