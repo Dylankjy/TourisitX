@@ -9,8 +9,9 @@ const { adminAuthorisationRequired, loginRequired } = require('../app/genkan/mid
 const { Booking, User } = require('../models')
 const { Op } = require('sequelize')
 
-// Admin Fetch API
+// API Handlers
 const { getAdminStats, getUserStats } = require('../app/api/admin')
+const { getMoneyStats } = require('../app/api/tourguide')
 
 // Admin Panel API
 router.get('/admin', adminAuthorisationRequired, async (req, res) => {
@@ -23,7 +24,6 @@ router.get('/admin', adminAuthorisationRequired, async (req, res) => {
             currentPeriod: await getAdminStats(30),
             lastPeriod: await getAdminStats(60),
         },
-        // totalNetIncomeDiff,
         users: {
             currentPeriod: await getUserStats(30),
             lastPeriod: await getUserStats(60),
@@ -36,8 +36,23 @@ router.get('/admin', adminAuthorisationRequired, async (req, res) => {
     return res.json(ResponseObject)
 })
 
-// router.get('/admin/charts', adminAuthorisationRequired, () => {
+// Admin Panel API
+router.get('/tourguide', loginRequired, async (req, res) => {
+    // Final JSON object to be returned
+    const ResponseObject = {
+        money: {
+            currentPeriod: await getMoneyStats(30, req.currentUser.id),
+            lastPeriod: await getMoneyStats(60, req.currentUser.id),
+        },
+        csat: {
+            // Custom Satisfication
+            // TODO: Implement, wait for table to be created.
+            'Work in Progress': 1,
+        },
+    }
 
-// })
+    return res.json(ResponseObject)
+})
+
 
 module.exports = router
