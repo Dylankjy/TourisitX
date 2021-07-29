@@ -19,7 +19,7 @@ const getMoneyStats = async (offset, tguid) => {
 
     // Only if there are tours, calculate the stats. This prevents a divide by 0 error.
     if (allTours.length !== 0) {
-        totalEarnings = allTours.map((booking) => parseFloat(booking.bookBaseprice) + parseFloat(booking.bookCharges)).reduce((a, b) => a + b) * 0.85
+        totalEarnings = allTours.map((booking) => parseFloat(booking.bookBaseprice) + parseFloat(booking.bookCharges.split(',').reduce((a, b) => a + b))).reduce((a, b) => a + b) * 0.85
         averageEarnings = totalEarnings / allTours.length
     }
 
