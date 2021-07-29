@@ -24,7 +24,7 @@
                             <a>Activity</a>
                         </li>
                         {{#ifBigger data.book.custom 0}}
-                        {{#ifEquals data.book.processStep 1}}
+                        {{#ifEquals data.book.processStep '1'}}
                         <li class="tab pl-3 pr-3" onclick="openTab(event,'Customize')">
                             <a>Customize</a>
                         </li>
@@ -274,7 +274,7 @@
                 <!--END: Activity Section-->
 
                 {{#ifBigger data.book.custom 0}}
-                {{#ifEquals data.book.processStep 1}}
+                {{#ifEquals data.book.processStep '1'}}
                 <!--START: Customize Section-->
                 <div id="Customize" class="content-tab" style="display:none;">
                     <div class="box">
