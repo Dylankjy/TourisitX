@@ -1,11 +1,16 @@
 const express = require('express')
 
-const { Shop, User, Token, Ban, Support } = require('../models')
+
+const { Shop, User, Token, Ban, Support, ChatRoom } = require('../models')
+
 const { Op } = require('sequelize')
 
 const router = express.Router()
 const uuid = require('uuid')
-const elasticSearchHelper = require('../app/elasticSearch')
+const chat = require('../app/chat/chat')
+
+const Sequelize = require('sequelize')
+
 const { default: axios } = require('axios')
 
 // Database operations
@@ -495,7 +500,9 @@ router.get('/manage/tours/edit/:id', async (req, res) => {
 
     let banStatus = ''
 
-    const banLog = await Ban.findAll({ where: { objectID: itemID, is_inForce: true } })
+    const banLog = await Ban.findAll({
+        where: { objectID: itemID, is_inForce: true },
+    })
 
     console.log('BAN LOG HAS FOUND')
 
@@ -531,14 +538,15 @@ router.get('/manage/tours/edit/:id', async (req, res) => {
     res.render('admin/edit/reportListing.hbs', metadata)
 })
 
-
 router.post('/manage/tours/edit/:id', async (req, res) => {
     const itemID = req.params.id
     const ACTION = req.fields.actionDo
     let banStatus = ''
 
     if (ACTION == 'REVOKE_TOUR') {
-        const banLog = await Ban.findAll({ where: { objectID: itemID, is_inForce: true } })
+        const banLog = await Ban.findAll({
+            where: { objectID: itemID, is_inForce: true },
+        })
         console.log('BAN LOG HAS FOUND')
 
         if (banLog[0] == undefined) {
@@ -581,29 +589,49 @@ router.post('/manage/tours/edit/:id', async (req, res) => {
 
             deleteDoc('products', itemID)
 
-            await Shop.findAll({
+            dbData = await Shop.findAll({
                 where: {
                     id: itemID,
                 },
                 raw: true,
-            }).then((dbData) => {
-                const tourGuideId = dbData[0]['userId']
-                // Use admin account to send message to user "reasonRevoke"
             })
+
+            const tourGuideId = dbData[0]['userId']
+            const adminID = '00000000-0000-0000-0000-000000000000'
+
+            const chatData = await ChatRoom.findAll({
+                where: {
+                    participants: {
+                        [Op.like]: `%${tourGuideId}%${adminID}%`,
+                    },
+                },
+            }, raw = true)
+            const chatRoomID = chatData[0]['chatId']
+            console.log('THIS IS CHAT ROOM ID' + chatRoomID)
+            console.log(revokeMessage)
+            chat.addMessage(chatRoomID, 'SYSTEM', revokeMessage, 'SENT', () => {})
+            // revokeMessage: Message to send to person
+            //
         }
     } else {
-        // THIS RUNS TO UNREVOKE TOUR
-        await Ban.update({
-            is_inForce: false,
-        }, {
-            where: { objectID: itemID },
-        })
+    // THIS RUNS TO UNREVOKE TOUR
+        await Ban.update(
+            {
+                is_inForce: false,
+            },
+            {
+                where: { objectID: itemID },
+            },
+        )
 
-        await Shop.update({
-            hidden: 'false',
-        }, {
-            where: { id: itemID },
-        })
+        await Shop.update(
+            {
+                hidden: 'false',
+            },
+            {
+                where: { id: itemID },
+            },
+        )
 
         listData = await Shop.findAll({
             attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
@@ -620,7 +648,7 @@ router.post('/manage/tours/edit/:id', async (req, res) => {
         })
     }
 
-    if (await Shop.count({ where: { id: itemID } }) === 1) {
+    if ((await Shop.count({ where: { id: itemID } })) === 1) {
         return res.redirect(`/admin/manage/tours/edit/${itemID}`)
     }
 

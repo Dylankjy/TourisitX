@@ -35,7 +35,7 @@
                     <div class="field">
                             <div class="control">
                                 <label class="checkbox">
-                                    <input type="checkbox" name="bookTOC">&ensp;
+                                    <input type="checkbox" name="bookTOC" id="req_bookTOC">&ensp;
                                     I agree to the <a class="has-tooltip-multiline has-text-centered has-tooltip-danger"
                                                       href="#"
                                                       data-tooltip="There should not be more than 8 people in a group. Safe distancing measures should be adhered to at all times.">
@@ -45,7 +45,7 @@
                         </div>
 
                     <div class="field is-grouped is-grouped-centered mt-5 mb-5">
-                            <button class="button is-fullwidth is-info" type="submit" onclick="$('#RequireModal').fadeOut('fast');">Submit</button>
+                            <button class="button is-fullwidth is-info" id="req_submit" type="submit" value="submit" onclick="$('#RequireModal').fadeOut('fast');" disabled="disabled">Submit</button>
                     </div>
 
                 </form>
