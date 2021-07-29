@@ -280,7 +280,7 @@ router.get('/create', loginRequired, async (req, res) => {
         },
     }
 
-    return res.render('tourguide/createListing.hbs', metadata)
+    return res.render('tourGuide/createListing.hbs', metadata)
 })
 
 // To create the listing
@@ -471,7 +471,7 @@ router.get('/edit/:savedId', loginRequired, async (req, res) => {
                     },
                 }
 
-                return res.render('tourguide/editListing.hbs', metadata)
+                return res.render('tourGuide/editListing.hbs', metadata)
             } else {
                 // Will return "No perms" screen
                 return requirePermission(res)
@@ -943,7 +943,7 @@ router.get('/:id/payment', loginRequired, async (req, res) => {
         tourData: itemData,
     }
 
-    return res.render('tourguide/payment.hbs', metadata)
+    return res.render('tourGuide/payment.hbs', metadata)
 })
 
 router.get('/charges', async (req, res) => {
