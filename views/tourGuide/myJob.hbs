@@ -2,12 +2,14 @@
 <link rel="stylesheet" href="/third_party/bulma/bulma-tooltip.css">
 <link rel="stylesheet" href="/third_party/bulma/bulma-badge.css">
 <link rel="stylesheet" href="/third_party/bulma/bulma-timeline.min.css">
+<link rel='stylesheet' href='/third_party/alex/create_listing.css'>
 
 <script defer src="/js/chatBooking.js" data-turbolinks="false"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.min.js"
     integrity="sha512-fB746S+jyTdN2LSWbYSGP2amFYId226wpOeV4ApumcDpIttPxvk1ZPOgnwqwQziRAtZkiFJVx9F64GLAtoIlCQ=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 
 <section class="section">
     <div class="container">
@@ -21,22 +23,24 @@
                         <li class="tab pl-3 pr-3 is-active" onclick="openTab(event,'Activity')">
                             <a>Activity</a>
                         </li>
-                        {{#ifEquals data.book.custom 1}}
+                        {{#ifBigger data.book.custom 0}}
+                        {{#ifEquals data.book.processStep 1}}
                         <li class="tab pl-3 pr-3" onclick="openTab(event,'Customize')">
                             <a>Customize</a>
                         </li>
                         {{/ifEquals}}
+                        {{/ifBigger}}
                         <li class="tab pl-3 pr-3" onclick="openTab(event,'Details')">
                             <a>Tour Details</a>
                         </li>
                         <li class="tab pl-3 pr-3" onclick="openTab(event,'Payment')">
                             <a>Payment</a>
                         </li>
-                        {{#ifEquals data.book.custom 1}}
+                        {{#ifBigger data.book.custom 0}}
                         <li class="tab pl-3 pr-3" onclick="openTab(event,'Req')">
                             <a>Requirements &amp; Requests</a>
                         </li>
-                        {{/ifEquals}}
+                        {{/ifBigger}}
                     </ul>
                     </div>
                 <!--END: Tabs-->
@@ -69,7 +73,7 @@
                             </div>
                             <br>
                             <div class="divider is-right"></div>
-                            <p class="has-text-right has-text-link"><i class="fas fa-angle-double-down"></i> 
+                            <p class="has-text-right has-text-link" onclick="window.scrollTo(0,document.body.scrollHeight);" style="cursor: pointer;"><i class="fas fa-angle-double-down"></i> 
                             Jump to latest activity</p>
                                <!--START: timeline-->
 
@@ -87,7 +91,10 @@
                                                 <i class="fas fa-check"></i>
                                             </div>
                                             <div class="timeline-content">
-                                                <p class="has-text-weight-semibold">{{this.messageText}}</p>
+                                                {{data.currentUser.name}}
+                                                {{../currentUser}}
+                                                {{#with (lookup ../currentUser (this.name))}}{{/with}}
+                                                <p class="has-text-weight-semibold">{{bookActivityName this.messageText  @root.data.cust.name @root.data.currentUser.name}}</p>
                                             </div>
                                         </div>
                                     {{/ifEquals}}
@@ -103,7 +110,7 @@
                                                 {{else}}
                                                 <p class="has-text-weight-semibold">{{oppositeValue @root.data.currentUser.name @root.data.participants}} sent a message:</p>
                                                 {{/ifEquals}}
-                                                <p>{{this.messageText}}</p>
+                                                <p>{{{this.messageText}}}</p>
                                             </div>
                                         </div>
                                     {{/ifEquals}}
@@ -122,7 +129,18 @@
 
                                         <header class="card-header is-clickable" onclick="collapseCard(this)">
                                                 <p class="card-header-title has-text-centered has-text-weight-bold is-size-5">
-                                                Tour Plan (#{{this.messageText}}) </p>
+                                                Tour Plan (#{{this.messageText}}) 
+                                                {{#with (lookup ../tourPlans (numToIndex this.messageText))}}
+                                                {{#ifEquals accepted '-1'}}
+                                                <span class="tag is-danger is-light ml-2">Rejected</span></p>
+                                                {{/ifEquals}}
+                                                {{#ifEquals accepted '0'}}
+                                                <span class="tag is-black ml-2">Pending</span></p>
+                                                {{/ifEquals}}
+                                                {{#ifEquals accepted '1'}}
+                                                <span class="tag is-success ml-2">Accepted</span></p>
+                                                {{/ifEquals}}
+                                                {{/with}}
 
                                                 <span class=" card-header-icon icon is-large">
                                                     <i class="fas fa-angle-down" aria-hidden="true"></i>
@@ -184,63 +202,6 @@
 
                                             </div>
                                         </div>
-
-                                        {{#with (lookup ../tourPlans (numToIndex this.messageText))}}
-                                        <footer class="card-footer p-4">
-                                            <div class="field is-grouped mt-2">
-                                            <div class="control">
-                                                <button class="button 
-                                                {{#ifEquals accepted '-1'}}
-                                                is-danger is-outlined
-                                                {{/ifEquals}}
-                                                {{#ifEquals accepted '0'}}
-                                                is-danger
-                                                {{/ifEquals}}
-                                                {{#ifEquals accepted '1'}}
-                                                is-static
-                                                {{/ifEquals}}
-                                                " 
-                                                {{#ifEquals accepted '-1'}}
-                                                style="pointer-events: none;"
-                                                {{/ifEquals}}
-                                                {{#ifEquals accepted '1'}}
-                                                style="pointer-events: none;"
-                                                {{/ifEquals}}>Request a Revision
-
-                                                {{#ifEquals accepted '-1'}}
-                                                    <i class="fas fa-check ml-1"></i>
-                                                {{/ifEquals}}
-                                                </button>
-                                            </div>
-
-                                            <div class="control">
-                                                <button class="button
-                                                {{#ifEquals accepted '-1'}}
-                                                is-static
-                                                {{/ifEquals}}
-                                                {{#ifEquals accepted '0'}}
-                                                is-success
-                                                {{/ifEquals}}
-                                                {{#ifEquals accepted '1'}}
-                                                is-success is-outlined
-                                                {{/ifEquals}}
-                                                "
-                                                
-                                                {{#ifEquals accepted '-1'}}
-                                                style="pointer-events: none;"
-                                                {{/ifEquals}}
-                                                {{#ifEquals accepted '1'}}
-                                                style="pointer-events: none;"
-                                                {{/ifEquals}}>Approve Plan
-
-                                                {{#ifEquals accepted '1'}}
-                                                    <i class="fas fa-check ml-1"></i>
-                                                {{/ifEquals}}
-                                                </button>
-                                            </div>
-                                        </div>
-                                        </footer>
-                                        {{/with}}
 
                                     </div>
                                     <!--Tour plan card-->
@@ -312,7 +273,8 @@
                 </div>
                 <!--END: Activity Section-->
 
-                {{#ifEquals data.book.custom 1}}
+                {{#ifBigger data.book.custom 0}}
+                {{#ifEquals data.book.processStep 1}}
                 <!--START: Customize Section-->
                 <div id="Customize" class="content-tab" style="display:none;">
                     <div class="box">
@@ -321,14 +283,14 @@
                                 <p class="has-text-centered is-size-4 has-text-weight-bold">Customize Tour Plan</p>
                                 <br>
                                 <!--form-->
-                                <div class="divider"><p class="has-text-weight-semibold">General</p></div>
-                                <form id='' class="form-horizontal" enctype="multipart/form-data" method="POST">
+                                {{!-- <div class="divider"><p class="has-text-weight-semibold">General</p></div> --}}
+                                <form id='custom_tour' class="form-horizontal" enctype="multipart/form-data" method="POST" action="/tourguide/bookings/{{data.book.bookId}}">
                 <fieldset>
 
                     <div class='field'>
                     <label class="label" for="tour-date">Tour Date</label>
                     <div class='control'>
-                        <input class="input" type="date" placeholder="Date">
+                        <input id="tourDate" name="tourDate" class="input" type="date" value={{DateISOToHTML data.book.tourStart}}>
                     </div>
                     </div>
 
@@ -337,20 +299,20 @@
                             <div class='field'>
                     <label class="label" for="tour-starttime">Start Time</label>
                     <div class='control'>
-                        <input class="input" type="time" placeholder="Start Time">
+                        <input name="startTime" class="input" type="time" value={{onlyTime data.book.tourStart}}>
                     </div>
                 </div>
 
                     <div class='field'>
                         <label class="label" for="tour-endtime">End Time</label>
                         <div class='control'>
-                            <input class="input" type="time" placeholder="End Time">
+                            <input name="endTime" class="input" type="time" value={{onlyTime data.book.tourEnd}}>
                         </div>
                         </div>  
                     </div>
                     </div>
 
-                    <label class="label" for="tour-items">Tour itinerary</label>
+                    {{!-- <label class="label" for="tour-items">Tour itinerary</label>
                     <div class="field has-addons">
                         <div class="control is-expanded">
                             <input class="input" type="text" placeholder="Activity">
@@ -362,30 +324,58 @@
                         </div>
                     </div>
                     <br>
- 
+
+                    <ul class='ui-sortable' id='itineraryItems'>
+                    </ul> --}}
+                    <br>
+                    <div>
+                        <label class="label" for="tour-items">Tour itinerary</label>
+                    <div class='control has-icons-right is-clickable'>
+                        <input class='input is-success' id='itinerary-str' placeholder="Add itinerary item..">
+                        <span class='icon is-right'>
+                            <i class="fas fa-feather-alt" id='add-itinerary-icon'
+                                style="margin-right: 20px; pointer-events: initial"></i>
+                        </span>
+                    </div>
+
+                    <ul class='ui-sortable' id='itineraryItems'>
+                        {{#each (readArrWithReplace data.book.[Shop.finalItinerary])}}
+                            {{!-- <li class="itinerary-item mt-3 tag is-info is-medium" contenteditable="true"> --}}
+                            <li class="itinerary-item" contenteditable="true">
+                            {{!-- <span class="tag is-info is-medium"> --}}
+                            {{this}}
+                            {{!-- <button class="delete" onclick="this.parentElement.remove()"></button> --}}
+                            <i class="fas fa-trash-alt itinerary-item-icon" onclick="this.parentElement.remove()"></i>
+                            {{!-- </span> --}}
+                            </li>
+                        {{/each}}
+                    </ul>
+                </div>
+                    
+                    <br>
                     <div class='field'>
                         <label class="label" for="tour-price">Number of Tour Participants</label>
                         <div class='control'>
-                            <input class="input" type="number" placeholder="Number of Participants">           
+                            <input name="tourPax" class="input" type="number" value={{data.book.bookPax}}>     
                         </div>
                         </div>        
                     </fieldset>
                     
 
                     <br>
-                    <div class="divider"><p class="has-text-weight-semibold">Pricing</p></div>
+                    {{!-- <div class="divider"><p class="has-text-weight-semibold">Pricing</p></div> --}}
                                 
                     
                         <div class='field'>
-                        <label class="label" for="tour-price">Base Tour Price</label>
+                        <label class="label" for="tour-price">Tour Price</label>
                         <div class='control has-icons-left'>
-                            <input class="input" type="number" step="0.1" placeholder="Base Tour Price">
+                            <input name="tourPrice" class="input" type="number" step="0.1" placeholder="Tour Price" value={{data.book.bookBaseprice}}>
                             <span class="icon is-small is-left">
                                 <i class="fas fa-dollar-sign"></i></span>
                         </div>
                         </div>  
 
-                        <div class="field has-addons">
+                        {{!-- <div class="field has-addons">
                             <p class="control has-icons-left">
                                 <input class="input" type="number" step="0.1" placeholder="Add-On">
                                 <span class="icon is-small is-left">
@@ -396,17 +386,29 @@
                                 <i class="fas fa-plus"></i>
                                 </a>
                             </p>
-                            </div>
+                            </div> --}}
                         
 
                         <br>
-                        <div class="divider"><p class="has-text-weight-semibold">Others</p></div>
+                        {{!-- <div class="divider"><p class="has-text-weight-semibold">Others</p></div> --}}
                                 <div class='field'>
                         <label class="label" for="tour-price">Additional Information</label>
                         <div class='control'>
-                            <textarea class="textarea" placeholder="e.g. Meet at.."></textarea>          
+                            <textarea name="addInfo" class="textarea" placeholder="e.g. Meet at.." value={{data.book.addInfo}}></textarea>      
                         </div>
                         </div> 
+
+                        <input name='finalItinerary' hidden>
+
+                        <div class="field is-grouped">
+                            <div class="control">
+                                <button type="reset" class="button is-link is-light">Clear</button> 
+                            </div>
+                            <div class="control">
+                                <button type="submit" class="button is-link">Submit</button> 
+                            </div>
+                        </div>
+
                                 </form>
                                 <!--form-->
                             </div>
@@ -415,6 +417,7 @@
                 </div>
                 <!--END: Custom Section-->
                 {{/ifEquals}}
+                {{/ifBigger}}
 
                 <!--START: Details Section-->
                 <div id="Details" class="content-tab" style="display:none;">
@@ -527,24 +530,24 @@
                                         <th>Item</th>
                                         <th>Price</th>
                                     </tr>
-                                    {{#ifEquals data.book.custom 1}}
+                                    {{#ifBigger data.book.custom 0}}
                                     <tr>
                                         <td>Customisation Fee</td>
                                         <td>${{data.book.bookCharges}}</td>
                                     </tr>
-                                    {{/ifEquals}}
+                                    {{/ifBigger}}
                                     <tr>
                                         <td>Base Tour Price</td>
                                         <td>${{data.book.bookBaseprice}}</td>
                                     </tr>
-                                    {{#ifEquals data.book.custom 1}}
+                                    {{#ifBigger data.book.custom 0}}
                                     {{#ifSmaller (toNum data.book.revisions) 0}}
                                     <tr>
                                         <td>Extra Revisions {{data.book.revisions}}</td>
                                         <td>${{math data.book.revisions '*' data.book.bookCharges}}</td>
                                     </tr>
                                     {{/ifSmaller}}
-                                    {{/ifEquals}}
+                                    {{/ifBigger}}
                                     <tr>
                                         <th>Subtotal</th>
                                         {{!-- calculate subtotal server side --}}
@@ -566,7 +569,7 @@
                 </div>
                 <!--END: Payment Section-->
 
-                {{#ifEquals data.book.custom 1}}
+                {{#ifBigger data.book.custom 0}}
                 <!--START: Req Section-->
                 <div id="Req" class="content-tab" style="display:none;">
                     <div class="box">
@@ -603,7 +606,7 @@
                     </div>
                 </div>
                 <!--END: Req Section-->
-                {{/ifEquals}}
+                {{/ifBigger}}
 
             </div>
             <div class="column is-one-quarter">
@@ -611,7 +614,7 @@
                     <a href="/u/messages">
                     <button class="button is-fullwidth has-text-weight-semibold is-rounded is-warning is-light">
                         <span class="icon"><i class="fas fa-comment-alt"></i></span>
-                        Chat with <span class="has-text-primary ml-1 has-text-weight-bold">Customer</span>
+                        Chat with <span class="has-text-primary ml-1 has-text-weight-bold">{{data.cust.name}}</span>
                     </button></a>
                     <br>
 
@@ -632,7 +635,7 @@
                             </tr>
                             <tr>
                                 <th>Ordered by</th>
-                                <td class="has-text-link">Customer</td>
+                                <a href=""><td class="has-text-link">{{data.cust.name}}</td></a>
                             </tr>
                         </table>
                     </div>
@@ -655,3 +658,141 @@
 <input id="currentChatID" type="hidden" value="{{data.book.chatId}}">
 {{!-- This exists because turbolinks caches <head></head> and is here for turbolinks to know to only run chat.js when it sees this --}}
 <div id="thisIsABookingPageSoPleaseLoadTheChatScript"></div>
+
+<script>
+    var createdItinerary = []
+
+    // HELPER FUNCTIONS
+
+    // Returns the cookie value given its name
+    getCookieValue = (name) => {
+        return document.cookie.split('; ').find(row => row.startsWith(name)).split('=')[1]
+    }
+
+    // Returns a boolean whether array is empty
+    isEmptyArray = (arr) => {
+        return arr.filter((n) => n).length == 0
+    }
+
+    // Returns an array with trimmed elements and no empty elements
+    trimmedArray = (arr) => {
+        // Remove all whitespaces front and back of each element
+        arr = arr.map(x => x.trim())
+        // Remove all empty elements
+        arr = arr.filter(x => x)
+        return arr
+    }
+
+    // TOUR ITINERARY
+    // Updater + Initializer
+
+
+    // ITINERARY LIST
+
+    // Add new itinerary list item when feather is clicked
+    addItineraryItem = () => {
+        // Get the current text value
+        var item = $("#itinerary-str").val()
+        // Reset input box to empty
+        $("#itinerary-str").val("")
+        var elem = `<li class="itinerary-item" contenteditable="true">
+                        ${item}
+                        <i class="fas fa-trash-alt itinerary-item-icon" onclick="this.parentElement.remove()"></i>
+                    </li>`
+        $("#itineraryItems").append(elem)
+
+        // Sortable + Editable for Itinerary list
+        // Must call this everytime I add an itinerary item so that this onclick trigger applies to them too
+        // When I double-click, I can edit the string inside (But I cannot sort it)
+        $(".itinerary-item").on('dblclick', () => {
+            $("#itineraryItems").sortable({ cancel: ':input,button,[contenteditable="true"]' })
+        })
+
+        // When I click away, I can no longer edit the string, but I can now sort it
+        $(".itinerary-item").on('focusout', () => {
+            $("#itineraryItems").sortable({ cancel: "" })
+        })
+    }
+
+    // Inject specific itineray string to the list
+    addSpecificItineraryItem = (itinerary) => {
+        // Get the current text value
+        var item = itinerary
+        // Reset input box to empty
+        $("#itinerary-str").val("")
+        // var elem = `<li class="itinerary-item mt-3 tag is-info is-medium" contenteditable="true">
+        //                ${item}
+        //                <button class="delete" onclick="this.parentElement.remove()"></button>
+        //            </li>`
+        var elem = `<li class="itinerary-item" contenteditable="true">
+                        ${item}
+                        <i class="fas fa-trash-alt itinerary-item-icon" onclick="this.parentElement.remove()"></i>
+                    </li>`
+
+        $("#itineraryItems").append(elem)
+
+        // Sortable + Editable for Itinerary list
+        // Must call this everytime I add an itinerary item so that this onclick trigger applies to them too
+        // When I double-click, I can edit the string inside (But I cannot sort it)
+        $(".itinerary-item").on('dblclick', () => {
+            $("#itineraryItems").sortable({ cancel: ':input,button,[contenteditable="true"]' })
+        })
+
+        // When I click away, I can no longer edit the string, but I can now sort it
+        $(".itinerary-item").on('focusout', () => {
+            $("#itineraryItems").sortable({ cancel: "" })
+        })
+    }
+
+    // Appends all the current list items into the createdItinerary array
+    updateCreatedItineraryArray = () => {
+        createdItinerary = []
+        var tmp = $("#itineraryItems").text().trim().split('\n')
+        createdItinerary = trimmedArray(tmp)
+        // Must replace any commas in the string to any other character
+        // This is because when the final list is passed to the input, they will be appended by ',' but we don't want the actual string ',' to be associated with this
+        // Must reverse this using .replace(";!;", ',') when reloading the page
+        createdItinerary = createdItinerary.map(x => x.replaceAll(",", ";!;"))
+    }
+
+    $(document).ready(() => {
+        // Tour Itinerary, Define function to run when the icon is clicked
+        // When feather icon is clicked, add the current input to the list
+        $("#add-itinerary-icon").on('click', () => {
+            if ($("#itinerary-str").val().trim() != '') {
+                addItineraryItem()
+            } else {
+                // Reset the input 
+                $("#itinerary-str").val("")
+            }
+        })
+
+        $("#custom_form").on('submit', () => {
+            updateCreatedItineraryArray()
+            $('input:hidden[name=finalItinerary]').val(createdItinerary)
+        })
+
+        if (getCookieValue("storedValues") != 'undefined') {
+            var storedValues = JSON.parse(decodeURIComponent(getCookieValue("storedValues")))
+
+            // Re-initialze the values
+            console.log(storedValues)
+
+            // Tour Itinerary
+            var existingItinerary = storedValues.finalItinerary.split(',')
+            if (existingItinerary != '') {
+                existingItinerary.forEach((itinerary) => {
+                    // Reverse the replace operation just now. Fill back the commas
+                    itinerary = itinerary.replaceAll(";!;", ',')
+                    addSpecificItineraryItem(itinerary)
+                    console.log(`Ran for Itinerary ${itinerary}`)
+                })
+            } else {
+                console.log("Days works fine too")
+            }
+
+        }
+    })
+
+
+</script>
