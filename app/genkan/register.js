@@ -69,44 +69,43 @@ newAccount = (name, email, password, ip, callback) => {
         const userId = uuid.v1()
 
         // Generate stripeId
-        var stripeCustParams = {
-            "name": name,
-            "email": email
+        const stripeCustParams = {
+            'name': name,
+            'email': email,
         }
 
 
         stripe.customers.create(stripeCustParams)
-        .then((data)=>{
-            stripeId = data["id"]
-            const NewUserSchema = {
-                id: userId,
-                name: name,
-                email: email,
-                password: hashedPasswordSHA512Bcrypt,
-                stripe_id: stripeId,
-                lastseen_time: new Date(),
-                ip_address: ip,
-            }
-    
-            const TokenSchema = {
-                token: emailConfirmationToken,
-                type: 'EMAIL',
-                userId: userId,
-            }
+            .then((data)=>{
+                stripeId = data['id']
+                const NewUserSchema = {
+                    id: userId,
+                    name: name,
+                    email: email,
+                    password: hashedPasswordSHA512Bcrypt,
+                    stripe_id: stripeId,
+                    lastseen_time: new Date(),
+                    ip_address: ip,
+                }
 
-            // Insert new user into database
-            insertDB('user', NewUserSchema, () => {
+                const TokenSchema = {
+                    token: emailConfirmationToken,
+                    type: 'EMAIL',
+                    userId: userId,
+                }
+
+                // Insert new user into database
+                insertDB('user', NewUserSchema, () => {
                 // Insert new email confirmation token into database
-                insertDB('token', TokenSchema, (a) => {
-                    sendConfirmationEmail(email, emailConfirmationToken)
-                    return callback(userId)
+                    insertDB('token', TokenSchema, (a) => {
+                        sendConfirmationEmail(email, emailConfirmationToken)
+                        return callback(userId)
+                    })
                 })
+            }).catch((err)=>{
+                console.log(err)
+                return callback(false)
             })
-
-        }).catch((err)=>{
-            console.log(err)
-            return callback(false)
-        })
     })
 }
 

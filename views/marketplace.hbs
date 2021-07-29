@@ -50,7 +50,7 @@
 
             // Clear all the displayed choices
             $("#displayedListings").empty()
-            fetch(`http://localhost:5000/es-api/search?text=${$('#searchText').val()}`)
+            fetch(`{{nginxRoute}}/es-api/search?text=${$('#searchText').val()}`)
                 .then((res) => {
                     return res.json()
                 })

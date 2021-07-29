@@ -1,6 +1,8 @@
 const express = require('express')
 
-const { Shop, User, Token, Ban, ChatRoom, Support } = require('../models')
+
+const { Shop, User, Token, Ban, Support, ChatRoom } = require('../models')
+
 const { Op } = require('sequelize')
 
 const router = express.Router()

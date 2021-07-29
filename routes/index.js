@@ -14,8 +14,8 @@ router.get('/', (req, res) => {
         order:
             [['createdAt', 'ASC']],
         where: {
-            hidden: "false"
-        }
+            hidden: 'false',
+        },
     })
         .then(async (data)=>{
             await data.forEach((doc)=>{

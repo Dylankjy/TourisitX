@@ -7,3 +7,5 @@ services:
     ports: 
       - 9200:9200
     network_mode: host
+
+# Use docker-compose v 1.25.0
