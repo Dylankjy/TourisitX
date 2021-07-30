@@ -1,26 +1,26 @@
-const express = require("express");
-const fs = require("fs");
-const { default: axios } = require("axios");
-const uuid = require("uuid");
-const path = require("path");
+const express = require('express')
+const fs = require('fs')
+const { default: axios } = require('axios')
+const uuid = require('uuid')
+const path = require('path')
 
-const formidableValidator = require("../app/validation");
-const formidable = require("express-formidable");
-const genkan = require("../app/genkan/genkan");
+const formidableValidator = require('../app/validation')
+const formidable = require('express-formidable')
+const genkan = require('../app/genkan/genkan')
 
-const { loginRequired } = require("../app/genkan/middleware");
+const { loginRequired } = require('../app/genkan/middleware')
 
-const cookieParser = require("cookie-parser");
-const { convert } = require("image-file-resize");
+const cookieParser = require('cookie-parser')
+const { convert } = require('image-file-resize')
 
-const { removeNull, emptyArray, removeFromArray } = require("../app/helpers");
+const { removeNull, emptyArray, removeFromArray } = require('../app/helpers')
 
 // Config file
-const config = require("../config/apikeys.json");
-const routesConfig = require("../config/routes.json");
+const config = require('../config/apikeys.json')
+const routesConfig = require('../config/routes.json')
 
 // Globals
-const router = express.Router();
+const router = express.Router()
 const {
     Shop,
     User,
@@ -28,30 +28,30 @@ const {
     Booking,
     ChatRoom,
     ChatMessages,
-} = require("../models");
-const elasticSearchHelper = require("../app/elasticSearch");
+} = require('../models')
+const elasticSearchHelper = require('../app/elasticSearch')
 // const esClient = elasticSearch.Client({
 //     host: 'http://47.241.14.108:9200',
 // })
-const { addRoom, addMessage } = require("../app/chat/chat.js");
-const { insertDB, updateDB, deleteDB, findDB } = require("../app/db.js");
+const { addRoom, addMessage } = require('../app/chat/chat.js')
+const { insertDB, updateDB, deleteDB, findDB } = require('../app/db.js')
 
-const TIH_API_KEY = config.secret.TIH_API_KEY;
+const TIH_API_KEY = config.secret.TIH_API_KEY
 
-const STRIPE_PUBLIC_KEY = config.stripe.STRIPE_PUBLIC_KEY;
-const STRIPE_SECRET_KEY = config.stripe.STRIPE_SECRET_KEY;
+const STRIPE_PUBLIC_KEY = config.stripe.STRIPE_PUBLIC_KEY
+const STRIPE_SECRET_KEY = config.stripe.STRIPE_SECRET_KEY
 
-const stripe = require("stripe")(STRIPE_SECRET_KEY);
+const stripe = require('stripe')(STRIPE_SECRET_KEY)
 
-const esClient = require("../app/elasticSearch").esClient;
+const esClient = require('../app/elasticSearch').esClient
 
-const Validator = formidableValidator.Validator;
-const fileValidator = formidableValidator.FileValidator;
+const Validator = formidableValidator.Validator
+const fileValidator = formidableValidator.FileValidator
 
-const savedImageFolder = "./storage/listings";
+const savedImageFolder = './storage/listings'
 
-router.use(formidable());
-router.use(cookieParser(require("../config/genkan.json").genkan.secretKey));
+router.use(formidable())
+router.use(cookieParser(require('../config/genkan.json').genkan.secretKey))
 // bin\elasticsearch.bat
 
 // Will convert Image to base64.
@@ -62,15 +62,15 @@ router.use(cookieParser(require("../config/genkan.json").genkan.secretKey));
 // })
 imageToB64Callback = (filePath, fileType, callback) => {
     fs.readFile(filePath, (err, data) => {
-        const base64 = Buffer.from(data).toString("base64");
+        const base64 = Buffer.from(data).toString('base64')
         // var formattedSrc = `<img src="data:${fileType};base64, ${base64}">`
-        fileType = fileType.replace(".", "");
-        const formattedSrc = `data:image/${fileType};base64, ${base64}`;
+        fileType = fileType.replace('.', '')
+        const formattedSrc = `data:image/${fileType};base64, ${base64}`
 
-        callback(formattedSrc);
+        callback(formattedSrc)
         // console.log(base64)
-    });
-};
+    })
+}
 
 // Promise implementation
 // imageToB64(filePath, fileType).then(data=>console.log(data))
@@ -78,17 +78,17 @@ imageToB64Promise = (filePath, fileType) => {
     return new Promise((res, rej) => {
         fs.readFile(filePath, (err, data) => {
             if (err) {
-                rej(err);
+                rej(err)
             }
-            const base64 = Buffer.from(data).toString("base64");
+            const base64 = Buffer.from(data).toString('base64')
             // var formattedSrc = `<img src="data:${fileType};base64, ${base64}">`
             // Remove the . from ".jpg" -- for rendering the base64 string image
-            fileType = fileType.replace(".", "");
-            const formattedSrc = `data:image/${fileType};base64, ${base64}`;
-            res(formattedSrc);
-        });
-    });
-};
+            fileType = fileType.replace('.', '')
+            const formattedSrc = `data:image/${fileType};base64, ${base64}`
+            res(formattedSrc)
+        })
+    })
+}
 
 // Get and save the B64 encoded image using callback
 // getImage = (req, callback) => {
@@ -104,17 +104,17 @@ imageToB64Promise = (filePath, fileType) => {
 // }
 
 getImage = (req, callback) => {
-    const filePath = req.files["resume"]["path"];
-    const fileType = req.files["resume"]["type"];
+    const filePath = req.files['resume']['path']
+    const fileType = req.files['resume']['type']
     imageToB64Promise(filePath, fileType)
         .then((data) => {
             // Do all your database stuff here also
             // fs.writeFile(toPath, data, err=>{if (err) throw err})
         })
         .catch((err) => {
-            console.log(err);
-        });
-};
+            console.log(err)
+        })
+}
 
 resizeImage = (file, width, height, type) => {
     return new Promise((resolve, reject) => {
@@ -125,97 +125,97 @@ resizeImage = (file, width, height, type) => {
             type: type,
         })
             .then((data) => {
-                resolve(data);
+                resolve(data)
             })
             .catch((err) => {
-                reject(err);
-            });
-    });
-};
+                reject(err)
+            })
+    })
+}
 
 // To save image to specified folder. A UUID will be given as name
 // filePath -- received path; fileName - name of local file; folder - folder to save image to
 storeImage = (filePath, fileName, folder) => {
-    const imgName = uuid.v4();
+    const imgName = uuid.v4()
 
-    const fileExt = path.extname(fileName);
-    const savedName = `${imgName}${fileExt}`;
-    const savedPath = `${folder}/${imgName}${fileExt}`;
+    const fileExt = path.extname(fileName)
+    const savedName = `${imgName}${fileExt}`
+    const savedPath = `${folder}/${imgName}${fileExt}`
 
-    const data = fs.readFileSync(filePath);
-    const imgBuffer = Buffer.from(data);
+    const data = fs.readFileSync(filePath)
+    const imgBuffer = Buffer.from(data)
 
-    fs.writeFileSync(savedPath, imgBuffer);
+    fs.writeFileSync(savedPath, imgBuffer)
 
-    return savedName;
-};
+    return savedName
+}
 
 // Put all your routings below this line -----
 
 // Show the user all of their own listings
-router.get("/", (req, res) => {
-    res.redirect("/tourguide/manage/listings");
-});
+router.get('/', (req, res) => {
+    res.redirect('/tourguide/manage/listings')
+})
 
 // To get a specific listing
-router.get("/info/:id", (req, res) => {
-    const itemID = req.params.id;
+router.get('/info/:id', (req, res) => {
+    const itemID = req.params.id
     Shop.findAll({
         where: {
             id: itemID,
         },
     })
         .then(async (items) => {
-            const tourData = await items[0]["dataValues"];
-            const tourguideName = await genkan.getUserByIDAsync(tourData.userId);
-            const sid = req.signedCookies.sid;
+            const tourData = await items[0]['dataValues']
+            const tourguideName = await genkan.getUserByIDAsync(tourData.userId)
+            const sid = req.signedCookies.sid
 
             // If person is not logged in
             if (sid == undefined) {
-                if (tourData.hidden == "true") {
-                    return res.redirect("/marketplace");
+                if (tourData.hidden == 'true') {
+                    return res.redirect('/marketplace')
                 }
-                console.log("THIS IS THIS");
-                console.log(tourguideName.name);
-                return res.render("listing.hbs", {
+                console.log('THIS IS THIS')
+                console.log(tourguideName.name)
+                return res.render('listing.hbs', {
                     tourData: tourData,
                     tourguideName: tourguideName.name,
                     isOwner: false,
-                });
+                })
             } else {
                 // Check if session is up to date. Else, require person to reloggin
                 if ((await genkan.isLoggedinAsync(sid)) == false) {
                     // Redirect to login page
-                    return res.redirect("/id/login");
+                    return res.redirect('/id/login')
                 }
 
                 // Alex you suck!!! >:( <:3
 
                 // If user is logged in and has a valid session
-                const userData = await genkan.getUserBySessionAsync(sid);
-                const userWishlist = userData.wishlist || "";
+                const userData = await genkan.getUserBySessionAsync(sid)
+                const userWishlist = userData.wishlist || ''
                 // var userWishlistArr = userWishlist.split(';!;')
 
                 // Check if user is the owner of the current listing being browsed
-                const isOwner = userData.id == tourData.userId;
+                const isOwner = userData.id == tourData.userId
                 if (isOwner) {
-                    owner = true;
-                    const errMsg = req.cookies.imageValError || "";
+                    owner = true
+                    const errMsg = req.cookies.imageValError || ''
 
-                    let banStatus = "";
+                    let banStatus = ''
                     const banLog = await Ban.findAll({
                         where: { objectID: itemID, is_inForce: true },
-                    });
+                    })
 
                     if (banLog[0] == undefined) {
-                        banStatus = false;
+                        banStatus = false
                     } else {
-                        const currentlyBanned = banLog[0]["dataValues"]["is_inForce"];
+                        const currentlyBanned = banLog[0]['dataValues']['is_inForce']
 
                         if (currentlyBanned == true) {
-                            banStatus = true;
+                            banStatus = true
                         } else {
-                            banStatus = false;
+                            banStatus = false
                         }
                     }
 
@@ -230,14 +230,14 @@ router.get("/info/:id", (req, res) => {
                         data: {
                             currentUser: req.currentUser,
                         },
-                    };
+                    }
 
-                    return res.render("listing.hbs", metadata);
+                    return res.render('listing.hbs', metadata)
                 } else {
-                    if (tourData.hidden == "true") {
-                        res.redirect("/marketplace");
+                    if (tourData.hidden == 'true') {
+                        res.redirect('/marketplace')
                     } else {
-                        owner = false;
+                        owner = false
 
                         const metadata = {
                             data: {
@@ -247,133 +247,133 @@ router.get("/info/:id", (req, res) => {
                             tourData: tourData,
                             isOwner: owner,
                             wishlistArr: userWishlist,
-                        };
-                        return res.render("listing.hbs", metadata);
+                        }
+                        return res.render('listing.hbs', metadata)
                     }
                 }
             }
         })
-        .catch((err) => console.log);
-});
+        .catch((err) => console.log)
+})
 
 // can we use shards? (Like how we did product card that time, pass in a json and will fill in the HTML template)
 // To create the listing
-router.get("/create", loginRequired, async (req, res) => {
-    const sid = req.signedCookies.sid;
+router.get('/create', loginRequired, async (req, res) => {
+    const sid = req.signedCookies.sid
 
     // If you have to re-render the page due to errors, there will be cookie storedValue and you use this
     // To use cookie as JSON in javascipt, must URIdecode() then JSON.parse() it
     if (req.cookies.storedValues) {
-        const storedValues = JSON.parse(req.cookies.storedValues);
+        const storedValues = JSON.parse(req.cookies.storedValues)
     } else {
-        const storedValues = {};
+        const storedValues = {}
     }
 
     const metadata = {
         validationErrors: req.cookies.validationErrors,
-        layout: "tourGuide",
+        layout: 'tourGuide',
         data: {
             currentUser: req.currentUser,
         },
-    };
+    }
 
-    return res.render("tourGuide/createListing.hbs", metadata);
-});
+    return res.render('tourGuide/createListing.hbs', metadata)
+})
 
 // To create the listing
-router.post("/create", loginRequired, async (req, res) => {
-    res.cookie("storedValues", JSON.stringify(req.fields), { maxAge: 5000 });
+router.post('/create', loginRequired, async (req, res) => {
+    res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
 
-    const sid = req.signedCookies.sid;
+    const sid = req.signedCookies.sid
 
-    const userData = await genkan.getUserBySessionAsync(sid);
+    const userData = await genkan.getUserBySessionAsync(sid)
 
-    const v = new Validator(req.fields);
+    const v = new Validator(req.fields)
 
     // Doing this way so its cleaner. Can also directly call these into the removeNull() array
     const nameResult = v
         .Initialize({
-            name: "tourTitle",
-            errorMessage: "Tour Title must be min 5 characters long",
+            name: 'tourTitle',
+            errorMessage: 'Tour Title must be min 5 characters long',
         })
         .exists()
         .isLength({ min: 5 })
-        .getResult();
+        .getResult()
 
     const descResult = v
         .Initialize({
-            name: "tourDesc",
-            errorMessage: "Please enter a Tour description",
+            name: 'tourDesc',
+            errorMessage: 'Please enter a Tour description',
         })
         .exists()
-        .getResult();
+        .getResult()
 
     const durationResult = v
         .Initialize({
-            name: "tourDuration",
-            errorMessage: "Please enter a Tour Duration",
+            name: 'tourDuration',
+            errorMessage: 'Please enter a Tour Duration',
         })
         .exists()
-        .getResult();
+        .getResult()
 
     const timingResult = v
         .Initialize({
-            name: "finalTimings",
-            errorMessage: "Please provide a Tour Timing",
+            name: 'finalTimings',
+            errorMessage: 'Please provide a Tour Timing',
         })
         .exists()
-        .getResult();
+        .getResult()
 
     const dayResult = v
         .Initialize({
-            name: "finalDays",
-            errorMessage: "Please provide a Tour Day",
+            name: 'finalDays',
+            errorMessage: 'Please provide a Tour Day',
         })
         .exists()
-        .getResult();
+        .getResult()
 
     const itineraryResult = v
         .Initialize({
-            name: "finalItinerary",
-            errorMessage: "Please create a Tour Itinerary",
+            name: 'finalItinerary',
+            errorMessage: 'Please create a Tour Itinerary',
         })
         .exists()
-        .getResult();
+        .getResult()
 
     const locationResult = v
         .Initialize({
-            name: "finalLocations",
-            errorMessage: "Please provide at least one location",
+            name: 'finalLocations',
+            errorMessage: 'Please provide at least one location',
         })
         .exists()
-        .getResult();
+        .getResult()
 
     const priceResult = v
         .Initialize({
-            name: "tourPrice",
-            errorMessage: "Tour price must be more than $0",
+            name: 'tourPrice',
+            errorMessage: 'Tour price must be more than $0',
         })
         .exists()
         .isValue({ min: 1 })
-        .getResult();
+        .getResult()
 
     const paxResult = v
         .Initialize({
-            name: "tourPax",
-            errorMessage: "Tour Pax must be at least 1",
+            name: 'tourPax',
+            errorMessage: 'Tour Pax must be at least 1',
         })
         .exists()
         .isValue({ min: 1 })
-        .getResult();
+        .getResult()
 
     const revResult = v
         .Initialize({
-            name: "tourRevision",
-            errorMessage: "Tour Revision cannot be negative",
+            name: 'tourRevision',
+            errorMessage: 'Tour Revision cannot be negative',
         })
         .exists()
         .isValue({ min: 0 })
-        .getResult();
+        .getResult()
 
     // Initialize Image Validator using req.files
     // const imgV = new FileValidator(req.files)
@@ -392,20 +392,20 @@ router.post("/create", loginRequired, async (req, res) => {
         priceResult,
         paxResult,
         revResult,
-    ]);
+    ])
 
     // If there are errors, re-render the create listing page with the valid error messages
     if (!emptyArray(validationErrors)) {
-        res.cookie("validationErrors", validationErrors, { maxAge: 5000 });
-        res.redirect(`/listing/create`);
+        res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
+        res.redirect(`/listing/create`)
     } else {
         // If successful
         // Remove cookies for stored form values + validation errors
-        res.clearCookie("validationErrors");
-        res.clearCookie("storedValues");
-        res.clearCookie("savedImageName");
+        res.clearCookie('validationErrors')
+        res.clearCookie('storedValues')
+        res.clearCookie('savedImageName')
 
-        const genId = uuid.v4();
+        const genId = uuid.v4()
 
         Shop.create({
             // You create the uuid when you initialize the create listing
@@ -422,154 +422,154 @@ router.post("/create", loginRequired, async (req, res) => {
             finalDays: req.fields.finalDays,
             finalItinerary: req.fields.finalItinerary,
             finalLocations: req.fields.finalLocations,
-            tourImage: "default.jpg",
-            hidden: "false",
+            tourImage: 'default.jpg',
+            hidden: 'false',
         })
             .then(async (data) => {
-                await axios.post("http://localhost:5000/es-api/upload", {
+                await axios.post('http://localhost:5000/es-api/upload', {
                     id: genId,
                     name: req.fields.tourTitle,
                     description: req.fields.tourDesc,
-                    image: "default.jpg",
-                });
+                    image: 'default.jpg',
+                })
 
-                console.log("ELASTICSEARCH POSTED");
+                console.log('ELASTICSEARCH POSTED')
             })
             .catch((err) => {
-                console.log(err);
-            });
+                console.log(err)
+            })
 
-        console.log("INSERTED");
-        res.redirect(`/listing`);
+        console.log('INSERTED')
+        res.redirect(`/listing`)
     }
-});
+})
 
-router.get("/edit/:savedId", loginRequired, async (req, res) => {
-    const sid = req.signedCookies.sid;
+router.get('/edit/:savedId', loginRequired, async (req, res) => {
+    const sid = req.signedCookies.sid
 
-    const userData = await genkan.getUserBySessionAsync(sid);
+    const userData = await genkan.getUserBySessionAsync(sid)
     Shop.findAll({
         where: {
             id: req.params.savedId,
         },
     })
         .then((items) => {
-            const savedData = items[0]["dataValues"];
+            const savedData = items[0]['dataValues']
             // Validate that the user can edit the listing
             // if (userID == savedData["userId"])
-            const isOwner = userData.id == savedData["userId"];
+            const isOwner = userData.id == savedData['userId']
             if (isOwner) {
-                res.cookie("storedValues", JSON.stringify(savedData), { maxAge: 5000 });
+                res.cookie('storedValues', JSON.stringify(savedData), { maxAge: 5000 })
 
                 const metadata = {
                     validationErrors: req.cookies.validationErrors,
                     data: {
                         currentUser: req.currentUser,
                     },
-                };
+                }
 
-                return res.render("tourGuide/editListing.hbs", metadata);
+                return res.render('tourGuide/editListing.hbs', metadata)
             } else {
                 // Will return "No perms" screen
-                return requirePermission(res);
+                return requirePermission(res)
             }
         })
         .catch((err) => {
-            console.log(err);
-            res.send("No such listing exists!");
-        });
-});
+            console.log(err)
+            res.send('No such listing exists!')
+        })
+})
 
 // To edit the listing
-router.post("/edit/:savedId", (req, res) => {
-    res.cookie("storedValues", JSON.stringify(req.fields), { maxAge: 5000 });
+router.post('/edit/:savedId', (req, res) => {
+    res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
 
-    const v = new Validator(req.fields);
+    const v = new Validator(req.fields)
 
     // Doing this way so its cleaner. Can also directly call these into the removeNull() array
     const nameResult = v
         .Initialize({
-            name: "tourTitle",
-            errorMessage: "Tour Title must be min 5 characters long",
+            name: 'tourTitle',
+            errorMessage: 'Tour Title must be min 5 characters long',
         })
         .exists()
         .isLength({ min: 5 })
-        .getResult();
+        .getResult()
 
     const descResult = v
         .Initialize({
-            name: "tourDesc",
-            errorMessage: "Please enter a Tour description",
+            name: 'tourDesc',
+            errorMessage: 'Please enter a Tour description',
         })
         .exists()
-        .getResult();
+        .getResult()
 
     const durationResult = v
         .Initialize({
-            name: "tourDuration",
-            errorMessage: "Please enter a Tour Duration",
+            name: 'tourDuration',
+            errorMessage: 'Please enter a Tour Duration',
         })
         .exists()
-        .getResult();
+        .getResult()
 
     const timingResult = v
         .Initialize({
-            name: "finalTimings",
-            errorMessage: "Please provide a Tour Timing",
+            name: 'finalTimings',
+            errorMessage: 'Please provide a Tour Timing',
         })
         .exists()
-        .getResult();
+        .getResult()
 
     const dayResult = v
         .Initialize({
-            name: "finalDays",
-            errorMessage: "Please provide a Tour Day",
+            name: 'finalDays',
+            errorMessage: 'Please provide a Tour Day',
         })
         .exists()
-        .getResult();
+        .getResult()
 
     const itineraryResult = v
         .Initialize({
-            name: "finalItinerary",
-            errorMessage: "Please create a Tour Itinerary",
+            name: 'finalItinerary',
+            errorMessage: 'Please create a Tour Itinerary',
         })
         .exists()
-        .getResult();
+        .getResult()
 
     const locationResult = v
         .Initialize({
-            name: "finalLocations",
-            errorMessage: "Please provide at least one location",
+            name: 'finalLocations',
+            errorMessage: 'Please provide at least one location',
         })
         .exists()
-        .getResult();
+        .getResult()
 
     const priceResult = v
         .Initialize({
-            name: "tourPrice",
-            errorMessage: "Tour price must be more than $0",
+            name: 'tourPrice',
+            errorMessage: 'Tour price must be more than $0',
         })
         .exists()
         .isValue({ min: 1 })
-        .getResult();
+        .getResult()
 
     const paxResult = v
         .Initialize({
-            name: "tourPax",
-            errorMessage: "Tour Pax must be at least 1",
+            name: 'tourPax',
+            errorMessage: 'Tour Pax must be at least 1',
         })
         .exists()
         .isValue({ min: 1 })
-        .getResult();
+        .getResult()
 
     const revResult = v
         .Initialize({
-            name: "tourRevision",
-            errorMessage: "Tour Revision cannot be negative",
+            name: 'tourRevision',
+            errorMessage: 'Tour Revision cannot be negative',
         })
         .exists()
         .isValue({ min: 0 })
-        .getResult();
+        .getResult()
 
     const validationErrors = removeNull([
         nameResult,
@@ -582,15 +582,15 @@ router.post("/edit/:savedId", (req, res) => {
         priceResult,
         paxResult,
         revResult,
-    ]);
+    ])
 
     if (!emptyArray(validationErrors)) {
-        res.cookie("validationErrors", validationErrors, { maxAge: 5000 });
-        res.redirect(`/listing/edit/${req.params.savedId}`);
+        res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
+        res.redirect(`/listing/edit/${req.params.savedId}`)
     } else {
-        res.clearCookie("validationErrors");
-        res.clearCookie("storedValues");
-        res.clearCookie("savedImageName");
+        res.clearCookie('validationErrors')
+        res.clearCookie('storedValues')
+        res.clearCookie('savedImageName')
 
         Shop.update(
             {
@@ -607,58 +607,58 @@ router.post("/edit/:savedId", (req, res) => {
             },
             {
                 where: { id: req.params.savedId },
-            }
+            },
         )
             .then(async (data) => {
                 const doc = {
                     id: req.params.savedId,
                     name: req.fields.tourTitle,
                     description: req.fields.tourDesc,
-                };
-                console.log(doc["id"]);
+                }
+                console.log(doc['id'])
 
-                await elasticSearchHelper.updateDoc(doc);
+                await elasticSearchHelper.updateDoc(doc)
 
-                res.redirect(`/listing/info/${req.params.savedId}`);
+                res.redirect(`/listing/info/${req.params.savedId}`)
             })
             .catch((err) => {
-                console.log(err);
-            });
+                console.log(err)
+            })
     }
-});
+})
 
-router.get("/hide/:id", (req, res) => {
-    const itemID = req.params.id;
+router.get('/hide/:id', (req, res) => {
+    const itemID = req.params.id
     Shop.update(
         {
-            hidden: "true",
+            hidden: 'true',
         },
         {
             where: { id: itemID },
-        }
+        },
     ).then(() => {
-        deleteDoc("products", itemID);
-        res.redirect(`/listing/info/${itemID}`);
-    });
-});
+        deleteDoc('products', itemID)
+        res.redirect(`/listing/info/${itemID}`)
+    })
+})
 
-router.get("/unhide/:id", async (req, res) => {
-    const itemID = req.params.id;
+router.get('/unhide/:id', async (req, res) => {
+    const itemID = req.params.id
 
-    let banStatus = "";
+    let banStatus = ''
     const banLog = await Ban.findAll({
         where: { objectID: itemID, is_inForce: true },
-    });
+    })
 
     if (banLog[0] == undefined) {
-        banStatus = false;
+        banStatus = false
     } else {
-        const currentlyBanned = banLog[0]["dataValues"]["is_inForce"];
+        const currentlyBanned = banLog[0]['dataValues']['is_inForce']
 
         if (currentlyBanned == true) {
-            banStatus = true;
+            banStatus = true
         } else {
-            banStatus = false;
+            banStatus = false
         }
     }
 
@@ -666,124 +666,124 @@ router.get("/unhide/:id", async (req, res) => {
     if (banStatus == false) {
         Shop.update(
             {
-                hidden: "false",
+                hidden: 'false',
             },
             {
                 where: { id: itemID },
-            }
+            },
         )
             .then(() => {
                 Shop.findAll({
-                    attributes: ["id", "tourTitle", "tourDesc", "tourImage"],
+                    attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
                     where: { id: itemID },
                 })
                     .then(async (data) => {
-                        doc = data[0]["dataValues"];
-                        console.log("REINSERTING");
-                        await axios.post("http://localhost:5000/es-api/upload", {
+                        doc = data[0]['dataValues']
+                        console.log('REINSERTING')
+                        await axios.post('http://localhost:5000/es-api/upload', {
                             id: doc.id,
                             name: doc.tourTitle,
                             description: doc.tourDesc,
                             image: doc.tourImage,
-                        });
-                        console.log("REINSERTING SUCCESS");
-                        res.redirect(`/listing/info/${itemID}`);
+                        })
+                        console.log('REINSERTING SUCCESS')
+                        res.redirect(`/listing/info/${itemID}`)
                     })
                     .catch((err) => {
-                        console.log("Error Inserting to ES");
-                        console.log(err);
-                    });
+                        console.log('Error Inserting to ES')
+                        console.log(err)
+                    })
             })
             .catch((err) => {
-                console.log("Error updating DB");
-                console.log(err);
-            });
+                console.log('Error updating DB')
+                console.log(err)
+            })
     } else {
-        res.redirect(`/listing/info/${itemID}`);
+        res.redirect(`/listing/info/${itemID}`)
     }
-});
+})
 
-router.post("/:id/stripe-create-checkout", async (req, res) => {
-    console.log("THiS GO TPOSTED");
-    console.log("\n\n\n\n");
+router.post('/:id/stripe-create-checkout', async (req, res) => {
+    console.log('THiS GO TPOSTED')
+    console.log('\n\n\n\n')
 
-    const bookId = req.params.id;
-    const userData = req.currentUser;
-    const sid = req.signedCookies.sid;
+    const bookId = req.params.id
+    const userData = req.currentUser
+    const sid = req.signedCookies.sid
 
     let bookData = await Booking.findAll({
         where: {
             bookId: bookId,
         },
         raw: true,
-    });
+    })
 
-    const itemID = bookData[0]["listingId"];
+    const itemID = bookData[0]['listingId']
 
     let itemData = await Shop.findAll({
         where: {
             id: itemID,
         },
         raw: true,
-    });
+    })
 
     let savedUserData = await User.findAll({
         where: {
-            id: userData["id"],
+            id: userData['id'],
         },
         raw: true,
-    });
+    })
 
-    bookData = bookData[0];
-    itemData = itemData[0];
-    savedUserData = savedUserData[0];
+    bookData = bookData[0]
+    itemData = itemData[0]
+    savedUserData = savedUserData[0]
 
-    console.log(bookData);
+    console.log(bookData)
 
     // Step 3 means its paying for full tour (Base tour + customization)
-    if (bookData["processStep"] == "3") {
+    if (bookData['processStep'] == '3') {
         // Base price
-        var priceToPay = itemData["tourPrice"];
-        console.log(priceToPay);
+        var priceToPay = itemData['tourPrice']
+        console.log(priceToPay)
 
         // Account for any extra revisions
-        if (bookData["custom"] > 0) {
-            const bookCharges = bookData["bookCharges"].split(",");
+        if (bookData['custom'] > 0) {
+            const bookCharges = bookData['bookCharges'].split(',')
             // If extra revisions were used
-            if (bookData["revisions"] < 0) {
-                const revisionFee = bookCharges[0];
-                const noOfRevisions = Math.abs(bookData["revisions"]);
-                priceToPay += noOfRevisions * revisionFee;
-                console.log(priceToPay);
+            if (bookData['revisions'] < 0) {
+                const revisionFee = bookCharges[0]
+                const noOfRevisions = Math.abs(bookData['revisions'])
+                priceToPay += noOfRevisions * revisionFee
+                console.log(priceToPay)
             }
         }
 
         // Service fee
-        priceToPay = priceToPay * 1.1;
-        priceToPay = Math.round(priceToPay * 100);
-        var paymentName = itemData["tourTitle"];
+        priceToPay = priceToPay * 1.1
+        priceToPay = Math.round(priceToPay * 100)
+        var paymentName = itemData['tourTitle']
 
         // Step 1 means its paying for customise tour *10% of base tour)
-    } else if (bookData["processStep"] == "0") {
-        var priceToPay = itemData["tourPrice"] * 100 * 0.1;
-        var paymentName = itemData["tourTitle"] + " Customization fee";
+    } else if (bookData['processStep'] == '0') {
+        var priceToPay = itemData['tourPrice'] * 100 * 0.1
+        var paymentName = itemData['tourTitle'] + ' Customization fee'
     } else {
-        console.log("ERROR");
-        var priceToPay = 0;
+        console.log('ERROR')
+        var priceToPay = 0
     }
 
-    const baseUrl = routesConfig["base_url"];
+    const baseUrl = routesConfig['base_url']
 
     const session = await stripe.checkout.sessions.create({
         payment_intent_data: {
-            setup_future_usage: "on_session",
+            setup_future_usage: 'on_session',
         },
-        customer: savedUserData["stripe_id"],
-        payment_method_types: ["card"],
+        customer: savedUserData['stripe_id'],
+        payment_method_types: ['card'],
         line_items: [
             {
                 price_data: {
-                    currency: "sgd",
+                    currency: 'sgd',
                     product_data: {
                         name: paymentName,
                     },
@@ -792,118 +792,118 @@ router.post("/:id/stripe-create-checkout", async (req, res) => {
                 quantity: 1,
             },
         ],
-        mode: "payment",
+        mode: 'payment',
         // Where to redirect after payment is done
         success_url: `${baseUrl}/listing/${bookId}/stripe-create-checkout/success`,
         cancel_url: `${baseUrl}/${itemID}/purchase`,
-    });
+    })
 
-    res.redirect(303, session.url);
-});
+    res.redirect(303, session.url)
+})
 
-router.get("/:id/stripe-create-checkout/success", async (req, res) => {
-    const bookId = req.params.id;
+router.get('/:id/stripe-create-checkout/success', async (req, res) => {
+    const bookId = req.params.id
     const bookData = await Booking.findOne({
         where: {
             bookId: bookId,
         },
         raw: true,
-    });
-    console.log(bookData);
+    })
+    console.log(bookData)
 
-    if (bookData["processStep"] == "0") {
+    if (bookData['processStep'] == '0') {
         // Customised tour
-        let bookCharges = (bookData["bookBaseprice"] * 0.1).toFixed(2);
-        bookCharges = bookCharges.toString() + ",";
+        let bookCharges = (bookData['bookBaseprice'] * 0.1).toFixed(2)
+        bookCharges = bookCharges.toString() + ','
         Booking.update(
             {
-                processStep: "1",
+                processStep: '1',
                 bookCharges: bookCharges,
             },
             {
                 where: { bookId: bookId },
-            }
-        );
-        timelineMsg = "<customer> paid the customisation fee.";
-    } else if (bookData["processStep"] == "3") {
+            },
+        )
+        timelineMsg = '<customer> paid the customisation fee.'
+    } else if (bookData['processStep'] == '3') {
         // Standard tour
         // append extra rev fees and service fee to bookCharges
-        let total = bookData["bookBaseprice"];
-        let bookCharges = bookData["bookCharges"];
-        if (bookData["revisions"] < 0) {
-            const bookChargesArr = bookCharges.split(",");
-            const revisionFee = bookChargesArr[0];
-            const noOfRevisions = Math.abs(bookData["revisions"]);
-            const totalRevisionFees = (noOfRevisions * revisionFee).toFixed(2);
-            total += totalRevisionFees;
-            bookCharges.concat(totalRevisionFees, ",");
+        let total = bookData['bookBaseprice']
+        let bookCharges = bookData['bookCharges']
+        if (bookData['revisions'] < 0) {
+            const bookChargesArr = bookCharges.split(',')
+            const revisionFee = bookChargesArr[0]
+            const noOfRevisions = Math.abs(bookData['revisions'])
+            const totalRevisionFees = (noOfRevisions * revisionFee).toFixed(2)
+            total += totalRevisionFees
+            bookCharges.concat(totalRevisionFees, ',')
         }
-        serviceFee = total * 0.1;
+        serviceFee = total * 0.1
         if (bookCharges) {
-            bookCharges.concat(serviceFee, ",");
+            bookCharges.concat(serviceFee, ',')
         } else {
-            bookCharges = serviceFee + ",";
+            bookCharges = serviceFee + ','
         }
         Booking.update(
             {
-                processStep: "4",
+                processStep: '4',
                 paid: 1,
                 bookCharges: bookCharges,
             },
             {
                 where: { bookId: bookId },
-            }
-        );
+            },
+        )
         timelineMsg =
-            "<customer> made payment. You are now ready to go on your tour!";
+            '<customer> made payment. You are now ready to go on your tour!'
     } else {
-        console.log("ERROR");
-        return res.redirect(`/${bookId}/stripe-create-checkout/cancel`);
+        console.log('ERROR')
+        return res.redirect(`/${bookId}/stripe-create-checkout/cancel`)
     }
-    addMessage(bookData["chatId"], "SYSTEM", timelineMsg, "ACTIVITY", () => {
-        return res.redirect(`/bookings/${bookId}`);
-    });
-});
+    addMessage(bookData['chatId'], 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
+        return res.redirect(`/bookings/${bookId}`)
+    })
+})
 
-router.get("/:id/stripe-create-checkout/cancel", async (res, req) => {
-    console.log("cANCELLLL");
-    const bookId = req.params.id;
+router.get('/:id/stripe-create-checkout/cancel', async (res, req) => {
+    console.log('cANCELLLL')
+    const bookId = req.params.id
     const bookData = await Booking.findAll({
         where: {
             bookId: bookId,
         },
         raw: true,
-    });
-    console.log(bookData);
-    if (bookData["processStep"] == "0") {
-        console.log("del eveyrhting");
+    })
+    console.log(bookData)
+    if (bookData['processStep'] == '0') {
+        console.log('del eveyrhting')
     }
-});
+})
 
-router.get("/:id/payment", loginRequired, async (req, res) => {
-    const itemID = req.params.id;
-    const userData = req.currentUser;
+router.get('/:id/payment', loginRequired, async (req, res) => {
+    const itemID = req.params.id
+    const userData = req.currentUser
 
-    const sid = req.signedCookies.sid;
+    const sid = req.signedCookies.sid
 
     let itemData = await Shop.findAll({
         where: {
             id: itemID,
         },
         raw: true,
-    });
+    })
 
     let savedUserData = await User.findAll({
         where: {
-            id: userData["id"],
+            id: userData['id'],
         },
         raw: true,
-    });
+    })
 
-    itemData = itemData[0];
-    savedUserData = savedUserData[0];
+    itemData = itemData[0]
+    savedUserData = savedUserData[0]
     // Boolean to check if user has stripeId. If no have, then add card details
-    const requireRegisterCustomer = savedUserData["stripe_id"] == null;
+    const requireRegisterCustomer = savedUserData['stripe_id'] == null
 
     // Redirect to register customer first
     if (requireRegisterCustomer) {
@@ -920,72 +920,72 @@ router.get("/:id/payment", loginRequired, async (req, res) => {
             pubKey: STRIPE_PUBLIC_KEY,
         },
         tourData: itemData,
-    };
+    }
 
-    return res.render("tourGuide/payment.hbs", metadata);
-});
+    return res.render('tourGuide/payment.hbs', metadata)
+})
 
-router.get("/charges", async (req, res) => {
-    const txs = await stripe.balanceTransactions.list({});
-    console.log(txs);
-    res.json(txs);
-});
+router.get('/charges', async (req, res) => {
+    const txs = await stripe.balanceTransactions.list({})
+    console.log(txs)
+    res.json(txs)
+})
 
-router.get("/:id/favourite", loginRequired, async (req, res) => {
-    const itemID = req.params.id;
+router.get('/:id/favourite', loginRequired, async (req, res) => {
+    const itemID = req.params.id
 
-    const sid = req.signedCookies.sid;
+    const sid = req.signedCookies.sid
 
-    const userData = req.currentUser;
-    const userId = userData.id;
-    const userWishlist = userData.wishlist;
-    if (userWishlist == null || userWishlist == "") {
+    const userData = req.currentUser
+    const userId = userData.id
+    const userWishlist = userData.wishlist
+    if (userWishlist == null || userWishlist == '') {
         User.update(
             {
-                wishlist: itemID + ";!;",
+                wishlist: itemID + ';!;',
             },
             {
                 where: { id: userId },
-            }
+            },
         ).then((data) => {
-            console.log(data);
-            return res.redirect(`/listing/info/${itemID}`);
-        });
+            console.log(data)
+            return res.redirect(`/listing/info/${itemID}`)
+        })
     } else {
-        const userWishlistArr = userWishlist.split(";!;");
+        const userWishlistArr = userWishlist.split(';!;')
 
         // If item already in wishlist, don't have to proceed.
         if (userWishlistArr.includes(itemID)) {
-            res.redirect(`/listing/info/${itemID}`);
+            res.redirect(`/listing/info/${itemID}`)
         }
 
         User.update(
             {
-                wishlist: userWishlist + itemID + ";!;",
+                wishlist: userWishlist + itemID + ';!;',
             },
             {
                 where: { id: userId },
-            }
+            },
         ).then((data) => {
-            console.log(data);
-            res.redirect(`/listing/info/${itemID}`);
-        });
+            console.log(data)
+            res.redirect(`/listing/info/${itemID}`)
+        })
     }
-});
+})
 
-router.get("/:id/unfavourite", loginRequired, async (req, res) => {
-    const itemID = req.params.id;
+router.get('/:id/unfavourite', loginRequired, async (req, res) => {
+    const itemID = req.params.id
 
-    const sid = req.signedCookies.sid;
+    const sid = req.signedCookies.sid
 
-    const userData = req.currentUser;
-    const userId = userData.id;
+    const userData = req.currentUser
+    const userId = userData.id
 
-    const userWishlist = userData.wishlist;
-    const userWishlistArr = userData.wishlist.split(";!;");
+    const userWishlist = userData.wishlist
+    const userWishlistArr = userData.wishlist.split(';!;')
 
-    updatedUserWishList = removeFromArray(itemID, userWishlistArr);
-    updatedUserWishList = updatedUserWishList.join(";!;");
+    updatedUserWishList = removeFromArray(itemID, userWishlistArr)
+    updatedUserWishList = updatedUserWishList.join(';!;')
 
     User.update(
         {
@@ -993,68 +993,68 @@ router.get("/:id/unfavourite", loginRequired, async (req, res) => {
         },
         {
             where: { id: userId },
-        }
+        },
     ).then(() => {
-        res.redirect(`/listing/info/${itemID}`);
-    });
-});
+        res.redirect(`/listing/info/${itemID}`)
+    })
+})
 
-router.get("/tt", async (req, res) => {
-    const sid = req.signedCookies.sid;
+router.get('/tt', async (req, res) => {
+    const sid = req.signedCookies.sid
 
-    const userData = req.currentUser;
-    const userId = userData.id;
-    const userWishlist = userData.wishlist;
-    const userWishlistArr = userWishlist.split(";!;");
-});
+    const userData = req.currentUser
+    const userId = userData.id
+    const userWishlist = userData.wishlist
+    const userWishlistArr = userWishlist.split(';!;')
+})
 
-router.get("/api/autocomplete/location", (req, res) => {
-    console.log(req.query.typedLocation);
+router.get('/api/autocomplete/location', (req, res) => {
+    console.log(req.query.typedLocation)
     axios
         .get(
-            `https://tih-api.stb.gov.sg/map/v1/autocomplete/type/address?input=${req.query.typedLocation}&apikey=${TIH_API_KEY}`
+            `https://tih-api.stb.gov.sg/map/v1/autocomplete/type/address?input=${req.query.typedLocation}&apikey=${TIH_API_KEY}`,
         )
         .then((data) => {
-            console.log(data["data"]);
-            return res.json(data["data"]);
+            console.log(data['data'])
+            return res.json(data['data'])
         })
         .catch((err) => {
-            console.log(err);
-        });
-});
+            console.log(err)
+        })
+})
 
-router.post("/edit/image/:savedId", (req, res) => {
-    console.log("Image edited");
-    const v = new fileValidator(req.files["tourImage"]);
+router.post('/edit/image/:savedId', (req, res) => {
+    console.log('Image edited')
+    const v = new fileValidator(req.files['tourImage'])
     const imageResult = v
-        .Initialize({ errorMessage: "Please supply a valid Image" })
+        .Initialize({ errorMessage: 'Please supply a valid Image' })
         .fileExists()
         .sizeAllowed({ maxSize: 5000000 })
-        .getResult();
+        .getResult()
 
     // Upload is successful
     if (imageResult == null) {
-        let filePath = req.files["tourImage"]["path"];
-        let fileName = req.files["tourImage"]["name"];
-        const saveFolder = savedImageFolder;
+        let filePath = req.files['tourImage']['path']
+        let fileName = req.files['tourImage']['name']
+        const saveFolder = savedImageFolder
         const savedName = storeImage(
             (filePath = filePath),
             (fileName = fileName),
-            (folder = saveFolder)
-        );
-        console.log(`Added file is ${savedName}`);
+            (folder = saveFolder),
+        )
+        console.log(`Added file is ${savedName}`)
 
         Shop.findAll({
             where: {
                 id: req.params.savedId,
             },
         }).then((items) => {
-            const savedImageFile = items[0]["dataValues"]["tourImage"];
-            if (savedImageFile != "default.jpg") {
-                console.log(`Removed IMAGE FILE: ${savedImageFile}`);
-                fs.unlinkSync(`${savedImageFolder}/${savedImageFile}`);
+            const savedImageFile = items[0]['dataValues']['tourImage']
+            if (savedImageFile != 'default.jpg') {
+                console.log(`Removed IMAGE FILE: ${savedImageFile}`)
+                fs.unlinkSync(`${savedImageFolder}/${savedImageFile}`)
             }
-        });
+        })
 
         Shop.update(
             {
@@ -1062,49 +1062,49 @@ router.post("/edit/image/:savedId", (req, res) => {
             },
             {
                 where: { id: req.params.savedId },
-            }
+            },
         )
             .catch((err) => {
-                console.log(err);
+                console.log(err)
             })
             .then(async (data) => {
                 // Update elastic search
                 const doc = {
                     id: req.params.savedId,
                     image: savedName,
-                };
+                }
 
-                await elasticSearchHelper.updateImage(doc);
+                await elasticSearchHelper.updateImage(doc)
 
-                res.redirect(`/listing/info/${req.params.savedId}`);
+                res.redirect(`/listing/info/${req.params.savedId}`)
             })
             .catch((err) => {
-                console.log(err);
-            });
+                console.log(err)
+            })
     } else {
-        const errMsg = imageResult.msg;
-        console.log("Failed");
-        res.cookie("imageValError", errMsg, { maxAge: 5000 });
-        res.redirect(`/listing/info/${req.params.savedId}`);
+        const errMsg = imageResult.msg
+        console.log('Failed')
+        res.cookie('imageValError', errMsg, { maxAge: 5000 })
+        res.redirect(`/listing/info/${req.params.savedId}`)
     }
-});
+})
 
-router.get("/delete/:savedId", loginRequired, async (req, res) => {
-    const itemID = req.params.savedId;
-    const sid = req.signedCookies.sid;
+router.get('/delete/:savedId', loginRequired, async (req, res) => {
+    const itemID = req.params.savedId
+    const sid = req.signedCookies.sid
 
-    const userData = req.currentUser;
+    const userData = req.currentUser
 
     const listingOwner = await Shop.findAll({
-        attributes: ["userId"],
+        attributes: ['userId'],
         where: { id: itemID },
-    });
+    })
 
-    const ownerId = listingOwner[0]["dataValues"]["userId"];
+    const ownerId = listingOwner[0]['dataValues']['userId']
 
     if (ownerId != userData.id) {
-        console.log("NO PERM TO DELETE");
-        return res.redirect(`/listing/info/${req.params.savedId}`);
+        console.log('NO PERM TO DELETE')
+        return res.redirect(`/listing/info/${req.params.savedId}`)
     }
 
     // rmb to delete the images too
@@ -1115,12 +1115,12 @@ router.get("/delete/:savedId", loginRequired, async (req, res) => {
     }).then((items) => {
         // If logged in user is not the owner, no permission to delete
         // Only delete image from local folder if it is NOT the default image
-        const savedImageFile = items[0]["dataValues"]["tourImage"];
-        if (savedImageFile != "default.jpg") {
-            console.log(`Delete listing and Removed IMAGE FILE: ${savedImageFile}`);
-            fs.unlinkSync(`${savedImageFolder}/${savedImageFile}`);
+        const savedImageFile = items[0]['dataValues']['tourImage']
+        if (savedImageFile != 'default.jpg') {
+            console.log(`Delete listing and Removed IMAGE FILE: ${savedImageFile}`)
+            fs.unlinkSync(`${savedImageFolder}/${savedImageFile}`)
         }
-    });
+    })
 
     Shop.destroy({
         where: {
@@ -1129,20 +1129,20 @@ router.get("/delete/:savedId", loginRequired, async (req, res) => {
     })
         .then((data) => {
             // Delete from elastic search client
-            deleteDoc("products", req.params.savedId);
-            res.redirect("/tourguide/manage/listings");
+            deleteDoc('products', req.params.savedId)
+            res.redirect('/tourguide/manage/listings')
         })
         .catch((err) => {
-            console.log(err);
-        });
-});
+            console.log(err)
+        })
+})
 
 // fs.writeFile('this.html', "What is this", (err) =>{
 //     if (err) throw err
 // })
 
-router.get("/api/getImage/:id", (req, res) => {
-    const itemID = req.params.id;
+router.get('/api/getImage/:id', (req, res) => {
+    const itemID = req.params.id
 
     Shop.findAll({
         where: {
@@ -1150,15 +1150,15 @@ router.get("/api/getImage/:id", (req, res) => {
         },
     })
         .then((items) => {
-            res.json(items[0]["tourImage"]);
+            res.json(items[0]['tourImage'])
         })
-        .catch((err) => console.log);
-});
+        .catch((err) => console.log)
+})
 
 // Start: Booking-related items under the listing route
 // Rendering the book-now form
-router.get("/:id/purchase", async (req, res) => {
-    const itemID = req.params.id;
+router.get('/:id/purchase', async (req, res) => {
+    const itemID = req.params.id
 
     Shop.findAll({
         where: {
@@ -1166,12 +1166,12 @@ router.get("/:id/purchase", async (req, res) => {
         },
     })
         .then(async (items) => {
-            const tourData = await items[0]["dataValues"];
-            console.log(tourData);
-            const customPrice = (tourData["tourPrice"] / 10).toFixed(2);
+            const tourData = await items[0]['dataValues']
+            console.log(tourData)
+            const customPrice = (tourData['tourPrice'] / 10).toFixed(2)
             const metadata = {
                 meta: {
-                    title: "Book Now - " + tourData.tourTitle,
+                    title: 'Book Now - ' + tourData.tourTitle,
                 },
                 data: {
                     currentUser: req.currentUser,
@@ -1179,64 +1179,64 @@ router.get("/:id/purchase", async (req, res) => {
                     customPrice: customPrice,
                     validationErrors: req.cookies.validationErrors,
                 },
-            };
-            return res.render("bookNow.hbs", metadata);
+            }
+            return res.render('bookNow.hbs', metadata)
         })
         .catch((err) => {
-            throw err;
-        });
-});
+            throw err
+        })
+})
 
 // Default booking
-router.post("/:id/purchase", loginRequired, async (req, res) => {
-    console.log(req.fields);
-    res.cookie("storedValues", JSON.stringify(req.fields), { maxAge: 5000 });
-    const tourID = req.params.id;
-    const sid = req.signedCookies.sid;
+router.post('/:id/purchase', loginRequired, async (req, res) => {
+    console.log(req.fields)
+    res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
+    const tourID = req.params.id
+    const sid = req.signedCookies.sid
 
-    const userData = req.currentUser;
+    const userData = req.currentUser
     Shop.findAll({
         where: {
             id: tourID,
         },
     })
         .then(async (items) => {
-            const listing = await items[0]["dataValues"];
+            const listing = await items[0]['dataValues']
 
-            const v = new Validator(req.fields);
+            const v = new Validator(req.fields)
 
             const tourDateResult = v
                 .Initialize({
-                    name: "tourDate",
-                    errorMessage: "Please select a tour date.",
+                    name: 'tourDate',
+                    errorMessage: 'Please select a tour date.',
                 })
                 .exists()
-                .getResult();
+                .getResult()
 
             const tourTimeResult = v
                 .Initialize({
-                    name: "tourTime",
-                    errorMessage: "Please select a tour time.",
+                    name: 'tourTime',
+                    errorMessage: 'Please select a tour time.',
                 })
                 .exists()
-                .getResult();
+                .getResult()
 
             const bookPaxResult = v
                 .Initialize({
-                    name: "tourPax",
-                    errorMessage: "Please select number of participants.",
+                    name: 'tourPax',
+                    errorMessage: 'Please select number of participants.',
                 })
                 .exists()
-                .getResult();
+                .getResult()
 
             const bookTOCResult = v
                 .Initialize({
-                    name: "bookTOC",
+                    name: 'bookTOC',
                     errorMessage:
-                        "Please agree to the Terms & Conditions before booking a tour.",
+                        'Please agree to the Terms & Conditions before booking a tour.',
                 })
                 .exists()
-                .getResult();
+                .getResult()
 
             // // Evaluate the files and fields data separately
             const validationErrors = removeNull([
@@ -1244,61 +1244,61 @@ router.post("/:id/purchase", loginRequired, async (req, res) => {
                 tourTimeResult,
                 bookPaxResult,
                 bookTOCResult,
-            ]);
+            ])
 
             // If there are errors, re-render the create listing page with the valid error messages
             if (!emptyArray(validationErrors)) {
-                res.cookie("validationErrors", validationErrors, { maxAge: 5000 });
-                res.redirect(`/listing/${tourID}/purchase`);
+                res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
+                res.redirect(`/listing/${tourID}/purchase`)
             } else {
                 // If successful
                 // Remove cookies for stored form values + validation errors
-                res.clearCookie("validationErrors");
-                res.clearCookie("storedValues");
-                const genId = uuid.v1();
+                res.clearCookie('validationErrors')
+                res.clearCookie('storedValues')
+                const genId = uuid.v1()
 
-                const rawTourDate = req.fields.tourDate;
-                const darr = rawTourDate.split("/");
+                const rawTourDate = req.fields.tourDate
+                const darr = rawTourDate.split('/')
 
-                const rawTourTime = req.fields.tourTime;
-                const timeArr = rawTourTime.split(" - ");
-                const startTimeArr = timeArr[0].split(":");
-                const endTimeArr = timeArr[1].split(":");
+                const rawTourTime = req.fields.tourTime
+                const timeArr = rawTourTime.split(' - ')
+                const startTimeArr = timeArr[0].split(':')
+                const endTimeArr = timeArr[1].split(':')
                 formatTime = (arr) => {
-                    if (arr[1].slice(-2) == "PM" && parseInt(arr[0]) < 12) {
-                        arr[0] = parseInt(arr[0]) + 12;
-                    } else if (arr[1].slice(-2) == "AM" && parseInt(arr[0]) == 12) {
-                        arr[0] = parseInt(arr[0]) - 12;
+                    if (arr[1].slice(-2) == 'PM' && parseInt(arr[0]) < 12) {
+                        arr[0] = parseInt(arr[0]) + 12
+                    } else if (arr[1].slice(-2) == 'AM' && parseInt(arr[0]) == 12) {
+                        arr[0] = parseInt(arr[0]) - 12
                     }
-                    arr[1] = arr[1].slice(0, -3);
+                    arr[1] = arr[1].slice(0, -3)
                     if (arr[0].toString().length == 1) {
-                        arr[0] = "0" + arr[0];
+                        arr[0] = '0' + arr[0]
                     }
-                };
-                formatTime(startTimeArr);
-                formatTime(endTimeArr);
+                }
+                formatTime(startTimeArr)
+                formatTime(endTimeArr)
                 const startTour = new Date(
                     parseInt(darr[2]),
                     parseInt(darr[1]) - 1,
                     parseInt(darr[0]),
                     parseInt(startTimeArr[0]),
-                    parseInt(startTimeArr[1])
-                ).toISOString();
+                    parseInt(startTimeArr[1]),
+                ).toISOString()
                 const endTour = new Date(
                     parseInt(darr[2]),
                     parseInt(darr[1]) - 1,
                     parseInt(darr[0]),
                     parseInt(endTimeArr[0]),
-                    parseInt(endTimeArr[1])
-                ).toISOString();
-                const orderDateTime = new Date().toISOString();
+                    parseInt(endTimeArr[1]),
+                ).toISOString()
+                const orderDateTime = new Date().toISOString()
 
                 Booking.create({
                     bookId: genId,
                     custId: userData.id,
                     tgId: listing.userId,
                     listingId: listing.id,
-                    chatId: "00000000-0000-0000-0000-000000000000",
+                    chatId: '00000000-0000-0000-0000-000000000000',
                     orderDatetime: orderDateTime,
                     tourStart: startTour,
                     tourEnd: endTour,
@@ -1306,11 +1306,11 @@ router.post("/:id/purchase", loginRequired, async (req, res) => {
                     bookDuration: listing.tourDuration,
                     bookItinerary: listing.finalItinerary,
                     bookBaseprice: listing.tourPrice,
-                    bookCharges: "",
+                    bookCharges: '',
                     processStep: 3,
                     revisions: listing.tourRevision,
-                    addInfo: "",
-                    custRequests: "",
+                    addInfo: '',
+                    custRequests: '',
                     completed: 0,
                     approved: 1,
                     custom: 0,
@@ -1322,91 +1322,91 @@ router.post("/:id/purchase", loginRequired, async (req, res) => {
                         //     participants: userData.id + ',' + listing.userId,
                         //     bookingId: genId,
                         // })
-                        participants = [userData.id, listing.userId];
-                        console.log(userData.name);
+                        participants = [userData.id, listing.userId]
+                        console.log(userData.name)
                         addRoom(participants, genId, (roomId) => {
-                            updateDB("booking", { bookId: genId }, { chatId: roomId }, () => {
-                                console.log("updated successfully");
+                            updateDB('booking', { bookId: genId }, { chatId: roomId }, () => {
+                                console.log('updated successfully')
                                 // c-c-callback hell,,?
-                                timelineMsg = "<customer> placed an order for this tour.";
-                                addMessage(roomId, "SYSTEM", timelineMsg, "ACTIVITY", () => {
+                                timelineMsg = '<customer> placed an order for this tour.'
+                                addMessage(roomId, 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
                                     //  will be removed once TG accept/reject system is in place
                                     addMessage(
                                         roomId,
-                                        "SYSTEM",
-                                        "<tourguide> accepted the order.",
-                                        "ACTIVITY",
+                                        'SYSTEM',
+                                        '<tourguide> accepted the order.',
+                                        'ACTIVITY',
                                         () => {
                                             res.redirect(
                                                 307,
-                                                `/listing/${genId}/stripe-create-checkout`
-                                            );
-                                        }
-                                    );
-                                });
-                            });
-                        });
+                                                `/listing/${genId}/stripe-create-checkout`,
+                                            )
+                                        },
+                                    )
+                                })
+                            })
+                        })
                     })
                     .catch((err) => {
-                        console.log(err);
-                    });
+                        console.log(err)
+                    })
             }
         })
-        .catch((err) => console.log);
-});
+        .catch((err) => console.log)
+})
 
 // Customised booking
-router.post("/:id/purchase/customise", async (req, res) => {
-    console.log(req.fields);
-    res.cookie("storedValues", JSON.stringify(req.fields), { maxAge: 5000 });
-    const tourID = req.params.id;
-    const sid = req.signedCookies.sid;
+router.post('/:id/purchase/customise', async (req, res) => {
+    console.log(req.fields)
+    res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
+    const tourID = req.params.id
+    const sid = req.signedCookies.sid
 
-    const userData = req.currentUser;
+    const userData = req.currentUser
     Shop.findAll({
         where: {
             id: tourID,
         },
     })
         .then(async (items) => {
-            const listing = await items[0]["dataValues"];
+            const listing = await items[0]['dataValues']
 
-            const v = new Validator(req.fields);
+            const v = new Validator(req.fields)
 
             // Doing this way so its cleaner. Can also directly call these into the removeNull() array
             const reqTextResult = v
                 .Initialize({
-                    name: "reqText",
+                    name: 'reqText',
                     errorMessage:
-                        "Please fill in the requirements for your customised tour.",
+                        'Please fill in the requirements for your customised tour.',
                 })
                 .exists()
-                .getResult();
+                .getResult()
 
             const tourDateResult = v
                 .Initialize({
-                    name: "tourDate",
-                    errorMessage: "Please select a tour date.",
+                    name: 'tourDate',
+                    errorMessage: 'Please select a tour date.',
                 })
                 .exists()
-                .getResult();
+                .getResult()
 
             const bookPaxResult = v
                 .Initialize({
-                    name: "tourPax",
-                    errorMessage: "Please select number of participants.",
+                    name: 'tourPax',
+                    errorMessage: 'Please select number of participants.',
                 })
                 .exists()
-                .getResult();
+                .getResult()
 
             const bookTOCResult = v
                 .Initialize({
-                    name: "bookTOC",
+                    name: 'bookTOC',
                     errorMessage:
-                        "Please agree to the Terms & Conditions before booking a tour.",
+                        'Please agree to the Terms & Conditions before booking a tour.',
                 })
                 .exists()
-                .getResult();
+                .getResult()
 
             // // Evaluate the files and fields data separately
             const validationErrors = removeNull([
@@ -1414,32 +1414,32 @@ router.post("/:id/purchase/customise", async (req, res) => {
                 tourDateResult,
                 bookPaxResult,
                 bookTOCResult,
-            ]);
+            ])
 
             // If there are errors, re-render the create listing page with the valid error messages
             if (!emptyArray(validationErrors)) {
-                res.cookie("validationErrors", validationErrors, { maxAge: 5000 });
-                res.redirect(`/listing/${tourID}/purchase`);
+                res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
+                res.redirect(`/listing/${tourID}/purchase`)
             } else {
                 // If successful
                 // Remove cookies for stored form values + validation errors
-                res.clearCookie("validationErrors");
-                res.clearCookie("storedValues");
-                const genId = uuid.v1();
+                res.clearCookie('validationErrors')
+                res.clearCookie('storedValues')
+                const genId = uuid.v1()
 
-                const rawTourDate = req.fields.tourDate;
-                const darr = rawTourDate.split("/");
+                const rawTourDate = req.fields.tourDate
+                const darr = rawTourDate.split('/')
                 const startTour = new Date(
                     parseInt(darr[2]),
                     parseInt(darr[1]) - 1,
-                    parseInt(darr[0])
-                ).toISOString();
+                    parseInt(darr[0]),
+                ).toISOString()
                 const endTour = new Date(
                     parseInt(darr[2]),
                     parseInt(darr[1]) - 1,
-                    parseInt(darr[0])
-                ).toISOString();
-                const orderDateTime = new Date().toISOString();
+                    parseInt(darr[0]),
+                ).toISOString()
+                const orderDateTime = new Date().toISOString()
                 // const customPrice = (listing['tourPrice'] / 10).toFixed(2)
 
                 Booking.create({
@@ -1447,7 +1447,7 @@ router.post("/:id/purchase/customise", async (req, res) => {
                     custId: userData.id,
                     tgId: listing.userId,
                     listingId: listing.id,
-                    chatId: "00000000-0000-0000-0000-000000000000",
+                    chatId: '00000000-0000-0000-0000-000000000000',
                     orderDatetime: orderDateTime,
                     tourStart: startTour,
                     tourEnd: endTour,
@@ -1455,11 +1455,11 @@ router.post("/:id/purchase/customise", async (req, res) => {
                     bookDuration: 0,
                     bookItinerary: listing.finalItinerary,
                     bookBaseprice: listing.tourPrice,
-                    bookCharges: "",
+                    bookCharges: '',
                     // processStep: 0, set to 1 for now until approval & payment system is in place
                     processStep: 0,
                     revisions: listing.tourRevision,
-                    addInfo: "",
+                    addInfo: '',
                     custRequests: req.fields.reqText,
                     completed: 0,
                     approved: 1,
@@ -1467,55 +1467,55 @@ router.post("/:id/purchase/customise", async (req, res) => {
                     paid: 0,
                 })
                     .then(async (data) => {
-                        participants = [userData.id, listing.userId];
+                        participants = [userData.id, listing.userId]
                         addRoom(participants, genId, (roomId) => {
-                            updateDB("booking", { bookId: genId }, { chatId: roomId }, () => {
-                                console.log("updated successfully");
+                            updateDB('booking', { bookId: genId }, { chatId: roomId }, () => {
+                                console.log('updated successfully')
                                 // c-c-callback hell,,?
                                 timelineMsg =
-                                    "<customer> placed an order for this tour with custom requirements.";
-                                addMessage(roomId, "SYSTEM", timelineMsg, "ACTIVITY", () => {
+                                    '<customer> placed an order for this tour with custom requirements.'
+                                addMessage(roomId, 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
                                     //  will be removed once TG accept/reject system is in place
                                     addMessage(
                                         roomId,
-                                        "SYSTEM",
-                                        "<tourguide> accepted the order.",
-                                        "ACTIVITY",
+                                        'SYSTEM',
+                                        '<tourguide> accepted the order.',
+                                        'ACTIVITY',
                                         () => {
                                             res.redirect(
                                                 307,
-                                                `/listing/${genId}/stripe-create-checkout`
-                                            );
-                                        }
-                                    );
-                                });
-                            });
-                        });
+                                                `/listing/${genId}/stripe-create-checkout`,
+                                            )
+                                        },
+                                    )
+                                })
+                            })
+                        })
                     })
                     .catch((err) => {
-                        console.log(err);
-                    });
+                        console.log(err)
+                    })
             }
         })
-        .catch((err) => console.log);
-});
-
-// End: Booking-related items under the listing route
-router.get("/stripe-create-account", async(req, res)=>{
-    res.redirect(
-        307,
-        `/listing/stripe-create-account`
-    );
+        .catch((err) => console.log)
 })
 
-router.post("/stripe-create-account", async (req, res) => {
-    const userData = req.currentUser;
+// End: Booking-related items under the listing route
+router.get('/stripe-create-account', async (req, res)=>{
+    res.redirect(
+        307,
+        `/listing/stripe-create-account`,
+    )
+})
+
+router.post('/stripe-create-account', async (req, res) => {
+    const userData = req.currentUser
     const account = await stripe.accounts.create({
-        type: "express",
-    });
+        type: 'express',
+    })
 
     console.log(account.url)
-    res.redirect(303, account.url);
-});
+    res.redirect(303, account.url)
+})
 
-module.exports = router;
+module.exports = router
