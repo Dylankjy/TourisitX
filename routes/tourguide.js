@@ -39,6 +39,9 @@ router.get('/', (req, res) => {
         nav: {
             sidebarActive: 'desk',
         },
+        data: {
+            currentUser: req.currentUser,
+        },
         layout: 'tourguide',
     }
     return res.render('tourguide/dashboard/dashboard', metadata)

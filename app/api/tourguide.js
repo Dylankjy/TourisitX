@@ -29,11 +29,11 @@ const getMoneyStats = async (offset, tguid) => {
     }
 }
 
-const getTourGuideCSAT = () => {
+const getTourGuideCSAT = async () => {
     // TODO
     // When CSAT table is created.
 
-    return null
+    return 0
 }
 
 module.exports = {
