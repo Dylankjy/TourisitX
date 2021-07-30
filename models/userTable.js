@@ -62,7 +62,12 @@ module.exports = (sequelize, DataTypes) => {
                 defaultValue: false,
             },
 
-            stripe_id: {
+            stripe_customer_id: {
+                type: DataTypes.STRING(128),
+                allowNull: true,
+            },
+
+            stripe_account_id: {
                 type: DataTypes.STRING(128),
                 allowNull: true,
             },
