@@ -36,17 +36,18 @@ const getStatsRange = async (to, from, tguid) => {
     const allTours = await Booking.findAll({ where: { 'createdAt': { [Op.between]: [new Date(to), new Date(from)] }, 'paid': true, 'tgid': tguid } })
 
     // Initial values
+    let totalEarningsBeforeSvc = 0
     let totalEarnings = 0
     let serviceCharge = 0
     let averageEarnings = 0
     const totalTours = allTours.length
 
-    const totalEarningsBeforeSvc = allTours.map((booking) => parseFloat(booking.bookBaseprice) + parseFloat(booking.bookCharges.split(',').reduce((a, b) => a + b))).reduce((a, b) => a + b)
 
     // Only if there are tours, calculate the stats. This prevents a divide by 0 error.
     if (allTours.length !== 0) {
-        totalEarnings = allTours.map((booking) => parseFloat(booking.bookBaseprice) + parseFloat(booking.bookCharges.split(',').reduce((a, b) => a + b))).reduce((a, b) => a + b) * 0.85
-        serviceCharge = allTours.map((booking) => parseFloat(booking.bookBaseprice) + parseFloat(booking.bookCharges.split(',').reduce((a, b) => a + b))).reduce((a, b) => a + b) * 0.15
+        totalEarningsBeforeSvc = allTours.map((booking) => parseFloat(booking.bookBaseprice) + parseFloat(booking.bookCharges.split(',').reduce((a, b) => a + b))).reduce((a, b) => a + b)
+        totalEarnings = totalEarningsBeforeSvc * 0.85
+        serviceCharge = totalEarningsBeforeSvc * 0.15
         averageEarnings = totalEarnings / allTours.length
     }
 
