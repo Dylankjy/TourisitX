@@ -11,7 +11,50 @@ const { Op } = require('sequelize')
 
 // API Handlers
 const { getAdminStats, getUserStats } = require('../app/api/admin')
-const { getMoneyStats, getTourGuideCSAT } = require('../app/api/tourguide')
+const { getMoneyStats, getTourGuideCSAT, getStatsRange, getTours } = require('../app/api/tourguide')
+const roundTo = require('round-to')
+
+// Tour Guide Report Generation
+// Test: http://localhost:5000/api/tourguide/generate_report?to=2021-08-01&from=2021-07-01
+router.get('/tourguide/generate_report', loginRequired, async (req, res) => {
+    // Get parameters
+    const { from, to, format } = req.query
+
+    if (!from || !to) {
+        return res.status(400).send({
+            status: 400,
+            message: 'Please provide a date range',
+        })
+    }
+
+    // if (format === 'csv') {
+
+    // }
+
+    const stats = await getStatsRange(from, to, req.currentUser.id)
+
+    const metadata = {
+        meta: {
+            title: 'Income Report',
+        },
+        layout: 'print',
+        data: {
+            currentUser: req.currentUser,
+            dateGenerated: new Date(),
+            report: {
+                from,
+                to,
+                totalEarningsBeforeSvc: roundTo(stats.totalEarningsBeforeSvc, 2).toFixed(2).toString(),
+                totalRevenue: roundTo(stats.totalEarnings, 2).toFixed(2).toString(),
+                totalTours: stats.totalTours,
+                serviceCharge: roundTo(stats.serviceCharge, 2).toFixed(2).toString(),
+                tours: await getTours(from, to, req.currentUser.id),
+            },
+        },
+    }
+
+    return res.render('tourguide/print/report', metadata)
+})
 
 // Admin Panel API
 router.get('/admin', adminAuthorisationRequired, async (req, res) => {
