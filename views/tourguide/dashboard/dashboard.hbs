@@ -24,27 +24,25 @@
     </span>
 </div>
 
-<div class="columns is-multiline">
+<div class="columns is-multiline" id="dashboardDisplay" style="display: none">
     <div class="column">
         <div class="box">
             <div class="heading">This month's earnings</div>
-            <div class="title">$100
-                <span class="tag
-                            is-danger is-light">
-                    $100</span>
+            <div class="title">$<span id="currentEarningsField"></span>
+                <span id="currentPeriodDiffFieldTag" class="tag is-light">$<span
+                        id="currentPeriodDiffField"></span></span>
             </div>
             <div class="level">
                 <div class="level-item">
                     <div>
                         <div class="heading">Average per tour</div>
-                        <div class="title is-5">$100</div>
+                        <div class="title is-5">$<span id="currentAvgField"></span></div>
                     </div>
                 </div>
                 <div class="level-item">
                     <div>
                         <div class="heading">Average per month</div>
-                        <div class="title is-5">
-                            $100</div>
+                        <div class="title is-5">$<span id="currentAvgMonthField"></span></div>
                     </div>
                 </div>
             </div>
@@ -53,124 +51,218 @@
     </div>
     <div class="column">
         <div class="box">
+            {{!-- TODO: Satisfaction charts. --}}
             <div class="heading">This month's satisfaction</div>
             <div class="title">100%
-                <span class="tag
-                            is-danger is-light">
-                    100%</span>
+                <span class="tag is-danger is-light">100%</span>
+            </div>
+            <div class="level">
+                <div class="level-item">
+                    <div>
+                        <div class="heading">Average per tour</div>
+                        <div class="title is-5"><span id="currentAvgCSATField"></span>%</div>
+                    </div>
+                </div>
+                <div class="level-item">
+                    <div>
+                        <div class="heading">Average per month</div>
+                        <div class="title is-5"><span id="currentAvgCSATMonthField"></span>%</div>
+                    </div>
+                </div>
             </div>
             <canvas id="csatChart" width="400" height="200"></canvas>
         </div>
     </div>
 </div>
 
-<script>
 
-</script>
+<div class="columns is-multiline" id="skeletonDisplay">
+    <div class="column">
+        <div class="box">
+            <div class="skeleton-text small"></div>
+            <div class="skeleton-text value"></span>
+            </div>
+            <div class="level">
+                <div class="level-item">
+                    <div>
+                        <div class="skeleton-text small"></div>
+                        <div class="skeleton-text value small"></div>
+                    </div>
+                </div>
+                <div class="level-item">
+                    <div>
+                        <div class="skeleton-text small"></div>
+                        <div class="skeleton-text value small"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="skeleton-chart"></div>
+        </div>
+    </div>
+    <div class="column">
+        <div class="box">
+            <div class="skeleton-text small"></div>
+            <div class="skeleton-text value"></span>
+            </div>
+            <div class="level">
+                <div class="level-item">
+                    <div>
+                        <div class="skeleton-text small"></div>
+                        <div class="skeleton-text value small"></div>
+                    </div>
+                </div>
+                <div class="level-item">
+                    <div>
+                        <div class="skeleton-text small"></div>
+                        <div class="skeleton-text value small"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="skeleton-chart"></div>
+        </div>
+    </div>
+</div>
 
 <script defer>
-    const d = new Date()
-    const months = ["January", "February", "March", "April", "May", "June", 'July', 'August', 'September', 'October', 'November', 'December']
-    const current_month = d.getMonth()
-    var recent_months = []
+    const main = () => {
+        $.getJSON('/api/tourguide', function (data) {
+            $('#currentEarningsField').text(data.money.currentPeriod.totalEarnings)
+            $('#currentAvgField').text(data.money.currentPeriod.averageEarnings)
 
-    for (i = 0; i < 6; i++) {
-        if (current_month - i < 0) {
-            recent_months.push(months[12 - i + 1])
-        } else {
-            recent_months.push(months[current_month - i])
-        }
-    }
+            if (data.money.currentPeriod.totalEarnings === 0) {
+                $('#currentAvgMonthField').text(parseInt(0))  // Prevents division by 0
+            } else {
+                $('#currentAvgMonthField').text(parseFloat(data.money.currentPeriod.totalEarnings / 6))
+            }
 
-    // Fetch API
-    $.getJSON('/api/tourguide/chart', function (data) {
-
-        const moneyData = data.money
-        const csatData = data.csat
-
-        var incomeChart = document.getElementById('incomeChart').getContext('2d');
-        var incomeChartData = new Chart(incomeChart, {
-            type: 'line',
-            data: {
-                labels: recent_months.reverse(),
-                datasets: [{
-                    label: 'Earnings',
-                    data: [moneyData.m5.totalEarnings, moneyData.m4.totalEarnings, moneyData.m3.totalEarnings, moneyData.m2.totalEarnings, moneyData.m1.totalEarnings, moneyData.m0.totalEarnings],
-                    //backgroundColor: 'rgba(0, 145, 189, 0.20)',
-                    //borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: false,
-                            callback: function (value, index, values) {
-                                // Convert the number to a string and splite the string every 3 charaters from the end
-                                value = value.toString();
-                                value = value.split(/(?=(?:...)*$)/);
-
-                                // Convert the array to a string and format the output
-                                value = value.join('.');
-                                return '$' + value;
-                            }
-                        },
-                    }]
-                },
-                elements: {
-                    line: {
-                        cubicInterpolationMode: 'monotone'
-                    }
-                },
-                tooltips: {
-                    callbacks: {
-                        label: function (tooltipItem, data) {
-                            return data['labels'][tooltipItem['index']] + ': ' + '$' + data['datasets'][0]['data'][tooltipItem['index']];
-                        }
-                    }
-                },
+            if (data.money.currentPeriod.totalEarnings - data.money.lastPeriod.totalEarnings < 0) {
+                $('#currentPeriodDiffField').text(`-$${data.money.currentPeriod.totalEarnings - data.money.lastPeriod.totalEarnings}`);
+                $('#currentPeriodDiffFieldTag').addClass('is-danger');
+            } else {
+                $('#currentPeriodDiffField').text(`+$${data.money.currentPeriod.totalEarnings - data.money.lastPeriod.totalEarnings}`);
+                $('#currentPeriodDiffFieldTag').addClass('is-success');
             }
         })
 
-        var csatChart = document.getElementById('csatChart').getContext('2d');
-    var csatChartData = new Chart(csatChart, {
-        type: 'line',
-        data: {
-            labels: recent_months,
-            datasets: [{
-                label: 'Satisfaction rate (%)',
-                data: [csatData.m5, csatData.m4, csatData.m3, csatData.m2, csatData.m1, csatData.m0],
-                backgroundColor: 'rgba(224, 34, 85, 0.2)',
-                //borderWidth: 1
-            }]
-        },
-        options: {
-            tooltips: {
-                callbacks: {
-                    label: function (tooltipItem, data) {
-                        return data['labels'][tooltipItem['index']] + ': ' + data['datasets'][0]['data'][tooltipItem['index']] + '%';
-                    }
-                }
-            },
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true,
-                        max: 100,
-                        callback: function (value, index, values) {
-                            // Convert the number to a string and splite the string every 3 charaters from the end
-                            value = value.toString();
-                            value = value.split(/(?=(?:...)*$)/);
+        const d = new Date()
+        const months = ["January", "February", "March", "April", "May", "June", 'July', 'August', 'September', 'October', 'November', 'December']
+        const current_month = d.getMonth()
+        let recent_months = []
 
-                            // Convert the array to a string and format the output
-                            value = value.join('.');
-                            return value + '%';
-                        }
-                    }
-                }]
+        const incomeChart = document.getElementById('incomeChart').getContext('2d');
+        const csatChart = document.getElementById('csatChart').getContext('2d');
+
+        for (i = 0; i < 6; i++) {
+            if (current_month - i < 0) {
+                recent_months.push(months[12 - i + 1])
+            } else {
+                recent_months.push(months[current_month - i])
             }
         }
+
+        // Fetch API
+        $.getJSON('/api/tourguide/chart', function (data) {
+
+            const moneyData = data.money
+            const csatData = data.csat
+
+            var incomeChartData = new Chart(incomeChart, {
+                type: 'line',
+                data: {
+                    labels: recent_months.reverse(),
+                    datasets: [{
+                        label: 'Earnings',
+                        data: [moneyData.m5.totalEarnings, moneyData.m4.totalEarnings, moneyData.m3.totalEarnings, moneyData.m2.totalEarnings, moneyData.m1.totalEarnings, moneyData.m0.totalEarnings],
+                        //backgroundColor: 'rgba(0, 145, 189, 0.20)',
+                        //borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: false,
+                                callback: function (value, index, values) {
+                                    // Convert the number to a string and splite the string every 3 charaters from the end
+                                    value = value.toString();
+                                    value = value.split(/(?=(?:...)*$)/);
+
+                                    // Convert the array to a string and format the output
+                                    value = value.join('.');
+                                    return '$' + value;
+                                }
+                            },
+                        }]
+                    },
+                    elements: {
+                        line: {
+                            cubicInterpolationMode: 'monotone'
+                        }
+                    },
+                    tooltips: {
+                        callbacks: {
+                            label: function (tooltipItem, data) {
+                                return data['labels'][tooltipItem['index']] + ': ' + '$' + data['datasets'][0]['data'][tooltipItem['index']];
+                            }
+                        }
+                    },
+                }
+            })
+
+            var csatChartData = new Chart(csatChart, {
+                type: 'line',
+                data: {
+                    labels: recent_months,
+                    datasets: [{
+                        label: 'Satisfaction rate (%)',
+                        data: [csatData.m5, csatData.m4, csatData.m3, csatData.m2, csatData.m1, csatData.m0],
+                        backgroundColor: 'rgba(224, 34, 85, 0.2)',
+                        //borderWidth: 1
+                    }]
+                },
+                options: {
+                    tooltips: {
+                        callbacks: {
+                            label: function (tooltipItem, data) {
+                                return data['labels'][tooltipItem['index']] + ': ' + data['datasets'][0]['data'][tooltipItem['index']] + '%';
+                            }
+                        }
+                    },
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                max: 100,
+                                callback: function (value, index, values) {
+                                    // Convert the number to a string and splite the string every 3 charaters from the end
+                                    value = value.toString();
+                                    value = value.split(/(?=(?:...)*$)/);
+
+                                    // Convert the array to a string and format the output
+                                    value = value.join('.');
+                                    return value + '%';
+                                }
+                            }
+                        }]
+                    }
+                }
+            })
+        }).then(() => {
+            $('#skeletonDisplay').hide(0, () => {
+                $('#dashboardDisplay').show();
+            })
+        })
+    }
+
+    // Entry point -- On page load
+    $(document).on('turbolinks:load', function () {
+        setTimeout(main, 1500)
     })
-    })
+
+    // Exit point -- Where turbolinks is destroyed
+    $(document).on('turbolinks:before-cache turbolinks:before-render', function () {
+        incomeChart.destroy()
+        csatChart.destroy()
+    });
 </script>
