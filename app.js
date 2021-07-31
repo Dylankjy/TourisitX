@@ -261,7 +261,7 @@ app.set('views', [`views`])
 // Slowdown: For Rate limiting
 const limiter = new RateLimit({
     windowMs: 1 * 60 * 1000,
-    max: 80,
+    max: 200,
     message:
     '<title>429 - Tourisit</title><p style="font-family: Arial"><b>429 — Too many requests</b><br>Please try again in a moment.<p><p style="font-family: Arial"><small>Why am I seeing this: You are sending too many requests to Tourisit.<br>Tourisit limits the number of request a user can make to prevent DDOS attacks.</small></p>',
 })
