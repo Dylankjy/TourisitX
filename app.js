@@ -399,6 +399,7 @@ require('./models')
             })
             .then(() => {
                 // If all is well, start the webserver.
+                destroyAllSessions()
                 webserver()
             })
     })

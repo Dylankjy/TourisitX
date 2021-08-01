@@ -22,7 +22,7 @@ const uuid = require('uuid')
 const io = require('socket.io-client')
 
 // System login invoker
-const { invokeSystemLogin } = require('./invokeSystemLogin')
+const { invokeSystemLogin } = require('../boot/invokeSystemLogin')
 
 // Contain timeout function
 let reconnectionErrorCounter = 0
@@ -40,7 +40,7 @@ startSocketClient = async () => {
         transportOptions: {
             polling: {
                 extraHeaders: {
-                    Cookie: `apikey=${await invokeSystemLogin()}`,
+                    Cookie: `apikey=${await invokeSystemLogin('INTERNAL SOCKET SERVER - Chat')}`,
                 },
             },
         },
