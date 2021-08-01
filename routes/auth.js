@@ -97,19 +97,13 @@ router.post('/register', (req, res) => {
             }
 
             // Upon sign up, the user should have a system chat precreated for them.
-            chat.addRoom([result, uuid.NIL], null, (resultantChatID) => {
+            return chat.addRoom([result, uuid.NIL], null, (resultantChatID) => {
                 // Send chat message using newly created room
-                chat.addMessage(
-                    resultantChatID,
-                    'SYSTEM',
-                    'Welcome to Tourisit! Feel free to browse around for tours. If you have any doubts, please do not hesitate to contact us using our help desk. Happy touring :)',
-                    'SENT',
-                    () => {},
-                )
+                return chat.addMessage(resultantChatID, 'SYSTEM', 'Welcome to Tourisit! Feel free to browse around for tours. If you have any doubts, please do not hesitate to contact us using our help desk. Happy touring :)', 'SENT', () => {
+                    res.cookie('preData', email, NotificationCookieOptions)
+                    return res.redirect('/id/confirm')
+                })
             })
-
-            res.cookie('preData', email, NotificationCookieOptions)
-            return res.redirect('/id/confirm')
         })
     })
 })

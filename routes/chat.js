@@ -12,6 +12,24 @@ router.use(formidable())
 // SQLize models
 const { ChatRoom, ChatMessages } = require('../models')
 
+router.get('/', async (req, res) => {
+    const metadata = {
+        meta: {
+            title: 'Your messages',
+        },
+        nav: {
+            navbar: 'chat',
+            chatSidebar: req.params.roomId,
+        },
+        layout: 'chat',
+        data: {
+            currentUser: req.currentUser,
+            availableChats: await excludeSelfIDAsync(req.currentUser.id, await getListOfRoomsByUserIDAsync(req.currentUser.id)),
+        },
+    }
+
+    return res.render('chat', metadata)
+})
 
 router.get('/:roomId', (req, res) => {
     getUwUMessagesByRoomID(req.params.roomId, async (chatRoomObject) => {

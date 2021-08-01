@@ -1,4 +1,5 @@
 <div class="column ml-5 mr-5 message-container">
+    {{#if data.chat}}
     <div id="message-container-display" style="display: none">
         {{#each data.chat}}
 
@@ -20,7 +21,15 @@
             </div>
         </div>
     </div>
+    {{else}}
+    <div>
+        <p class="title has-text-grey is-1 has-text-centered mt-6">ヽ(・ω・)ゝ</p>
+        <p class="subtitle has-text-centered has-text-grey-light">Click a user to view chat.</p>
+    </div>
+    {{/if}}
 </div>
 
+{{#if data.chat}}
 {{!-- This exists because turbolinks caches <head></head> and is here for turbolinks to know to only run chat.js when it sees this --}}
 <div id="thisIsAChatPageSoPleaseLoadTheChatScript"></div>
+{{/if}}

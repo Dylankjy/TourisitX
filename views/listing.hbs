@@ -42,13 +42,13 @@
                     <div class="block">
                         <h3 class="title is-4">Availability</h3>
                         <p><span class="has-text-weight-bold">Days:</span>
-                            {{#each (readArr tourData.finalTimings)}}
+                            {{#each (readArr tourData.finalDays)}}
                             {{this}}
                             {{/each}}
                         </p>
                         <p>
                             <span class="has-text-weight-bold">Timings:</span>
-                            {{#each (readArr tourData.finalDays)}}
+                            {{#each (readArr tourData.finalTimings)}}
                             {{this}}
                             {{/each}}
                         </p>
