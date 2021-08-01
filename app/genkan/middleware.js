@@ -37,24 +37,12 @@ const loginRequired = (req, res, next) => {
 
 // Block if not logged in
 const getCurrentUser = (req, res, next) => {
-    let sidToValidate
-
-    // Check whether this is a system login
-    if (req.apikey === undefined) {
-        // Otherwise, check whether a session id is present
-        if (req.signedCookies.sid === undefined) {
-            req.currentUser = false
-            return next()
-        }
-
-        // If all is well, set the session id to validate
-        sidToValidate = req.signedCookies.sid
-    } else {
-        // Same here, but for API keys
-        sidToValidate = req.apikey
+    if (req.signedCookies.sid === undefined) {
+        req.currentUser = false
+        return next()
     }
 
-    genkan.getUserBySession(sidToValidate, (user) => {
+    genkan.getUserBySession(req.signedCookies.sid, (user) => {
         if (user === null) {
             req.currentUser = false
             return next()
