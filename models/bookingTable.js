@@ -147,6 +147,12 @@ module.exports = (sequelize, DataTypes) => {
         //     targetKey: 'chatId',
         //     foreignKey: 'chatId',
         // })
+
+        Booking.hasMany(models.Review, {
+            onDelete: 'cascade',
+            sourceKey: 'bookId',
+            foreignKey: 'bookId',
+        })
     }
 
     return Booking
