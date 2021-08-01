@@ -2,22 +2,36 @@
 const express = require('express')
 const router = express.Router()
 
+// Config
+const genkanKey = require('../config/genkan.json').genkan.secretKey
+const routeConfig = require('../config/routes.json')
+
 // Genkan Middleware
 const { adminAuthorisationRequired, loginRequired } = require('../app/genkan/middleware')
-
-// Database Operations
-const { Booking, User } = require('../models')
-const { Op } = require('sequelize')
 
 // API Handlers
 const { getAdminStats, getUserStats } = require('../app/api/admin')
 const { getMoneyStats, getTourGuideCSAT, getStatsRange, getTours } = require('../app/api/tourguide')
 const roundTo = require('round-to')
 
-// Tour Guide Report Generation
-// Test: http://localhost:5000/api/tourguide/generate_report?to=2021-08-01&from=2021-07-01
+// PDF generation
+const puppeteer = require('puppeteer')
+
+// System login invoker
+const { invokeSystemLogin } = require('../app/boot/invokeSystemLogin')
+let systemSid = null // Will be populated in invokeLogin()
+
+invokePDFGeneratorLogin = async () => {
+    systemSid = await invokeSystemLogin('INTERNAL API - PDF Generator')
+}
+
+setTimeout(invokePDFGeneratorLogin, 5000)
+
+// Tour Guide Report Generation - File Download
+// Test: http://localhost:5000/api/tourguide/generate_report?to=2021-08-01&from=2021-07-01&format=pdf
 router.get('/tourguide/generate_report', loginRequired, async (req, res) => {
-    // Get parameters
+    // Get parameters; These are compulsary by the system.
+    // See 'web' for API paramters.
     const { from, to, format } = req.query
 
     if (!from || !to) {
@@ -27,33 +41,77 @@ router.get('/tourguide/generate_report', loginRequired, async (req, res) => {
         })
     }
 
-    // if (format === 'csv') {
+    if (format === 'pdf') {
+        const browser = await puppeteer.launch({ headless: true })
+        const page = await browser.newPage()
 
-    // }
-
-    const stats = await getStatsRange(from, to, req.currentUser.id)
-
-    const metadata = {
-        meta: {
-            title: 'Income Report',
-        },
-        layout: 'print',
-        data: {
-            currentUser: req.currentUser,
-            dateGenerated: new Date(),
-            report: {
-                from,
-                to,
-                totalEarningsBeforeSvc: roundTo(stats.totalEarningsBeforeSvc, 2).toFixed(2).toString(),
-                totalRevenue: roundTo(stats.totalEarnings, 2).toFixed(2).toString(),
-                totalTours: stats.totalTours,
-                serviceCharge: roundTo(stats.serviceCharge, 2).toFixed(2).toString(),
-                tours: await getTours(from, to, req.currentUser.id),
+        await page.setCookie(
+            {
+                name: 'apikey',
+                value: systemSid,
+                domain: 'localhost:5000',
             },
-        },
+        )
+
+        await page.goto(`${routeConfig.base_url}/api/tourguide/generate_report?from=${from}&to=${to}&format=web&for=${req.currentUser.id}`, { waitUntil: 'networkidle0' })
+        const pdf = await page.pdf({ format: 'A4' })
+
+        await browser.close()
+
+        res.writeHead(200, {
+            'Content-Disposition': `attachment; filename="${req.currentUser.name} - Income report (${from}-${to}).pdf"`,
+            'Content-Type': 'application/pdf',
+        })
+
+        const download = Buffer.from(pdf, 'base64')
+        return res.end(download)
     }
 
-    return res.render('tourguide/print/report', metadata)
+    if (format === 'web') {
+        // Use middleware to get user ID, if that doesn't work, use the query string
+        // This provides compatibility with system generation of PDFs.
+        const currentUserId = req.currentUser.id || req.query.for
+
+        if (req.query.for) {
+            if (req.cookies.apikey !== systemSid) {
+                return res.status(401).send({
+                    status: 401,
+                    message: 'Unauthorised',
+                })
+            }
+        }
+
+        // Generate stats from API
+        const stats = await getStatsRange(from, to, currentUserId)
+
+        const metadata = {
+            meta: {
+                title: 'Income Report',
+            },
+            layout: 'print',
+            data: {
+                currentUser: req.currentUser,
+                dateGenerated: new Date(),
+                report: {
+                    from,
+                    to,
+                    totalEarningsBeforeSvc: roundTo(stats.totalEarningsBeforeSvc, 2).toFixed(2).toString(),
+                    totalRevenue: roundTo(stats.totalEarnings, 2).toFixed(2).toString(),
+                    totalTours: stats.totalTours,
+                    serviceCharge: roundTo(stats.serviceCharge, 2).toFixed(2).toString(),
+                    tours: await getTours(from, to, currentUserId),
+                },
+            },
+        }
+
+        return res.render('tourguide/print/report', metadata)
+    }
+
+    // If format is invalid, return JSON error.
+    return res.status(400).send({
+        status: 400,
+        message: 'No valid format provided.',
+    })
 })
 
 // Admin Panel API
@@ -122,6 +180,5 @@ router.get('/tourguide/chart', loginRequired, async (req, res) => {
 
     return res.json(ResponseObject)
 })
-
 
 module.exports = router

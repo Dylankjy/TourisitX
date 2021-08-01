@@ -57,6 +57,7 @@ const {
 } = require('./app/chat/chat')
 const sanitizeHtml = require('sanitize-html')
 const ta = require('time-ago')
+const roundTo = require('round-to')
 
 // Handlebars: Render engine
 app.set('view engine', 'hbs')
@@ -251,6 +252,10 @@ app.engine(
                 newMsg = newMsg.replace('<tourguide>', tgName)
                 return newMsg
             },
+
+            round2DP: (value) => {
+                return roundTo(value, 2).toFixed(2).toString()
+            },
         },
     }),
 )
@@ -384,9 +389,12 @@ io.on('connection', (socket) => {
 require('./models')
     .sequelize.sync()
     .then((req) => {
-    // System Integrity check
-    // This checks the database to ensure it contains the needed objects for the system to function correctly.
-    // At no point should this piece of code be disabled or commented out.
+        // Delete all previous sessions created by the SYSTEM.
+        destroyAllSessions()
+
+        // System Integrity check
+        // This checks the database to ensure it contains the needed objects for the system to function correctly.
+        // At no point should this piece of code be disabled or commented out.
         const integrityCheck = require('./app/systemIntegrity/checks')
         integrityCheck
             .check()
@@ -399,7 +407,6 @@ require('./models')
             })
             .then(() => {
                 // If all is well, start the webserver.
-                destroyAllSessions()
                 webserver()
             })
     })
