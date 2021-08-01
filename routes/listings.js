@@ -19,8 +19,6 @@ const { removeNull, emptyArray, removeFromArray } = require('../app/helpers')
 const config = require('../config/apikeys.json')
 const routesConfig = require('../config/routes.json')
 
-const nginxBaseUrl = routesConfig['base_url']
-
 // Globals
 const router = express.Router()
 const {
@@ -31,7 +29,6 @@ const {
     ChatRoom,
     ChatMessages,
 } = require('../models')
-
 const elasticSearchHelper = require('../app/elasticSearch')
 // const esClient = elasticSearch.Client({
 //     host: 'http://47.241.14.108:9200',
@@ -429,7 +426,7 @@ router.post('/create', loginRequired, async (req, res) => {
             hidden: 'false',
         })
             .then(async (data) => {
-                await axios.post(`${nginxBaseUrl}/es-api/upload`, {
+                await axios.post('http://localhost:5000/es-api/upload', {
                     id: genId,
                     name: req.fields.tourTitle,
                     description: req.fields.tourDesc,
@@ -683,7 +680,7 @@ router.get('/unhide/:id', async (req, res) => {
                     .then(async (data) => {
                         doc = data[0]['dataValues']
                         console.log('REINSERTING')
-                        await axios.post(`${nginxBaseUrl}/es-api/upload`, {
+                        await axios.post('http://localhost:5000/es-api/upload', {
                             id: doc.id,
                             name: doc.tourTitle,
                             description: doc.tourDesc,
@@ -706,33 +703,10 @@ router.get('/unhide/:id', async (req, res) => {
     }
 })
 
-router.post('/add-card', async (req, res) => {
-    const userData = req.currentUser
-    let savedUserData = await User.findAll({
-        where: {
-            id: userData['id'],
-        },
-        raw: true,
-    })
-    savedUserData = savedUserData[0]
-
-    const account = await stripe.accounts.create({
-        type: 'express',
-    })
-
-    console.log(account)
-
-    const accountLinks = await stripe.accountLinks.create({
-        account: account['id'],
-        refresh_url: `${nginxBaseUrl}`,
-        return_url: `${nginxBaseUrl}`,
-        type: 'account_onboarding',
-    })
-
-    res.redirect(303, accountLinks.url)
-})
-
 router.post('/:id/stripe-create-checkout', async (req, res) => {
+    console.log('THiS GO TPOSTED')
+    console.log('\n\n\n\n')
+
     const bookId = req.params.id
     const userData = req.currentUser
     const sid = req.signedCookies.sid
@@ -766,7 +740,7 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
 
     console.log(bookData)
 
-    // Step 3 means its paying for full tour
+    // Step 3 means its paying for full tour (Base tour + customization)
     if (bookData['processStep'] == '3') {
         // Base price
         let priceToPay = itemData['tourPrice']
@@ -1500,5 +1474,21 @@ router.post('/:id/purchase/customise', async (req, res) => {
 
 
 // End: Booking-related items under the listing route
+router.get('/stripe-create-account', async (req, res)=>{
+    res.redirect(
+        307,
+        `/listing/stripe-create-account`,
+    )
+})
+
+router.post('/stripe-create-account', async (req, res) => {
+    const userData = req.currentUser
+    const account = await stripe.accounts.create({
+        type: 'express',
+    })
+
+    console.log(account.url)
+    res.redirect(303, account.url)
+})
 
 module.exports = router
