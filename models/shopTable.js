@@ -92,6 +92,12 @@ module.exports = (sequelize, DataTypes) => {
             sourceKey: 'id',
             foreignKey: 'listingId',
         })
+
+        Shop.hasMany(models.Review, {
+            onDelete: 'cascade',
+            sourceKey: 'id',
+            foreignKey: 'tourId',
+        })
     }
 
     return Shop
