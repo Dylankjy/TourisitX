@@ -743,7 +743,7 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
     // Step 3 means its paying for full tour (Base tour + customization)
     if (bookData['processStep'] == '3') {
         // Base price
-        let priceToPay = itemData['tourPrice']
+        let priceToPay = bookData['bookBaseprice']
         console.log(priceToPay)
 
         // Any extra revisions
@@ -759,7 +759,7 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
         }
 
         // Service fee
-        priceToPay = priceToPay * 1.1
+        // priceToPay = priceToPay * 1.1
         priceToPay = Math.round(priceToPay * 100)
         const paymentName = itemData['tourTitle']
 
@@ -770,6 +770,7 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
     } else {
         console.log('ERROR')
         const priceToPay = 0
+        const paymentName = ''
     }
 
     const baseUrl = routesConfig['base_url']

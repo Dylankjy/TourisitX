@@ -333,55 +333,53 @@ router.post('/bookings/:id', async (req, res) => {
         // process itinerary
         // calculate tour duration
         // process index
-        Booking.findOne({
+
+        const bookData = await Booking.findOne({
             where: {
                 bookId: bookId,
             },
             raw: true,
-        }).then((bookData) => {
-            // update booking's process step and details
-            Booking.update(
-                {
-                    processStep: 2,
-                    tourStart: tourStart,
-                    tourEnd: tourEnd,
-                    bookPax: req.fields.tourPax,
-                    bookBaseprice: req.fields.tourPrice,
-                    revisions: bookData.revisions - 1,
-                },
-                {
-                    where: { bookId: bookId },
-                },
-            )
-            TourPlans.findAndCountAll({
-                where: {
-                    bookId: bookId,
-                },
-            }).then((tourPlanResult) => {
-                const planIndex = tourPlanResult.count + 1
-                const genId = uuid.v1()
-                TourPlans.create(
-                    {
-                        planId: genId,
-                        bookId: bookId,
-                        index: planIndex,
-                        tourStart: tourStart,
-                        tourEnd: tourEnd,
-                        tourPax: req.fields.tourPax,
-                        tourPrice: req.fields.tourPrice,
-                        tourItinerary: '',
-                        accepted: 0,
-                    },
-                ).then((data) => {
-                    addMessage(bookData.chatId, 'SYSTEM', planIndex, 'TOURPLAN', () => {
-                        res.redirect(`/tourguide/bookings/${bookId}`)
-                    })
-                })
-            }).catch((err) =>{
-                console.log(err)
+        })
+
+        // update booking's process step and details
+        Booking.update(
+            {
+                processStep: 2,
+                tourStart: tourStart,
+                tourEnd: tourEnd,
+                bookPax: req.fields.tourPax,
+                bookBaseprice: req.fields.tourPrice,
+                revisions: bookData.revisions - 1,
+            },
+            {
+                where: { bookId: bookId },
+            },
+        )
+
+        const tourPlanResult = await TourPlans.findAndCountAll({
+            where: {
+                bookId: bookId,
+            },
+        })
+
+        const planIndex = tourPlanResult.count + 1
+        const genId = uuid.v1()
+        TourPlans.create(
+            {
+                planId: genId,
+                bookId: bookId,
+                index: planIndex,
+                tourStart: tourStart,
+                tourEnd: tourEnd,
+                tourPax: req.fields.tourPax,
+                tourPrice: req.fields.tourPrice,
+                tourItinerary: '',
+                accepted: 0,
+            },
+        ).then((data) => {
+            addMessage(bookData.chatId, 'SYSTEM', planIndex, 'TOURPLAN', () => {
+                res.redirect(`/tourguide/bookings/${bookId}`)
             })
-        }) .catch((err) =>{
-            console.log(err)
         })
     }
 })

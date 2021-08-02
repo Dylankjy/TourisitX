@@ -84,9 +84,9 @@ router.get('/', async (req, res) => {
     }
 })
 
-router.post('/:id/request-revision', (req, res) => {
-    // what.   wh a t.
+router.post('/:id/request-revision', async (req, res) => {
     const bookId = req.params.id
+    console.log(req.fields)
 
     const v = new Validator(req.fields)
     const requestResult = v
@@ -106,13 +106,20 @@ router.post('/:id/request-revision', (req, res) => {
         res.redirect(`/bookings/${bookId}`)
     } else {
         res.clearCookie('validationErrors')
-        Booking.update({
-            where: { bookId: bookId },
-        })
-        // move process step and add the req to req array
-        // update tour plan to rejected
 
-        TourPlans.findOne({
+        bookData = await Booking.findOne({
+            where: {
+                bookId: bookId,
+            },
+            raw: true,
+        })
+
+        console.log(bookData)
+
+        const newReq = bookData['custRequests'] + ';!;' + req.fields.requestField
+        console.log(newReq)
+
+        tourPlan = await TourPlans.findOne({
             where: {
                 bookId: bookId,
             },
@@ -120,81 +127,147 @@ router.post('/:id/request-revision', (req, res) => {
                 ['createdAt', 'DESC'],
             ],
             raw: true,
-        }).then((tourPlanData) => {
-            console.log(tourPlanData)
+        })
 
-            res.redirect(`/bookings/${bookId}`)
+        console.log(tourPlan)
+
+        Booking.update({
+            processStep: '1',
+            custRequests: newReq,
+        }, {
+            where: { bookId: bookId },
+        }).then(() =>{
+            TourPlans.update({
+                accepted: '-1',
+            }, {
+                where: { planId: tourPlan['planId'] },
+            })
+            addMessage(bookData['chatId'], 'SYSTEM', '<customer> requested a revision of the Tour Plan.', 'ACTIVITY', () => {
+                res.redirect(`/bookings/${bookId}`)
+            })
         })
     }
 })
 
-router.post('/fastTravel/:id', (req, res) => {
-    // bookId = req.params.id
-    console.log('lmao')
-    res.redirect(`/bookings/${bookId}`)
+router.post('/:id/accept-plan', async (req, res) => {
+    const bookId = req.params.id
+    console.log(req.fields)
+
+    bookData = await Booking.findOne({
+        where: {
+            bookId: bookId,
+        },
+        raw: true,
+    })
+
+    console.log(bookData)
+
+    tourPlan = await TourPlans.findOne({
+        where: {
+            bookId: bookId,
+        },
+        order: [
+            ['createdAt', 'DESC'],
+        ],
+        raw: true,
+    })
+
+    console.log(tourPlan)
+
+    Booking.update({
+        processStep: '3',
+    }, {
+        where: { bookId: bookId },
+    }).then(() =>{
+        TourPlans.update({
+            accepted: '1',
+        }, {
+            where: { planId: tourPlan['planId'] },
+        })
+        addMessage(bookData['chatId'], 'SYSTEM', '<customer> accepted the Tour Plan.', 'ACTIVITY', () => {
+            res.redirect(`/bookings/${bookId}`)
+        })
+    })
+
+
+    // move process step and add the req to req array
+    // update tour plan to rejected
 })
 
-router.get('/:id', (req, res) => {
+
+router.get('/:id', async (req, res) => {
     // console.log(req.currentUser.name)
     const bookID = req.params.id
-    // const booking = bookingList.filter((obj) => {
-    //     return obj.id == bookID
-    // })[0]
-    Booking.findOne({
+
+    const bookData = await Booking.findOne({
         where: {
             bookId: bookID,
         },
-        include: Shop,
+        include: Shop, TourPlans,
         raw: true,
-    }) .then((result) => {
-        console.log(result)
-        // const sid = req.signedCookies.sid
-        // const userId = await genkan.getUserBySessionAsync(sid)
-        TourPlans.findAndCountAll({
-            where: {
-                bookId: bookID,
-            },
-            raw: true,
-        }) .then((tourPlanData) => {
-            console.log(tourPlanData.rows)
+    })
+    console.log(bookData)
+    // const sid = req.signedCookies.sid
+    // const userId = await genkan.getUserBySessionAsync(sid)
 
-            getAllTypesOfMessagesByRoomID(result.chatId, (chatroomObject) => {
-                console.log(chatroomObject)
+    const tourPlanData = await TourPlans.findAndCountAll({
+        where: {
+            bookId: bookID,
+        },
+        raw: true,
+    })
 
-                const listOfParticipantNames = []
+    getAllTypesOfMessagesByRoomID(bookData.chatId, (chatroomObject) => {
+        console.log(chatroomObject)
 
-                // This is a hacky way to get the names of the participants in a chat room.
-                syncLoop(chatroomObject.users.length, (loop) => {
-                    const i = loop.iteration()
+        const listOfParticipantNames = []
 
-                    genkan.getUserByID(chatroomObject.users[i], (userObject) => {
-                    // console.log(userObject)
-                        listOfParticipantNames.push(userObject.name)
-                        loop.next()
-                    })
-                }, () => {
-                    genkan.getUserByID(result['Shop.userId'], (tgData) => {
-                        console.log(tgData)
-                        const chargesArr = result['bookCharges'].split(',')
-                        console.log(chargesArr)
-                        const metadata = {
-                            meta: {
-                                title: result['Shop.tourTitle'],
-                            },
-                            data: {
-                                currentUser: req.currentUser,
-                                book: result,
-                                timeline: chatroomObject.msg,
-                                // This is the list of names of participants in the chat room.
-                                participants: listOfParticipantNames,
-                                tg: tgData,
-                                bookCharges: chargesArr,
-                            },
-                            tourPlans: tourPlanData.rows,
-                        }
-                        return res.render('myBooking.hbs', metadata)
-                    })
-                })
+        // This is a hacky way to get the names of the participants in a chat room.
+        syncLoop(chatroomObject.users.length, (loop) => {
+            const i = loop.iteration()
+
+            genkan.getUserByID(chatroomObject.users[i], (userObject) => {
+                // console.log(userObject)
+                listOfParticipantNames.push(userObject.name)
+                loop.next()
+            })
+        }, () => {
+            genkan.getUserByID(bookData['Shop.userId'], (tgData) => {
+                // Calculating price stuff
+                const chargesArr = bookData['bookCharges'].split(',')
+                const revisionFee = chargesArr[0]
+                let priceToPay = parseInt(bookData['bookBaseprice'])
+                let extraRevFees = 0
+
+                // Any extra revisions
+                if (bookData['custom'] > 0 && bookData['revisions'] < 0) {
+                    const noOfRevisions = Math.abs(bookData['revisions'])
+                    extraRevFees = noOfRevisions * revisionFee
+                    priceToPay += extraRevFees
+                }
+                // priceToPay = priceToPay.toFixed(2)
+                const metadata = {
+                    meta: {
+                        title: bookData['Shop.tourTitle'],
+                    },
+                    data: {
+                        currentUser: req.currentUser,
+                        book: bookData,
+                        timeline: chatroomObject.msg,
+                        // This is the list of names of participants in the chat room.
+                        participants: listOfParticipantNames,
+                        tg: tgData,
+                        bookCharges: chargesArr,
+                        charges: {
+                            bookCharges: chargesArr,
+                            customFee: revisionFee,
+                            priceToPay: priceToPay,
+                            extraRevFees: extraRevFees,
+                        },
+                    },
+                    tourPlans: tourPlanData.rows,
+                }
+                return res.render('myBooking.hbs', metadata)
             })
         })
     })
