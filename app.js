@@ -58,6 +58,7 @@ const {
 const sanitizeHtml = require('sanitize-html')
 const ta = require('time-ago')
 const roundTo = require('round-to')
+const { invokeLoginForReportGenerator } = require('./app/reportGeneration/generate')
 
 // Handlebars: Render engine
 app.set('view engine', 'hbs')
@@ -327,6 +328,7 @@ const webserver = () => {
             `\x1b[1m\x1b[2m[WEBSERVER] - \x1b[1m\x1b[34mOK\x1b[0m: Webserver binded on port 5000 | http://localhost:5000\x1b[0m`,
         )
         startSocketClient()
+        invokeLoginForReportGenerator()
     })
 }
 
