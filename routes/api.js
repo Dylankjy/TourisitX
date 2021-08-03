@@ -47,7 +47,7 @@ router.get('/tourguide/generate_report', loginRequired, async (req, res) => {
     }
 
     if (format === 'csv') {
-        const currentUserId = '1887de90-f2fc-11eb-8d52-4988f302166d'
+        const currentUserId = req.currentUser.id
 
         const generatedReportName = await generateCSVReport(from, to, currentUserId)
 
