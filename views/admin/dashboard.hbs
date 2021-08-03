@@ -1,85 +1,98 @@
-<div id="dashboardDisplay" class="columns is-multiline" style="display: none">
-    <div class="column">
-        <div class="box">
-            <div class="heading">Estimated Net Profit</div>
-            <div class="title">
-                $<span id="netProfitField"></span>
-                <span id="netProfitDiffFieldTag" class="tag is-light">
-                    <span id="netProfitDiffField"></span>
-                </span>
-            </div>
-            <div class="level">
-                <div class="level-item">
-                    <div>
-                        <div class="heading">Total Income</div>
-                        <div class="title is-5">
-                            $<span id="profitField"></span>
-                        </div>
+<div class="block">
+    {{!--
+    <hr> --}}
+    <div class="columns">
+        <div class="column">
+            <small class="has-text-grey-light"><i
+                    class="fas fa-info-circle"></i>&ensp;Analytics displayed for past 30 days.</small>
+        </div>
+        <div class="column has-text-right">
+            <small style="display: none;" id="updatedIndicator" class="has-text-grey-light">Last updated <span
+                    id="lastUpdateTime"></span></small>
+            <small id="updatingIndicator" class="has-text-grey-light"><i
+                    class="fas fa-circle-notch fa-spin"></i>&ensp;Loading data...</small>
+        </div>
+    </div>
+</div>
+
+<div id="dashboardDisplay" style="display: none">
+
+    <div class="box">
+        <div class="heading">Estimated Net Profit</div>
+        <div class="title">
+            $<span id="netProfitField"></span>
+            <span id="netProfitDiffFieldTag" class="tag is-light">
+                <span id="netProfitDiffField"></span>
+            </span>
+        </div>
+        <div class="level">
+            <div class="level-item">
+                <div>
+                    <div class="heading">Total Income</div>
+                    <div class="title is-5">
+                        $<span id="profitField"></span>
                     </div>
                 </div>
-                <div class="level-item">
-                    <div>
-                        <div class="heading">Total Bookings</div>
-                        <div class="title is-5">
-                            <span id="totalBookingsField"></span>
-                        </div>
+            </div>
+            <div class="level-item">
+                <div>
+                    <div class="heading">Total Bookings</div>
+                    <div class="title is-5">
+                        <span id="totalBookingsField"></span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="column">
-        <div class="box">
-            <div class="heading">Customer Satisfaction</div>
-            <div class="title">87%
-                <span class="tag is-success is-light">aa</span>
-            </div>
-            <div class="level">
-                <div class="level-item">
-                    <div class="">
-                        <div class="heading">Positive</div>
-                        <div class="title is-5">54</div>
-                    </div>
-                </div>
-                <div class="level-item">
-                    <div class="">
-                        <div class="heading">Negative</div>
-                        <div class="title is-5">2</div>
-                    </div>
-                </div>
-                <div class="level-item">
-                    <div class="">
-                        <div class="heading">Overrall rate</div>
-                        <div class="title is-5">78.6%</div>
-                    </div>
+
+    <div class="box">
+        <div class="heading">Customer Satisfaction</div>
+        <div class="title"><span id="csatField"></span>%
+            <span id="csatDiffFieldTag" class="tag is-success is-light"><span id="csatDiffField"></span></span>
+        </div>
+        <div class="level">
+            <div class="level-item">
+                <div class="">
+                    <div class="heading">Positive</div>
+                    <div class="title is-5"><span id="csatPosField"></span></div>
                 </div>
             </div>
+            <div class="level-item">
+                <div class="">
+                    <div class="heading">Negative</div>
+                    <div class="title is-5"><span id="csatNegField"></span></div>
+                </div>
+            </div>
+            {{!-- <div class="level-item">
+                <div class="">
+                    <div class="heading">Overrall rate</div>
+                    <div class="title is-5"><span id="csatPosField"></span></div>
+                </div>
+            </div> --}}
         </div>
     </div>
-    <div class="column">
-        <div class="box">
-            <div class="heading">Active users (last 24 days)</div>
-            <div class="title">
-                <span id="totalActiveUsersField"></span>
-                <span id="totalActiveUsersDiffFieldTag" class="tag is-light"><span
-                        id="totalActiveUsersDiffField"></span>
-                </span>
-            </div>
-            <div class="level">
-                <div class="level-item">
-                    <div class="">
-                        <div class="heading">New sign ups</div>
-                        <div class="title is-5">
-                            <span id="newUserField"></span>
-                        </div>
+
+    <div class="box">
+        <div class="heading">Active users (last 24 days)</div>
+        <div class="title">
+            <span id="totalActiveUsersField"></span>
+            <span id="totalActiveUsersDiffFieldTag" class="tag is-light"><span id="totalActiveUsersDiffField"></span>
+            </span>
+        </div>
+        <div class="level">
+            <div class="level-item">
+                <div class="">
+                    <div class="heading">New sign ups</div>
+                    <div class="title is-5">
+                        <span id="newUserField"></span>
                     </div>
                 </div>
-                <div class="level-item">
-                    <div class="">
-                        <div class="heading">Total Users</div>
-                        <div class="title is-5">
-                            <span id="totalUsersField"></span>
-                        </div>
+            </div>
+            <div class="level-item">
+                <div class="">
+                    <div class="heading">Total Users</div>
+                    <div class="title is-5">
+                        <span id="totalUsersField"></span>
                     </div>
                 </div>
             </div>
@@ -87,69 +100,57 @@
     </div>
 </div>
 
-<div id="skeletonDisplay" class="columns is-multiline">
-    <div class="column">
-        <div class="box">
-            <div class="skeleton-text small"></div>
-            <div class="skeleton-text value"></div>
-            <div class="level">
-                <div class="level-item">
-                    <div>
-                        <div class="skeleton-text small"></div>
-                        <div class="skeleton-text value small"></div>
-                    </div>
+<div id="skeletonDisplay">
+    <div class="box">
+        <div class="skeleton-text small"></div>
+        <div class="skeleton-text value"></div>
+        <div class="level">
+            <div class="level-item">
+                <div>
+                    <div class="skeleton-text small"></div>
+                    <div class="skeleton-text value small"></div>
                 </div>
-                <div class="level-item">
-                    <div>
-                        <div class="skeleton-text small"></div>
-                        <div class="skeleton-text value small"></div>
-                    </div>
+            </div>
+            <div class="level-item">
+                <div>
+                    <div class="skeleton-text small"></div>
+                    <div class="skeleton-text value small"></div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="column">
-        <div class="box">
-            <div class="skeleton-text small"></div>
-            <div class="skeleton-text value"></div>
-            <div class="level">
-                <div class="level-item">
-                    <div>
-                        <div class="skeleton-text small"></div>
-                        <div class="skeleton-text value small"></div>
-                    </div>
+    <div class="box">
+        <div class="skeleton-text small"></div>
+        <div class="skeleton-text value"></div>
+        <div class="level">
+            <div class="level-item">
+                <div>
+                    <div class="skeleton-text small"></div>
+                    <div class="skeleton-text value small"></div>
                 </div>
-                <div class="level-item">
-                    <div>
-                        <div class="skeleton-text small"></div>
-                        <div class="skeleton-text value small"></div>
-                    </div>
-                </div>
-                <div class="level-item">
-                    <div>
-                        <div class="skeleton-text small"></div>
-                        <div class="skeleton-text value small"></div>
-                    </div>
+            </div>
+            <div class="level-item">
+                <div>
+                    <div class="skeleton-text small"></div>
+                    <div class="skeleton-text value small"></div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="column">
-        <div class="box">
-            <div class="skeleton-text small"></div>
-            <div class="skeleton-text value"></div>
-            <div class="level">
-                <div class="level-item">
-                    <div>
-                        <div class="skeleton-text small"></div>
-                        <div class="skeleton-text value small"></div>
-                    </div>
+    <div class="box">
+        <div class="skeleton-text small"></div>
+        <div class="skeleton-text value"></div>
+        <div class="level">
+            <div class="level-item">
+                <div>
+                    <div class="skeleton-text small"></div>
+                    <div class="skeleton-text value small"></div>
                 </div>
-                <div class="level-item">
-                    <div>
-                        <div class="skeleton-text small"></div>
-                        <div class="skeleton-text value small"></div>
-                    </div>
+            </div>
+            <div class="level-item">
+                <div>
+                    <div class="skeleton-text small"></div>
+                    <div class="skeleton-text value small"></div>
                 </div>
             </div>
         </div>
@@ -185,10 +186,30 @@
                     $('#totalActiveUsersDiffField').text(`+${data.users.currentPeriod.totalActiveUsers - data.users.lastPeriod.totalActiveUsers}`);
                     $('#totalActiveUsersDiffFieldTag').addClass('is-success');
                 }
+
+                // Set CSAT Fields
+                $('#csatField').text(data.csat.currentPeriod.percentage);
+
+                if (data.csat.currentPeriod.percentage - data.csat.lastPeriod.percentage < 0) {
+                    $('#csatDiffField').text(`-${data.csat.currentPeriod.percentage - data.csat.lastPeriod.percentage}%`);
+                    $('#csatDiffFieldTag').addClass('is-danger');
+                } else {
+                    $('#csatDiffField').text(`+${data.csat.currentPeriod.percentage - data.csat.lastPeriod.percentage}%`);
+                    $('#csatDiffFieldTag').addClass('is-success');
+                }
+
+                $('#csatPosField').text(data.csat.currentPeriod.numberOfPositive);
+                $('#csatNegField').text(data.csat.currentPeriod.numberOfNegative);
+
             }).then(() => {
                 $('#skeletonDisplay').hide(0, () => {
                     $('#dashboardDisplay').show();
+                    $('#lastUpdateTime').text(new Date().toLocaleString())
+                    $('#updatingIndicator').fadeOut('fast', () => {
+                        $('#updatedIndicator').fadeIn('fast')
+                    })
                 })
+
             });
         }, 2000)
     });

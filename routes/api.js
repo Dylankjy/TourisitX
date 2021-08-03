@@ -6,7 +6,7 @@ const router = express.Router()
 const { adminAuthorisationRequired, loginRequired } = require('../app/genkan/middleware')
 
 // API Handlers
-const { getAdminStats, getUserStats } = require('../app/api/admin')
+const { getAdminStats, getUserStats, getCSATStats } = require('../app/api/admin')
 const { getMoneyStats, getTourGuideCSAT, getStatsRange, getTours } = require('../app/api/tourguide')
 const roundTo = require('round-to')
 
@@ -131,7 +131,8 @@ router.get('/admin', adminAuthorisationRequired, async (req, res) => {
             lastPeriod: await getUserStats(60),
         },
         csat: {
-            'Work in Progress': 1,
+            currentPeriod: await getCSATStats(30),
+            lastPeriod: await getCSATStats(60),
         },
     }
 
@@ -147,9 +148,8 @@ router.get('/tourguide', loginRequired, async (req, res) => {
             lastPeriod: await getMoneyStats(60, req.currentUser.id),
         },
         csat: {
-            // Custom Satisfication
-            // TODO: Implement, wait for table to be created.
-            'Work in Progress': 1,
+            currentPeriod: await getTourGuideCSAT(30, req.currentUser.id),
+            lastPeriod: await getTourGuideCSAT(60, req.currentUser.id),
         },
     }
 
@@ -170,14 +170,16 @@ router.get('/tourguide/chart', loginRequired, async (req, res) => {
         },
         csat: {
             // TODO: Use populated database table
-            m0: await getTourGuideCSAT(),
-            m1: await getTourGuideCSAT(),
-            m2: await getTourGuideCSAT(),
-            m3: await getTourGuideCSAT(),
-            m4: await getTourGuideCSAT(),
-            m5: await getTourGuideCSAT(),
+            m0: await getTourGuideCSAT(0, req.currentUser.id),
+            m1: await getTourGuideCSAT(1 * 30, req.currentUser.id),
+            m2: await getTourGuideCSAT(2 * 30, req.currentUser.id),
+            m3: await getTourGuideCSAT(3 * 30, req.currentUser.id),
+            m4: await getTourGuideCSAT(4 * 30, req.currentUser.id),
+            m5: await getTourGuideCSAT(5 * 30, req.currentUser.id),
         },
     }
+
+    console.table(ResponseObject.csat)
 
     return res.json(ResponseObject)
 })

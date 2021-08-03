@@ -1,4 +1,4 @@
-const { Booking, Shop } = require('../../models')
+const { Booking, Shop, Review } = require('../../models')
 const { Op } = require('sequelize')
 
 const syncLoop = require('sync-loop')
@@ -101,11 +101,35 @@ const getTours = (to, from, tguid, dateInCSV = false) => {
     })
 }
 
-const getTourGuideCSAT = async () => {
-    // TODO
-    // When CSAT table is created.
+const getTourGuideCSAT = async (offset, tguid) => {
+    const startOffset = offset * oneDay
+    let endOffset = 0
+    if (offset > 30) {
+        endOffset = (offset - 30) * oneDay
+    }
 
-    return 0
+    const allReviewsThisPeriod = await Review.findAll({ where: { 'subjectId': tguid, 'createdAt': { [Op.between]: [(new Date()) - startOffset, new Date() - endOffset] } } })
+    const allReviewsOverall = await Review.findAll({ where: { 'subjectId': tguid, 'createdAt': { [Op.between]: [(new Date()) - startOffset, new Date() - endOffset] } } })
+
+    const numberOfReviews = allReviewsThisPeriod.length
+
+    // For this month only
+    let CSATForPeriod = 100
+    if (numberOfReviews !== 0) {
+        CSATForPeriod = (allReviewsThisPeriod.map((entry) => parseFloat(entry.rating)).reduce((a, b) => a + b) / numberOfReviews) * 100
+    }
+
+    // Average rating overall
+    let CSATOverall = 100
+    if (allReviewsOverall.length !== 0) {
+        CSATOverall = (allReviewsOverall.map((entry) => parseFloat(entry.rating)).reduce((a, b) => a + b) / numberOfReviews) * 100
+    }
+
+    return {
+        numberOfReviews,
+        CSATForPeriod,
+        CSATOverall,
+    }
 }
 
 module.exports = {
