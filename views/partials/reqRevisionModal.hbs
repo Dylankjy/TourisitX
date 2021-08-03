@@ -1,0 +1,32 @@
+<div class="modal is-active" id="ReqRevisionModal" style="display: none;">
+        <div class="modal-background" onclick="$('#ReqRevisionModal').fadeOut('fast');"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="has-text-right is-size-4 mt-0 p-0">
+                    <i class="fas fa-times-circle" onclick="$('#ReqRevisionModal').fadeOut('fast');" style="cursor: pointer;"></i>
+                </div>
+                <p class="is-size-5 has-text-weight-bold">Request a revision of the Tour Plan?</p>
+                {{#ifSmaller data.book.revisions 1}}
+                <p>For an extra fee of ${{data.bookCharges.[0]}}</p>
+                {{/ifSmaller}}
+
+                {{#ifBigger data.book.revisions 0}}
+                <p>You have {{data.book.revisions}} free revision(s) left.</p>
+                {{/ifBigger}}
+
+                <button class="button is-white is-pulled-right has-tooltip-multiline has-tooltip-left"
+                        data-tooltip="Every extra revision after all your free revisions have been used will cost an extra $no">
+                    <i class="far fa-question-circle"></i>
+                </button>
+                <form id="revisionform" method="POST" action="/bookings/{{data.book.bookId}}/request-revision">
+                    <div class="field">
+                        <input class="textarea"
+                    placeholder="Enter the changes you would like to see.." name="requestField"></input>
+                    </div>
+                    <div class="field is-grouped is-grouped-centered mt-5 mb-5">
+                            <button class="button is-fullwidth is-info" id="req_submit" type="submit" value="submit" onclick="$('#RequireModal').fadeOut('fast');">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>

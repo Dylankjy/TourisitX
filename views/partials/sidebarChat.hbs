@@ -6,7 +6,7 @@
         <ul class="menu-list">
             {{#each data.availableChats}}
             <li>
-                <a href="./{{this.chatId}}" class="{{#ifEquals this.chatId @root.nav.chatSidebar}}is-active{{else}}has-background-dark{{/ifEquals}}
+                <a href="/messages/{{this.chatId}}" class="{{#ifEquals this.chatId @root.nav.chatSidebar}}is-active{{else}}has-background-dark{{/ifEquals}}
                     has-text-white">
                     {{#ifEquals this.receiverName "SYSTEM"}}
                     Tourisit System<span class="ml-3 tag is-danger"><i class="fas fa-user-shield"></i>&nbsp;Staff</span>

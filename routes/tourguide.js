@@ -5,10 +5,14 @@ const genkan = require('../app/genkan/genkan')
 // Globals
 const router = express.Router()
 const { Shop, Booking, ChatRoom, ChatMessages, TourPlans } = require('../models')
-
+const formidableValidator = require('../app/validation')
+const formidable = require('express-formidable')
+router.use(formidable())
+const Validator = formidableValidator.Validator
+const uuid = require('uuid')
+const { removeNull, emptyArray, removeFromArray } = require('../app/helpers')
 // Sync Loops
 const syncLoop = require('sync-loop')
-
 // Put all your routings below this line -----
 
 const exampleTransaction = {
@@ -38,6 +42,9 @@ router.get('/', (req, res) => {
         },
         nav: {
             sidebarActive: 'desk',
+        },
+        data: {
+            currentUser: req.currentUser,
         },
         layout: 'tourguide',
     }
@@ -183,62 +190,205 @@ router.get('/bookings/:id', (req, res) => {
         where: {
             bookId: bookID,
         },
-        include: Shop, TourPlans,
+        include: Shop,
         raw: true,
     }) .then(async (result) => {
+        res.cookie('result', JSON.stringify(result), { maxage: 5000 })
         // const sid = req.signedCookies.sid
         // const userId = await genkan.getUserBySessionAsync(sid)
 
-        // Hi again, yes. I swapped this one out as well.
-        // Read booking.js at line 100 for more info.
-        getAllTypesOfMessagesByRoomID(result.chatId, (chatroomObject) => {
-            const listOfParticipantNames = []
+        TourPlans.findAndCountAll({
+            where: {
+                bookId: bookID,
+            },
+            raw: true,
+        }) .then((tourPlanData) => {
+            console.log(tourPlanData.rows)
+            // Hi again, yes. I swapped this one out as well.
+            // Read booking.js at line 100 for more info.
+            getAllTypesOfMessagesByRoomID(result.chatId, (chatroomObject) => {
+                const listOfParticipantNames = []
 
-            // This is a hacky way to get the names of the participants in a chat room.
-            syncLoop(chatroomObject.users.length, (loop) => {
-                const i = loop.iteration()
+                // This is a hacky way to get the names of the participants in a chat room.
+                syncLoop(chatroomObject.users.length, (loop) => {
+                    const i = loop.iteration()
 
-                genkan.getUserByID(chatroomObject.users[i], (userObject) => {
-                    listOfParticipantNames.push(userObject.name)
-                    loop.next()
+                    genkan.getUserByID(chatroomObject.users[i], (userObject) => {
+                        listOfParticipantNames.push(userObject.name)
+                        loop.next()
+                    })
+                }, () => {
+                    genkan.getUserByID(result['custId'], (custData) => {
+                        console.log(custData)
+                        const metadata = {
+                            meta: {
+                                title: result['Shop.tourTitle'],
+                                path: false,
+                            },
+                            validationErrors: req.cookies.validationErrors,
+                            data: {
+                                currentUser: req.currentUser,
+                                book: result,
+                                timeline: chatroomObject.msg,
+                                participants: listOfParticipantNames,
+                                cust: custData,
+                            },
+                            nav: {
+                                sidebarActive: 'bookings',
+                            },
+                            layout: 'main',
+                            // tourPlans is a placeholder used for testing until the customisation features are in
+                            tourPlans: tourPlanData.rows,
+
+                        }
+                        return res.render('tourguide/myJob', metadata)
+                    })
                 })
-            }, () => {
-                const metadata = {
-                    meta: {
-                        title: result['Shop.tourTitle'],
-                        path: false,
-                    },
-                    data: {
-                        currentUser: req.currentUser,
-                        book: result,
-                        timeline: chatroomObject.msg,
-                        participants: listOfParticipantNames,
-                    },
-                    nav: {
-                        sidebarActive: 'bookings',
-                    },
-                    layout: 'main',
-                    // tourPlans is a placeholder used for testing until the customisation features are in
-                    tourPlans: [
-                        {
-                            planId: '00000000-0000-0000-0000-000000000000',
-                            bookId: '00000000-0000-0000-0000-000000000000',
-                            index: 0,
-                            tourStart: new Date().toISOString(),
-                            tourEnd: new Date().toISOString(),
-                            tourPax: '5',
-                            tourPrice: '300',
-                            tourItinerary: 'Go to the chopper at bshan an eat some duck rice,Ride to outskirts of SG e',
-                            accepted: '-1',
-                        },
-                    ],
-
-                }
-                return res.render('tourguide/myJob', metadata)
             })
         })
     }).catch((err) => console.log)
 })
+
+router.post('/bookings/:id', async (req, res) => {
+    res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
+    const bookId = req.params.id
+    const v = new Validator(req.fields)
+
+    // Doing this way so its cleaner. Can also directly call these into the removeNull() array
+    const tourDateResult = v
+        .Initialize({
+            name: 'tourDate',
+            errorMessage: 'Please select a tour date.',
+        })
+        .exists()
+        .getResult()
+
+    const startTimeResult = v
+        .Initialize({
+            name: 'startTime',
+            errorMessage: 'Please select a tour start time.',
+        })
+        .exists()
+        .getResult()
+
+    const endTimeResult = v
+        .Initialize({
+            name: 'endTime',
+            errorMessage: 'Please select a tour end time.',
+        })
+        .exists()
+        .getResult()
+
+    const tourPaxResult = v
+        .Initialize({
+            name: 'tourPax',
+            errorMessage: 'Please select number of participants.',
+        })
+        .exists()
+        .getResult()
+
+    const tourPriceResult = v
+        .Initialize({
+            name: 'tourPrice',
+            errorMessage: 'Please enter a tour price.',
+        })
+        .exists()
+        .getResult()
+
+    // // Evaluate the files and fields data separately
+    const validationErrors = removeNull([
+        tourDateResult,
+        startTimeResult,
+        endTimeResult,
+        tourPaxResult,
+        tourPriceResult,
+    ])
+
+    console.log('tourDateResult is '+ tourDateResult)
+    console.log('validationErrors is '+ validationErrors)
+    if (!emptyArray(validationErrors)) {
+        console.log('ooga valid error')
+        res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
+        res.redirect(`/tourguide/bookings/${bookId}`)
+    } else {
+        res.clearCookie('validationErrors')
+        res.clearCookie('storedValues')
+
+        console.log(req.fields)
+        // process dates
+        const tourDate = req.fields.tourDate
+        const tourDateArr = tourDate.split('-')
+        formatDateTime = (timeType) => {
+            arr = timeType.split(':')
+            if (arr[1].slice(-2) == 'PM' && parseInt(arr[0])<12) {
+                arr[0] = parseInt(arr[0]) + 12
+            } else if (arr[1].slice(-2) == 'AM' && parseInt(arr[0])==12) {
+                arr[0] = parseInt(arr[0]) -12
+            }
+            if (arr[0].toString().length == 1) {
+                arr[0] = '0' + arr[0]
+            }
+            const newDate = new Date(parseInt(tourDateArr[0]), parseInt(tourDateArr[1])-1, parseInt(tourDateArr[2]), parseInt(arr[0]), parseInt(arr[1]))
+            return newDate
+        }
+        const tourStart = formatDateTime(req.fields.startTime)
+        const tourEnd = formatDateTime(req.fields.endTime)
+        // process itinerary
+        // calculate tour duration
+        // process index
+        Booking.findOne({
+            where: {
+                bookId: bookId,
+            },
+            raw: true,
+        }).then((bookData) => {
+            // update booking's process step and details
+            Booking.update(
+                {
+                    processStep: 2,
+                    tourStart: tourStart,
+                    tourEnd: tourEnd,
+                    bookPax: req.fields.tourPax,
+                    bookBaseprice: req.fields.tourPrice,
+                    revisions: bookData.revisions - 1,
+                },
+                {
+                    where: { bookId: bookId },
+                },
+            )
+            TourPlans.findAndCountAll({
+                where: {
+                    bookId: bookId,
+                },
+            }).then((tourPlanResult) => {
+                const planIndex = tourPlanResult.count + 1
+                const genId = uuid.v1()
+                TourPlans.create(
+                    {
+                        planId: genId,
+                        bookId: bookId,
+                        index: planIndex,
+                        tourStart: tourStart,
+                        tourEnd: tourEnd,
+                        tourPax: req.fields.tourPax,
+                        tourPrice: req.fields.tourPrice,
+                        tourItinerary: '',
+                        accepted: 0,
+                    },
+                ).then((data) => {
+                    addMessage(bookData.chatId, 'SYSTEM', planIndex, 'TOURPLAN', () => {
+                        res.redirect(`/tourguide/bookings/${bookId}`)
+                    })
+                })
+            }).catch((err) =>{
+                console.log(err)
+            })
+        }) .catch((err) =>{
+            console.log(err)
+        })
+    }
+})
+
 
 router.get('/payments', (req, res) => {
     const metadata = {
