@@ -1,0 +1,57 @@
+<section class="section">
+    <div class="container">
+        <p class="has-text-centered has-text-grey-light"><small>Report generated on {{timestampParseISO
+                data.dateGenerated}}</small></p>
+        <h1 class="title has-text-centered">Tour Guide Income Report</h1>
+        <p class="subtitle has-text-centered">Income statement as from {{dateParseISO data.report.from}} to {{dateParseISO data.report.to}}</p>
+        <div class="columns is-vcentered">
+            <div class="column">
+                <p><b>Name: </b> {{data.currentUser.name}}</p>
+                <p><b>Email: </b> {{data.currentUser.email}}</p>
+                <p><b>Internal account no.: </b> {{data.currentUser.stripe_account_id}}</p>
+            </div>
+            <div class="column">
+                <p><b>Total income for period: </b> ${{data.report.totalRevenue}}</p>
+                <p><b>Total bookings on record: </b> {{data.report.totalTours}}</p>
+            </div>
+            <hr>
+        </div>
+        {{!-- Table to show listing name, date of tour and amount paid --}}
+        <table class="table is-fullwidth is-narrow">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Tour Name</th>
+                    <th title="This date refers to the time of which the booking was created by the customer.">Date</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{!-- Loop through each tour --}}
+                {{#each data.report.tours}}
+                <tr>
+                    <td>{{this.no}}</td>
+                    <td><a href="/tourguide/bookings/{{this.bookingId}}">{{this.name}}</a></td>
+                    <td>{{dateParseISO this.date}}</td>
+                    <td>${{this.amount}}</td>
+                </tr>
+                {{/each}}
+                <tr class="has-text-weight-bold">
+                    <td class="has-text-right has-background-light has-text-black" colspan="3">Sub-total</td>
+                    <td class="has-background-light has-text-black">${{data.report.totalEarningsBeforeSvc}}</td>
+                </tr>
+                <tr>
+                    <td class="has-text-right has-background-danger-light" colspan="3">Service Charge (15%)</td>
+                    <td class="has-background-danger-light">-${{data.report.serviceCharge}}</td>
+                </tr>
+                <tr class="has-text-weight-bold">
+                    <td class="has-text-right has-background-white has-text-black" colspan="3">Net Income</td>
+                    <td class="has-background-white has-text-black">${{data.report.totalRevenue}}</td>
+                </tr>
+            </tbody>
+        </table>
+        {{!-- <p class="has-text-centered"><a class="has-text-weight-bold" href="/">Tourisit</a></p>
+        <p class="has-text-centered"><small>Tours for locals, by locals.</small></p> --}}
+        <small class="has-text-grey-lighter">This document is accurate up to date of generation stated above.<br>Information listed may not be fully accurate due to rounding errors.<br>For personal reference and use, this is not an invoice.<br>All monetary units stated are in Singapore Dollars (SGD).</small>
+    </div>
+</section>

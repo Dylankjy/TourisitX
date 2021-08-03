@@ -16,7 +16,7 @@ const getAdminStats = async (offset) => {
 
     let totalIncome
     if (bookingRecords.length !== 0) {
-        totalIncome = bookingRecords.map((booking) => parseFloat(booking.bookBaseprice) + parseFloat(booking.bookCharges)).reduce((a, b) => a + b)
+        totalIncome = bookingRecords.map((booking) => parseFloat(booking.bookBaseprice) + parseFloat(booking.bookCharges.split(',').reduce((a, b) => a + b))).reduce((a, b) => a + b)
     } else {
         totalIncome = 0
     }

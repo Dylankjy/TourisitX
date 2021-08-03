@@ -83,8 +83,10 @@ TMP/
 config/config.json
 config/apikeys.json
 
-# Ignore user generated images
-storage/
+# Ignore user generated content
+storage/csv_reports/*.csv
+storage/listings/*
+-storage/listings/default.jpg
 
 # Stupid apple shit
 .DS_STORE
