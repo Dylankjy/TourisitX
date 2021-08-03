@@ -328,7 +328,6 @@ const webserver = () => {
             `\x1b[1m\x1b[2m[WEBSERVER] - \x1b[1m\x1b[34mOK\x1b[0m: Webserver binded on port 5000 | http://localhost:5000\x1b[0m`,
         )
         startSocketClient()
-        invokeLoginForReportGenerator()
     })
 }
 

@@ -50,7 +50,7 @@ router.get('/tourguide/generate_report', loginRequired, async (req, res) => {
 
         // If for query is provided, attempt to elevate privileges and validate authorisation.
         if (req.query.for) {
-            if (req.cookies.apikey !== await invokeSystemLogin('INTERNAL API - User Elevation Validate')) {
+            if (req.cookies.apikey !== await invokeSystemLogin('INTERNAL API - Elevation Required by System')) {
                 return res.status(401).send({
                     status: 401,
                     message: 'Unauthorised',

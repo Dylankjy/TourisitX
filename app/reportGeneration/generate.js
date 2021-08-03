@@ -4,12 +4,6 @@ const routeConfig = require('../../config/routes.json')
 // System login invoker
 const { invokeSystemLogin } = require('../boot/invokeSystemLogin')
 
-let systemSID = null // Will be populated.
-
-invokeLoginForReportGenerator = async () => {
-    systemSID = await invokeSystemLogin('INTERNAL API - PDF Generator')
-}
-
 // PDF generation
 const puppeteer = require('puppeteer')
 
@@ -21,7 +15,7 @@ generatePDFReport = (fromDate, toDate, uid) => {
         await page.setCookie(
             {
                 name: 'apikey',
-                value: systemSID,
+                value: await invokeSystemLogin('INTERNAL API - PDF Generator'),
                 domain: 'localhost:5000',
             },
         )
@@ -37,5 +31,4 @@ generatePDFReport = (fromDate, toDate, uid) => {
 
 module.exports = {
     generatePDFReport,
-    invokeLoginForReportGenerator,
 }
