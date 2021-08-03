@@ -4,6 +4,8 @@ const { Op } = require('sequelize')
 const syncLoop = require('sync-loop')
 const roundTo = require('round-to')
 
+const dateFormat = require('dateformat')
+
 // Formula to get number of ms in a day -- This is here because I don't want to have to keep typing this.
 const oneDay = 24 * 60 * 60 * 1000
 
@@ -60,7 +62,7 @@ const getStatsRange = async (to, from, tguid) => {
     }
 }
 
-const getTours = (to, from, tguid) => {
+const getTours = (to, from, tguid, dateInCSV = false) => {
     return new Promise(async (res) => {
         const allPaidTours = await Booking.findAll({ where: { 'createdAt': { [Op.between]: [new Date(to), new Date(from)] }, 'paid': true, 'tgid': tguid } })
 
@@ -75,13 +77,23 @@ const getTours = (to, from, tguid) => {
             const bookDate = allPaidTours[i].createdAt
             const amount = parseFloat(allPaidTours[i].bookBaseprice) + parseFloat(allPaidTours[i].bookCharges.split(',').reduce((a, b) => a + b))
 
-            reconstructedBookingList.push({
-                no: i + 1,
-                name: tourNameOfBooking,
-                bookingId: allPaidTours[i].bookId,
-                date: bookDate,
-                amount: roundTo(amount, 2).toFixed(2).toString(),
-            })
+            if (!dateInCSV) {
+                reconstructedBookingList.push({
+                    no: i + 1,
+                    name: tourNameOfBooking,
+                    bookingId: allPaidTours[i].bookId,
+                    date: bookDate,
+                    amount: roundTo(amount, 2).toFixed(2).toString(),
+                })
+            } else {
+                reconstructedBookingList.push({
+                    no: i + 1,
+                    name: tourNameOfBooking,
+                    bookingId: allPaidTours[i].bookId,
+                    date: dateFormat(bookDate, 'dd-mm-yyyy'),
+                    amount: roundTo(amount, 2).toFixed(2).toString(),
+                })
+            }
             loop.next()
         }, () => {
             return res(reconstructedBookingList)

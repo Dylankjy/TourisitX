@@ -10,8 +10,10 @@ const { getAdminStats, getUserStats } = require('../app/api/admin')
 const { getMoneyStats, getTourGuideCSAT, getStatsRange, getTours } = require('../app/api/tourguide')
 const roundTo = require('round-to')
 
-const { generatePDFReport } = require('../app/reportGeneration/generate')
+const { generatePDFReport, generateCSVReport } = require('../app/reportGeneration/generate')
 const { invokeSystemLogin } = require('../app/boot/invokeSystemLogin')
+
+const fs = require('fs')
 
 // Tour Guide Report Generation - File Download
 // Test: http://localhost:5000/api/tourguide/generate_report?to=2021-08-01&from=2021-07-01&format=pdf
@@ -28,6 +30,7 @@ router.get('/tourguide/generate_report', loginRequired, async (req, res) => {
     }
 
     if (format === 'pdf') {
+        // Generate report in PDF format (Returns in base64)
         const pdf = await generatePDFReport(to, from, req.currentUser.id)
 
         // Set headers
@@ -41,6 +44,27 @@ router.get('/tourguide/generate_report', loginRequired, async (req, res) => {
 
         // Send the buffer to the client for download
         return res.end(download)
+    }
+
+    if (format === 'csv') {
+        const currentUserId = '1887de90-f2fc-11eb-8d52-4988f302166d'
+
+        const generatedReportName = await generateCSVReport(from, to, currentUserId)
+
+        // Read the file from the disk
+        const csvBuffer = fs.readFileSync(`./storage/csv_reports/${generatedReportName}.csv`)
+
+        // Delete the file from the disk
+        fs.unlinkSync(`./storage/csv_reports/${generatedReportName}.csv`)
+
+        // Set headers
+        res.writeHead(200, {
+            'Content-Disposition': `attachment; filename="${req.currentUser.name} - Income report (${from}-${to}).csv"`,
+            'Content-Type': 'text/csv',
+        })
+
+        // Send the buffer to the client for download
+        return res.end(csvBuffer)
     }
 
     if (format === 'web') {
