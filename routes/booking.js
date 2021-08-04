@@ -2,7 +2,7 @@ const express = require('express')
 const { default: axios } = require('axios')
 
 const router = express.Router()
-const { Shop, User, Booking, ChatRoom, TourPlans, ChatMessages } = require('../models')
+const { Shop, User, Booking, ChatRoom, TourPlans, ChatMessages, Review } = require('../models')
 
 const uuid = require('uuid')
 
@@ -53,7 +53,7 @@ router.get('/', async (req, res) => {
         Booking.findAndCountAll({
             where: {
                 custId: userData.id,
-                completed: 0,
+                // completed: 0,
                 approved: 1,
             },
             order: [['createdAt', 'ASC']],
@@ -188,12 +188,107 @@ router.post('/:id/accept-plan', async (req, res) => {
             res.redirect(`/bookings/${bookId}`)
         })
     })
-
-
-    // move process step and add the req to req array
-    // update tour plan to rejected
 })
 
+router.post('/:id/complete-tour', async (req, res) => {
+    const bookId = req.params.id
+    console.log(req.fields)
+
+    bookData = await Booking.findOne({
+        where: {
+            bookId: bookId,
+        },
+        raw: true,
+    })
+
+    console.log(bookData)
+
+    Booking.update({
+        processStep: '5',
+        completed: 1,
+    }, {
+        where: { bookId: bookId },
+    }).then(() =>{
+        addMessage(bookData['chatId'], 'SYSTEM', '<customer> declared that the tour is complete.', 'ACTIVITY', () => {
+            res.redirect(`/bookings/${bookId}`)
+        })
+    })
+})
+
+router.post('/:id/review-tour', async (req, res) => {
+    const bookId = req.params.id
+    console.log(req.fields)
+
+    const v = new Validator(req.fields)
+    const ratingResult = v
+        .Initialize({
+            name: 'rating',
+            errorMessage: 'Please provide a rating from 1 to 5.',
+        })
+        .exists()
+        .getResult()
+
+    const reviewTextResult = v
+        .Initialize({
+            name: 'reviewText',
+            errorMessage: 'Please describe your experience.',
+        })
+        .exists()
+        .getResult()
+
+    const validationErrors = removeNull([
+        ratingResult,
+        reviewTextResult,
+    ])
+    if (!emptyArray(validationErrors)) {
+        console.log('ooga valid error')
+        res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
+        res.redirect(`/bookings/${bookId}`)
+    } else {
+        res.clearCookie('validationErrors')
+
+        // make review
+        bookData = await Booking.findOne({
+            where: {
+                bookId: bookId,
+            },
+            raw: true,
+        })
+
+        console.log(bookData)
+
+        let tourType = ''
+        let subjectId = ''
+        if (bookData['custId'] == req.currentUser.id) {
+            console.log('tour rev')
+            tourType = 'TOUR'
+            subjectId = bookData['tgId']
+        } else if (bookData['tgId'] == req.currentUser.id) {
+            console.log('cust rev')
+            tourType = 'CUST'
+            subjectId = bookData['custId']
+        }
+
+        const genId = uuid.v1()
+        Review.create(
+            {
+                id: genId,
+                type: tourType,
+                reviewerId: req.currentUser.id,
+                subjectId: subjectId,
+                tourId: bookData['listingId'],
+                bookId: bookId,
+                reviewText: req.fields.reviewText,
+                rating: req.fields.rating,
+
+            },
+        ).then((data) => {
+            addMessage(bookData['chatId'], 'SYSTEM', tourType, 'REVIEW', () => {
+                res.redirect(`/bookings/${bookId}`)
+            })
+        })
+    }
+})
 
 router.get('/:id', async (req, res) => {
     // console.log(req.currentUser.name)
@@ -217,8 +312,28 @@ router.get('/:id', async (req, res) => {
         raw: true,
     })
 
+    const reviews = {
+        CUST: null,
+        TOUR: null,
+    }
+    reviews['CUST'] = await Review.findOne({
+        where: {
+            bookId: bookID,
+            subjectId: bookData['custId'],
+        },
+        raw: true,
+    })
+    reviews['TOUR'] = await Review.findOne({
+        where: {
+            bookId: bookID,
+            subjectId: bookData['tgId'],
+        },
+        raw: true,
+    })
+    console.log(reviews)
+
     getAllTypesOfMessagesByRoomID(bookData.chatId, (chatroomObject) => {
-        console.log(chatroomObject)
+        // console.log(chatroomObject)
 
         const listOfParticipantNames = []
 
@@ -258,6 +373,7 @@ router.get('/:id', async (req, res) => {
                         participants: listOfParticipantNames,
                         tg: tgData,
                         bookCharges: chargesArr,
+                        reviews: reviews,
                         charges: {
                             bookCharges: chargesArr,
                             customFee: revisionFee,

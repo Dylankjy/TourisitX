@@ -247,9 +247,23 @@ app.engine(
             },
 
             bookActivityName: (msg, custName, tgName, options) => {
-                let newMsg = msg.replace('<customer>', custName)
-                newMsg = newMsg.replace('<tourguide>', tgName)
+                let newMsg = msg.replace('<customer>', '<span class="has-text-info">'+custName+'</span>')
+                newMsg = newMsg.replace('<tourguide>', '<span class="has-text-info">'+tgName+'</span>')
                 return newMsg
+            },
+
+            rating: (n) => {
+                console.log('\n \n \n')
+                let emptyStars = 5
+                let accum = ''
+                for (let i=0; i< parseInt(n); i++) {
+                    accum += '<i class="fas fa-star"></i>'
+                    emptyStars -= 1
+                }
+                for (let i=0; i< emptyStars; i++) {
+                    accum += '<i class="far fa-star"></i>'
+                }
+                return accum
             },
         },
     }),

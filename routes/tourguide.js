@@ -4,7 +4,7 @@ const genkan = require('../app/genkan/genkan')
 
 // Globals
 const router = express.Router()
-const { Shop, Booking, ChatRoom, ChatMessages, TourPlans } = require('../models')
+const { Shop, Booking, ChatRoom, ChatMessages, TourPlans, Review } = require('../models')
 const formidableValidator = require('../app/validation')
 const formidable = require('express-formidable')
 router.use(formidable())
@@ -145,7 +145,6 @@ router.get('/bookings', async (req, res) => {
     Booking.findAndCountAll({
         where: {
             tgId: userData.id,
-            completed: 0,
             approved: 1,
         },
         order: [['createdAt', 'ASC']],
@@ -178,72 +177,87 @@ router.get('/bookings', async (req, res) => {
         }).catch((err) => console.log)
 })
 
-router.get('/bookings/:id', (req, res) => {
+router.get('/bookings/:id', async (req, res) => {
     const bookID = req.params.id
-    // const booking = bookingList.filter((obj) => {
-    //     return obj.id == bookID
-    // })[0]
-    Booking.findOne({
+
+    bookData = await Booking.findOne({
         where: {
             bookId: bookID,
         },
         include: Shop,
         raw: true,
-    }) .then(async (result) => {
-        res.cookie('result', JSON.stringify(result), { maxage: 5000 })
-        // const sid = req.signedCookies.sid
-        // const userId = await genkan.getUserBySessionAsync(sid)
+    })
+    res.cookie('result', JSON.stringify(bookData), { maxage: 5000 })
+    // const sid = req.signedCookies.sid
+    // const userId = await genkan.getUserBySessionAsync(sid)
 
-        TourPlans.findAndCountAll({
-            where: {
-                bookId: bookID,
-            },
-            raw: true,
-        }) .then((tourPlanData) => {
-            console.log(tourPlanData.rows)
-            // Hi again, yes. I swapped this one out as well.
-            // Read booking.js at line 100 for more info.
-            getAllTypesOfMessagesByRoomID(result.chatId, (chatroomObject) => {
-                const listOfParticipantNames = []
+    tourPlanData = await TourPlans.findAndCountAll({
+        where: {
+            bookId: bookID,
+        },
+        raw: true,
+    })
 
-                // This is a hacky way to get the names of the participants in a chat room.
-                syncLoop(chatroomObject.users.length, (loop) => {
-                    const i = loop.iteration()
+    const reviews = {
+        CUST: null,
+        TOUR: null,
+    }
+    reviews['CUST'] = await Review.findOne({
+        where: {
+            bookId: bookID,
+            subjectId: bookData['custId'],
+        },
+        raw: true,
+    })
+    reviews['TOUR'] = await Review.findOne({
+        where: {
+            bookId: bookID,
+            subjectId: bookData['tgId'],
+        },
+        raw: true,
+    })
+    console.log(reviews)
 
-                    genkan.getUserByID(chatroomObject.users[i], (userObject) => {
-                        listOfParticipantNames.push(userObject.name)
-                        loop.next()
-                    })
-                }, () => {
-                    genkan.getUserByID(result['custId'], (custData) => {
-                        console.log(custData)
-                        const metadata = {
-                            meta: {
-                                title: result['Shop.tourTitle'],
-                                path: false,
-                            },
-                            validationErrors: req.cookies.validationErrors,
-                            data: {
-                                currentUser: req.currentUser,
-                                book: result,
-                                timeline: chatroomObject.msg,
-                                participants: listOfParticipantNames,
-                                cust: custData,
-                            },
-                            nav: {
-                                sidebarActive: 'bookings',
-                            },
-                            layout: 'main',
-                            // tourPlans is a placeholder used for testing until the customisation features are in
-                            tourPlans: tourPlanData.rows,
+    getAllTypesOfMessagesByRoomID(bookData.chatId, (chatroomObject) => {
+        const listOfParticipantNames = []
 
-                        }
-                        return res.render('tourguide/myJob', metadata)
-                    })
-                })
+        // This is a hacky way to get the names of the participants in a chat room.
+        syncLoop(chatroomObject.users.length, (loop) => {
+            const i = loop.iteration()
+
+            genkan.getUserByID(chatroomObject.users[i], (userObject) => {
+                listOfParticipantNames.push(userObject.name)
+                loop.next()
+            })
+        }, () => {
+            genkan.getUserByID(bookData['custId'], (custData) => {
+                console.log(custData)
+                const metadata = {
+                    meta: {
+                        title: bookData['Shop.tourTitle'],
+                        path: false,
+                    },
+                    validationErrors: req.cookies.validationErrors,
+                    data: {
+                        currentUser: req.currentUser,
+                        book: bookData,
+                        timeline: chatroomObject.msg,
+                        participants: listOfParticipantNames,
+                        reviews: reviews,
+                        cust: custData,
+                    },
+                    nav: {
+                        sidebarActive: 'bookings',
+                    },
+                    layout: 'main',
+                    // tourPlans is a placeholder used for testing until the customisation features are in
+                    tourPlans: tourPlanData.rows,
+
+                }
+                return res.render('tourguide/myJob', metadata)
             })
         })
-    }).catch((err) => console.log)
+    })
 })
 
 router.post('/bookings/:id', async (req, res) => {

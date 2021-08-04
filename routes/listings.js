@@ -744,7 +744,6 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
     if (bookData['processStep'] == '3') {
         // Base price
         let priceToPay = bookData['bookBaseprice']
-        console.log(priceToPay)
 
         // Any extra revisions
         if (bookData['custom'] > 0) {
@@ -754,7 +753,6 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
                 const revisionFee = bookCharges[0]
                 const noOfRevisions = Math.abs(bookData['revisions'])
                 priceToPay += noOfRevisions * revisionFee
-                console.log(priceToPay)
             }
         }
 
@@ -786,9 +784,11 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
                 price_data: {
                     currency: 'sgd',
                     product_data: {
-                        name: paymentName,
+                        // name: paymentName,
+                        name: 'payment name here',
                     },
-                    unit_amount: priceToPay,
+                    unit_amount: 561.1 *100,
+
                 },
                 quantity: 1,
             },

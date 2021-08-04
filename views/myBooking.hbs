@@ -2,6 +2,7 @@
 <link rel="stylesheet" href="/third_party/bulma/bulma-tooltip.css">
 <link rel="stylesheet" href="/third_party/bulma/bulma-badge.css">
 <link rel="stylesheet" href="/third_party/bulma/bulma-timeline.min.css">
+<link rel="stylesheet" href="/public/css/pulsing.css">
 
 <script defer src="/js/chatBooking.js" data-turbolinks="false"></script>
 
@@ -45,7 +46,7 @@
                             <p class="has-text-centered is-size-4 has-text-weight-bold">Activity</p>
                             <div class="has-text-weight-semibold">
                             <span>Current Progress</span>
-                            <progress class="progress is-success" value={{data.book.processStep}} max="6">100%</progress>
+                            <progress class="progress is-success" value={{data.book.processStep}} max="5">100%</progress>
                             <div id="steps">
                             <p>Current Step</p>
                             <!--START: steps-->
@@ -63,15 +64,15 @@
                                 {{/ifEquals}}
 
                                 {{#ifEquals data.book.processStep '4'}}
-                                    {{#ifAfterToday data.book.tourStart}}<a onclick="window.scrollTo(0,document.body.scrollHeight);">{{/ifAfterToday}}
-                                    <span class="tag has-tooltip-multiline has-tooltip-right {{#ifAfterToday data.book.tourStart}} is-link {{/ifAfterToday}} " 
-                                    data-tooltip="Available after the tour date, {{dateParseISO data.book.tourStart}}">
-                                    Declare that Tour is Complete </span></a>
+                                    <span onclick="$('#CompleteTourModal').fadeIn('fast');" class="tag has-tooltip-multiline has-tooltip-right {{#ifAfterToday data.book.tourStart}} is-link {{/ifAfterToday}} " 
+                                    {{#ifAfterToday data.book.tourStart}}data-tooltip="Declare that you've gone on your tour"{{/ifAfterToday}} data-tooltip="Available after the tour date, {{dateParseISO data.book.tourStart}}">
+                                    Declare that Tour is Complete </span>
                                 {{/ifEquals}}
 
-                                {{#ifEquals data.book.processStep '5'}}
-                                    <a href="/bookings/{{data.book.bookId}}/review"><span class="tag is-link">Leave a Review </span></a>
-                                {{/ifEquals}}
+                                {{#unless data.reviews.TOUR}}
+                                    {{!-- <a href="/bookings/{{data.book.bookId}}/review"><span class="tag is-link">Leave a Review </span></a> --}}
+                                    <span class="tag is-link" onclick="$('#ReviewModal').fadeIn('fast');">Leave a Review </span></a>
+                                {{/unless}}
 
                                 {{#ifEquals data.book.processStep '1'}}
                                     <span class="tag is-light">Awaiting Tour Guide Action</span>
@@ -100,7 +101,7 @@
                                                 <i class="fas fa-check"></i>
                                             </div>
                                             <div class="timeline-content">
-                                                <p class="has-text-weight-semibold">{{bookActivityName this.messageText @root.data.currentUser.name @root.data.tg.name}}</p>
+                                                <p class="has-text-weight-semibold">{{{bookActivityName this.messageText @root.data.currentUser.name @root.data.tg.name}}}</p>
                                             </div>
                                         </div>
                                     {{/ifEquals}}
@@ -127,7 +128,7 @@
                                     <i class="fas fa-check"></i>
                                     </div>
                                     <div class="timeline-content">
-                                    <p class="has-text-weight-semibold">{{@root.data.tg.name}}
+                                    <p class="has-text-weight-semibold"><span class="has-text-info">{{@root.data.tg.name}}</span>
                                         posted a draft of the Tour Plan (#{{this.messageText}}).</p>
 
                                     <!--Tour plan card-->
@@ -223,55 +224,6 @@
                                                 <button class="button is-success is-outlined" style="pointer-events: none;">Approve Plan<i class="fas fa-check ml-1"></i></button>
                                                 {{/ifEquals}}
 
-                                                {{!-- <button class="button 
-                                                {{#ifEquals accepted '-1'}}
-                                                is-danger is-outlined
-                                                {{/ifEquals}}
-                                                {{#ifEquals accepted '0'}}
-                                                is-danger
-                                                {{/ifEquals}}
-                                                {{#ifEquals accepted '1'}}
-                                                is-static
-                                                {{/ifEquals}}
-                                                " 
-                                                {{#ifEquals accepted '-1'}}
-                                                style="pointer-events: none;"
-                                                {{/ifEquals}}
-                                                {{#ifEquals accepted '1'}}
-                                                style="pointer-events: none;"
-                                                {{/ifEquals}}>Request a Revision
-
-                                                {{#ifEquals accepted '-1'}}
-                                                    <i class="fas fa-check ml-1"></i>
-                                                {{/ifEquals}}
-                                                </button>
-                                            </div> --}}
-
-                                            {{!-- <div class="control">
-                                                <button class="button
-                                                {{#ifEquals accepted '-1'}}
-                                                is-static
-                                                {{/ifEquals}}
-                                                {{#ifEquals accepted '0'}}
-                                                is-success
-                                                {{/ifEquals}}
-                                                {{#ifEquals accepted '1'}}
-                                                is-success is-outlined
-                                                {{/ifEquals}}
-                                                "
-                                                
-                                                {{#ifEquals accepted '-1'}}
-                                                style="pointer-events: none;"
-                                                {{/ifEquals}}
-                                                {{#ifEquals accepted '1'}}
-                                                style="pointer-events: none;"
-                                                {{/ifEquals}}>Approve Plan
-
-                                                {{#ifEquals accepted '1'}}
-                                                    <i class="fas fa-check ml-1"></i>
-                                                {{/ifEquals}}
-                                                </button>
-                                            </div> --}}
                                         </div>
                                         </footer>
                                         {{/with}}
@@ -282,6 +234,42 @@
                                 </div>
                                     {{/ifEquals}}
 
+
+                                    {{#ifEquals this.flag "REVIEW"}}
+                                    <div class="timeline-item">
+                                    <div class="timeline-marker is-icon has-background-success has-text-white">
+                                    <i class="far fa-thumbs-up"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        {{#ifEquals this.messageText 'TOUR'}}
+                                        {{#with @root.data.reviews.[TOUR]}}
+                                    <p class="has-text-weight-semibold"> <span class="has-text-info">{{@root.data.currentUser.name}}</span> left a review.</p>
+                                    <div class="has-background-white-ter ml-3 mt-3 p-4">
+                                        <div class="container">
+                                        <p>
+                                            {{{rating this.rating}}}
+                                        </p>
+                                        <p>{{this.reviewText}}</p>
+                                        </div>
+                                        {{/with}}
+                                        {{/ifEquals}}
+
+                                        {{#ifEquals this.messageText 'CUST'}}
+                                        {{#with @root.data.reviews.[CUST]}}
+                                    <p class="has-text-weight-semibold"><span class="has-text-info"> {{@root.data.tg.name}}</span> left a review.</p>
+                                    <div class="has-background-white-ter ml-3 mt-3 p-4">
+                                        <div class="container">
+                                        <p>
+                                            {{{rating this.rating}}}
+                                        </p>
+                                        <p>{{this.reviewText}}</p>
+                                        </div>
+                                        {{/with}}
+                                        {{/ifEquals}}
+                                    </div>
+                                    </div>
+                                    </div>
+                                    {{/ifEquals}}
 
                                 {{/each}}
 
@@ -330,7 +318,7 @@
                                 {{/ifAfterToday}}
                                 {{/ifEquals}}
 
-                                {{#ifEquals data.book.processStep '5'}}
+                                {{#unless data.reviews.TOUR}}
                                 <div class="timeline-item">
                                     <div class="timeline-marker is-icon has-background-grey has-text-white">
                                     <i class="fas fa-ellipsis-h"></i>
@@ -340,7 +328,7 @@
                                         <i class="fas fa-chevron-right mr-2"></i> Leave a review.</p>
                                     </div>
                                 </div>
-                                {{/ifEquals}}
+                                {{/unless}}
 
                                 {{!-- <div class="timeline-item">
                                     <div class="timeline-marker is-icon has-background-success has-text-white">
@@ -526,7 +514,7 @@
                                 <p class="has-text-weight-bold is-size-5 has-text-info">Outstanding</p>
                                 <p class="title has-text-centered">${{data.charges.priceToPay}}</p>
                                 <p class="subtitle has-text-centered">Customisation fee</p>
-                                <button class="button is-fullwidth is-success">Proceed to Payment</button>
+                                <button class="button is-fullwidth is-success" type="submit">Proceed to Payment</button>
                             </div>
                         </div>
                         {{/ifEquals}}
@@ -537,7 +525,8 @@
                             <div class="box p-5">
                                 <p class="has-text-weight-bold is-size-5 has-text-info">Outstanding</p>
                                 <p class="title has-text-centered">${{data.charges.priceToPay}}</p>
-                                <a href="/listings/{{data.book.bookId}}/stripe-create-checkout"><button class="button is-fullwidth is-success">Proceed to Payment</button></a>
+                                <form id="payform" method="POST" action="/listing/{{data.book.bookId}}/stripe-create-checkout">
+                                <button class="button is-fullwidth is-success">Proceed to Payment</button></form>
                             </div>
                         </div>
                         {{/ifEquals}}
@@ -674,6 +663,8 @@
 
 {{>reqRevisionModal}}
 {{>acceptPlanModal}}
+{{>declareTourComplete}}
+{{>reviewModal}}
 
 <script defer src="/js/tabs.js"></script>
 

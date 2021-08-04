@@ -53,7 +53,7 @@
                             <p class="has-text-centered is-size-4 has-text-weight-bold">Activity</p>
                             <div class="has-text-weight-semibold">
                             <span>Current Progress</span>
-                            <progress class="progress is-success" value={{data.book.processStep}} max="6">100%</progress>
+                            <progress class="progress is-success" value={{data.book.processStep}} max="5">100%</progress>
                             <div id="steps">
                             <p>Current Step</p>
                             <!--START: steps-->
@@ -61,9 +61,9 @@
                                 {{#ifEquals data.book.processStep '1'}}
                                     <a href="#"><span class="tag is-link">Submit Tour Plan &nbsp;</span></a>
                                 {{/ifEquals}}
-                                {{#ifEquals data.book.processStep '6'}}
-                                <a href="#"><span class="tag is-link">Leave a Review &nbsp;<i class="fas fa-arrow-right"></i></span></a>
-                                {{/ifEquals}}
+                                {{#unless data.reviews.TOUR}}
+                                <span class="tag is-link" onclick="$('#ReviewModal').fadeIn('fast');">Leave a Review &nbsp;<i class="fas fa-arrow-right"></i></span>
+                                {{/unless}}
                                 {{#ifInRange data.book.processStep 2 4}}
                                 <span class="tag">Awaiting Customer Action</span>
                                 {{/ifInRange}}
@@ -94,7 +94,7 @@
                                                 {{data.currentUser.name}}
                                                 {{../currentUser}}
                                                 {{#with (lookup ../currentUser (this.name))}}{{/with}}
-                                                <p class="has-text-weight-semibold">{{bookActivityName this.messageText  @root.data.cust.name @root.data.currentUser.name}}</p>
+                                                <p class="has-text-weight-semibold">{{{bookActivityName this.messageText  @root.data.cust.name @root.data.currentUser.name}}}</p>
                                             </div>
                                         </div>
                                     {{/ifEquals}}
@@ -121,7 +121,7 @@
                                     <i class="fas fa-check"></i>
                                     </div>
                                     <div class="timeline-content">
-                                    <p class="has-text-weight-semibold">You
+                                    <p class="has-text-weight-semibold"><span class="has-text-info">{{@root.data.currentUser.name}}</span>
                                         posted a draft of the Tour Plan (#{{this.messageText}}).</p>
 
                                     <!--Tour plan card-->
@@ -210,6 +210,43 @@
                                     {{/ifEquals}}
 
 
+                                     {{#ifEquals this.flag "REVIEW"}}
+                                    <div class="timeline-item">
+                                    <div class="timeline-marker is-icon has-background-success has-text-white">
+                                    <i class="far fa-thumbs-up"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        {{#ifEquals this.messageText 'CUST'}}
+                                        {{#with @root.data.reviews.[CUST]}}
+                                    <p class="has-text-weight-semibold"> <span class="has-text-info">{{@root.data.currentUser.name}}</span> left a review.</p>
+                                    <div class="has-background-white-ter ml-3 mt-3 p-4">
+                                        <div class="container">
+                                        <p>
+                                            {{{rating this.rating}}}
+                                        </p>
+                                        <p>{{this.reviewText}}</p>
+                                        </div>
+                                        {{/with}}
+                                        {{/ifEquals}}
+
+                                        {{#ifEquals this.messageText 'TOUR'}}
+                                        {{#with @root.data.reviews.[TOUR]}}
+                                    <p class="has-text-weight-semibold"> <span class="has-text-info">{{@root.data.cust.name}}</span> left a review.</p>
+                                    <div class="has-background-white-ter ml-3 mt-3 p-4">
+                                        <div class="container">
+                                        <p>
+                                            {{{rating this.rating}}}
+                                        </p>
+                                        <p>{{this.reviewText}}</p>
+                                        </div>
+                                        {{/with}}
+                                        {{/ifEquals}}
+                                    </div>
+                                    </div>
+                                    </div>
+                                    {{/ifEquals}}
+
+
                                 {{/each}}
 
                                 {{#ifEquals data.book.processStep '1'}}
@@ -224,17 +261,17 @@
                                 </div>
                                 {{/ifEquals}}
 
-                                {{#ifEquals data.book.processStep '6'}}
+                                {{#unless data.reviews.CUST}}
                                 <div class="timeline-item">
                                     <div class="timeline-marker is-icon has-background-grey has-text-white">
                                     <i class="fas fa-ellipsis-h"></i>
                                     </div>
                                     <div class="timeline-content pt-3">
-                                    <p class="button is-link is-inverted has-text-weight-semibold is-italic">
+                                    <p class="button is-link is-inverted has-text-weight-semibold is-italic" onclick="$('#ReviewModal').fadeIn('fast');">
                                         <i class="fas fa-chevron-right mr-2"></i> Leave a Review.</p>
                                     </div>
                                 </div>
-                                {{/ifEquals}}
+                                {{/unless}}
                                 </span>
 
                                 <header class="timeline-header">
@@ -651,6 +688,8 @@
         </div>
     </div>
 </section>
+
+{{>reviewModal}}
 
 <script defer src="/js/tabs.js"></script>
 

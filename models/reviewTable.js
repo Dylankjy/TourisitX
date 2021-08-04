@@ -50,6 +50,7 @@ module.exports = (sequelize, DataTypes) => {
             rating: {
                 type: DataTypes.STRING(1),
                 allowNull: false,
+                // '1' to '5'
             },
         },
 
