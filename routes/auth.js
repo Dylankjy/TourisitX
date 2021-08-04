@@ -18,7 +18,7 @@ const SessionCookieOptions = {
     secure: true,
     signed: true,
     // domain: `.${config.webserver.cookieDomain}`,
-    maxAge: 7890000,
+    maxAge: 31 * 24 * 60 * 60 * 1000, // 31 days
     path: '/',
 }
 
