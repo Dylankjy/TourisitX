@@ -1,0 +1,125 @@
+{{#if (isDefined editSupportErrors)}}
+{{#if (haveErr editSupportErrors)}}
+<div id="editSupportError" class="notification is-danger">
+    {{#each editSupportErrors}}
+    <p>{{this.msg}}</p>
+    {{/each}}
+</div>
+
+<script>
+    $('#editSupportError').delay(10000).slideUp();
+</script>
+{{/if}}
+{{/if}}
+
+{{#if (isDefined successTicket)}}
+{{#if (haveErr successTicket)}}
+<div id="successTic" class="notification is-success">
+    {{#each successTicket}}
+    <p>{{this.msg}}</p>
+    {{/each}}
+</div>
+
+<script>
+    $('#successTic').delay(10000).slideUp();
+</script>
+{{/if}}
+{{/if}}
+<div class='container'>
+    <p class='pb-5'><a href='/admin/manage/{{data.previousPage}}'><i class='fas fa-arrow-left'></i>&ensp;Return to
+            {{data.previousPage}}
+            management</a></p>
+
+    <div class='box p-5'>
+        <small>Editing ticket:</small>
+        <h2 class='title is-2'>{{data.ticket.support_type}}</h2>
+        <p class='subtitle is-5 has-text-grey-light'>UUID: {{data.ticket.ticket_id}}</p>
+    </div>
+
+    <div class='box p-5'>
+        <h4 class='title'>Ticket Details</h4>
+        <!-- Update account settings -->
+        <form method='POST'>
+            <fieldset>
+                <!-- Status -->
+                <div class='field'>
+                    <label class='label has-text-weight-medium has-text-grey-dark' for='support_status'>Support
+                        Status</label>
+                    <div class='select is-rounded'>
+                        <select name='support_status'>
+                            {{#ifEquals data.ticket.status 'Open'}}
+                            <option selected='selected'>Open</option>
+                            {{else}}
+                            <option>Open</option>
+                            {{/ifEquals}}
+                            {{#ifEquals data.ticket.status 'Pending'}}
+                            <option selected='selected'>Pending</option>
+                            {{else}}
+                            <option>Pending</option>
+                            {{/ifEquals}}
+                            {{#ifEquals data.ticket.status 'Closed'}}
+                            <option selected='selected'>Closed</option>
+                            {{else}}
+                            <option>Closed</option>
+                            {{/ifEquals}}
+                        </select>
+                    </div>
+                </div>
+                <!-- Support Type -->
+                <div class='field'>
+                    <label class='label has-text-weight-medium has-text-grey-dark' for='type'>Support Type</label>
+                    <div class='select is-rounded'>
+                        <select name='type'>
+                            {{#ifEquals data.ticket.support_type 'General Enquiry'}}
+                            <option selected='selected'>General Enquiry</option>
+                            {{else}}
+                            <option>General Enquiry</option>
+                            {{/ifEquals}}
+
+                            {{#ifEquals data.ticket.support_type 'Transaction Enquiry'}}
+                            <option selected='selected'>Transaction Enquiry</option>
+                            {{else}}
+                            <option>Transaction Enquiry</option>
+                            {{/ifEquals}}
+                            
+                            {{#ifEquals data.ticket.support_type 'Apply for Verified'}}
+                            <option selected='selected'>Apply for Verified</option>
+                            {{else}}
+                            <option>Apply for Verified</option>
+                            {{/ifEquals}}
+
+                            {{#ifEquals data.ticket.support_type 'Others'}}
+                            <option selected='selected'>Others</option>
+                            {{else}}
+                            <option>Others</option>
+                            {{/ifEquals}}
+
+                        </select>
+                    </div>
+                </div>
+
+                <!-- User Email -->
+                <div class='field'>
+                    <label class='label has-text-weight-medium has-text-grey-dark' for='userEmail'>User Email</label>
+                    <div class='control'>
+                        <input class='input' type='text' name='userEmail' value='{{data.ticket.u_email}}' />
+                    </div>
+                </div>
+                <!-- Content -->
+                <div class='field'>
+                    <label class='label has-text-weight-medium has-text-grey-dark'>Content</label>
+                    <div class='control'>
+                        <textarea name='supportcontent' class='textarea' rows='5'
+                            style='height: 150px;'>{{data.ticket.content}}</textarea>
+                    </div>
+                </div>
+                <div class='field pt-5'>
+                    <div class='control'>
+                        <button class='button is-dark' type='submit'><i class='fas fa-save'></i>&nbsp;Commit
+                            changes</button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>

@@ -79,15 +79,13 @@ router.get('/profile/:id', async (req, res) => {
     } else {
         const storedValues = {}
     }
-    const user = await genkan.getUserBySessionAsync(sid)
+
     const userD = await User.findAll({
         where: {
             'id': req.params.id,
         },
     })
-    const isOwner = user.id == userD[0]['dataValues'].id
-    console.log('Current User:', req.currentUser)
-    console.log('Profile', userD[0]['dataValues'])
+    const isOwner = req.currentUser.id == userD[0]['dataValues'].id
     const listings = []
     Shop.findAll({
         attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
@@ -163,9 +161,8 @@ router.get('/setting/general', async (req, res) => {
     } else {
         const storedValues = {}
     }
-
-    const user = await genkan.getUserBySessionAsync(sid)
-    if (user.is_tourguide == 0) {
+    const user = req.currentUser
+    if (req.currentUser.is_tourguide == 0) {
         const metadata = {
             meta: {
                 title: 'General Setting',
@@ -214,19 +211,34 @@ router.post('/setting/general', async (req, res) => {
         return requireLogin(res)
     }
 
-    const user = await genkan.getUserBySessionAsync(sid)
+    const user = req.currentUser
     const v = new Validator(req.fields)
     // const fv = new fileValidator(req.files['pfp'])
     settingErrors = []
-    const nameResult = v
-        .Initialize({
-            name: 'uname',
-            errorMessage: 'Name must be at least 3 characters long',
-        })
-        .exists()
-        .isLength({ min: 3 })
-        .getResult()
-    settingErrors.push(nameResult)
+    if (req.fields.uname.toLowerCase() == 'system' || req.fields.uname.toLowerCase() == 'system admin' || req.fields.uname.toLowerCase() == 'staff' ||
+        req.fields.uname.toLowerCase() == 'ghost' || req.fields.uname.toLowerCase() == 'adminstrator' || req.fields.uname.toLowerCase() == 'admin'
+    ) {
+        const illegalName = v
+            .Initialize({
+                name: 'uname',
+                errorMessage: 'Name should not contain staff / system / admin / system admin / ghost / adminstrator',
+            })
+            .exists()
+            .setFalse()
+            .getResult()
+        settingErrors.push(illegalName)
+    } else {
+        const nameResult = v
+            .Initialize({
+                name: 'uname',
+                errorMessage: 'Name must be at least 3 characters long and not more than 30 characters',
+            })
+            .exists()
+            .isLength({ min: 3, max: 32 })
+            .getResult()
+        settingErrors.push(nameResult)
+    }
+
 
     const emailData = await User.findAll({
         where: {
@@ -370,7 +382,7 @@ router.get('/setting/password', async (req, res) => {
         const storedValues = {}
     }
 
-    const user = await genkan.getUserBySessionAsync(sid)
+    const user = req.currentUser
     const metadata = {
         meta: {
             title: 'Password',
