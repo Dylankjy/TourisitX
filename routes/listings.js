@@ -784,10 +784,9 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
                 price_data: {
                     currency: 'sgd',
                     product_data: {
-                        // name: paymentName,
-                        name: 'payment name here',
+                        name: paymentName,
                     },
-                    unit_amount: 561.1 *100,
+                    unit_amount: priceToPay,
 
                 },
                 quantity: 1,
