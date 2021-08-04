@@ -25,7 +25,7 @@ const adminAuthorisationRequired = (req, res, next) => {
 
 const tourGuideModeRequired = (req, res, next) => {
     genkan.getUserBySession(req.signedCookies.sid, (result) => {
-        if (result[0].is_tourguide !== true) {
+        if (result.is_tourguide !== true) {
             const metadata = {
                 meta: {
                     title: '403',
