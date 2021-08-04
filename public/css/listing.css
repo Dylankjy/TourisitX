@@ -35,3 +35,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+#toolbar {
+    box-shadow: 0px 4px 16px rgb(17 17 26 / 5%), 0px 8px 32px rgb(17 17 26 / 5%) !important
+}

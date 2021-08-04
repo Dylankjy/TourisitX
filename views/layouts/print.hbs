@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{{meta.title}} - Tourisit</title>
+    <!-- First-party libraries -->
+    <link rel="stylesheet" href="/css/app.css">
+
+    <link rel="stylesheet" href="/third_party/bulma/bulma.min.css">
+    <script defer src="/js/navbar.js"></script>
+
+    <link href="https://use.fontawesome.com/releases/v5.15.1/css/all.css" rel="stylesheet">
+
+    <style>
+        @media print {
+            @page {
+                margin: 0;
+            }
+
+            body {
+                margin: 1.6cm;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {{>navbarReport}}
+    <main>
+        {{{body}}}
+    </main>
+</body>
+
+</html>

@@ -10,8 +10,6 @@ const router = express.Router()
 const uuid = require('uuid')
 const chat = require('../app/chat/chat')
 
-const Sequelize = require('sequelize')
-
 const { default: axios } = require('axios')
 
 // Database operations

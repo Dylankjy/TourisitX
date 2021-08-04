@@ -8,7 +8,7 @@
     background-size: cover !important;
     background-position: center !important;
     background-attachment: scroll !important;
-    background-color: rgba(0,0,0,.5) !important;
+    background-color: rgba(0,0,0,.125) !important;
     background-blend-mode: overlay !important;
     transition: background ease 0.25s !important;
 }
@@ -20,9 +20,29 @@
 #main-hero h1.title {
     font-size: 5rem;
 }
+    
+#main-hero {
+    text-shadow: -1px -1px 10px rgba(0, 0, 0, 0.8);
+}
 
 .after-main-hero {
     margin-top: -6rem
+}
+
+/* Media query for phone */
+@media only screen and (max-width: 768px) {
+    #main-hero h1.title {
+        font-size: 3rem;
+    }
+
+    #main-hero .hero-body {
+        padding-top: 8rem;
+        padding-bottom: 8rem;
+    }
+
+    .after-main-hero {
+        margin-top: -5rem
+    }
 }
 
 .preload-1 {

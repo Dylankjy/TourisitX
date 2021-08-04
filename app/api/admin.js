@@ -1,4 +1,4 @@
-const { Booking, User } = require('../../models')
+const { Booking, User, Review } = require('../../models')
 const { Op } = require('sequelize')
 
 // Formula to get number of ms in a day -- This is here because I don't want to have to keep typing this.
@@ -16,7 +16,7 @@ const getAdminStats = async (offset) => {
 
     let totalIncome
     if (bookingRecords.length !== 0) {
-        totalIncome = bookingRecords.map((booking) => parseFloat(booking.bookBaseprice) + parseFloat(booking.bookCharges)).reduce((a, b) => a + b)
+        totalIncome = bookingRecords.map((booking) => parseFloat(booking.bookBaseprice) + parseFloat(booking.bookCharges.split(',').reduce((a, b) => a + b))).reduce((a, b) => a + b)
     } else {
         totalIncome = 0
     }
@@ -46,7 +46,34 @@ const getUserStats = async (offset) => {
     }
 }
 
+const getCSATStats = async (offset) => {
+    const startOffset = offset * oneDay
+    let endOffset = 0
+    if (offset > 30) {
+        endOffset = (offset - 30) * oneDay
+    }
+
+    const allReviews = await Review.findAll({ where: { 'createdAt': { [Op.between]: [(new Date()) - startOffset, new Date() - endOffset] } } })
+
+    const numberOfReviews = allReviews.length
+
+    const numberOfPositive = (await Review.findAll({ where: { 'createdAt': { [Op.between]: [(new Date()) - startOffset, new Date() - endOffset] }, 'rating': { [Op.gte]: 3 } } })).length
+    const numberOfNegative = (await Review.findAll({ where: { 'createdAt': { [Op.between]: [(new Date()) - startOffset, new Date() - endOffset] }, 'rating': { [Op.lt]: 3 } } })).length
+
+    let percentage = 100
+    if (numberOfReviews !== 0) {
+        percentage = (allReviews.map((entry) => entry.rating).reduce((a, b) => a + b) / (numberOfReviews * 5)) * 100
+    }
+
+    return {
+        numberOfPositive,
+        numberOfNegative,
+        percentage,
+    }
+}
+
 module.exports = {
     getAdminStats,
     getUserStats,
+    getCSATStats,
 }

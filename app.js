@@ -57,6 +57,8 @@ const {
 } = require('./app/chat/chat')
 const sanitizeHtml = require('sanitize-html')
 const ta = require('time-ago')
+const roundTo = require('round-to')
+const { invokeLoginForReportGenerator } = require('./app/reportGeneration/generate')
 
 // Handlebars: Render engine
 app.set('view engine', 'hbs')
@@ -251,6 +253,18 @@ app.engine(
                 newMsg = newMsg.replace('<tourguide>', tgName)
                 return newMsg
             },
+
+            round2DP: (value) => {
+                return roundTo(value, 2).toFixed(2).toString()
+            },
+
+            ifEitherTrue: (a, b, options) => {
+                if (a !== false || b !== false) {
+                    return options.fn(this)
+                } else {
+                    return options.inverse(this)
+                }
+            },
         },
     }),
 )
@@ -337,44 +351,38 @@ io.on('connection', (socket) => {
         const reqCookies = require('cookie').parse(socket.handshake.headers.cookie)
         console.log(reqCookies)
 
-        const decryptedSID = cookieParser.signedCookie(
-            reqCookies.sid,
-            require('./config/genkan.json').genkan.secretKey,
-        )
+        const decryptedSID = cookieParser.signedCookie(reqCookies.sid, require('./config/genkan.json').genkan.secretKey) || reqCookies.apikey || 'null'
 
         genkan.isLoggedin(decryptedSID, (result) => {
             if (result !== true) {
-                return io.emit('reloginRequired')
+                return io.emit('reloginRequired', data.senderId)
             }
 
             // The reason why this is getAllTypesOfMessagesByRoomID is because getUwUMessagesByRoomID it only gets messages that are not of booking type.
             getAllTypesOfMessagesByRoomID(data.roomId, async (chatRoomObject) => {
                 // Checks whether chatroom exists and if the user requesting it has permissions to view it.
-                if (
-                    chatRoomObject === null ||
-          chatRoomObject.users.includes(data.senderId) === false
-                ) {
+                if (chatRoomObject === null || chatRoomObject.users.includes(data.senderId) === false) {
                     return false
                 }
 
                 genkan.getUserByID(data.senderId, (userObject) => {
-                    addMessage(
-                        data.roomId,
-                        data.senderId,
-                        sanitizeHtml(data.msg),
-                        'SENT',
-                        () => {
-                            return io
-                                .to(data.roomId)
-                                .emit('msgReceive', {
-                                    msg: sanitizeHtml(data.msg),
-                                    roomId: data.roomId,
-                                    senderId: data.senderId,
-                                    senderName: userObject.name,
-                                    pendingCount: data.pendingCount,
-                                })
-                        },
-                    )
+                    // Prevents double sending of messages by the SYSTEM account
+                    // When SYSTEM uses addMessage(), the socket is invoked by the Chat API and added to the database accordingly.
+                    // The socket message will then be picked up by this eventHandler and then added again.
+                    // This if essentially prevents SYSTEM messages from being added to the database twice.
+                    if (userObject.senderId === '00000000-0000-0000-0000-000000000000') return
+
+                    // Else send message
+                    addMessage(data.roomId, data.senderId, sanitizeHtml(data.msg), 'SENT', () => {
+                        console.log('Socket Message activity')
+                        return io.to(data.roomId).emit('msgReceive', {
+                            msg: sanitizeHtml(data.msg),
+                            roomId: data.roomId,
+                            senderId: data.senderId,
+                            senderName: userObject.name,
+                            pendingCount: data.pendingCount,
+                        })
+                    })
                 })
             })
         })
@@ -390,9 +398,12 @@ io.on('connection', (socket) => {
 require('./models')
     .sequelize.sync()
     .then((req) => {
-    // System Integrity check
-    // This checks the database to ensure it contains the needed objects for the system to function correctly.
-    // At no point should this piece of code be disabled or commented out.
+        // Delete all previous sessions created by the SYSTEM.
+        destroyAllSessions()
+
+        // System Integrity check
+        // This checks the database to ensure it contains the needed objects for the system to function correctly.
+        // At no point should this piece of code be disabled or commented out.
         const integrityCheck = require('./app/systemIntegrity/checks')
         integrityCheck
             .check()

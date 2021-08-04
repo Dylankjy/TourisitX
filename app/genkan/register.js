@@ -77,31 +77,43 @@ newAccount = (name, email, password, ip, callback) => {
 
         stripe.customers.create(stripeCustParams)
             .then((data)=>{
-                stripeId = data['id']
-                const NewUserSchema = {
-                    id: userId,
-                    name: name,
+                const stripeCustId = data['id']
+
+                stripe.accounts.create({
+                    type: 'express',
                     email: email,
-                    password: hashedPasswordSHA512Bcrypt,
-                    stripe_id: stripeId,
-                    lastseen_time: new Date(),
-                    ip_address: ip,
-                }
-
-                const TokenSchema = {
-                    token: emailConfirmationToken,
-                    type: 'EMAIL',
-                    userId: userId,
-                }
-
-                // Insert new user into database
-                insertDB('user', NewUserSchema, () => {
-                // Insert new email confirmation token into database
-                    insertDB('token', TokenSchema, (a) => {
-                        sendConfirmationEmail(email, emailConfirmationToken)
-                        return callback(userId)
-                    })
                 })
+                    .then((stripeAcc)=> {
+                        const TokenSchema = {
+                            token: emailConfirmationToken,
+                            type: 'EMAIL',
+                            userId: userId,
+                        }
+
+                        const stripeAccId = stripeAcc.id
+                        const NewUserSchema = {
+                            id: userId,
+                            name: name,
+                            email: email,
+                            password: hashedPasswordSHA512Bcrypt,
+                            stripe_customer_id: stripeCustId,
+                            stripe_account_id: stripeAccId,
+                            lastseen_time: new Date(),
+                            ip_address: ip,
+                        }
+
+                        // Insert new user into database
+                        insertDB('user', NewUserSchema, () => {
+                            // Insert new email confirmation token into database
+                            insertDB('token', TokenSchema, (a) => {
+                                sendConfirmationEmail(email, emailConfirmationToken)
+                                return callback(userId)
+                            })
+                        })
+                    }).catch((err)=>{
+                        console.log(err)
+                        return callback(false)
+                    })
             }).catch((err)=>{
                 console.log(err)
                 return callback(false)

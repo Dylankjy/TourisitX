@@ -28,11 +28,11 @@
                         <li class="tab pl-3 pr-3" onclick="openTab(event,'Billing')">
                             <a>Billing</a>
                         </li>
-                        {{#ifEquals data.book.custom 1}}
+                        {{#ifBigger data.book.custom 0}}
                         <li class="tab pl-3 pr-3" onclick="openTab(event,'Req')">
                             <a>Requirements &amp; Requests</a>
                         </li>
-                        {{/ifEquals}}
+                        {{/ifBigger}}
                     </ul>
                     </div>
                 <!--END: Tabs-->
@@ -40,6 +40,13 @@
                 <!--START: Activity Section-->
                 <div id="Activity" class="content-tab">
                     <div class="box">
+                        <!--START: danger!!! delete!!!!-->
+                        {{#ifBigger data.book.custom 0}}
+                        <form id="fastTravel" method="POST" action="/bookings/fastTravel/{{data.book.bookId}}">
+                        <button class="button is-danger" type="submit">Do Hackerman things (Danger! Don't click me!)</button>
+                        </form>
+                        {{/ifBigger}}
+                        <!--END-->
                     <section class="section">
                         <div class="container">
                             <p class="has-text-centered is-size-4 has-text-weight-bold">Activity</p>
@@ -119,7 +126,7 @@
                                                 {{else}}
                                                 <p class="has-text-weight-semibold">{{oppositeValue @root.data.currentUser.name @root.data.participants}} sent a message:</p>
                                                 {{/ifEquals}}
-                                                <p>{{this.messageText}}</p>
+                                                <p>{{{this.messageText}}}</p>
                                             </div>
                                         </div>
                                     {{/ifEquals}}
@@ -204,8 +211,29 @@
                                         {{#with (lookup ../tourPlans (numToIndex this.messageText))}}
                                         <footer class="card-footer p-4">
                                             <div class="field is-grouped mt-2">
+                                                {{!-- onclick="$('#RequireModal').fadeIn('fast')" --}}
                                             <div class="control">
-                                                <button class="button 
+                                                {{#ifEquals accepted '-1'}}
+                                                <button class="button is-danger is-outlined" style="pointer-events: none;">Request a Revision<i class="fas fa-check ml-1"></i></button>
+                                                {{/ifEquals}}
+                                                {{#ifEquals accepted '0'}}
+                                                <button class="button is-danger" onclick="console.log('piess');$('#ReqRevisionModal').fadeIn('fast');">Request a Revision</button>
+                                                {{/ifEquals}}
+                                                {{#ifEquals accepted '1'}}
+                                                <button class="button is-static" style="pointer-events: none;">Request a Revision</button>
+                                                {{/ifEquals}}
+
+                                                {{#ifEquals accepted '-1'}}
+                                                <button class="button is-static" style="pointer-events: none;">Approve Plan<i class="fas fa-check ml-1"></i></button>
+                                                {{/ifEquals}}
+                                                {{#ifEquals accepted '0'}}
+                                                <button class="button is-success">Approve Plan</button>
+                                                {{/ifEquals}}
+                                                {{#ifEquals accepted '1'}}
+                                                <button class="button is-success is-outlined" style="pointer-events: none;">Approve Plan<i class="fas fa-check ml-1"></i></button>
+                                                {{/ifEquals}}
+
+                                                {{!-- <button class="button 
                                                 {{#ifEquals accepted '-1'}}
                                                 is-danger is-outlined
                                                 {{/ifEquals}}
@@ -227,9 +255,9 @@
                                                     <i class="fas fa-check ml-1"></i>
                                                 {{/ifEquals}}
                                                 </button>
-                                            </div>
+                                            </div> --}}
 
-                                            <div class="control">
+                                            {{!-- <div class="control">
                                                 <button class="button
                                                 {{#ifEquals accepted '-1'}}
                                                 is-static
@@ -253,7 +281,7 @@
                                                     <i class="fas fa-check ml-1"></i>
                                                 {{/ifEquals}}
                                                 </button>
-                                            </div>
+                                            </div> --}}
                                         </div>
                                         </footer>
                                         {{/with}}
@@ -477,7 +505,7 @@
                 <div id="Billing" class="content-tab" style="display:none;">
                     <!-- Paid and outstanding will be hidden for default tours-->
                     <div class="columns is-v-centered">
-                        {{#ifEquals data.book.custom 1}}
+                        {{#ifBigger data.book.custom 0}}
                         {{#ifInRange data.book.processStep 1 6}}
                         <div class="column">
                             <div class="box p-5">
@@ -495,7 +523,7 @@
                             </div>
                         </div>
                         {{/ifInRange}}
-                        {{/ifEquals}}
+                        {{/ifBigger}}
 
                         {{#ifEquals data.book.processStep '0'}}
                             <div class="column">
@@ -537,24 +565,24 @@
                                         <th>Item</th>
                                         <th>Price</th>
                                     </tr>
-                                    {{#ifEquals data.book.custom 1}}
+                                    {{#ifBigger data.book.custom 0}}
                                     <tr>
                                         <td>Customisation Fee</td>
                                         <td>${{data.book.bookCharges}}</td>
                                     </tr>
-                                    {{/ifEquals}}
+                                    {{/ifBigger}}
                                     <tr>
                                         <td>Base Tour Price</td>
                                         <td>${{data.book.bookBaseprice}}</td>
                                     </tr>
-                                    {{#ifEquals data.book.custom 1}}
+                                    {{#ifBigger data.book.custom 0}}
                                     {{#ifSmaller (toNum data.book.revisions) 0}}
                                     <tr>
                                         <td>Extra Revisions {{data.book.revisions}}</td>
                                         <td>${{math data.book.revisions '*' data.book.bookCharges}}</td>
                                     </tr>
                                     {{/ifSmaller}}
-                                    {{/ifEquals}}
+                                    {{/ifBigger}}
                                     <tr>
                                         <th>Subtotal</th>
                                         {{!-- calculate subtotal server side --}}
@@ -576,7 +604,7 @@
                 </div>
                 <!--END: Billing Section-->
 
-                {{#ifEquals data.book.custom 1}}
+                {{#ifBigger data.book.custom 0}}
                 <!--START: Req Section-->
                 <div id="Req" class="content-tab" style="display:none;">
                     <div class="box">
@@ -612,7 +640,7 @@
                     </div>
                 </div>
                 <!--END: Req Section-->
-                {{/ifEquals}}
+                {{/ifBigger}}
 
             </div>
             <div class="column is-one-quarter">
@@ -656,6 +684,8 @@
         </div>
     </div>
 </section>
+
+{{>reqRevisionModal}}
 
 <script defer src="/js/tabs.js"></script>
 

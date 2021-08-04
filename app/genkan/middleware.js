@@ -25,7 +25,8 @@ const adminAuthorisationRequired = (req, res, next) => {
 
 // Block if not logged in
 const loginRequired = (req, res, next) => {
-    genkan.isLoggedin(req.signedCookies.sid, (result) => {
+    const tokenToValidate = req.signedCookies.sid || req.cookies.apikey
+    genkan.isLoggedin(tokenToValidate, (result) => {
         if (result !== true) {
             res.status = 401
             return res.redirect(302, '/id/login?required=1')

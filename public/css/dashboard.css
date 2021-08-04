@@ -50,6 +50,15 @@
     animation: infinite blinkFade 1.25s ease-in-out;
 }
 
+.skeleton-chart {
+    height: 250px;
+    /* width: 300px; */
+    background: var(--skeleton-color);
+    margin-bottom: 0.25rem;
+    border-radius: 8px;
+    animation: infinite blinkFade 1.25s ease-in-out;
+}
+
 @keyframes blinkFade {
     0% {
         opacity: 0.5;
