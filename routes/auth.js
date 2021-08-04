@@ -39,15 +39,15 @@ require('../app/genkan/register')
 require('../app/genkan/resetPassword')
 require('../app/genkan/genkan') // This is the API
 
+// Useragent middleware
+const useragent = require('express-useragent')
+router.use(useragent.express())
+
 // Chat API
 const chat = require('../app/chat/chat')
 
 // UUID
 const uuid = require('uuid')
-
-// Put all your routings below this line -----
-
-// router.get('/', (req, res) => { ... }
 
 router.get('/register', (req, res) => {
     const metadata = {
@@ -249,10 +249,10 @@ router.post('/login', (req, res) => {
         }
         const email = req.body.email.toLowerCase().replace(/\s+/g, '')
         const password = req.body.password
-        const ipAddress =
-      req.headers['x-forwarded-for'] || req.socket.remoteAddress
+        const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress
+        const deviceInfo = req.useragent
 
-        loginAccount(email, password, ipAddress, (result) => {
+        loginAccount(email, password, ipAddress, deviceInfo, (result) => {
             if (result === false) {
                 console.log('Failed to login')
                 res.cookie('notifs', 'ERR_CREDS_INVALID', NotificationCookieOptions)

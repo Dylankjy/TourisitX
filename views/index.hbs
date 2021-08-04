@@ -1,7 +1,23 @@
 <link rel="stylesheet" href="/css/index.css">
 
+{{#ifEquals data.loggedin 'true'}}
+<div id="loggedinNotif" class="notification m-0 is-success is-light" style="border-radius: none;">
+    <div class="container has-text-weight-medium">
+        <i class="fas fa-check"></i>&ensp;Successfully logged in. Welcome back, <span
+            class="has-text-weight-bold">{{data.currentUser.name}}</span>!
+    </div>
+</div>
+<script>
+    window.history.pushState('', document.title, '/');
+    setTimeout(() => {
+        $('#loggedinNotif').slideUp()
+        $('.hero-fadein').css("opacity", 1);
+    }, 5000)
+</script>
+{{/ifEquals}}
+
 <section id="main-hero" class="hero is-white is-large">
-    <div class="hero-fadein"></div>
+    <div class="hero-fadein" {{#ifEquals data.loggedin 'true' }}style="opacity: 0" {{/ifEquals}}></div>
     <div class="hero-body">
         <div class="container has-text-centered">
             <h1 class="title is-1 has-text-white">Tours for locals, by locals.</h1>
@@ -40,6 +56,57 @@
         </div>
     </div>
 </main>
+
+{{#ifEquals data.currentUser.is_tourguide null}}
+<div id="welcomeModal" class="modal is-active">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+        <div class="box p-6">
+            <h1 class="title">Welcome to Tourisit</h1>
+            <p class="subtitle">Setup your new account</p>
+            <div class="block">
+                <p>In order to provide you with a consistent experience, please choose your account mode.</p>
+                <p class="has-text-grey-light">You can always change this setting later.</p>
+            </div>
+            <form id="accountModeForm" method="POST" action="/u/setting/set_accmode_welcome">
+                <div class="columns">
+                    <div class="column">
+                        <a onclick="$('#accountMode').val('USER'); $('#accountModeForm').submit()"
+                            class="box has-background-grey-lighter has-text-centered">
+                            <p class="is-size-1"><i class="fas fa-suitcase-rolling"></i></p>
+                            <p>I am a tourist</p>
+                        </a>
+                    </div>
+                    <div class="column">
+                        <a onclick="$('#accountMode').val('TOURGUIDE'); $('#accountModeForm').submit()"
+                            class="box has-background-grey-lighter has-text-centered">
+                            <p class="is-size-1"><i class="fas fa-id-card-alt"></i></p>
+                            <p>I am a tour guide</p>
+                        </a>
+                    </div>
+                    <input type="hidden" name="accountMode" id="accountMode" required>
+                </div>
+            </form>
+            {{!-- <a class="button is-fullwidth is-light" onclick="$('#welcomeModal').fadeOut('fast', () => { $('#welcomeModal').remove() });
+                window.history.pushState('', document.title, '/');">Close</a> --}}
+        </div>
+    </div>
+</div>
+{{/ifEquals}}
+
+{{#ifEquals data.loggedout 'true'}}
+<div id="welcomeBackModal" class="modal is-active">
+    <div class="modal-background"></div>
+    <div class="modal-content">
+        <div class="box p-6">
+            <h1 class="title">See you soon!</h1>
+            <p class="subtitle">Successfully logged out of your Tourisit ID.</p>
+            <a class="button is-fullwidth is-light" onclick="$('#welcomeBackModal').fadeOut('fast', () => { $('#welcomeBackModal').remove() });
+                window.history.pushState('', document.title, '/');">Close</a>
+        </div>
+    </div>
+</div>
+{{/ifEquals}}
 
 {{!-- Preload images --}}
 <div class="preload preload-1"></div>

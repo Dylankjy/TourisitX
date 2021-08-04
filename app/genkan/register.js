@@ -127,7 +127,7 @@ sendConfirmationEmail = (email, token) => {
     // Compile from email template
     const data = {
         receiver: email,
-        url: `https://tourisit.tanuki.works/auth/confirm?token=${token}`,
+        url: `https://tourisit.tanuki.works/id/confirm?token=${token}`,
     }
     const message = confirmEmailTemplate(data)
 

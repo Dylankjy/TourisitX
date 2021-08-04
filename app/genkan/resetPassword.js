@@ -50,7 +50,7 @@ sendResetPasswordEmail = (email, callback) => {
             // Compile from email template
             const data = {
                 receiver: email,
-                url: `https://tourisit.tanuki.works/auth/reset?token=${token}`,
+                url: `https://tourisit.tanuki.works/id/reset?token=${token}`,
             }
             const message = pwdResetEmailTemplate(data)
 

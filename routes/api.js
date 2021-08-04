@@ -179,8 +179,6 @@ router.get('/tourguide/chart', loginRequired, async (req, res) => {
         },
     }
 
-    console.table(ResponseObject.csat)
-
     return res.json(ResponseObject)
 })
 

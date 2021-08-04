@@ -1,6 +1,7 @@
 .hero-fadein {
     height: 15rem;
     background: linear-gradient(0deg, transparent 0, #0a0a0a 100%);
+    transition: opacity .8s ease;
 }
 
 #main-hero {

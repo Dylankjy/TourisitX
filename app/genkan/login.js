@@ -1,5 +1,6 @@
 // Load environment
 const config = require('../../config/genkan.json')
+const apikeys = require('../../config/apikeys.json')
 
 // Hashing
 const sha512 = require('hash-anything').sha512
@@ -11,7 +12,29 @@ const tokenGenerator = require('./tokenGenerator')
 // Database operations
 require('../db')
 
-loginAccount = (email, password, ip, callback) => {
+// NodeMailer
+const nodemailer = require('nodemailer')
+const transporter = nodemailer.createTransport({
+    host: config.smtp.server,
+    port: config.smtp.port,
+    auth: {
+        user: config.smtp.username,
+        pass: apikeys.secret.SENDGRID_KEY,
+    },
+})
+
+// Handlebars
+const Handlebars = require('handlebars')
+
+// Unknown login email template
+const fs = require('fs')
+const unknownLoginSource = fs.readFileSync(
+    `app/genkan/templates/unknown_login.hbs`,
+    'utf8',
+)
+const unknownLoginTemplate = Handlebars.compile(unknownLoginSource)
+
+loginAccount = (email, password, ip, deviceInfo, callback) => {
     // SHA512 Hashing
     const incomingHashedPasswordSHA512 = sha512({
         a: password,
@@ -34,6 +57,13 @@ loginAccount = (email, password, ip, callback) => {
         ) {
             if (result[0].dataValues.email_status === false) {
                 return callback('EMAIL_NOT_VERIFIED')
+            }
+
+            console.table([ip, result[0].dataValues.ip_address])
+
+            // Check whether IP address is known
+            if (ip !== result[0].dataValues.ip_address) {
+                sendUnknownLoginEmail(email, ip, deviceInfo)
             }
 
             // Generate a random token for SID
@@ -61,6 +91,30 @@ loginAccount = (email, password, ip, callback) => {
             // If account details are invalid, reject
             return callback(false)
         }
+    })
+}
+
+sendUnknownLoginEmail = (email, ip, deviceInfo) => {
+    // Compile from email template
+    const data = {
+        receiver: email,
+        details: {
+            ip,
+            browser: deviceInfo.browser,
+            version: deviceInfo.version,
+            os: deviceInfo.os,
+            platform: deviceInfo.platform,
+            source: deviceInfo.source,
+        },
+    }
+    const message = unknownLoginTemplate(data)
+
+    // send email
+    transporter.sendMail({
+        from: config.smtp.mailFromAddress,
+        to: email,
+        subject: config.smtp.customisation.unknownLogin.subject,
+        html: message,
     })
 }
 

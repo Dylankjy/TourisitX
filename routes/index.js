@@ -1,7 +1,6 @@
 const genkan = require('../app/genkan/genkan')
-const { Shop, User } = require('../models')
-const sequelize = require('sequelize')
-const { requireLogin, requirePermission, removeNull, emptyArray, removeFromArray } = require('../app/helpers')
+const { Shop } = require('../models')
+const { requireLogin, removeNull } = require('../app/helpers')
 const express = require('express')
 
 const router = express.Router()
@@ -32,6 +31,8 @@ router.get('/', (req, res) => {
                 },
                 listing: listings,
                 data: {
+                    loggedin: req.query.loggedin,
+                    loggedout: req.query.loggedout,
                     currentUser: req.currentUser,
                 },
             }

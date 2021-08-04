@@ -56,9 +56,11 @@
     <div class="container">
         <h2 class="title">Tours by this user</h2>
         {{#if listings}}
+        <div class="columns is-multiline is-variable is-5">
         {{#each listings}}
         {{>listingCard}}
         {{/each}}
+        </div>
         {{else}}
         <p class="has-text-grey-light">No tours created yet.</p>
         {{/if}}

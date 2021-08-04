@@ -2,15 +2,11 @@
 const express = require('express')
 
 // Express.js
-const app = express()
 const router = express.Router()
 
 // Formidable
 const formidable = require('express-formidable')
 router.use(formidable())
-
-// SQLize models
-const { ChatRoom, ChatMessages } = require('../models')
 
 router.get('/', async (req, res) => {
     const metadata = {
@@ -65,11 +61,6 @@ router.get('/:roomId', (req, res) => {
 
         return res.render('chat', metadata)
     })
-})
-
-router.post('/', (req, res) => {
-    console.table(req.fields)
-    // addMessage(req.fields.chatId)
 })
 
 module.exports = router
