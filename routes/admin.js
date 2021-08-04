@@ -1,5 +1,6 @@
 const express = require('express')
 
+const formidableValidator = require('../app/validation')
 
 const { Shop, User, Token, Ban, Support, ChatRoom } = require('../models')
 
@@ -21,7 +22,9 @@ const genkan = require('../app/genkan/genkan')
 require('../app/genkan/resetPassword')
 
 const formidable = require('express-formidable')
+const Validator = formidableValidator.Validator
 router.use(formidable())
+
 
 // cookieParser: Cookie schema for notifications
 const NotificationCookieOptions = {
@@ -609,12 +612,12 @@ router.post('/manage/tours/edit/:id', async (req, res) => {
             const chatRoomID = chatData[0]['chatId']
             console.log('THIS IS CHAT ROOM ID' + chatRoomID)
             console.log(revokeMessage)
-            chat.addMessage(chatRoomID, 'SYSTEM', revokeMessage, 'SENT', () => {})
+            chat.addMessage(chatRoomID, 'SYSTEM', revokeMessage, 'SENT', () => { })
             // revokeMessage: Message to send to person
             //
         }
     } else {
-    // THIS RUNS TO UNREVOKE TOUR
+        // THIS RUNS TO UNREVOKE TOUR
         await Ban.update(
             {
                 is_inForce: false,
@@ -673,7 +676,7 @@ router.get('/payments', (req, res) => {
     return res.render('admin/payments', metadata)
 })
 
-router.get('/tickets', (req, res) => {
+router.get('/manage/tickets', (req, res) => {
     if (req.query.page === undefined) {
         return res.redirect('?page=1')
     }
@@ -719,11 +722,107 @@ router.get('/tickets', (req, res) => {
                     },
                 },
             }
-            return res.render('admin/tickets', metadata)
+            return res.render('admin/tickets.hbs', metadata)
         })
         .catch((err) => {
             throw err
         })
+})
+
+router.get('/manage/tickets/edit/:id', async (req, res) => {
+    const ticData = await Support.findAll({
+        where: {
+            'ticket_id': req.params.id,
+        },
+    })
+    const ticketObject = ticData[0]['dataValues']
+    if (req.cookies.storedValues) {
+        const storedValues = JSON.parse(req.cookies.storedValues)
+    } else {
+        const storedValues = {}
+    }
+    const metadata = {
+        meta: {
+            title: 'Manage Ticket',
+            path: false,
+        },
+        nav: {
+            sidebarActive: 'tickets',
+        },
+        layout: 'admin',
+
+        data: {
+            ticket: ticketObject,
+            currentUser: req.currentUser,
+        },
+        editSupportErrors: req.cookies.editSupportErrors,
+        successTicket: req.cookies.successTicket,
+    }
+    metadata.data.previousPage = 'tickets'
+    res.render('admin/edit/ticket.hbs', metadata)
+})
+
+router.post('/manage/tickets/edit/:id', async (req, res) => {
+    res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
+    const v = new Validator(req.fields)
+    const tData = await Support.findAll({
+        where: {
+            'ticket_id': req.params.id,
+        },
+    })
+    const ticket = tData[0]['dataValues']
+    editSupportErrors = []
+    if (req.fields.userEmail == ticket.u_email) {
+
+    } else {
+        const userEmailResult = v
+            .Initialize({
+                name: 'userEmail',
+                message: 'Email should not be empty',
+            })
+            .exists()
+            .getResult()
+        editSupportErrors.push(userEmailResult)
+    }
+    if (req.fields.supportcontent == ticket.content) {
+    } else {
+        const supportcontentResult = v
+            .Initialize({
+                name: 'supportcontent',
+                errorMessage: 'Content must not be empty and not longer than 254 characters',
+            })
+            .exists()
+            .isLength({ min: 10, max: 254 })
+            .getResult()
+        editSupportErrors.push(supportcontentResult)
+    }
+
+    editSupportErrors = removeNull(editSupportErrors)
+    if (!emptyArray(editSupportErrors)) {
+        res.cookie('editSupportErrors', editSupportErrors, { maxAge: 5000 })
+        res.redirect(`/admin/manage/tickets/edit/${req.params.id}`)
+    } else {
+        res.clearCookie('editSupportErrors')
+        res.clearCookie('storedValues')
+        successTicket = []
+        const formAS = v
+            .Initialize({
+                errorMessage: 'Ticket Details updated successfully',
+            })
+            .setFalse()
+            .getResult()
+        successTicket.push(formAS)
+        res.cookie('successTicket', successTicket, { maxAge: 5000 })
+        const TicketDetails = {
+            'u_email': req.fields.userEmail,
+            'support_type': req.fields.type,
+            'content': req.fields.supportcontent,
+            'status': req.fields.support_status,
+        }
+        updateDB('support', { 'ticket_id': req.params.id }, TicketDetails, () => {
+            return res.redirect(`/admin/manage/tickets/edit/${req.params.id}`)
+        })
+    }
 })
 
 module.exports = router
