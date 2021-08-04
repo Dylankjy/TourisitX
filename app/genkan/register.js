@@ -37,7 +37,7 @@ const Handlebars = require('handlebars')
 // Email Template
 const fs = require('fs')
 const confirmEmailSource = fs.readFileSync(
-    `node_modules/${config.genkan.theme}/mail/confirmation.hbs`,
+    `app/genkan/templates/confirmation.hbs`,
     'utf8',
 )
 const confirmEmailTemplate = Handlebars.compile(confirmEmailSource)
@@ -127,7 +127,7 @@ sendConfirmationEmail = (email, token) => {
     // Compile from email template
     const data = {
         receiver: email,
-        url: `https://tourisit.tanuki.works/confirm?confirmation=${token}`,
+        url: `https://tourisit.tanuki.works/id/confirm?token=${token}`,
     }
     const message = confirmEmailTemplate(data)
 

@@ -116,7 +116,7 @@ router.post('/', async (req, res) => {
             'u_email': user.email,
             'support_type': req.fields.type,
             'content': req.fields.content,
-            'status': 'pending',
+            'status': 'Open',
             'createdAt': new Date(),
             'updatedAt': new Date(),
         }

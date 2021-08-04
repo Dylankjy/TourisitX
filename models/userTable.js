@@ -92,8 +92,8 @@ module.exports = (sequelize, DataTypes) => {
 
             is_tourguide: {
                 type: DataTypes.BOOLEAN,
-                allowNull: false,
-                defaultValue: false,
+                allowNull: true,
+                defaultValue: null,
             },
 
             is_verified: {

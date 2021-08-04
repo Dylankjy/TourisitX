@@ -23,6 +23,27 @@ const adminAuthorisationRequired = (req, res, next) => {
     })
 }
 
+const tourGuideModeRequired = (req, res, next) => {
+    genkan.getUserBySession(req.signedCookies.sid, (result) => {
+        if (result.is_tourguide !== true) {
+            const metadata = {
+                meta: {
+                    title: '403',
+                    path: false,
+                },
+                nav: {},
+                data: {
+                    currentUser: req.currentUser,
+                },
+            }
+            res.status = 403
+            return res.render('403', metadata)
+        }
+
+        return next()
+    })
+}
+
 // Block if not logged in
 const loginRequired = (req, res, next) => {
     const tokenToValidate = req.signedCookies.sid || req.cookies.apikey
@@ -59,6 +80,7 @@ const getCurrentUser = (req, res, next) => {
 
 module.exports = {
     adminAuthorisationRequired,
+    tourGuideModeRequired,
     loginRequired,
     getCurrentUser,
 }

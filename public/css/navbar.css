@@ -1,9 +1,43 @@
 .profile-img {
     height: 2rem;
     width: 2rem;
-    border: 1px rgb(12, 12, 12) lid;
+    border: 2px rgb(255, 255, 255) solid;
     border-radius: 99999px;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+}
+
+.is-onlyMobile {
+    display: none;
+    padding-left: .5rem;
+}
+
+.is-onlyDesktop {
+    display: block;
+}
+
+@media only screen and (max-width: 1024px) {
+    .is-onlyMobile {
+        display: inline-block;
+    }
+
+    .is-onlyDesktop {
+        display: none !important;
+    }
+
+    .navbar-start .navbar-item:hover, .navbar-end .navbar-item:hover {
+        background-color: #1f1f1f !important;
+        color: white
+    }
+
+    #accountDisplay .navbar-item:hover {
+        background-color: #dfdfdf !important;
+        color: initial !important;
+    }
+    
+    .navbar-menu {
+        position: absolute;
+        width: 100vw;
+    }
 }

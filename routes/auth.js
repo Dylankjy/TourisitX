@@ -18,7 +18,7 @@ const SessionCookieOptions = {
     secure: true,
     signed: true,
     // domain: `.${config.webserver.cookieDomain}`,
-    maxAge: 7890000,
+    maxAge: 31 * 24 * 60 * 60 * 1000, // 31 days
     path: '/',
 }
 
@@ -39,15 +39,15 @@ require('../app/genkan/register')
 require('../app/genkan/resetPassword')
 require('../app/genkan/genkan') // This is the API
 
+// Useragent middleware
+const useragent = require('express-useragent')
+router.use(useragent.express())
+
 // Chat API
 const chat = require('../app/chat/chat')
 
 // UUID
 const uuid = require('uuid')
-
-// Put all your routings below this line -----
-
-// router.get('/', (req, res) => { ... }
 
 router.get('/register', (req, res) => {
     const metadata = {
@@ -80,20 +80,22 @@ router.post('/register', (req, res) => {
         const name = req.body.username
         const email = req.body.email.toLowerCase().replace(/\s+/g, '')
         const password = req.body.password
-        const ipAddress =
-      req.headers['x-forwarded-for'] || req.socket.remoteAddress
+        const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress
 
         const emailRegex =
       /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
         // Data validations
-        if (emailRegex.test(email) === false || password.length < 8) return
+        if (emailRegex.test(email) === false || password.length < 8) {
+            res.cookie('notifs', 'ERR_UNSECURE_PASSWORD', NotificationCookieOptions)
+            return res.redirect('/id/register')
+        }
 
         newAccount(name, email, password, ipAddress, (result) => {
             if (result === false) {
                 console.log('Duplicate account')
                 res.cookie('notifs', 'ERR_DUP_EMAIL', NotificationCookieOptions)
-                return res.redirect('/id/signup')
+                return res.redirect('/id/register')
             }
 
             // Upon sign up, the user should have a system chat precreated for them.
@@ -247,10 +249,10 @@ router.post('/login', (req, res) => {
         }
         const email = req.body.email.toLowerCase().replace(/\s+/g, '')
         const password = req.body.password
-        const ipAddress =
-      req.headers['x-forwarded-for'] || req.socket.remoteAddress
+        const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress
+        const deviceInfo = req.useragent
 
-        loginAccount(email, password, ipAddress, (result) => {
+        loginAccount(email, password, ipAddress, deviceInfo, (result) => {
             if (result === false) {
                 console.log('Failed to login')
                 res.cookie('notifs', 'ERR_CREDS_INVALID', NotificationCookieOptions)

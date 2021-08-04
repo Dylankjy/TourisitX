@@ -1,28 +1,17 @@
 .profile-img-onprofile {
 	height: 180px;
 	width: 180px;
-	border: 1px rgb(12, 12, 12) lid;
+	border: 7px rgb(255, 255, 255) solid;
 	border-radius: 99999px;
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: cover;
 }
 
-.profile-card-blur {
-	position: absolute;
-	height: 100%;
-	width: 100%;
-	margin-top: -3rem;
-	margin-left: -3rem;
-	z-index: 1;
-	transition: all 0.35s ease;
-	border-radius: 4px;
-	background: rgba(0, 0, 0, 0.6);
-	backdrop-filter: saturate(180%) blur(2rem);
-	pointer-events: none;
-}
-
-.profile-container {
+.profile-img-onprofile-edit {
+	height: 180px;
+	width: 180px;
+	border-radius: 99999px;
 	background-position: center;
 	background-repeat: no-repeat;
 	background-size: cover;

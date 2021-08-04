@@ -15,6 +15,9 @@
       },
       "resetPassword": {
         "subject": "Password reset - Tourisit"
+      },
+      "unknownLogin": {
+        "subject": "New login detected - Tourisit"
       }
     }
   }

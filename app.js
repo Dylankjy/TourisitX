@@ -43,6 +43,7 @@ const {
     getCurrentUser,
     loginRequired,
     adminAuthorisationRequired,
+    tourGuideModeRequired,
 } = require('./app/genkan/middleware')
 
 // Make all routes getCurrentUser
@@ -270,6 +271,14 @@ app.engine(
             round2DP: (value) => {
                 return roundTo(value, 2).toFixed(2).toString()
             },
+
+            ifEitherTrue: (a, b, options) => {
+                if (a !== false || b !== false) {
+                    return options.fn(this)
+                } else {
+                    return options.inverse(this)
+                }
+            },
         },
     }),
 )
@@ -305,7 +314,7 @@ const webserver = () => {
 
     app.use('/', routes.index)
 
-    app.use('/tourguide', loginRequired, routes.tourguide)
+    app.use('/tourguide', tourGuideModeRequired, routes.tourguide)
 
     app.use('/marketplace', routes.market)
 

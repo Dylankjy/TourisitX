@@ -2,6 +2,16 @@
     <div class="box p-6 is-glass-white">
         <h2 class="title is-2">Hello, welcome!</h2>
         <p class="subtitle">Create a Tourisit ID</p>
+        {{#ifEquals notifs "ERR_UNSECURE_PASSWORD"}}
+        <div id="emailConfirmed" class="notification is-danger">
+            Password has to be at least 8 character long.
+        </div>
+        {{/ifEquals}}
+        {{#ifEquals notifs "ERR_DUP_EMAIL"}}
+        <div id="emailConfirmed" class="notification is-danger">
+            Email is already in use by another Tourisit ID.
+        </div>
+        {{/ifEquals}}
         <form method="POST">
             <input type="hidden" name="_csrf" value="{{csrfToken}}">
             <div class="field">

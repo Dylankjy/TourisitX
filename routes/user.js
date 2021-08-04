@@ -1,15 +1,13 @@
 const express = require('express')
 const fs = require('fs')
-const { default: axios } = require('axios')
 const uuid = require('uuid')
 const path = require('path')
 
 const formidableValidator = require('../app/validation')
 const formidable = require('express-formidable')
 const genkan = require('../app/genkan/genkan')
-const { convert } = require('image-file-resize')
 
-const { requireLogin, requirePermission, removeNull, emptyArray, removeFromArray } = require('../app/helpers')
+const { requireLogin, removeNull, emptyArray } = require('../app/helpers')
 
 // Config file
 const config = require('../config/genkan.json')
@@ -17,10 +15,6 @@ const config = require('../config/genkan.json')
 // Globals
 const router = express.Router()
 const { User, Shop } = require('../models')
-const elasticSearchHelper = require('../app/elasticSearch')
-
-const esClient = require('../app/elasticSearch').esClient
-
 const Validator = formidableValidator.Validator
 const fileValidator = formidableValidator.FileValidator
 
@@ -29,9 +23,10 @@ const savedpfpFolder = './storage/users'
 // Hashing
 const sha512 = require('hash-anything').sha512
 const bcrypt = require('bcrypt')
-const { findDB } = require('../app/db')
 
 require('../app/db')
+
+const Vibrant = require('node-vibrant')
 
 router.use(formidable())
 
@@ -95,8 +90,15 @@ router.get('/profile/:id', async (req, res) => {
             listings.push(doc['dataValues'])
         })
         return listings
-    }).then((listings) => {
+    }).then(async (listings) => {
         console.log('Tours', listings)
+
+        let pageColor = [0, 0, 0]
+        try {
+            pageColor = (await Vibrant.from(`./storage/users/${userD[0].dataValues.profile_img}`).getPalette()).DarkMuted._rgb
+        } catch (err) {
+            console.error(err)
+        }
 
         if (isOwner) {
             // Manually set to true now.. while waiting for the validation library
@@ -108,6 +110,7 @@ router.get('/profile/:id', async (req, res) => {
                 },
                 data: {
                     currentUser: req.currentUser,
+                    pageColor,
                 },
                 listings: listings,
                 uData: userD[0]['dataValues'],
@@ -124,6 +127,7 @@ router.get('/profile/:id', async (req, res) => {
                 },
                 data: {
                     currentUser: req.currentUser,
+                    pageColor,
                 },
                 listings: listings,
                 uData: userD[0]['dataValues'],
@@ -502,5 +506,30 @@ router.post('/profile/edit/:savedId', (req, res) => {
     }
 })
 
+router.post('/setting/set_accmode_welcome', (req, res) => {
+    const { accountMode } = req.fields
+
+    if (accountMode === 'USER') {
+        User.update({ 'is_tourguide': false }, {
+            where: {
+                id: req.currentUser.id,
+            },
+        }).then((data) => {
+            return res.redirect(`/`)
+        })
+    }
+
+    if (accountMode === 'TOURGUIDE') {
+        User.update({ 'is_tourguide': true }, {
+            where: {
+                id: req.currentUser.id,
+            },
+        }).then((data) => {
+            return res.redirect(`/`)
+        })
+    }
+
+    return false
+})
 
 module.exports = router
