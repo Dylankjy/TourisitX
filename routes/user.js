@@ -216,8 +216,8 @@ router.post('/setting/general', async (req, res) => {
     // const fv = new fileValidator(req.files['pfp'])
     settingErrors = []
     if (req.fields.uname.toLowerCase() == 'system' || req.fields.uname.toLowerCase() == 'system admin' || req.fields.uname.toLowerCase() == 'staff' ||
-        req.fields.uname.toLowerCase() == 'ghost' || req.fields.uname.toLowerCase() == 'adminstrator' || req.fields.uname.toLowerCase() == 'admin' 
-    ){
+        req.fields.uname.toLowerCase() == 'ghost' || req.fields.uname.toLowerCase() == 'adminstrator' || req.fields.uname.toLowerCase() == 'admin'
+    ) {
         const illegalName = v
             .Initialize({
                 name: 'uname',

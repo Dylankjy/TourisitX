@@ -816,6 +816,7 @@ router.post('/manage/tickets/edit/:id', async (req, res) => {
             'support_type': req.fields.type,
             'content': req.fields.supportcontent,
             'status': req.fields.support_status,
+            'updatedAt': new Date(),
         }
         updateDB('support', { 'ticket_id': req.params.id }, TicketDetails, () => {
             return res.redirect(`/admin/manage/tickets/edit/${req.params.id}`)
