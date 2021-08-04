@@ -29,7 +29,7 @@ const Handlebars = require('handlebars')
 
 // Email Template
 const fs = require('fs')
-const pwdResetEmailSource = fs.readFileSync(`node_modules/${config.genkan.theme}/mail/pwdreset.hbs`, 'utf8')
+const pwdResetEmailSource = fs.readFileSync(`app/genkan/templates/pwdreset.hbs`, 'utf8')
 const pwdResetEmailTemplate = Handlebars.compile(pwdResetEmailSource)
 
 sendResetPasswordEmail = (email, callback) => {
@@ -50,7 +50,7 @@ sendResetPasswordEmail = (email, callback) => {
             // Compile from email template
             const data = {
                 receiver: email,
-                url: `https://tourisit.tanuki.works/reset?token=${token}`,
+                url: `https://tourisit.tanuki.works/auth/reset?token=${token}`,
             }
             const message = pwdResetEmailTemplate(data)
 

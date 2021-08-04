@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700;1,900&display=swap');
+
+        div.box {
+            color: #000;
+            background: #fff;
+            width: 23rem;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            border: solid 2px #F4F5F7;
+            margin: auto;
+            margin-top: 8rem;
+            font-family: 'Red Hat Display', sans-serif;
+            letter-spacing: -0.03em;
+            line-height: 1.8;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5 {
+            font-family: 'Red Hat Display', sans-serif;
+        }
+
+        .emailCode {
+            background: #F4F5F7;
+            padding: 5px 20px
+        }
+
+        .footer {
+            font-family: 'Red Hat Display', sans-serif;
+            margin: auto;
+            margin-top: 3rem;
+            height: 60px;
+            width: auto;
+            user-drag: none;
+            user-select: none;
+            -moz-user-select: none;
+            -webkit-user-drag: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            color: #334463
+        }
+
+        .footer a {
+            font-weight: bold;
+        }
+
+        hr {
+            border: #F4F5F7 solid 1px
+        }
+
+        p.disclaimer {
+            color: #abb6cc
+        }
+
+        .logo {
+            padding-top: 2rem;
+            height: 2rem;
+            opacity: .8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+        <img class="logo" src="https://tourisit.tanuki.works/static/logo-dark.png">
+        <p>Please verify your email address with the link below to activate Tourisit ID.
+        </p>
+        <div class="emailCode">
+            {{url}}
+        </div>
+        <br>
+        <small>If you did not request for this email, you may ignore this.</small>
+        <hr>
+        <p class="disclaimer">This is a automated email.<br>The sender is unable to receive any replies.</p>
+    </div>
+</body>
+
+</html>
