@@ -80,20 +80,22 @@ router.post('/register', (req, res) => {
         const name = req.body.username
         const email = req.body.email.toLowerCase().replace(/\s+/g, '')
         const password = req.body.password
-        const ipAddress =
-      req.headers['x-forwarded-for'] || req.socket.remoteAddress
+        const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress
 
         const emailRegex =
       /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
         // Data validations
-        if (emailRegex.test(email) === false || password.length < 8) return
+        if (emailRegex.test(email) === false || password.length < 8) {
+            res.cookie('notifs', 'ERR_UNSECURE_PASSWORD', NotificationCookieOptions)
+            return res.redirect('/id/register')
+        }
 
         newAccount(name, email, password, ipAddress, (result) => {
             if (result === false) {
                 console.log('Duplicate account')
                 res.cookie('notifs', 'ERR_DUP_EMAIL', NotificationCookieOptions)
-                return res.redirect('/id/signup')
+                return res.redirect('/id/register')
             }
 
             // Upon sign up, the user should have a system chat precreated for them.

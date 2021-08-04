@@ -257,6 +257,14 @@ app.engine(
             round2DP: (value) => {
                 return roundTo(value, 2).toFixed(2).toString()
             },
+
+            ifEitherTrue: (a, b, options) => {
+                if (a !== false || b !== false) {
+                    return options.fn(this)
+                } else {
+                    return options.inverse(this)
+                }
+            },
         },
     }),
 )

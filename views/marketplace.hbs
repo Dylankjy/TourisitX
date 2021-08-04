@@ -45,7 +45,7 @@
 </main>
 
 <script>
-    const keyTimeout = () => {
+    keyTimeout = () => {
         if ($.trim($('#searchText').val()) != "") {
 
             // Clear all the displayed choices
@@ -100,11 +100,17 @@
 
     $(document).ready(() => {
         $('#searchText').on('keyup', () => {
-            $("#displayedListings").html("")
-            $("#nothingToBeFound").hide()
-            $("#displayedListingsSkeleton").fadeIn("fast")
-            clearTimeout(runCounter)
-            runCounter = setTimeout(keyTimeout, 800)
+
+            // Only process searches more than 2 characters long
+            if ($('#searchText').val().length > 2 || $('#searchText').val().length === 0) {
+                $("#displayedListings").html("")
+                $("#nothingToBeFound").hide()
+                $("#displayedListingsSkeleton").fadeIn("fast")
+                clearTimeout(runCounter)
+                return runCounter = setTimeout(keyTimeout, 800)
+            }
+
+            return
         })
     })
 </script>
