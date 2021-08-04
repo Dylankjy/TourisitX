@@ -4,8 +4,8 @@
 </head>
 
 <!-- If validationErrors is defined and there are validationErrors -->
-{{#if (isDefined passwordErrors)}}
-	{{#if (haveErr passwordErrors)}}
+{{#if (isDefined settingErrors)}}
+	{{#if (haveErr settingErrors)}}
 		<div id='errorMessage' class='notification is-danger'>
 			{{#each settingErrors}}
 				<p>{{this.msg}}</p>

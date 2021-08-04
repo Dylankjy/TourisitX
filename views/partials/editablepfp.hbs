@@ -5,7 +5,7 @@
 <div class='column is-one-fifth'>
     <div class='profile-img-onprofile editable-img' id='renderImage' style="background-image: url('/static/users/{{uData.profile_img}}'); background-size: cover; ">
         <div class='middle has-text-centered'>
-            <i class="profile-img-onprofile fas fa-camera fa-3x" id="editText" style="display: none;"></i>
+            <i class="profile-img-onprofile fas fa-camera fa-3x" id="editText" style="display: none; padding-top: 60px;"></i>
         </div>
     </div>
 </div>
@@ -27,8 +27,8 @@
         })
 
         $('.editable-img').on('mouseover', () => {
-            $('#renderImage').css({"opacity": 0.8, "z-index": 2})
-            $('#editText').css({"color": "white", "z-index": 2})
+            $('#renderImage').css({ "z-index": 2})
+            $('#editText').css({"color": "white", "z-index": 2, "background": "black", "opacity": 0.8})
             $('#editText').show()
         })
 
