@@ -384,7 +384,7 @@ io.on('connection', (socket) => {
                     // When SYSTEM uses addMessage(), the socket is invoked by the Chat API and added to the database accordingly.
                     // The socket message will then be picked up by this eventHandler and then added again.
                     // This if essentially prevents SYSTEM messages from being added to the database twice.
-                    if (userObject.senderId === '00000000-0000-0000-0000-000000000000') return
+                    if (userObject.senderId === '00000000-0000-0000-0000-000000000000') return false
 
                     // Else send message
                     addMessage(data.roomId, data.senderId, sanitizeHtml(data.msg), 'SENT', () => {

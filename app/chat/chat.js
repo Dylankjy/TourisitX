@@ -78,6 +78,11 @@ startSocketClient = async () => {
     })
 }
 
+// setTimeout(() => {
+//     addMessage('46f4d1c0-f5fe-11eb-bc2e-59bcca7312ed', 'SYSTEM', 'Welcome to Tourisit! Feel free to browse around for tours. If you have any doubts, please do not hesitate to contact us using our help desk. Happy touring :)', 'SENT', () => {
+//     })
+// }, 5000)
+
 addRoom = (participants, bookingId, callback) => {
     if (typeof participants !== 'object') {
         throw new Error('Participants must of type object in a valid format.')
@@ -126,6 +131,8 @@ addMessage = (roomId, senderId, messageText, flag, callback) => {
             console.log(
                 '\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[1m\x1b[34mOK\x1b[0m: System is interacting with the internal socket server.\x1b[0m',
             )
+
+            return
         }
 
         const AddMessagePayload = {
