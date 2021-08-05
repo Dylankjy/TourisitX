@@ -144,31 +144,41 @@ addMessage = (roomId, senderId, messageText, flag, callback) => {
 
 // Chloe!!! Please use this one for your booking chat. Don't use getUwUMessagesByRoomID() <- this doesn't allow you to get booking chat
 getAllTypesOfMessagesByRoomID = (roomId, callback) => {
-    findDB('chatroom', { chatId: roomId }, (roomResult) => {
+    findDB('chatroom', { chatId: roomId }, async (roomResult) => {
         if (roomResult.length !== 1) {
             return callback(null)
         }
 
-        findDB('chatmessages', { roomId: roomId }, (msgResult) => {
-            return callback({
-                msg: msgResult.map((msgResult) => msgResult.dataValues),
-                users: roomResult[0].dataValues.participants.split(','),
-            })
+        const msgResult = await ChatMessages.findAll({
+            where: {
+                roomId: roomId,
+            },
+            order: [['createdAt', 'ASC']],
+        })
+
+        return callback({
+            msg: msgResult.map((msgResult) => msgResult.dataValues),
+            users: roomResult[0].dataValues.participants.split(','),
         })
     })
 }
 
 getUwUMessagesByRoomID = (roomId, callback) => {
-    findDB('chatroom', { chatId: roomId, bookingId: null }, (roomResult) => {
+    findDB('chatroom', { chatId: roomId, bookingId: null }, async (roomResult) => {
         if (roomResult.length !== 1) {
             return callback(null)
         }
 
-        findDB('chatmessages', { roomId: roomId }, (msgResult) => {
-            return callback({
-                msg: msgResult.map((msgResult) => msgResult.dataValues),
-                users: roomResult[0].dataValues.participants.split(','),
-            })
+        const msgResult = await ChatMessages.findAll({
+            where: {
+                roomId: roomId,
+            },
+            order: [['createdAt', 'ASC']],
+        })
+
+        return callback({
+            msg: msgResult.map((msgResult) => msgResult.dataValues),
+            users: roomResult[0].dataValues.participants.split(','),
         })
     })
 }
