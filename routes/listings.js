@@ -18,6 +18,7 @@ const { removeNull, emptyArray, removeFromArray } = require('../app/helpers')
 // Config file
 const config = require('../config/apikeys.json')
 const routesConfig = require('../config/routes.json')
+const baseUrl = routesConfig['base_url']
 
 // Globals
 const router = express.Router()
@@ -259,7 +260,29 @@ router.get('/info/:id', (req, res) => {
 // can we use shards? (Like how we did product card that time, pass in a json and will fill in the HTML template)
 // To create the listing
 router.get('/create', loginRequired, async (req, res) => {
-    const sid = req.signedCookies.sid
+    const userData = req.currentUser
+    let savedUserData = await User.findAll({
+        where: {
+            id: userData.id,
+        },
+        raw: true,
+    })
+
+    savedUserData = savedUserData[0]
+    stripeAccId = savedUserData['stripe_account_id']
+
+    const account = await stripe.accounts.retrieve(
+        stripeAccId,
+    )
+    // If true, means user setup is completed, don't have to redirect to setup page
+    const payoutEnabled = account.payouts_enabled
+
+    if (!payoutEnabled) {
+        console.log('REDIRECTING')
+        // Need to redirect to the post, not GET
+        return res.redirect('/listing/stripe-create-account')
+        // res.json('Should be redirecting to the post for create-stripe-account')
+    }
 
     // If you have to re-render the page due to errors, there will be cookie storedValue and you use this
     // To use cookie as JSON in javascipt, must URIdecode() then JSON.parse() it
@@ -739,13 +762,16 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
     savedUserData = savedUserData[0]
 
     console.log(bookData)
+    let priceToPay
+    let paymentName
 
     // Step 3 means its paying for full tour (Base tour + customization)
     if (bookData['processStep'] == '3') {
         // Base price
-        let priceToPay = bookData['bookBaseprice']
+        priceToPay = itemData['tourPrice']
+        console.log(priceToPay)
 
-        // Any extra revisions
+        // Account for any extra revisions
         if (bookData['custom'] > 0) {
             const bookCharges = bookData['bookCharges'].split(',')
             // If extra revisions were used
@@ -753,25 +779,23 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
                 const revisionFee = bookCharges[0]
                 const noOfRevisions = Math.abs(bookData['revisions'])
                 priceToPay += noOfRevisions * revisionFee
+                console.log(priceToPay)
             }
         }
 
         // Service fee
-        // priceToPay = priceToPay * 1.1
+        priceToPay = priceToPay * 1.1
         priceToPay = Math.round(priceToPay * 100)
-        const paymentName = itemData['tourTitle']
+        paymentName = itemData['tourTitle']
 
         // Step 1 means its paying for customise tour *10% of base tour)
     } else if (bookData['processStep'] == '0') {
-        const priceToPay = itemData['tourPrice'] * 100 * 0.1
-        const paymentName = itemData['tourTitle'] + ' Customization fee'
+        priceToPay = itemData['tourPrice'] * 100 * 0.1
+        paymentName = itemData['tourTitle'] + ' Customization fee'
     } else {
         console.log('ERROR')
-        const priceToPay = 0
-        const paymentName = ''
+        priceToPay = 0
     }
-
-    const baseUrl = routesConfig['base_url']
 
     const session = await stripe.checkout.sessions.create({
         payment_intent_data: {
@@ -787,7 +811,6 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
                         name: paymentName,
                     },
                     unit_amount: priceToPay,
-
                 },
                 quantity: 1,
             },
@@ -815,12 +838,15 @@ router.get('/:id/stripe-create-checkout/success', async (req, res) => {
         // Customised tour
         let bookCharges = (bookData['bookBaseprice'] * 0.1).toFixed(2)
         bookCharges = bookCharges.toString() + ','
-        Booking.update({
-            processStep: '1',
-            bookCharges: bookCharges,
-        }, {
-            where: { bookId: bookId },
-        })
+        Booking.update(
+            {
+                processStep: '1',
+                bookCharges: bookCharges,
+            },
+            {
+                where: { bookId: bookId },
+            },
+        )
         timelineMsg = '<customer> paid the customisation fee.'
     } else if (bookData['processStep'] == '3') {
         // Standard tour
@@ -841,14 +867,18 @@ router.get('/:id/stripe-create-checkout/success', async (req, res) => {
         } else {
             bookCharges = serviceFee + ','
         }
-        Booking.update({
-            processStep: '4',
-            paid: 1,
-            bookCharges: bookCharges,
-        }, {
-            where: { bookId: bookId },
-        })
-        timelineMsg = '<customer> made payment. You are now ready to go on your tour!'
+        Booking.update(
+            {
+                processStep: '4',
+                paid: 1,
+                bookCharges: bookCharges,
+            },
+            {
+                where: { bookId: bookId },
+            },
+        )
+        timelineMsg =
+            '<customer> made payment. You are now ready to go on your tour!'
     } else {
         console.log('ERROR')
         return res.redirect(`/${bookId}/stripe-create-checkout/cancel`)
@@ -871,8 +901,6 @@ router.get('/:id/stripe-create-checkout/cancel', async (res, req) => {
     if (bookData['processStep'] == '0') {
         console.log('del eveyrhting')
     }
-
-    res.redirect(303, session.url)
 })
 
 router.get('/:id/payment', loginRequired, async (req, res) => {
@@ -1310,33 +1338,44 @@ router.post('/:id/purchase', loginRequired, async (req, res) => {
                     approved: 1,
                     custom: 0,
                     paid: 0,
-                }).then(async (data) => {
-                    // ChatRoom.create({
-                    //     chatId: genId2,
-                    //     participants: userData.id + ',' + listing.userId,
-                    //     bookingId: genId,
-                    // })
-                    participants = [userData.id, listing.userId]
-                    console.log(userData.name)
-                    addRoom(participants, genId, (roomId) => {
-                        updateDB('booking', { bookId: genId }, { chatId: roomId }, () => {
-                            console.log('updated successfully')
-                            // c-c-callback hell,,?
-                            timelineMsg = '<customer> placed an order for this tour.'
-                            addMessage(roomId, 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
-                                //  will be removed once TG accept/reject system is in place
-                                addMessage(roomId, 'SYSTEM', '<tourguide> accepted the order.', 'ACTIVITY', () => {
-                                    res.redirect(307, `/listing/${genId}/stripe-create-checkout`)
+                })
+                    .then(async (data) => {
+                        // ChatRoom.create({
+                        //     chatId: genId2,
+                        //     participants: userData.id + ',' + listing.userId,
+                        //     bookingId: genId,
+                        // })
+                        participants = [userData.id, listing.userId]
+                        console.log(userData.name)
+                        addRoom(participants, genId, (roomId) => {
+                            updateDB('booking', { bookId: genId }, { chatId: roomId }, () => {
+                                console.log('updated successfully')
+                                // c-c-callback hell,,?
+                                timelineMsg = '<customer> placed an order for this tour.'
+                                addMessage(roomId, 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
+                                    //  will be removed once TG accept/reject system is in place
+                                    addMessage(
+                                        roomId,
+                                        'SYSTEM',
+                                        '<tourguide> accepted the order.',
+                                        'ACTIVITY',
+                                        () => {
+                                            res.redirect(
+                                                307,
+                                                `/listing/${genId}/stripe-create-checkout`,
+                                            )
+                                        },
+                                    )
                                 })
                             })
                         })
                     })
-                        .catch((err) => {
-                            console.log(err)
-                        })
-                })
+                    .catch((err) => {
+                        console.log(err)
+                    })
             }
         })
+        .catch((err) => console.log)
 })
 
 // Customised booking
@@ -1449,46 +1488,86 @@ router.post('/:id/purchase/customise', async (req, res) => {
                     approved: 1,
                     custom: 1,
                     paid: 0,
-                }).then(async (data) => {
-                    participants = [userData.id, listing.userId]
-                    addRoom(participants, genId, (roomId) => {
-                        updateDB('booking', { bookId: genId }, { chatId: roomId }, () => {
-                            console.log('updated successfully')
-                            // c-c-callback hell,,?
-                            timelineMsg = '<customer> placed an order for this tour with custom requirements.'
-                            addMessage(roomId, 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
-                                //  will be removed once TG accept/reject system is in place
-                                addMessage(roomId, 'SYSTEM', '<tourguide> accepted the order.', 'ACTIVITY', () => {
-                                    res.redirect(307, `/listing/${genId}/stripe-create-checkout`)
+                })
+                    .then(async (data) => {
+                        participants = [userData.id, listing.userId]
+                        addRoom(participants, genId, (roomId) => {
+                            updateDB('booking', { bookId: genId }, { chatId: roomId }, () => {
+                                console.log('updated successfully')
+                                // c-c-callback hell,,?
+                                timelineMsg =
+                                    '<customer> placed an order for this tour with custom requirements.'
+                                addMessage(roomId, 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
+                                    //  will be removed once TG accept/reject system is in place
+                                    addMessage(
+                                        roomId,
+                                        'SYSTEM',
+                                        '<tourguide> accepted the order.',
+                                        'ACTIVITY',
+                                        () => {
+                                            res.redirect(
+                                                307,
+                                                `/listing/${genId}/stripe-create-checkout`,
+                                            )
+                                        },
+                                    )
                                 })
                             })
                         })
                     })
-                        .catch((err) => {
-                            console.log(err)
-                        })
-                })
+                    .catch((err) => {
+                        console.log(err)
+                    })
             }
         })
+        .catch((err) => console.log)
 })
-
 
 // End: Booking-related items under the listing route
-router.get('/stripe-create-account', async (req, res)=>{
-    res.redirect(
-        307,
-        `/listing/stripe-create-account`,
-    )
+router.get('/stripe-create-account', loginRequired, async (req, res)=>{
+    const metadata = {
+        data: {
+            currentUser: req.currentUser,
+        },
+    }
+    // return res.redirect(307, '/listing/stripe-create-account')
+    return res.render('tmp.hbs', metadata)
 })
 
-router.post('/stripe-create-account', async (req, res) => {
+router.post('/stripe-create-account', loginRequired, async (req, res) => {
     const userData = req.currentUser
-    const account = await stripe.accounts.create({
-        type: 'express',
+    let savedUserData = await User.findAll({
+        where: {
+            id: userData.id,
+        },
+        raw: true,
     })
 
-    console.log(account.url)
-    res.redirect(303, account.url)
+    savedUserData = savedUserData[0]
+    stripeAccId = savedUserData['stripe_account_id']
+
+    const account = await stripe.accounts.retrieve(
+        stripeAccId,
+    )
+    // If true, means user setup is completed, don't have to redirect to setup page
+    payoutEnabled = account.payouts_enabled
+    console.log(payoutEnabled)
+
+    if (payoutEnabled) {
+        return res.redirect('/listing')
+    } else { // Redirect user to fill up detail page
+        console.log('WE REACHED HERE')
+
+        const accountLinks = await stripe.accountLinks.create({
+            account: stripeAccId,
+            refresh_url: `${baseUrl}/listing/stripe-create-account`,
+            return_url: `${baseUrl}/tourguide`,
+            type: 'account_onboarding',
+        })
+
+        console.log(accountLinks)
+        res.redirect(303, accountLinks.url)
+    }
 })
 
 module.exports = router
