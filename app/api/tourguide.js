@@ -29,8 +29,8 @@ const getMoneyStats = async (offset, tguid) => {
     }
 
     return {
-        totalEarnings,
-        averageEarnings,
+        totalEarnings: roundTo(totalEarnings, 2).toFixed(2).toString(),
+        averageEarnings: roundTo(averageEarnings, 2).toFixed(2).toString(),
     }
 }
 
@@ -109,20 +109,20 @@ const getTourGuideCSAT = async (offset, tguid) => {
     }
 
     const allReviewsThisPeriod = await Review.findAll({ where: { 'subjectId': tguid, 'createdAt': { [Op.between]: [(new Date()) - startOffset, new Date() - endOffset] } } })
-    const allReviewsOverall = await Review.findAll({ where: { 'subjectId': tguid, 'createdAt': { [Op.between]: [(new Date()) - startOffset, new Date() - endOffset] } } })
+    const allReviewsOverall = await Review.findAll({ where: { 'subjectId': tguid } })
 
     const numberOfReviews = allReviewsThisPeriod.length
 
     // For this month only
-    let CSATForPeriod = 100
+    let CSATForPeriod = null
     if (numberOfReviews !== 0) {
-        CSATForPeriod = (allReviewsThisPeriod.map((entry) => parseFloat(entry.rating)).reduce((a, b) => a + b) / numberOfReviews) * 100
+        CSATForPeriod = (allReviewsThisPeriod.map((entry) => parseInt(entry.rating)).reduce((a, b) => a + b) / numberOfReviews / 5) * 100
     }
 
     // Average rating overall
     let CSATOverall = 100
     if (allReviewsOverall.length !== 0) {
-        CSATOverall = (allReviewsOverall.map((entry) => parseFloat(entry.rating)).reduce((a, b) => a + b) / numberOfReviews) * 100
+        CSATOverall = (allReviewsOverall.map((entry) => parseInt(entry.rating)).reduce((a, b) => a + b) / numberOfReviews / 5) * 100
     }
 
     return {
