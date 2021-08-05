@@ -29,8 +29,8 @@ const getMoneyStats = async (offset, tguid) => {
     }
 
     return {
-        totalEarnings: roundTo(totalEarnings, 2).toFixed(2).toString(),
-        averageEarnings: roundTo(averageEarnings, 2).toFixed(2).toString(),
+        totalEarnings: roundTo(totalEarnings, 2),
+        averageEarnings: roundTo(averageEarnings, 2),
     }
 }
 
@@ -48,8 +48,8 @@ const getStatsRange = async (to, from, tguid) => {
     // Only if there are tours, calculate the stats. This prevents a divide by 0 error.
     if (allTours.length !== 0) {
         totalEarningsBeforeSvc = allTours.map((booking) => parseFloat(booking.bookBaseprice) + parseFloat(booking.bookCharges.split(',').reduce((a, b) => a + b))).reduce((a, b) => a + b)
-        totalEarnings = totalEarningsBeforeSvc * 0.85
-        serviceCharge = totalEarningsBeforeSvc * 0.15
+        serviceCharge = roundTo(totalEarningsBeforeSvc * 0.15, 2)
+        totalEarnings = totalEarningsBeforeSvc - parseFloat(serviceCharge)
         averageEarnings = totalEarnings / allTours.length
     }
 
@@ -83,7 +83,7 @@ const getTours = (to, from, tguid, dateInCSV = false) => {
                     name: tourNameOfBooking,
                     bookingId: allPaidTours[i].bookId,
                     date: bookDate,
-                    amount: roundTo(amount, 2).toFixed(2).toString(),
+                    amount: roundTo(amount, 2),
                 })
             } else {
                 reconstructedBookingList.push({
@@ -91,7 +91,7 @@ const getTours = (to, from, tguid, dateInCSV = false) => {
                     name: tourNameOfBooking,
                     bookingId: allPaidTours[i].bookId,
                     date: dateFormat(bookDate, 'dd-mm-yyyy'),
-                    amount: roundTo(amount, 2).toFixed(2).toString(),
+                    amount: roundTo(amount, 2),
                 })
             }
             loop.next()
@@ -117,6 +117,8 @@ const getTourGuideCSAT = async (offset, tguid) => {
     let CSATForPeriod = null
     if (numberOfReviews !== 0) {
         CSATForPeriod = (allReviewsThisPeriod.map((entry) => parseInt(entry.rating)).reduce((a, b) => a + b) / numberOfReviews / 5) * 100
+    } else if (numberOfReviews === 0) {
+        CSATForPeriod = 100
     }
 
     // Average rating overall
@@ -126,9 +128,9 @@ const getTourGuideCSAT = async (offset, tguid) => {
     }
 
     return {
-        numberOfReviews,
-        CSATForPeriod,
-        CSATOverall,
+        numberOfReviews: roundTo(numberOfReviews, 2),
+        CSATForPeriod: roundTo(CSATForPeriod, 2),
+        CSATOverall: roundTo(CSATOverall, 2),
     }
 }
 

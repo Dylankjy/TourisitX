@@ -32,7 +32,7 @@
                     class="fas fa-info-circle"></i>&ensp;Analytics displayed for past 30 days.</small>
         </div>
         <div class="column has-text-right">
-            <small style="display: none;" id="updatedIndicator" class="has-text-grey-light">Last updated <span id="lastUpdateTime"></span></small>
+            <small style="display: none;" id="updatedIndicator" class="has-text-grey-light">Fetched at <span id="lastUpdateTime"></span></small>
             <small id="updatingIndicator" class="has-text-grey-light"><i class="fas fa-circle-notch fa-spin"></i>&ensp;Loading data...</small>
         </div>
     </div>
@@ -201,17 +201,17 @@
             }
 
             if (data.money.currentPeriod.totalEarnings - data.money.lastPeriod.totalEarnings < 0) {
-                $('#currentPeriodDiffField').text(`-$${data.money.currentPeriod.totalEarnings - data.money.lastPeriod.totalEarnings}`);
+                $('#currentPeriodDiffField').text(`-$${(-(data.money.currentPeriod.totalEarnings - data.money.lastPeriod.totalEarnings)).toFixed(2).toString()}`);
                 $('#currentPeriodDiffFieldTag').addClass('is-danger');
             } else {
-                $('#currentPeriodDiffField').text(`+$${data.money.currentPeriod.totalEarnings - data.money.lastPeriod.totalEarnings}`);
+                $('#currentPeriodDiffField').text(`+$${(data.money.currentPeriod.totalEarnings - data.money.lastPeriod.totalEarnings).toFixed(2).toString()}`);
                 $('#currentPeriodDiffFieldTag').addClass('is-success');
             }
 
             $('#csatField').text(data.csat.currentPeriod.CSATForPeriod)
 
             if (data.csat.currentPeriod.CSATForPeriod - data.csat.lastPeriod.CSATForPeriod < 0) {
-                $('#csatDiffField').text(`-${data.csat.currentPeriod.CSATForPeriod - data.csat.lastPeriod.CSATForPeriod}%`);
+                $('#csatDiffField').text(`-${-(data.csat.currentPeriod.CSATForPeriod - data.csat.lastPeriod.CSATForPeriod)}%`);
                 $('#csatDiffFieldTag').addClass('is-danger');
             } else {
                 $('#csatDiffField').text(`+${data.csat.currentPeriod.CSATForPeriod - data.csat.lastPeriod.CSATForPeriod}%`);
@@ -292,15 +292,20 @@
             var csatChartData = new Chart(csatChart, {
                 type: 'line',
                 data: {
-                    labels: recent_months,
+                    labels: recent_months.slice(0, -1),
                     datasets: [{
                         label: 'Satisfaction rate (%)',
-                        data: [csatData.m5.CSATForPeriod, csatData.m4.CSATForPeriod, csatData.m3.CSATForPeriod, csatData.m2.CSATForPeriod, csatData.m1.CSATForPeriod, csatData.m0.CSATForPeriod],
+                        data: [csatData.m5.CSATForPeriod, csatData.m4.CSATForPeriod, csatData.m3.CSATForPeriod, csatData.m2.CSATForPeriod, csatData.m1.CSATForPeriod],
                         backgroundColor: 'rgba(224, 34, 85, 0.2)',
                         //borderWidth: 1
                     }]
                 },
                 options: {
+                    elements: {
+                        line: {
+                            cubicInterpolationMode: 'monotone'
+                        }
+                    },
                     tooltips: {
                         callbacks: {
                             label: function (tooltipItem, data) {

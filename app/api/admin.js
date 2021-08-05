@@ -1,5 +1,6 @@
 const { Booking, User, Review } = require('../../models')
 const { Op } = require('sequelize')
+const roundTo = require('round-to')
 
 // Formula to get number of ms in a day -- This is here because I don't want to have to keep typing this.
 const oneDay = 24 * 60 * 60 * 1000
@@ -14,17 +15,21 @@ const getAdminStats = async (offset) => {
     // Calculating moneys
     const bookingRecords = await Booking.findAll({ where: { 'createdAt': { [Op.between]: [(new Date()) - startOffset, new Date() - endOffset] } } })
 
-    let totalIncome
+    let totalIncome = 0
     if (bookingRecords.length !== 0) {
-        totalIncome = bookingRecords.map((booking) => parseFloat(booking.bookBaseprice) + parseFloat(booking.bookCharges.split(',').reduce((a, b) => a + b))).reduce((a, b) => a + b)
-    } else {
-        totalIncome = 0
+        totalIncome = bookingRecords.map((booking) =>parseFloat(booking.bookBaseprice) + parseFloat(booking.bookCharges.split(',').reduce((a, b) => a + b) || 0)).reduce((a, b) => a + b)
     }
 
     const totalBookings = bookingRecords.length
     const totalNetIncome = totalIncome * 0.15
 
-    return { totalIncome, totalBookings, totalNetIncome }
+    console.table([totalIncome, totalBookings, totalNetIncome])
+
+    return {
+        totalIncome: roundTo(totalIncome, 2),
+        totalBookings: totalBookings,
+        totalNetIncome: roundTo(totalNetIncome, 2),
+    }
 }
 
 const getUserStats = async (offset) => {
@@ -60,15 +65,15 @@ const getCSATStats = async (offset) => {
     const numberOfPositive = (await Review.findAll({ where: { 'createdAt': { [Op.between]: [(new Date()) - startOffset, new Date() - endOffset] }, 'rating': { [Op.gte]: 3 } } })).length
     const numberOfNegative = (await Review.findAll({ where: { 'createdAt': { [Op.between]: [(new Date()) - startOffset, new Date() - endOffset] }, 'rating': { [Op.lt]: 3 } } })).length
 
-    let percentage = 100
+    let percentage = 0
     if (numberOfReviews !== 0) {
-        percentage = (allReviews.map((entry) => entry.rating).reduce((a, b) => a + b) / (numberOfReviews * 5)) * 100
+        percentage = (allReviews.map((entry) => parseInt(entry.rating)).reduce((a, b) => a + b) / numberOfReviews / 5) * 100
     }
 
     return {
         numberOfPositive,
         numberOfNegative,
-        percentage,
+        percentage: roundTo(percentage, 1),
     }
 }
 
