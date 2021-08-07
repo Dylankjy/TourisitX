@@ -495,6 +495,17 @@ router.post('/profile/edit/:savedId', (req, res) => {
         const imgDetails = {
             'profile_img': savedName,
         }
+        User.findAll({
+            where: {
+                id: req.params.savedId,
+            },
+        }).then((items) => {
+            const savedPfpFile = items[0]['dataValues']['profile_img']
+            if (savedPfpFile != 'default.png') {
+                console.log(`Removed IMAGE FILE: ${savedPfpFile}`)
+                fs.unlinkSync(`${savedpfpFolder}/${savedPfpFile}`)
+            }
+        })
         updateDB('user', { 'id': req.params.savedId }, imgDetails, () => {
             return res.redirect(`/u/profile/${req.params.savedId}`)
         })
