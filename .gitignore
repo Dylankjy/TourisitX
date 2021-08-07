@@ -86,10 +86,10 @@ config/apikeys.json
 # Ignore user generated content
 storage/csv_reports/*.csv
 storage/listings/*
--storage/listings/default.jpg
-storage/users/*.png
-storage/users/*.jpg
--storage/users/README.md
+!storage/listings/default.jpg
+storage/users/*
+!storage/users/README.md
+!storage/users/default.png
 
 # Stupid apple shit
 .DS_STORE
