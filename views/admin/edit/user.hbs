@@ -1,3 +1,7 @@
+<head>
+    <link rel='stylesheet' href='/third_party/bulma/bulma-switch/dist/css/bulma-switch.min.css' />
+    <script src='/third_party/jquery-ui/jquery-ui.js'></script>
+</head>
 <div class='container'>
     <p class="pb-5"><a href="/admin/manage/{{data.previousPage}}"><i class="fas fa-arrow-left"></i>&ensp;Return to
             {{data.previousPage}} management</a></p>
@@ -137,9 +141,17 @@
                 <div class='field'>
                     <label class='has-text-weight-medium has-text-grey-dark' for='account_mode'>Tour Guide
                         Mode:</label> &nbsp;
-                    <input class='switch is-rounded' id='account_mode' type='checkbox' name='account_mode' />
+                    {{#if data.user.is_tourguide}}
+                    <input class='switch is-rounded' type='checkbox' name='account_modes' id='account_modes'
+                        checked='checked'>
                     <!-- Empty label -->
-                    <label class='has-text-weight-medium has-text-grey-dark' for='account_mode'></label>
+                    <label class='has-text-weight-medium has-text-grey-dark' for='account_modes'></label>
+                    {{else}}
+
+                    <input class='switch is-rounded' type='checkbox' name='account_modes' id='account_modes'>
+                    <!-- Empty label -->
+                    <label class='has-text-weight-medium has-text-grey-dark' for='account_modes'></label>
+                    {{/if}}
                 </div>
                 <!-- Name -->
                 <div class='field'>
