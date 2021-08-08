@@ -131,8 +131,6 @@ addMessage = (roomId, senderId, messageText, flag, callback) => {
             console.log(
                 '\x1b[1m\x1b[2m[SOCKET - Chat] - \x1b[1m\x1b[34mOK\x1b[0m: System is interacting with the internal socket server.\x1b[0m',
             )
-
-            return
         }
 
         const AddMessagePayload = {
