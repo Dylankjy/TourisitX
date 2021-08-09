@@ -8,13 +8,16 @@ const { Shop } = require('../models')
 const router = express.Router()
 router.use(formidable())
 
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
     if (req.query.page === undefined) {
         return res.redirect('?page=1')
     }
     const pageNo = parseInt(req.query.page)
     const entriesPerPage = 4
     const listings = []
+    const totalNumberOfPages = Math.ceil(
+        (await Shop.count({ where: { hidden: false } })) / entriesPerPage,
+    )
     Shop.findAll({
         attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
         // limit: Set a limit on number of examples to retrieve
@@ -39,6 +42,7 @@ router.get('/', (req, res) => {
                     tourCount: listings.length,
                 },
                 nginxRoute: nginxBaseUrl,
+                totalPages: totalNumberOfPages,
             }
             return res.render('marketplace.hbs', metadata)
         })

@@ -45,9 +45,17 @@
 </main>
 
 <script>
+    var searchEmpty = true
+    // Will default load page=2 for the next scroll
+    var scrollPage = 2
+    // Maximum no. of pages (Depends on number of entries in Database)
+    var maxScrollPage = {{totalPages}}
     // For ElasticSearch
     keyTimeout = () => {
         if ($.trim($('#searchText').val()) != "") {
+            // Reset the scroll page
+            scrollPage = 2
+            searchEmpty = false
 
             // Clear all the displayed choices
             $("#displayedListings").empty()
@@ -88,26 +96,26 @@
                     console.log(err)
                 })
         } else {
+            searchEmpty = true
             $("#displayedListings").html(`
                     {{#each listings}}
                     {{>listingCard}}
                     {{/each}}
             `)
             $("#displayedListingsSkeleton").hide()
+            
         }
     }
 
-
-    // For Infinite Scroll
-
-    // $("#displayedListings").append()
-
-    // Page query will be dynamic
+    // 1st boolean: Run function when the bottom of page is reached
+    // 2nd boolean: Ensure that this only runs when elasticSearch is not used (As we are querying the entire db,not using a search query)
+    // 3rd boolean: Infinite Scroll till the maximum page is reached, and no longer run it
     $(window).scroll(function() {
-        if($(window).scrollTop() + $(window).height() == $(document).height()) {
-            fetch(`/marketplace/api?page=1`)
+        if(($(window).scrollTop() + $(window).height() == $(document).height()) && searchEmpty==true && scrollPage <= maxScrollPage) {
+            fetch(`/marketplace/api?page=${scrollPage}`)
             .then((res)=>{
-                console.log("FIRED")
+                console.log("Got page: " + scrollPage)
+                scrollPage += 1
                 return res.json()
             }).then((data)=>{
                 data["listings"].forEach((elem)=> {
@@ -129,6 +137,14 @@
         })
         }
     });
+
+
+    // For Infinite Scroll
+
+    // $("#displayedListings").append()
+
+    // Page query will be dynamic
+    
 
     $(document).ready(() => {
         var runCounter = setTimeout(keyTimeout, 800)
