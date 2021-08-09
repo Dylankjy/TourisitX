@@ -2,7 +2,7 @@ const express = require('express')
 const { default: axios } = require('axios')
 
 const router = express.Router()
-const { Shop, User, Booking, ChatRoom, TourPlans, ChatMessages, Review } = require('../models')
+const { Shop, User, Booking, ChatRoom, TourPlans, ChatMessages, Review, sequelize } = require('../models')
 
 const uuid = require('uuid')
 
@@ -21,18 +21,6 @@ const { route } = require('./tourguide')
 
 // Put all your routings below this line -----
 
-// const tourPlans = [
-//     { planId: '555',
-//         bookId: 'bookweee',
-//         index: 0,
-//         tourStart: new Date().toISOString(),
-//         tourEnd: new Date().toISOString(),
-//         tourPax: '5',
-//         tourPrice: '300',
-//         tourItinerary: 'Go to the chopper at bshan an eat some duck rice,Ride to outskirts of SG e',
-//         accepted: '-1' },
-// ]
-
 router.get('/', async (req, res) => {
     const sid = req.signedCookies.sid
     let pageNo = req.query.page
@@ -45,43 +33,94 @@ router.get('/', async (req, res) => {
         pageNo = 1
     }
 
-    // If person is not logged in
-    if (sid == undefined) {
-        return requireLogin(res)
-    } else {
-        const userData = await genkan.getUserBySessionAsync(sid)
-        Booking.findAndCountAll({
+    const bookType = req.query.type
+
+    let processStepQuery
+    let bookCount = 0
+    let bookList
+    let lastPage = 1
+    let reqAction
+    let upcoming
+    if (bookType) {
+        if (bookType == 'planning') {
+            processStepQuery = ['1', '2', '3']
+        } else if (bookType == 'confirmed') {
+            processStepQuery = '4'
+        } else if (bookType == 'completed') {
+            processStepQuery = '5'
+        } else {
+            res.redirect(`/bookings`)
+        }
+
+        bookings = await Booking.findAndCountAll({
             where: {
-                custId: userData.id,
-                // completed: 0,
+                custId: req.currentUser.id,
                 approved: 1,
+                processStep: processStepQuery,
             },
-            order: [['createdAt', 'ASC']],
-            include: Shop,
+            attributes: ['bookId', 'processStep', 'completed'],
+            order: [['updatedAt', 'DESC']],
+            include: { model: Shop,
+                attributes: ['tourTitle', 'tourImage'] },
             raw: true,
             limit: pageSize,
             offset: offset,
         })
-            .then( (result) => {
-                const bookCount = result.count
-                const bookList = result.rows
-                const lastPage = Math.ceil(bookCount / pageSize)
-                const metadata = {
-                    meta: {
-                        title: 'All Bookings',
-                        pageNo: pageNo,
-                        count: bookCount,
-                        lastPage: lastPage,
-                    },
-                    data: {
-                        currentUser: req.currentUser,
-                        bookList: bookList,
-                    },
-                }
-                return res.render('allBookings.hbs', metadata)
-                // }).catch((err) => console.log)
-            }).catch((err) => console.log)
+        if (bookings) {
+            bookCount = bookings.count
+            bookList = bookings.rows
+            lastPage = Math.ceil(bookCount / pageSize)
+        }
+    } else {
+        // Overview
+        reqAction = await Booking.findAndCountAll({
+            where: {
+                custId: req.currentUser.id,
+                approved: 1,
+                processStep: ['2', '3', '4', '5'],
+            },
+            where: sequelize.literal('Reviews.id IS NULL'),
+            attributes: ['bookId', 'processStep'],
+            order: [['updatedAt', 'ASC']],
+            include: [
+                { model: Shop,
+                    attributes: ['tourTitle'] },
+                { model: Review,
+                    attributes: [] }],
+            raw: true,
+        })
+
+        upcoming = await Booking.findAndCountAll({
+            where: {
+                custId: req.currentUser.id,
+                approved: 1,
+                processStep: '4',
+            },
+            attributes: ['bookId', 'processStep', 'tourStart'],
+            order: [['tourStart', 'DESC']],
+            include:
+                    { model: Shop,
+                        attributes: ['tourTitle'] },
+            raw: true,
+        })
     }
+
+    const metadata = {
+        meta: {
+            title: 'All Bookings',
+            pageNo: pageNo,
+            count: bookCount,
+            lastPage: lastPage,
+            type: bookType,
+        },
+        data: {
+            currentUser: req.currentUser,
+            bookList: bookList,
+            reqAction: reqAction,
+            upcoming: upcoming,
+        },
+    }
+    return res.render('allBookings.hbs', metadata)
 })
 
 router.post('/:id/request-revision', async (req, res) => {
