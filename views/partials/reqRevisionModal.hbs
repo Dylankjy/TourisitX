@@ -15,7 +15,7 @@
                 {{/ifBigger}}
 
                 <button class="button is-white is-pulled-right has-tooltip-multiline has-tooltip-left"
-                        data-tooltip="Every extra revision after all your free revisions have been used will cost an extra $no">
+                        data-tooltip="Every extra revision after all your free revisions have been used will cost an extra ${{data.bookCharges.[0]}}">
                     <i class="far fa-question-circle"></i>
                 </button>
                 <form id="revisionform" method="POST" action="/bookings/{{data.book.bookId}}/request-revision">

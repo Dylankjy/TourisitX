@@ -61,9 +61,11 @@
                                 {{#ifEquals data.book.processStep '1'}}
                                     <a href="#"><span class="tag is-link">Submit Tour Plan &nbsp;</span></a>
                                 {{/ifEquals}}
+                                {{#ifBigger data.book.processStep '4'}}
                                 {{#unless data.reviews.TOUR}}
                                 <span class="tag is-link" onclick="$('#ReviewModal').fadeIn('fast');">Leave a Review &nbsp;<i class="fas fa-arrow-right"></i></span>
                                 {{/unless}}
+                                {{/ifBigger}}
                                 {{#ifInRange data.book.processStep 2 4}}
                                 <span class="tag">Awaiting Customer Action</span>
                                 {{/ifInRange}}
@@ -261,7 +263,8 @@
                                 </div>
                                 {{/ifEquals}}
 
-                                {{#unless data.reviews.CUST}}
+                                {{#ifBigger data.book.processStep '4'}}
+                                {{#unless data.reviews.TOUR}}
                                 <div class="timeline-item">
                                     <div class="timeline-marker is-icon has-background-grey has-text-white">
                                     <i class="fas fa-ellipsis-h"></i>
@@ -272,6 +275,7 @@
                                     </div>
                                 </div>
                                 {{/unless}}
+                                {{/ifBigger}}
                                 </span>
 
                                 <header class="timeline-header">
@@ -570,7 +574,7 @@
                                     {{#ifBigger data.book.custom 0}}
                                     <tr>
                                         <td>Customisation Fee</td>
-                                        <td>${{data.book.bookCharges}}</td>
+                                        <td>${{data.charges.customFee}}</td>
                                     </tr>
                                     {{/ifBigger}}
                                     <tr>
@@ -581,23 +585,23 @@
                                     {{#ifSmaller (toNum data.book.revisions) 0}}
                                     <tr>
                                         <td>Extra Revisions {{data.book.revisions}}</td>
-                                        <td>${{math data.book.revisions '*' data.book.bookCharges}}</td>
+                                        {{!-- <td>${{math data.book.revisions '*' data.book.bookCharges}}</td> --}}
+                                        <td>${{data.charges.extraRevFees}}</td>
                                     </tr>
                                     {{/ifSmaller}}
                                     {{/ifBigger}}
                                     <tr>
-                                        <th>Subtotal</th>
-                                        {{!-- calculate subtotal server side --}}
-                                        <th>${{math data.book.bookBaseprice '+' data.book.bookCharges}}</th>
+                                        <td><b>Subtotal</b></td>
+                                        <td><b>${{round2DP (math data.charges.customFee '+' data.charges.priceToPay)}}</b></td>
                                     </tr>
-                                     <tr>
-                                        <th>Service Fee <span><i class="far fa-question-circle has-tooltip-multiline" 
-                                        data-tooltip="Tourisit takes a 10% service fee for sustainability. Thank you for using our service."></i></span></th>
-                                        <th>${{math (math data.book.bookBaseprice '+' data.book.bookCharges) '*' 0.1}}</th>
+                                    <tr>
+                                        <td>Service Fee (15%)</td>
+                                        <td>- ${{data.charges.serviceFee}}</td>
                                     </tr>
                                     <tr class="has-background-white-ter has-text-weight-bold is-size-5">
                                         <th>Total</th>
-                                        <th>${{math (math (math data.book.bookBaseprice '+' data.book.bookCharges) '*' 0.1) '+' (math data.book.bookBaseprice '+' data.book.bookCharges)}}</th>
+                                        {{!-- <th>${{math (math (math data.book.bookBaseprice '+' data.book.bookCharges) '*' 0.1) '+' (math data.book.bookBaseprice '+' data.book.bookCharges)}}</th> --}}
+                                        <th>${{round2DP (math (math data.charges.customFee '+' data.charges.priceToPay) '-' data.charges.serviceFee)}}</th>
                                     </tr>
                                 </table>
                             </div>
@@ -648,12 +652,12 @@
             </div>
             <div class="column is-one-quarter">
                 <div class="container mt-5">
-                    <a href="/u/messages">
+                    {{!-- <a href="/u/messages">
                     <button class="button is-fullwidth has-text-weight-semibold is-rounded is-warning is-light">
                         <span class="icon"><i class="fas fa-comment-alt"></i></span>
                         Chat with <span class="has-text-primary ml-1 has-text-weight-bold">{{data.cust.name}}</span>
                     </button></a>
-                    <br>
+                    <br> --}}
 
                     <div class="mt-4 has-background-white-bis p-4">
                         <p class="has-text-weight-bold is-size-5 mb-2 has-text-centered">Tour Name</p>
@@ -672,7 +676,7 @@
                             </tr>
                             <tr>
                                 <th>Ordered by</th>
-                                <a href=""><td class="has-text-link">{{data.cust.name}}</td></a>
+                                <td><a href="/u/profile/{{data.cust.id}}">{{data.cust.name}}</a></td>
                             </tr>
                         </table>
                     </div>

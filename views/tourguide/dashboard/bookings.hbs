@@ -52,3 +52,17 @@
     {{/each}}
 
 </table>
+
+<section class="section is-small">
+            <div class="has-text-centered">
+                <span>
+                    {{#ifNotEquals meta.pageNo 1}}
+                    <a href="?page={{math meta.pageNo '-' 1}}"><i class="fas fa-arrow-alt-circle-left"></i></a>
+                    {{/ifNotEquals}}
+                    Page {{meta.pageNo}} / {{meta.lastPage}}
+                    {{#ifNotEquals meta.pageNo meta.lastPage}}
+                    <a href="?page={{math meta.pageNo '+' 1}}"><i class="fas fa-arrow-alt-circle-right"></i></a>
+                    {{/ifNotEquals}}
+                </span>
+            </div>
+        </section>

@@ -310,6 +310,9 @@ router.get('/:id', async (req, res) => {
             bookId: bookID,
         },
         raw: true,
+        order: [
+            ['createdAt', 'ASC'],
+        ],
     })
 
     const reviews = {
@@ -360,7 +363,7 @@ router.get('/:id', async (req, res) => {
                     extraRevFees = noOfRevisions * revisionFee
                     priceToPay += extraRevFees
                 }
-                // priceToPay = priceToPay.toFixed(2)
+                extraRevFees = extraRevFees.toFixed(2)
                 const metadata = {
                     meta: {
                         title: bookData['Shop.tourTitle'],

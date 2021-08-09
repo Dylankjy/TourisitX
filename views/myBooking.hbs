@@ -64,15 +64,18 @@
                                 {{/ifEquals}}
 
                                 {{#ifEquals data.book.processStep '4'}}
-                                    <span onclick="$('#CompleteTourModal').fadeIn('fast');" class="tag has-tooltip-multiline has-tooltip-right {{#ifAfterToday data.book.tourStart}} is-link {{/ifAfterToday}} " 
-                                    {{#ifAfterToday data.book.tourStart}}data-tooltip="Declare that you've gone on your tour"{{/ifAfterToday}} data-tooltip="Available after the tour date, {{dateParseISO data.book.tourStart}}">
+                                    <span {{#ifAfterToday data.book.tourStart}}onclick="$('#CompleteTourModal').fadeIn('fast');" data-tooltip="Declare that you've gone on your tour" {{/ifAfterToday}} 
+                                    class="tag has-tooltip-multiline has-tooltip-right {{#ifAfterToday data.book.tourStart}} is-link {{/ifAfterToday}}" 
+                                    data-tooltip="Available after the tour date, {{dateParseISO data.book.tourStart}}">
                                     Declare that Tour is Complete </span>
                                 {{/ifEquals}}
 
+                                {{#ifBigger data.book.processStep '4'}}
                                 {{#unless data.reviews.TOUR}}
                                     {{!-- <a href="/bookings/{{data.book.bookId}}/review"><span class="tag is-link">Leave a Review </span></a> --}}
                                     <span class="tag is-link" onclick="$('#ReviewModal').fadeIn('fast');">Leave a Review </span></a>
                                 {{/unless}}
+                                {{/ifBigger}}
 
                                 {{#ifEquals data.book.processStep '1'}}
                                     <span class="tag is-light">Awaiting Tour Guide Action</span>
@@ -318,6 +321,7 @@
                                 {{/ifAfterToday}}
                                 {{/ifEquals}}
 
+                                {{#ifBigger data.book.processStep '4'}}
                                 {{#unless data.reviews.TOUR}}
                                 <div class="timeline-item">
                                     <div class="timeline-marker is-icon has-background-grey has-text-white">
@@ -329,6 +333,7 @@
                                     </div>
                                 </div>
                                 {{/unless}}
+                                {{/ifBigger}}
 
                                 {{!-- <div class="timeline-item">
                                     <div class="timeline-marker is-icon has-background-success has-text-white">
@@ -571,7 +576,7 @@
                                     <tr class="has-background-white-ter has-text-weight-bold is-size-5">
                                         <th>Total</th>
                                         {{!-- <th>${{math (math (math data.book.bookBaseprice '+' data.book.bookCharges) '*' 0.1) '+' (math data.book.bookBaseprice '+' data.book.bookCharges)}}</th> --}}
-                                        <th>${{math data.charges.customFee '+' data.charges.priceToPay}}</th>
+                                        <th>${{round2DP (math data.charges.customFee '+' data.charges.priceToPay)}}</th>
                                     </tr>
                                 </table>
                             </div>
@@ -621,12 +626,12 @@
             </div>
             <div class="column is-one-quarter">
                 <div class="container mt-5">
-                    <a href="/u/messages">
+                    {{!-- <a href="/u/messages">
                     <button class="button is-fullwidth has-text-weight-semibold is-rounded is-warning is-light">
                         <span class="icon"><i class="fas fa-comment-alt"></i></span>
                         Chat with <span class="has-text-primary ml-1 has-text-weight-bold">{{data.tg.name}}</span>
                     </button></a>
-                    <br>
+                    <br> --}}
 
                     <div class="mt-4 has-background-white-bis p-4">
                         <img style="border-radius:10px;" src="/static/listings/{{data.book.[Shop.tourImage]}}">
@@ -644,7 +649,7 @@
                             </tr>
                             <tr>
                                 <th>Ordered from</th>
-                                <td class="has-text-link">{{data.tg.name}}</td>
+                                <td><a href="/u/profile/{{data.tg.id}}">{{data.tg.name}}</a></td>
                             </tr>
                         </table>
                     </div>

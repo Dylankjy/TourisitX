@@ -199,6 +199,9 @@ router.get('/bookings/:id', async (req, res) => {
             bookId: bookID,
         },
         raw: true,
+        order: [
+            ['createdAt', 'ASC'],
+        ],
     })
 
     const reviews = {
@@ -235,6 +238,20 @@ router.get('/bookings/:id', async (req, res) => {
         }, () => {
             genkan.getUserByID(bookData['custId'], (custData) => {
                 console.log(custData)
+                // Calculating price stuff
+                const chargesArr = bookData['bookCharges'].split(',')
+                const revisionFee = chargesArr[0]
+                let priceToPay = parseInt(bookData['bookBaseprice'])
+                let extraRevFees = 0
+
+                // Any extra revisions
+                if (bookData['custom'] > 0 && bookData['revisions'] < 0) {
+                    const noOfRevisions = Math.abs(bookData['revisions'])
+                    extraRevFees = noOfRevisions * revisionFee
+                    priceToPay += extraRevFees
+                }
+                extraRevFees = extraRevFees.toFixed(2)
+                serviceFee = priceToPay * 0.15
                 const metadata = {
                     meta: {
                         title: bookData['Shop.tourTitle'],
@@ -248,13 +265,18 @@ router.get('/bookings/:id', async (req, res) => {
                         participants: listOfParticipantNames,
                         reviews: reviews,
                         cust: custData,
+                        charges: {
+                            bookCharges: chargesArr,
+                            customFee: revisionFee,
+                            priceToPay: priceToPay,
+                            extraRevFees: extraRevFees,
+                            serviceFee: serviceFee,
+                        },
                     },
                     nav: {
                         sidebarActive: 'bookings',
                     },
                     layout: 'main',
-                    // tourPlans is a placeholder used for testing until the customisation features are in
-                    tourPlans: tourPlanData.rows,
 
                 }
                 return res.render('tourguide/myJob', metadata)
