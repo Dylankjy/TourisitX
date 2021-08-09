@@ -45,6 +45,7 @@
 </main>
 
 <script>
+    // For ElasticSearch
     keyTimeout = () => {
         if ($.trim($('#searchText').val()) != "") {
 
@@ -96,9 +97,42 @@
         }
     }
 
-    var runCounter = setTimeout(keyTimeout, 800)
+
+    // For Infinite Scroll
+
+    // $("#displayedListings").append()
+
+    // Page query will be dynamic
+    $(window).scroll(function() {
+        if($(window).scrollTop() + $(window).height() == $(document).height()) {
+            fetch(`/marketplace/api?page=1`)
+            .then((res)=>{
+                console.log("FIRED")
+                return res.json()
+            }).then((data)=>{
+                data["listings"].forEach((elem)=> {
+                    $("#displayedListings").append(`
+                    <div class="column is-one-quarter">
+                        <a class="listing-clickable" href='/listing/info/${elem["id"]}'>
+                            <div class="box listing-image" style='background-image: url("/static/listings/${elem["tourImage"]}")'>
+                                <div>
+                                    <p class="content has-text-white">
+                                        ${elem["tourDesc"]}
+                                    </p>
+                                </div>
+                            </div>
+                            <h3 class="title">${elem["tourTitle"]}</h3>
+                        </a>
+                    </div>                
+                    `)
+            })
+        })
+        }
+    });
 
     $(document).ready(() => {
+        var runCounter = setTimeout(keyTimeout, 800)
+
         $('#searchText').on('keyup', () => {
 
             // Only process searches more than 2 characters long
@@ -112,5 +146,7 @@
 
             return
         })
+
+
     })
 </script>
