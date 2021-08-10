@@ -1,4 +1,4 @@
-<h1 class="title">All Active Bookings</h1>
+<h1 class="title">All Completed Tours</h1>
 <table class="table is-fullwidth">
     <tr>
         <th>Order Date</th>
@@ -16,34 +16,15 @@
         <td><a href="/tourguide/bookings/{{this.bookId}}">{{ this.[Shop.tourTitle] }}</a></td>
 
         <td>{{ this.custId }}</td>
-        
-        {{#ifEquals this.processStep '0'}}
 
-            {{#ifEquals this.approved 0}}
-            <td class="has-text-grey"><i class="fas fa-exclamation-circle"></i>&nbsp;Approve or Reject Tour</td>
+        {{#if this.[Reviews.id]}}
+            {{#ifEquals this.processStep '5'}}
+            <td class="has-text-success-dark"><i class="fas fa-tick"></i>&nbsp;Tour completed</td>
             {{/ifEquals}}
+        {{else}}
+            <td class="has-text-danger-dark"><i class="fas fa-exclamation-circle"></i>&nbsp;Leave a review</td>
+        {{/if}}
 
-            {{#ifEquals this.approved 1}}
-            <td class="has-text-grey"><i class="fas fa-clock"></i>&nbsp;Awaiting customer payment (customisation fee)</td>
-            {{/ifEquals}}
-
-        {{/ifEquals}}
-
-        {{#ifEquals this.processStep '1'}}
-        <td class="has-text-danger-dark"><i class="fas fa-exclamation-circle"></i>&nbsp;Submit tour agenda</td>
-        {{/ifEquals}}
-
-        {{#ifEquals this.processStep '2'}}
-        <td class="has-text-grey"><i class="fas fa-clock"></i>&nbsp;Pending customer feedback</td>
-        {{/ifEquals}}
-
-        {{#ifEquals this.processStep '3'}}
-        <td class="has-text-grey"><i class="fas fa-clock"></i>&nbsp;Awaiting customer payment</td>
-        {{/ifEquals}}
-
-        {{#ifEquals this.processStep '4'}}
-        <td class="has-text-info-dark"><i class="fas fa-clock"></i>&nbsp;Pending tour completion</td>
-        {{/ifEquals}}
     </tr>
     {{/each}}
 

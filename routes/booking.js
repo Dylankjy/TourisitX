@@ -59,27 +59,35 @@ router.get('/', async (req, res) => {
                 processStep: processStepQuery,
             },
             attributes: ['bookId', 'processStep', 'completed'],
-            order: [['updatedAt', 'DESC']],
-            include: { model: Shop,
-                attributes: ['tourTitle', 'tourImage'] },
+            // order: [['updatedAt', 'DESC']],
+            include: [
+                { model: Shop,
+                    attributes: ['tourTitle', 'tourImage'] },
+                { model: Review,
+                    required: false,
+                    attributes: ['id'],
+                    where: { reviewerId: req.currentUser.id } }],
             raw: true,
             limit: pageSize,
             offset: offset,
         })
         if (bookings) {
+            console.log(bookings)
             bookCount = bookings.count
             bookList = bookings.rows
             lastPage = Math.ceil(bookCount / pageSize)
         }
     } else {
         // Overview
+        const reviewQuery = 'Reviews.reviewerId != "'+ req.currentUser.id +'"'
+        console.log(reviewQuery)
         reqAction = await Booking.findAndCountAll({
             where: {
                 custId: req.currentUser.id,
                 approved: 1,
                 processStep: ['2', '3', '4', '5'],
             },
-            where: sequelize.literal('Reviews.id IS NULL'),
+            where: sequelize.literal('Reviews.reviewerId != Booking.custId OR Reviews.id IS NULL'),
             attributes: ['bookId', 'processStep'],
             order: [['updatedAt', 'ASC']],
             include: [
@@ -104,7 +112,6 @@ router.get('/', async (req, res) => {
             raw: true,
         })
     }
-
     const metadata = {
         meta: {
             title: 'All Bookings',
@@ -323,7 +330,11 @@ router.post('/:id/review-tour', async (req, res) => {
             },
         ).then((data) => {
             addMessage(bookData['chatId'], 'SYSTEM', tourType, 'REVIEW', () => {
-                res.redirect(`/bookings/${bookId}`)
+                if (req.currentUser.id == bookData['custId']) {
+                    res.redirect(`/bookings/${bookId}`)
+                } else if (req.currentUser.id == bookData['tgId']) {
+                    res.redirect(`/tourguide/bookings/${bookId}`)
+                }
             })
         })
     }

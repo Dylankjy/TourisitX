@@ -30,7 +30,7 @@
     <section class="section is-medium">
             <div class="container has-text-centered">
                 <p class="title has-text-grey-light has-text-weight-bold" style="font-size: 4.5rem;">(┯﹏┯)</p>
-                <p class="subtitle is-4 has-text-grey">It's all empty UWU!<br><small>Start a tour with Tourisit today.</small></p>
+                <p class="subtitle is-4 has-text-grey">It's all empty!<br><small>Start a tour with Tourisit today.</small></p>
                 <a class="button is-dark" href="/marketplace"><i class="fas fa-store"></i>&ensp;View the marketplace</a>
             </div>
         </section>  
@@ -75,7 +75,7 @@
                             <tr>
 
                             {{#ifEquals this.processStep '2'}}
-                            <th>{{this.[Shop.tourTitle]}}{{this.processStep}}</th>
+                            <th>{{this.[Shop.tourTitle]}}</th>
                             <td><a href="/bookings/{{this.bookId}}">
                                 <span class="is-link mr-2">Review Tour Plan&nbsp;</span><i class="fas fa-arrow-right"></i>
                                     </a></td>
@@ -135,7 +135,7 @@
                         <p class="has-text-weight-bold is-size-4">{{this.[Shop.tourTitle]}}</p>
                         {{!-- tags --}}
                         {{#ifInRange this.processStep '1' '3'}}
-                        <span class="tag is-info is-light mb-4">Planning</span>
+                        <span class="tag is-info is-light">Planning</span>
                         {{/ifInRange}}
 
                         {{#ifEquals this.processStep '2' }}
@@ -151,8 +151,14 @@
                         {{/ifEquals}}
 
                         {{#ifEquals this.completed 1 }}
-                        <span class="tag is-warning is-light mb-4">Completed</span>
+                        <span class="tag is-warning is-light">Completed</span>
                         {{/ifEquals }}
+
+                        {{#ifEquals this.processStep '5'}}
+                        {{#unless this.[Reviews.id]}}
+                        <span class="tag is-link">Review Required</span>
+                        {{/unless}}
+                        {{/ifEquals}}
                         {{!-- tags --}}
                     </div>
                 </div>

@@ -55,14 +55,16 @@
                             <span>Current Progress</span>
                             <progress class="progress is-success" value={{data.book.processStep}} max="5">100%</progress>
                             <div id="steps">
-                            <p>Current Step</p>
+                                {{#unless data.reviews.CUST}}
+                                    <p>Current Step</p>
+                                {{/unless}}
                             <!--START: steps-->
                             <div class="tags are-medium">
                                 {{#ifEquals data.book.processStep '1'}}
-                                    <a href="#"><span class="tag is-link">Submit Tour Plan &nbsp;</span></a>
+                                    <a><span class="tag is-link" onclick="openTab(event,'Customize')">Submit Tour Plan &nbsp;</span></a>
                                 {{/ifEquals}}
                                 {{#ifBigger data.book.processStep '4'}}
-                                {{#unless data.reviews.TOUR}}
+                                {{#unless data.reviews.CUST}}
                                 <span class="tag is-link" onclick="$('#ReviewModal').fadeIn('fast');">Leave a Review &nbsp;<i class="fas fa-arrow-right"></i></span>
                                 {{/unless}}
                                 {{/ifBigger}}
@@ -256,7 +258,7 @@
                                     <div class="timeline-marker is-icon has-background-grey has-text-white">
                                     <i class="fas fa-ellipsis-h"></i>
                                     </div>
-                                    <div class="timeline-content pt-3">
+                                    <div class="timeline-content pt-3" onclick="openTab(event,'Customize')">
                                     <p class="button is-link is-inverted has-text-weight-semibold is-italic">
                                         <i class="fas fa-chevron-right mr-2"></i> Submit Tour Plan.</p>
                                     </div>
@@ -264,7 +266,7 @@
                                 {{/ifEquals}}
 
                                 {{#ifBigger data.book.processStep '4'}}
-                                {{#unless data.reviews.TOUR}}
+                                {{#unless data.reviews.CUST}}
                                 <div class="timeline-item">
                                     <div class="timeline-marker is-icon has-background-grey has-text-white">
                                     <i class="fas fa-ellipsis-h"></i>

@@ -4,7 +4,7 @@ const genkan = require('../app/genkan/genkan')
 
 // Globals
 const router = express.Router()
-const { Shop, Booking, ChatRoom, ChatMessages, TourPlans, Review } = require('../models')
+const { Shop, Booking, ChatRoom, ChatMessages, TourPlans, Review, User } = require('../models')
 const formidableValidator = require('../app/validation')
 const formidable = require('express-formidable')
 router.use(formidable())
@@ -13,6 +13,7 @@ const uuid = require('uuid')
 const { removeNull, emptyArray, removeFromArray } = require('../app/helpers')
 // Sync Loops
 const syncLoop = require('sync-loop')
+const { UserAgent } = require('express-useragent')
 // Put all your routings below this line -----
 
 const exampleTransaction = {
@@ -145,39 +146,99 @@ router.get('/bookings', async (req, res) => {
     }
 
     const userData = await genkan.getUserBySessionAsync(sid)
-    Booking.findAndCountAll({
+
+    bookings = await Booking.findAndCountAll({
         where: {
             tgId: userData.id,
             approved: 1,
+            processStep: ['1', '2', '3', '4'],
         },
-        order: [['createdAt', 'ASC']],
-        include: Shop,
+        attributes: ['bookId', 'processStep', 'completed', 'tourStart', 'orderDatetime', 'custId'],
+        order: [['updatedAt', 'ASC']],
+        include: { model: Shop,
+            attributes: ['tourTitle'] },
         raw: true,
         limit: pageSize,
         offset: offset,
     })
-        .then( (result) => {
-            const bookCount = result.count
-            const bookList = result.rows
-            const lastPage = Math.ceil(bookCount / pageSize)
-            const metadata = {
-                meta: {
-                    title: 'All Bookings',
-                    pageNo: pageNo,
-                    count: bookCount,
-                    lastPage: lastPage,
-                },
-                data: {
-                    currentUser: req.currentUser,
-                    bookList: bookList,
-                },
-                nav: {
-                    sidebarActive: 'bookings',
-                },
-                layout: 'tourguide',
-            }
-            return res.render('tourguide/dashboard/bookings', metadata)
-        }).catch((err) => console.log)
+    console.log(bookings)
+    const bookCount = bookings.count
+    const bookList = bookings.rows
+    const lastPage = Math.ceil(bookCount / pageSize)
+    const metadata = {
+        meta: {
+            title: 'All Active Bookings',
+            pageNo: pageNo,
+            count: bookCount,
+            lastPage: lastPage,
+        },
+        data: {
+            currentUser: req.currentUser,
+            bookList: bookList,
+        },
+        nav: {
+            sidebarActive: 'bookings',
+        },
+        layout: 'tourguide',
+    }
+    return res.render('tourguide/dashboard/bookings', metadata)
+})
+
+router.get('/bookings/completed', async (req, res) => {
+    const sid = req.signedCookies.sid
+    let pageNo = req.query.page
+    const pageSize = 5
+    let offset = 0
+    if (pageNo) {
+        pageNo = parseInt(pageNo)
+        offset = pageSize * (pageNo - 1)
+    } else {
+        pageNo = 1
+    }
+
+    const userData = await genkan.getUserBySessionAsync(sid)
+
+    bookings = await Booking.findAndCountAll({
+        where: {
+            tgId: userData.id,
+            approved: 1,
+            processStep: '5',
+            completed: 1,
+        },
+        // order: [['updatedAt', 'ASC']],
+        attributes: ['bookId', 'processStep', 'completed', 'tourStart', 'orderDatetime', 'custId'],
+        include: [
+            { model: Shop,
+                attributes: ['tourTitle'] },
+            { model: Review,
+                required: false,
+                attributes: ['id'],
+                where: { reviewerId: userData.id } }],
+        raw: true,
+        limit: pageSize,
+        offset: offset,
+    })
+    console.log(bookings)
+    const bookCount = bookings.count
+    const bookList = bookings.rows
+    const lastPage = Math.ceil(bookCount / pageSize)
+    const metadata = {
+        meta: {
+            title: 'All Completed Bookings',
+            pageNo: pageNo,
+            count: bookCount,
+            lastPage: lastPage,
+        },
+        data: {
+            currentUser: req.currentUser,
+            bookList: bookList,
+        },
+        nav: {
+            sidebarActive: 'bookingsCompleted',
+        },
+        layout: 'tourguide',
+    }
+    return res.render('tourguide/dashboard/bookings-completed', metadata)
 })
 
 router.get('/bookings/:id', async (req, res) => {

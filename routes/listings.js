@@ -29,7 +29,6 @@ const {
     Booking,
     ChatRoom,
     ChatMessages,
-    Review,
 } = require('../models')
 const elasticSearchHelper = require('../app/elasticSearch')
 // const esClient = elasticSearch.Client({
@@ -198,19 +197,6 @@ router.get('/info/:id', (req, res) => {
                 const userWishlist = userData.wishlist || ''
                 // var userWishlistArr = userWishlist.split(';!;')
 
-                // Fetch the listing's reviews
-                // const reviews = await Review.findAll({
-                //     where: {
-                //         type: 'TOUR',
-                //         tourId: tourId,
-                //     },
-                //     raw: true,
-                // })
-                // if (reviews == null) {
-                //     console.log('pees')
-                // }
-                // console.log(reviews)
-
                 // Check if user is the owner of the current listing being browsed
                 const isOwner = userData.id == tourData.userId
                 if (isOwner) {
@@ -244,7 +230,6 @@ router.get('/info/:id', (req, res) => {
                         bannedStatus: banStatus,
                         data: {
                             currentUser: req.currentUser,
-                            // reviews: reviews,
                         },
                     }
 
@@ -258,7 +243,6 @@ router.get('/info/:id', (req, res) => {
                         const metadata = {
                             data: {
                                 currentUser: req.currentUser,
-                                // reviews: reviews,
                             },
                             tourguideName: tourguideName.name,
                             tourData: tourData,

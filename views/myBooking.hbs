@@ -48,7 +48,9 @@
                             <span>Current Progress</span>
                             <progress class="progress is-success" value={{data.book.processStep}} max="5">100%</progress>
                             <div id="steps">
+                            {{#unless data.reviews.TOUR}}
                             <p>Current Step</p>
+                            {{/unless}}
                             <!--START: steps-->
                             <div class="tags are-medium">
                                 {{#ifEquals data.book.processStep '0'}}
@@ -313,7 +315,7 @@
                                     <div class="timeline-marker is-icon has-background-grey has-text-white">
                                     <i class="fas fa-ellipsis-h"></i>
                                     </div>
-                                    <div class="timeline-content pt-3">
+                                    <div class="timeline-content pt-3" onclick="$('#CompleteTourModal').fadeIn('fast');">
                                     <p class="button is-link is-inverted has-text-weight-semibold is-italic">
                                         <i class="fas fa-chevron-right mr-2"></i> Declare that the tour has been completed.</p>
                                     </div>
@@ -327,7 +329,7 @@
                                     <div class="timeline-marker is-icon has-background-grey has-text-white">
                                     <i class="fas fa-ellipsis-h"></i>
                                     </div>
-                                    <div class="timeline-content pt-3">
+                                    <div class="timeline-content pt-3" onclick="$('#ReviewModal').fadeIn('fast');">
                                     <p class="button is-link is-inverted has-text-weight-semibold is-italic">
                                         <i class="fas fa-chevron-right mr-2"></i> Leave a review.</p>
                                     </div>

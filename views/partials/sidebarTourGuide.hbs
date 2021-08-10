@@ -24,8 +24,21 @@
                 </ul>
                 {{/ifEquals}}
             </li>
-            <li><a href="/tourguide/bookings" {{#ifEquals nav.sidebarActive "bookings" }}class="is-active"
-                    {{/ifEquals}}><i class="fas fa-handshake"></i>&ensp;Bookings</a></li>
+            <li>
+                <a href="/tourguide/bookings" {{#ifEquals nav.sidebarActive "bookings" }}class="is-active"
+                    {{/ifEquals}}><i class="fas fa-list"></i>&ensp;My Bookings</a>
+                {{#ifEquals nav.sidebarActive "bookings" }}
+                <ul>
+                    <li><a {{#unless nav.sidebarSubActive }}class="has-background-grey-lighter"
+                    {{/unless}} href="/tourguide/bookings"><i class="fas fa-handshake"></i>&ensp;Active</a></li>
+
+                    <li><a {{#ifEquals nav.sidebarSubActive "bookingsCompleted" }}class="has-background-grey-lighter"
+                    {{/ifEquals}} href="/tourguide/bookings/completed"><i class="fas fa-archive"></i>&ensp;Completed</a></li>
+                </ul>
+                {{/ifEquals}}
+            </li>
+            {{!-- <li><a href="/tourguide/bookings" {{#ifEquals nav.sidebarActive "bookings" }}class="is-active"
+                    {{/ifEquals}}><i class="fas fa-handshake"></i>&ensp;Bookings</a></li> --}}
         </ul>
         <p class="menu-label">
             Transactions
