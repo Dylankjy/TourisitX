@@ -9,14 +9,25 @@ const STRIPE_SECRET_KEY = config.stripe.STRIPE_SECRET_KEY
 
 const stripe = require('stripe')(STRIPE_SECRET_KEY)
 
+const id = 'acct_1JIqrc4fL5hixuop'
+
+payout = async () => {
+    // const accountId = 'acct_1JIpirQCkAaMeH0J'
+    const transfer = await stripe.transfers.create({
+        amount: 6000 * 100,
+        currency: 'sgd',
+        destination: id,
+    })
+
+    console.log(transfer)
+}
 
 test = async () => {
-    // const accountId = 'acct_1JIpirQCkAaMeH0J'
-    const accountId = 'acct_1JIqLZ4d8ixHsDug'
-    const account = await stripe.accounts.retrieve(
-        accountId,
-    )
-    console.log(account.payouts_enabled)
+    const invoices = await stripe.charges.list({
+        limit: 3,
+    })
+
+    console.log(invoices["data"])
 }
 
 test()

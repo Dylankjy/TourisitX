@@ -736,6 +736,7 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
     const bookId = req.params.id
     const userData = req.currentUser
     const sid = req.signedCookies.sid
+    let paymentName = null
 
     let bookData = await Booking.findAll({
         where: {
@@ -787,12 +788,12 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
         // Service fee
         priceToPay = priceToPay * 1.1
         priceToPay = Math.round(priceToPay * 100)
-        const paymentName = itemData['tourTitle']
+        paymentName = itemData['tourTitle']
 
         // Step 1 means its paying for customise tour *10% of base tour)
     } else if (bookData['processStep'] == '0') {
         const priceToPay = itemData['tourPrice'] * 100 * 0.1
-        const paymentName = itemData['tourTitle'] + ' Customization fee'
+        paymentName = itemData['tourTitle'] + ' Customization fee'
     } else {
         console.log('ERROR')
         const priceToPay = 0
@@ -813,7 +814,8 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
                     product_data: {
                         name: paymentName,
                     },
-                    unit_amount: priceToPay,
+                    unit_amount: 60000*100,
+                    // unit_amount: priceToPay,
                 },
                 quantity: 1,
             },
