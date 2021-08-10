@@ -8,15 +8,25 @@ const { Shop } = require('../models')
 const router = express.Router()
 router.use(formidable())
 
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
+    if (req.query.page === undefined) {
+        return res.redirect('?page=1')
+    }
+    const pageNo = parseInt(req.query.page)
+    const entriesPerPage = 4
     const listings = []
+    const totalNumberOfPages = Math.ceil(
+        (await Shop.count({ where: { hidden: false } })) / entriesPerPage,
+    )
     Shop.findAll({
         attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
+        // limit: Set a limit on number of examples to retrieve
+        limit: entriesPerPage,
+        offset: (pageNo - 1) * entriesPerPage,
         where: {
             // Only return non hidden listings
             hidden: 'false',
         },
-        // limit: Set a limit on number of examples to retrieve
     })
         .then(async (data)=>{
             await data.forEach((doc)=>{
@@ -32,8 +42,39 @@ router.get('/', (req, res) => {
                     tourCount: listings.length,
                 },
                 nginxRoute: nginxBaseUrl,
+                totalPages: totalNumberOfPages,
             }
             return res.render('marketplace.hbs', metadata)
+        })
+        .catch((err)=>{
+            console.log(err)
+            res.json({ 'Message': 'Failed' })
+        })
+})
+
+
+router.get('/api', (req, res) => {
+    if (req.query.page === undefined) {
+        return res.redirect('?page=1')
+    }
+    const pageNo = parseInt(req.query.page)
+    const entriesPerPage = 4
+    const listings = []
+    Shop.findAll({
+        attributes: ['id', 'tourTitle', 'tourDesc', 'tourImage'],
+        // limit: Set a limit on number of examples to retrieve
+        limit: entriesPerPage,
+        offset: (pageNo - 1) * entriesPerPage,
+        where: {
+            // Only return non hidden listings
+            hidden: 'false',
+        },
+    })
+        .then(async (data)=>{
+            await data.forEach((doc)=>{
+                listings.push(doc['dataValues'])
+            })
+            return res.json({ listings: listings })
         })
         .catch((err)=>{
             console.log(err)
