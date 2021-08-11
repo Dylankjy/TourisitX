@@ -16,7 +16,8 @@ module.exports = (sequelize, DataTypes) => {
             type: {
                 type: DataTypes.STRING(4),
                 allowNull: false,
-                // Customer: 'CUST', Tour (guide): 'TOUR'
+                // Customer: 'CUST', The review is about the customer, i.e. "This customer was needy and late and bad >:0"
+                // Tour (guide): 'TOUR', The review is about the tour guide, i.e. "This tour was great! The guide was understanding."
             },
 
             reviewerId: {
@@ -93,9 +94,9 @@ module.exports = (sequelize, DataTypes) => {
 //     subjectId: userId,
 // },
 
-// As a customer
+// Reviews about how the target user is as a customer
 // type: 'CUST',
-// As a guide
+// Reviews about how the target user is as a tour guide
 // type: 'TOUR',
 
 // When querying for all reviews under a tour
