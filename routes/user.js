@@ -14,7 +14,7 @@ const config = require('../config/genkan.json')
 
 // Globals
 const router = express.Router()
-const { User, Shop } = require('../models')
+const { User, Shop, Review } = require('../models')
 const Validator = formidableValidator.Validator
 const fileValidator = formidableValidator.FileValidator
 
@@ -78,6 +78,14 @@ router.get('/profile/:id', async (req, res) => {
             'id': req.params.id,
         },
     })
+
+    // const uReview = await Review.findAll({
+    //     where: {
+    //         'subjectId': req.params.id,
+    //         'type': "CUST",
+    //     },
+    // })
+    
     const isOwner = req.currentUser.id == userD[0]['dataValues'].id
     const listings = []
     Shop.findAll({
@@ -91,7 +99,7 @@ router.get('/profile/:id', async (req, res) => {
         })
         return listings
     }).then(async (listings) => {
-        console.log('Tours', listings)
+        // console.log('Tours', listings)
 
         let pageColor = [0, 0, 0]
         try {
@@ -110,10 +118,11 @@ router.get('/profile/:id', async (req, res) => {
                 },
                 data: {
                     currentUser: req.currentUser,
+                    // reviews: uReview[0],
                     pageColor,
                 },
                 listings: listings,
-                uData: userD[0]['dataValues'],
+                uData: userD,
                 isOwner: owner,
                 bioErrors: req.cookies.bioErrors,
             }
@@ -128,6 +137,7 @@ router.get('/profile/:id', async (req, res) => {
                 data: {
                     currentUser: req.currentUser,
                     pageColor,
+                    // reviews: uReview[0],
                 },
                 listings: listings,
                 uData: userD[0]['dataValues'],
