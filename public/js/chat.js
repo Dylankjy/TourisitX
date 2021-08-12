@@ -48,8 +48,10 @@ $(document).on('turbolinks:load', () => {
         }
     })
 
-    socket.on('reloginRequired', () => {
-        window.location.replace('/id/login?required=1')
+    socket.on('reloginRequired', (uid) => {
+        if (uid === $('#currentUserID').val()) {
+            window.location.replace('/id/login?required=1')
+        }
     })
 
     socket.emit('room', $('#currentChatID').val())

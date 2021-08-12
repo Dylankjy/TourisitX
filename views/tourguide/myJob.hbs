@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="/third_party/bulma/bulma-badge.css">
 <link rel="stylesheet" href="/third_party/bulma/bulma-timeline.min.css">
 <link rel='stylesheet' href='/third_party/alex/create_listing.css'>
+<script src='/third_party/jquery-ui/jquery-ui.js'></script>
 
 <script defer src="/js/chatBooking.js" data-turbolinks="false"></script>
 
@@ -53,17 +54,21 @@
                             <p class="has-text-centered is-size-4 has-text-weight-bold">Activity</p>
                             <div class="has-text-weight-semibold">
                             <span>Current Progress</span>
-                            <progress class="progress is-success" value={{data.book.processStep}} max="6">100%</progress>
+                            <progress class="progress is-success" value={{data.book.processStep}} max="5">100%</progress>
                             <div id="steps">
-                            <p>Current Step</p>
+                                {{#unless data.reviews.CUST}}
+                                    <p>Current Step</p>
+                                {{/unless}}
                             <!--START: steps-->
                             <div class="tags are-medium">
                                 {{#ifEquals data.book.processStep '1'}}
-                                    <a href="#"><span class="tag is-link">Submit Tour Plan &nbsp;</span></a>
+                                    <a><span class="tag is-link" onclick="openTab(event,'Customize')">Submit Tour Plan &nbsp;</span></a>
                                 {{/ifEquals}}
-                                {{#ifEquals data.book.processStep '6'}}
-                                <a href="#"><span class="tag is-link">Leave a Review &nbsp;<i class="fas fa-arrow-right"></i></span></a>
-                                {{/ifEquals}}
+                                {{#ifBigger data.book.processStep '4'}}
+                                {{#unless data.reviews.CUST}}
+                                <span class="tag is-link" onclick="$('#ReviewModal').fadeIn('fast');">Leave a Review &nbsp;<i class="fas fa-arrow-right"></i></span>
+                                {{/unless}}
+                                {{/ifBigger}}
                                 {{#ifInRange data.book.processStep 2 4}}
                                 <span class="tag">Awaiting Customer Action</span>
                                 {{/ifInRange}}
@@ -94,7 +99,7 @@
                                                 {{data.currentUser.name}}
                                                 {{../currentUser}}
                                                 {{#with (lookup ../currentUser (this.name))}}{{/with}}
-                                                <p class="has-text-weight-semibold">{{bookActivityName this.messageText  @root.data.cust.name @root.data.currentUser.name}}</p>
+                                                <p class="has-text-weight-semibold">{{{bookActivityName this.messageText  @root.data.cust.name @root.data.currentUser.name}}}</p>
                                             </div>
                                         </div>
                                     {{/ifEquals}}
@@ -121,7 +126,7 @@
                                     <i class="fas fa-check"></i>
                                     </div>
                                     <div class="timeline-content">
-                                    <p class="has-text-weight-semibold">You
+                                    <p class="has-text-weight-semibold"><span class="has-text-info">{{@root.data.currentUser.name}}</span>
                                         posted a draft of the Tour Plan (#{{this.messageText}}).</p>
 
                                     <!--Tour plan card-->
@@ -210,6 +215,43 @@
                                     {{/ifEquals}}
 
 
+                                     {{#ifEquals this.flag "REVIEW"}}
+                                    <div class="timeline-item">
+                                    <div class="timeline-marker is-icon has-background-success has-text-white">
+                                    <i class="far fa-thumbs-up"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        {{#ifEquals this.messageText 'CUST'}}
+                                        {{#with @root.data.reviews.[CUST]}}
+                                    <p class="has-text-weight-semibold"> <span class="has-text-info">{{@root.data.currentUser.name}}</span> left a review.</p>
+                                    <div class="has-background-white-ter ml-3 mt-3 p-4">
+                                        <div class="container">
+                                        <p>
+                                            {{{rating this.rating}}}
+                                        </p>
+                                        <p>{{this.reviewText}}</p>
+                                        </div>
+                                        {{/with}}
+                                        {{/ifEquals}}
+
+                                        {{#ifEquals this.messageText 'TOUR'}}
+                                        {{#with @root.data.reviews.[TOUR]}}
+                                    <p class="has-text-weight-semibold"> <span class="has-text-info">{{@root.data.cust.name}}</span> left a review.</p>
+                                    <div class="has-background-white-ter ml-3 mt-3 p-4">
+                                        <div class="container">
+                                        <p>
+                                            {{{rating this.rating}}}
+                                        </p>
+                                        <p>{{this.reviewText}}</p>
+                                        </div>
+                                        {{/with}}
+                                        {{/ifEquals}}
+                                    </div>
+                                    </div>
+                                    </div>
+                                    {{/ifEquals}}
+
+
                                 {{/each}}
 
                                 {{#ifEquals data.book.processStep '1'}}
@@ -217,24 +259,26 @@
                                     <div class="timeline-marker is-icon has-background-grey has-text-white">
                                     <i class="fas fa-ellipsis-h"></i>
                                     </div>
-                                    <div class="timeline-content pt-3">
+                                    <div class="timeline-content pt-3" onclick="openTab(event,'Customize')">
                                     <p class="button is-link is-inverted has-text-weight-semibold is-italic">
                                         <i class="fas fa-chevron-right mr-2"></i> Submit Tour Plan.</p>
                                     </div>
                                 </div>
                                 {{/ifEquals}}
 
-                                {{#ifEquals data.book.processStep '6'}}
+                                {{#ifBigger data.book.processStep '4'}}
+                                {{#unless data.reviews.CUST}}
                                 <div class="timeline-item">
                                     <div class="timeline-marker is-icon has-background-grey has-text-white">
                                     <i class="fas fa-ellipsis-h"></i>
                                     </div>
                                     <div class="timeline-content pt-3">
-                                    <p class="button is-link is-inverted has-text-weight-semibold is-italic">
+                                    <p class="button is-link is-inverted has-text-weight-semibold is-italic" onclick="$('#ReviewModal').fadeIn('fast');">
                                         <i class="fas fa-chevron-right mr-2"></i> Leave a Review.</p>
                                     </div>
                                 </div>
-                                {{/ifEquals}}
+                                {{/unless}}
+                                {{/ifBigger}}
                                 </span>
 
                                 <header class="timeline-header">
@@ -299,39 +343,26 @@
                             <div class='field'>
                     <label class="label" for="tour-starttime">Start Time</label>
                     <div class='control'>
-                        <input name="startTime" class="input" type="time" value={{onlyTime data.book.tourStart}}>
+                        <input name="startTime" class="input" type="time" value={{onlyTime24h data.book.tourStart}}>
                     </div>
                 </div>
 
                     <div class='field'>
                         <label class="label" for="tour-endtime">End Time</label>
                         <div class='control'>
-                            <input name="endTime" class="input" type="time" value={{onlyTime data.book.tourEnd}}>
+                            <input name="endTime" class="input" type="time" value={{onlyTime24h data.book.tourEnd}}>
                         </div>
                         </div>  
                     </div>
                     </div>
 
-                    {{!-- <label class="label" for="tour-items">Tour itinerary</label>
-                    <div class="field has-addons">
-                        <div class="control is-expanded">
-                            <input class="input" type="text" placeholder="Activity">
-                        </div>
-                        <div class="control">
-                            <a id='addItemButton' class="button" onclick="AddItinerary();AppendtoItem()">
-                                Add Itinerary
-                            </a>
-                        </div>
-                    </div>
-                    <br>
-
-                    <ul class='ui-sortable' id='itineraryItems'>
-                    </ul> --}}
                     <br>
                     <div>
                         <label class="label" for="tour-items">Tour itinerary</label>
-                    <div class='control has-icons-right is-clickable'>
-                        <input class='input is-success' id='itinerary-str' placeholder="Add itinerary item..">
+
+                        {{!-- spoosh here --}}
+                        <div class='control has-icons-right is-clickable'>
+                        <input class='input is-success' id='itinerary-str'>
                         <span class='icon is-right'>
                             <i class="fas fa-feather-alt" id='add-itinerary-icon'
                                 style="margin-right: 20px; pointer-events: initial"></i>
@@ -339,17 +370,8 @@
                     </div>
 
                     <ul class='ui-sortable' id='itineraryItems'>
-                        {{#each (readArrWithReplace data.book.[Shop.finalItinerary])}}
-                            {{!-- <li class="itinerary-item mt-3 tag is-info is-medium" contenteditable="true"> --}}
-                            <li class="itinerary-item" contenteditable="true">
-                            {{!-- <span class="tag is-info is-medium"> --}}
-                            {{this}}
-                            {{!-- <button class="delete" onclick="this.parentElement.remove()"></button> --}}
-                            <i class="fas fa-trash-alt itinerary-item-icon" onclick="this.parentElement.remove()"></i>
-                            {{!-- </span> --}}
-                            </li>
-                        {{/each}}
                     </ul>
+                        {{!-- here --}}
                 </div>
                     
                     <br>
@@ -533,7 +555,7 @@
                                     {{#ifBigger data.book.custom 0}}
                                     <tr>
                                         <td>Customisation Fee</td>
-                                        <td>${{data.book.bookCharges}}</td>
+                                        <td>${{data.charges.customFee}}</td>
                                     </tr>
                                     {{/ifBigger}}
                                     <tr>
@@ -544,23 +566,23 @@
                                     {{#ifSmaller (toNum data.book.revisions) 0}}
                                     <tr>
                                         <td>Extra Revisions {{data.book.revisions}}</td>
-                                        <td>${{math data.book.revisions '*' data.book.bookCharges}}</td>
+                                        {{!-- <td>${{math data.book.revisions '*' data.book.bookCharges}}</td> --}}
+                                        <td>${{data.charges.extraRevFees}}</td>
                                     </tr>
                                     {{/ifSmaller}}
                                     {{/ifBigger}}
                                     <tr>
-                                        <th>Subtotal</th>
-                                        {{!-- calculate subtotal server side --}}
-                                        <th>${{math data.book.bookBaseprice '+' data.book.bookCharges}}</th>
+                                        <td><b>Subtotal</b></td>
+                                        <td><b>${{round2DP (math data.charges.customFee '+' data.charges.priceToPay)}}</b></td>
                                     </tr>
-                                     <tr>
-                                        <th>Service Fee <span><i class="far fa-question-circle has-tooltip-multiline" 
-                                        data-tooltip="Tourisit takes a 10% service fee for sustainability. Thank you for using our service."></i></span></th>
-                                        <th>${{math (math data.book.bookBaseprice '+' data.book.bookCharges) '*' 0.1}}</th>
+                                    <tr>
+                                        <td>Service Fee (15%)</td>
+                                        <td>- ${{data.charges.serviceFee}}</td>
                                     </tr>
                                     <tr class="has-background-white-ter has-text-weight-bold is-size-5">
                                         <th>Total</th>
-                                        <th>${{math (math (math data.book.bookBaseprice '+' data.book.bookCharges) '*' 0.1) '+' (math data.book.bookBaseprice '+' data.book.bookCharges)}}</th>
+                                        {{!-- <th>${{math (math (math data.book.bookBaseprice '+' data.book.bookCharges) '*' 0.1) '+' (math data.book.bookBaseprice '+' data.book.bookCharges)}}</th> --}}
+                                        <th>${{round2DP (math (math data.charges.customFee '+' data.charges.priceToPay) '-' data.charges.serviceFee)}}</th>
                                     </tr>
                                 </table>
                             </div>
@@ -611,12 +633,12 @@
             </div>
             <div class="column is-one-quarter">
                 <div class="container mt-5">
-                    <a href="/u/messages">
+                    {{!-- <a href="/u/messages">
                     <button class="button is-fullwidth has-text-weight-semibold is-rounded is-warning is-light">
                         <span class="icon"><i class="fas fa-comment-alt"></i></span>
                         Chat with <span class="has-text-primary ml-1 has-text-weight-bold">{{data.cust.name}}</span>
                     </button></a>
-                    <br>
+                    <br> --}}
 
                     <div class="mt-4 has-background-white-bis p-4">
                         <p class="has-text-weight-bold is-size-5 mb-2 has-text-centered">Tour Name</p>
@@ -635,7 +657,7 @@
                             </tr>
                             <tr>
                                 <th>Ordered by</th>
-                                <a href=""><td class="has-text-link">{{data.cust.name}}</td></a>
+                                <td><a href="/u/profile/{{data.cust.id}}">{{data.cust.name}}</a></td>
                             </tr>
                         </table>
                     </div>
@@ -651,6 +673,8 @@
         </div>
     </div>
 </section>
+
+{{>reviewModal}}
 
 <script defer src="/js/tabs.js"></script>
 
@@ -697,7 +721,7 @@
         $("#itinerary-str").val("")
         var elem = `<li class="itinerary-item" contenteditable="true">
                         ${item}
-                        <i class="fas fa-trash-alt itinerary-item-icon" onclick="this.parentElement.remove()"></i>
+                        <i class="fas fa-times itinerary-item-icon is-clickable" onclick="this.parentElement.remove()"></i>
                     </li>`
         $("#itineraryItems").append(elem)
 
@@ -720,15 +744,10 @@
         var item = itinerary
         // Reset input box to empty
         $("#itinerary-str").val("")
-        // var elem = `<li class="itinerary-item mt-3 tag is-info is-medium" contenteditable="true">
-        //                ${item}
-        //                <button class="delete" onclick="this.parentElement.remove()"></button>
-        //            </li>`
         var elem = `<li class="itinerary-item" contenteditable="true">
                         ${item}
-                        <i class="fas fa-trash-alt itinerary-item-icon" onclick="this.parentElement.remove()"></i>
+                        <i class="fas fa-times itinerary-item-icon is-clickable" onclick="this.parentElement.remove()"></i>
                     </li>`
-
         $("#itineraryItems").append(elem)
 
         // Sortable + Editable for Itinerary list
@@ -755,7 +774,11 @@
         createdItinerary = createdItinerary.map(x => x.replaceAll(",", ";!;"))
     }
 
+    // Place all listeners inside this function
     $(document).ready(() => {
+
+        // All initialization functions here
+
         // Tour Itinerary, Define function to run when the icon is clicked
         // When feather icon is clicked, add the current input to the list
         $("#add-itinerary-icon").on('click', () => {
@@ -767,11 +790,21 @@
             }
         })
 
-        $("#custom_form").on('submit', () => {
+
+        // Right before submitting, I want to run these stuff
+        $("#custom_tour").on('submit', () => {
+            // Don't have to update these, because these are constantly updated when changed/deleted (Because they are used to render the outputs)
+
             updateCreatedItineraryArray()
             $('input:hidden[name=finalItinerary]').val(createdItinerary)
         })
 
+
+
+
+
+
+        // If there is stored cookies (Means that there was an error and you re-render)
         if (getCookieValue("storedValues") != 'undefined') {
             var storedValues = JSON.parse(decodeURIComponent(getCookieValue("storedValues")))
 
@@ -779,7 +812,7 @@
             console.log(storedValues)
 
             // Tour Itinerary
-            var existingItinerary = storedValues.finalItinerary.split(',')
+            var existingItinerary = storedValues.bookItinerary.split(',')
             if (existingItinerary != '') {
                 existingItinerary.forEach((itinerary) => {
                     // Reverse the replace operation just now. Fill back the commas
@@ -792,7 +825,13 @@
             }
 
         }
+
     })
 
+
+    $(document).on('turbolinks:load', () => {
+        $("#itineraryItems").sortable()
+        console.log("RAN THIS THING")
+    })
 
 </script>

@@ -18,8 +18,7 @@ const { removeNull, emptyArray, removeFromArray } = require('../app/helpers')
 // Config file
 const config = require('../config/apikeys.json')
 const routesConfig = require('../config/routes.json')
-
-const nginxBaseUrl = routesConfig['base_url']
+const baseUrl = routesConfig['base_url']
 
 // Globals
 const router = express.Router()
@@ -31,7 +30,6 @@ const {
     ChatRoom,
     ChatMessages,
 } = require('../models')
-
 const elasticSearchHelper = require('../app/elasticSearch')
 // const esClient = elasticSearch.Client({
 //     host: 'http://47.241.14.108:9200',
@@ -178,24 +176,17 @@ router.get('/info/:id', (req, res) => {
                 if (tourData.hidden == 'true') {
                     return res.redirect('/marketplace')
                 }
-                console.log('THIS IS THIS')
-                console.log(tourguideName.name)
+
                 return res.render('listing.hbs', {
                     tourData: tourData,
                     tourguideName: tourguideName.name,
                     isOwner: false,
                 })
             } else {
-                // Check if session is up to date. Else, require person to reloggin
-                if ((await genkan.isLoggedinAsync(sid)) == false) {
-                    // Redirect to login page
-                    return res.redirect('/id/login')
-                }
-
                 // Alex you suck!!! >:( <:3
 
                 // If user is logged in and has a valid session
-                const userData = await genkan.getUserBySessionAsync(sid)
+                const userData = await req.currentUser
                 const userWishlist = userData.wishlist || ''
                 // var userWishlistArr = userWishlist.split(';!;')
 
@@ -223,6 +214,9 @@ router.get('/info/:id', (req, res) => {
                     }
 
                     const metadata = {
+                        meta: {
+                            title: tourData.tourTitle,
+                        },
                         tourData: tourData,
                         // tourguideName: (await genkan.getUserByIDAsync(tourData.userId)).name,
                         isOwner: owner,
@@ -243,6 +237,9 @@ router.get('/info/:id', (req, res) => {
                         owner = false
 
                         const metadata = {
+                            meta: {
+                                title: tourData.tourTitle,
+                            },
                             data: {
                                 currentUser: req.currentUser,
                             },
@@ -262,7 +259,29 @@ router.get('/info/:id', (req, res) => {
 // can we use shards? (Like how we did product card that time, pass in a json and will fill in the HTML template)
 // To create the listing
 router.get('/create', loginRequired, async (req, res) => {
-    const sid = req.signedCookies.sid
+    const userData = req.currentUser
+    let savedUserData = await User.findAll({
+        where: {
+            id: userData.id,
+        },
+        raw: true,
+    })
+
+    savedUserData = savedUserData[0]
+    stripeAccId = savedUserData['stripe_account_id']
+
+    const account = await stripe.accounts.retrieve(
+        stripeAccId,
+    )
+    // If true, means user setup is completed, don't have to redirect to setup page
+    const payoutEnabled = account.payouts_enabled
+
+    if (!payoutEnabled) {
+        console.log('REDIRECTING')
+        // Need to redirect to the post, not GET
+        return res.redirect('/listing/stripe-create-account')
+        // res.json('Should be redirecting to the post for create-stripe-account')
+    }
 
     // If you have to re-render the page due to errors, there will be cookie storedValue and you use this
     // To use cookie as JSON in javascipt, must URIdecode() then JSON.parse() it
@@ -280,7 +299,7 @@ router.get('/create', loginRequired, async (req, res) => {
         },
     }
 
-    return res.render('tourGuide/createListing.hbs', metadata)
+    return res.render('tourguide/createListing.hbs', metadata)
 })
 
 // To create the listing
@@ -429,7 +448,7 @@ router.post('/create', loginRequired, async (req, res) => {
             hidden: 'false',
         })
             .then(async (data) => {
-                await axios.post(`${nginxBaseUrl}/es-api/upload`, {
+                await axios.post('http://localhost:5000/es-api/upload', {
                     id: genId,
                     name: req.fields.tourTitle,
                     description: req.fields.tourDesc,
@@ -471,7 +490,7 @@ router.get('/edit/:savedId', loginRequired, async (req, res) => {
                     },
                 }
 
-                return res.render('tourGuide/editListing.hbs', metadata)
+                return res.render('tourguide/editListing.hbs', metadata)
             } else {
                 // Will return "No perms" screen
                 return requirePermission(res)
@@ -683,7 +702,7 @@ router.get('/unhide/:id', async (req, res) => {
                     .then(async (data) => {
                         doc = data[0]['dataValues']
                         console.log('REINSERTING')
-                        await axios.post(`${nginxBaseUrl}/es-api/upload`, {
+                        await axios.post('http://localhost:5000/es-api/upload', {
                             id: doc.id,
                             name: doc.tourTitle,
                             description: doc.tourDesc,
@@ -706,33 +725,10 @@ router.get('/unhide/:id', async (req, res) => {
     }
 })
 
-router.post('/add-card', async (req, res) => {
-    const userData = req.currentUser
-    let savedUserData = await User.findAll({
-        where: {
-            id: userData['id'],
-        },
-        raw: true,
-    })
-    savedUserData = savedUserData[0]
-
-    const account = await stripe.accounts.create({
-        type: 'express',
-    })
-
-    console.log(account)
-
-    const accountLinks = await stripe.accountLinks.create({
-        account: account['id'],
-        refresh_url: `${nginxBaseUrl}`,
-        return_url: `${nginxBaseUrl}`,
-        type: 'account_onboarding',
-    })
-
-    res.redirect(303, accountLinks.url)
-})
-
 router.post('/:id/stripe-create-checkout', async (req, res) => {
+    console.log('THiS GO TPOSTED')
+    console.log('\n\n\n\n')
+
     const bookId = req.params.id
     const userData = req.currentUser
     const sid = req.signedCookies.sid
@@ -768,26 +764,28 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
 
     console.log(bookData)
 
-    // Step 3 means its paying for full tour
+    // Step 3 means its paying for full tour (Base tour + customization)
     if (bookData['processStep'] == '3') {
         // Base price
-        priceToPay = itemData['tourPrice']
+        priceToPay = parseFloat(itemData['tourPrice'])
         console.log(priceToPay)
 
-        // Any extra revisions
+        // Account for any extra revisions
         if (bookData['custom'] > 0) {
+            console.log('is custom')
             const bookCharges = bookData['bookCharges'].split(',')
+            console.log(bookCharges)
             // If extra revisions were used
             if (bookData['revisions'] < 0) {
                 const revisionFee = bookCharges[0]
                 const noOfRevisions = Math.abs(bookData['revisions'])
-                priceToPay += noOfRevisions * revisionFee
+                priceToPay += parseFloat(noOfRevisions * revisionFee)
                 console.log(priceToPay)
             }
         }
 
         // Service fee
-        priceToPay = priceToPay * 1.1
+        // priceToPay = priceToPay * 1.1
         priceToPay = Math.round(priceToPay * 100)
         paymentName = itemData['tourTitle']
 
@@ -844,40 +842,50 @@ router.get('/:id/stripe-create-checkout/success', async (req, res) => {
         // Customised tour
         let bookCharges = (bookData['bookBaseprice'] * 0.1).toFixed(2)
         bookCharges = bookCharges.toString() + ','
-        Booking.update({
-            processStep: '1',
-            bookCharges: bookCharges,
-        }, {
-            where: { bookId: bookId },
-        })
+        Booking.update(
+            {
+                processStep: '1',
+                bookCharges: bookCharges,
+            },
+            {
+                where: { bookId: bookId },
+            },
+        )
         timelineMsg = '<customer> paid the customisation fee.'
     } else if (bookData['processStep'] == '3') {
         // Standard tour
         // append extra rev fees and service fee to bookCharges
-        let total = bookData['bookBaseprice']
+        // const total = bookData['bookBaseprice']
         let bookCharges = bookData['bookCharges']
-        if (bookData['revisions'] < 0) {
+        if (parseInt(bookData['revisions']) < 0) {
+            console.log('revisions here')
             const bookChargesArr = bookCharges.split(',')
             const revisionFee = bookChargesArr[0]
             const noOfRevisions = Math.abs(bookData['revisions'])
             const totalRevisionFees = (noOfRevisions * revisionFee).toFixed(2)
-            total += totalRevisionFees
-            bookCharges.concat(totalRevisionFees, ',')
+            console.log(totalRevisionFees)
+            // total += totalRevisionFees
+            bookCharges += totalRevisionFees + ','
         }
-        serviceFee = total * 0.1
-        if (bookCharges) {
-            bookCharges.concat(serviceFee, ',')
-        } else {
-            bookCharges = serviceFee + ','
-        }
-        Booking.update({
-            processStep: '4',
-            paid: 1,
-            bookCharges: bookCharges,
-        }, {
-            where: { bookId: bookId },
-        })
-        timelineMsg = '<customer> made payment. You are now ready to go on your tour!'
+        console.log(bookCharges)
+        // serviceFee = total * 0.1
+        // if (bookCharges) {
+        //     bookCharges.concat(serviceFee, ',')
+        // } else {
+        //     bookCharges = serviceFee + ','
+        // }
+        Booking.update(
+            {
+                processStep: '4',
+                paid: 1,
+                bookCharges: bookCharges,
+            },
+            {
+                where: { bookId: bookId },
+            },
+        )
+        timelineMsg =
+            '<customer> made payment. You are now ready to go on your tour!'
     } else {
         console.log('ERROR')
         return res.redirect(`/${bookId}/stripe-create-checkout/cancel`)
@@ -900,8 +908,6 @@ router.get('/:id/stripe-create-checkout/cancel', async (res, req) => {
     if (bookData['processStep'] == '0') {
         console.log('del eveyrhting')
     }
-
-    res.redirect(303, session.url)
 })
 
 router.get('/:id/payment', loginRequired, async (req, res) => {
@@ -946,7 +952,7 @@ router.get('/:id/payment', loginRequired, async (req, res) => {
         tourData: itemData,
     }
 
-    return res.render('tourGuide/payment.hbs', metadata)
+    return res.render('tourguide/payment.hbs', metadata)
 })
 
 router.get('/charges', async (req, res) => {
@@ -1194,7 +1200,7 @@ router.get('/api/getImage/:id', (req, res) => {
 
 // Start: Booking-related items under the listing route
 // Rendering the book-now form
-router.get('/:id/purchase', async (req, res) => {
+router.get('/:id/purchase', loginRequired, async (req, res) => {
     const itemID = req.params.id
 
     Shop.findAll({
@@ -1226,159 +1232,143 @@ router.get('/:id/purchase', async (req, res) => {
 
 // Default booking
 router.post('/:id/purchase', loginRequired, async (req, res) => {
-    console.log(req.fields)
     res.cookie('storedValues', JSON.stringify(req.fields), { maxAge: 5000 })
     const tourID = req.params.id
     const sid = req.signedCookies.sid
 
     const userData = req.currentUser
-    Shop.findAll({
+
+    const listing = await Shop.findOne({
         where: {
             id: tourID,
         },
+        raw: true,
     })
-        .then(async (items) => {
-            const listing = await items[0]['dataValues']
 
-            const v = new Validator(req.fields)
+    const v = new Validator(req.fields)
+    const tourDateResult = v
+        .Initialize({
+            name: 'tourDate',
+            errorMessage: 'Please select a tour date.',
+        })
+        .exists()
+        .getResult()
 
-            const tourDateResult = v
-                .Initialize({
-                    name: 'tourDate',
-                    errorMessage: 'Please select a tour date.',
-                })
-                .exists()
-                .getResult()
+    const tourTimeResult = v
+        .Initialize({
+            name: 'tourTime',
+            errorMessage: 'Please select a tour time.',
+        })
+        .exists()
+        .getResult()
 
-            const tourTimeResult = v
-                .Initialize({
-                    name: 'tourTime',
-                    errorMessage: 'Please select a tour time.',
-                })
-                .exists()
-                .getResult()
+    const bookPaxResult = v
+        .Initialize({
+            name: 'tourPax',
+            errorMessage: 'Please select number of participants.',
+        })
+        .exists()
+        .getResult()
 
-            const bookPaxResult = v
-                .Initialize({
-                    name: 'tourPax',
-                    errorMessage: 'Please select number of participants.',
-                })
-                .exists()
-                .getResult()
-
-            const bookTOCResult = v
-                .Initialize({
-                    name: 'bookTOC',
-                    errorMessage:
+    const bookTOCResult = v
+        .Initialize({
+            name: 'bookTOC',
+            errorMessage:
                         'Please agree to the Terms & Conditions before booking a tour.',
-                })
-                .exists()
-                .getResult()
+        })
+        .exists()
+        .getResult()
 
-            // // Evaluate the files and fields data separately
-            const validationErrors = removeNull([
-                tourDateResult,
-                tourTimeResult,
-                bookPaxResult,
-                bookTOCResult,
-            ])
+    // // Evaluate the files and fields data separately
+    const validationErrors = removeNull([
+        tourDateResult,
+        tourTimeResult,
+        bookPaxResult,
+        bookTOCResult,
+    ])
 
-            // If there are errors, re-render the create listing page with the valid error messages
-            if (!emptyArray(validationErrors)) {
-                res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
-                res.redirect(`/listing/${tourID}/purchase`)
-            } else {
-                // If successful
-                // Remove cookies for stored form values + validation errors
-                res.clearCookie('validationErrors')
-                res.clearCookie('storedValues')
-                const genId = uuid.v1()
+    // If there are errors, re-render the create listing page with the valid error messages
+    if (!emptyArray(validationErrors)) {
+        res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
+        res.redirect(`/listing/${tourID}/purchase`)
+    } else {
+        // If successful
+        // Remove cookies for stored form values + validation errors
+        res.clearCookie('validationErrors')
+        const genId = uuid.v1()
 
-                const rawTourDate = req.fields.tourDate
-                const darr = rawTourDate.split('/')
+        const rawTourDate = req.fields.tourDate
+        const darr = rawTourDate.split('/')
 
-                const rawTourTime = req.fields.tourTime
-                const timeArr = rawTourTime.split(' - ')
-                const startTimeArr = timeArr[0].split(':')
-                const endTimeArr = timeArr[1].split(':')
-                formatTime = (arr) => {
-                    if (arr[1].slice(-2) == 'PM' && parseInt(arr[0]) < 12) {
-                        arr[0] = parseInt(arr[0]) + 12
-                    } else if (arr[1].slice(-2) == 'AM' && parseInt(arr[0]) == 12) {
-                        arr[0] = parseInt(arr[0]) - 12
-                    }
-                    arr[1] = arr[1].slice(0, -3)
-                    if (arr[0].toString().length == 1) {
-                        arr[0] = '0' + arr[0]
-                    }
-                }
-                formatTime(startTimeArr)
-                formatTime(endTimeArr)
-                const startTour = new Date(
-                    parseInt(darr[2]),
-                    parseInt(darr[1]) - 1,
-                    parseInt(darr[0]),
-                    parseInt(startTimeArr[0]),
-                    parseInt(startTimeArr[1]),
-                ).toISOString()
-                const endTour = new Date(
-                    parseInt(darr[2]),
-                    parseInt(darr[1]) - 1,
-                    parseInt(darr[0]),
-                    parseInt(endTimeArr[0]),
-                    parseInt(endTimeArr[1]),
-                ).toISOString()
-                const orderDateTime = new Date().toISOString()
+        const rawTourTime = req.fields.tourTime
+        const timeArr = rawTourTime.split(' - ')
+        const startTimeArr = timeArr[0].split(':')
+        const endTimeArr = timeArr[1].split(':')
+        formatTime = (arr) => {
+            if (arr[1].slice(-2) == 'PM' && parseInt(arr[0]) < 12) {
+                arr[0] = parseInt(arr[0]) + 12
+            } else if (arr[1].slice(-2) == 'AM' && parseInt(arr[0]) == 12) {
+                arr[0] = parseInt(arr[0]) - 12
+            }
+            arr[1] = arr[1].slice(0, -3)
+            if (arr[0].toString().length == 1) {
+                arr[0] = '0' + arr[0]
+            }
+        }
+        formatTime(startTimeArr)
+        formatTime(endTimeArr)
+        const startTour = new Date(
+            parseInt(darr[2]),
+            parseInt(darr[1]) - 1,
+            parseInt(darr[0]),
+            parseInt(startTimeArr[0]),
+            parseInt(startTimeArr[1]),
+        ).toISOString()
+        const endTour = new Date(
+            parseInt(darr[2]),
+            parseInt(darr[1]) - 1,
+            parseInt(darr[0]),
+            parseInt(endTimeArr[0]),
+            parseInt(endTimeArr[1]),
+        ).toISOString()
+        const orderDateTime = new Date().toISOString()
 
-                Booking.create({
-                    bookId: genId,
-                    custId: userData.id,
-                    tgId: listing.userId,
-                    listingId: listing.id,
-                    chatId: '00000000-0000-0000-0000-000000000000',
-                    orderDatetime: orderDateTime,
-                    tourStart: startTour,
-                    tourEnd: endTour,
-                    bookPax: req.fields.tourPax,
-                    bookDuration: listing.tourDuration,
-                    bookItinerary: listing.finalItinerary,
-                    bookBaseprice: listing.tourPrice,
-                    bookCharges: '',
-                    processStep: 3,
-                    revisions: listing.tourRevision,
-                    addInfo: '',
-                    custRequests: '',
-                    completed: 0,
-                    approved: 1,
-                    custom: 0,
-                    paid: 0,
-                }).then(async (data) => {
-                    // ChatRoom.create({
-                    //     chatId: genId2,
-                    //     participants: userData.id + ',' + listing.userId,
-                    //     bookingId: genId,
-                    // })
-                    participants = [userData.id, listing.userId]
-                    console.log(userData.name)
-                    addRoom(participants, genId, (roomId) => {
-                        updateDB('booking', { bookId: genId }, { chatId: roomId }, () => {
-                            console.log('updated successfully')
-                            // c-c-callback hell,,?
-                            timelineMsg = '<customer> placed an order for this tour.'
-                            addMessage(roomId, 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
-                                //  will be removed once TG accept/reject system is in place
-                                addMessage(roomId, 'SYSTEM', '<tourguide> accepted the order.', 'ACTIVITY', () => {
-                                    res.redirect(307, `/listing/${genId}/stripe-create-checkout`)
-                                })
-                            })
+        Booking.create({
+            bookId: genId,
+            custId: userData.id,
+            tgId: listing.userId,
+            listingId: listing.id,
+            chatId: '00000000-0000-0000-0000-000000000000',
+            orderDatetime: orderDateTime,
+            tourStart: startTour,
+            tourEnd: endTour,
+            bookPax: req.fields.tourPax,
+            bookDuration: listing.tourDuration,
+            bookItinerary: listing.finalItinerary,
+            bookBaseprice: listing.tourPrice,
+            bookCharges: '0,',
+            processStep: 3,
+            revisions: listing.tourRevision,
+            addInfo: '',
+            custRequests: '',
+            completed: 0,
+            approved: 1,
+            custom: 0,
+            paid: 0,
+        })
+            .then((data) => {
+                participants = [userData.id, listing.userId]
+                addRoom(participants, genId, (roomId) => {
+                    updateDB('booking', { bookId: genId }, { chatId: roomId }, () => {
+                        console.log('updated successfully')
+                        timelineMsg = '<customer> placed an order for this tour.'
+                        addMessage(roomId, 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
+                            res.redirect(307, `/listing/${genId}/stripe-create-checkout`)
                         })
                     })
-                        .catch((err) => {
-                            console.log(err)
-                        })
                 })
-            }
-        })
+            })
+    }
 })
 
 // Customised booking
@@ -1389,132 +1379,166 @@ router.post('/:id/purchase/customise', async (req, res) => {
     const sid = req.signedCookies.sid
 
     const userData = req.currentUser
-    Shop.findAll({
+    const listing = await Shop.findOne({
         where: {
             id: tourID,
         },
+        raw: true,
     })
-        .then(async (items) => {
-            const listing = await items[0]['dataValues']
 
-            const v = new Validator(req.fields)
+    const v = new Validator(req.fields)
 
-            // Doing this way so its cleaner. Can also directly call these into the removeNull() array
-            const reqTextResult = v
-                .Initialize({
-                    name: 'reqText',
-                    errorMessage:
+    // Doing this way so its cleaner. Can also directly call these into the removeNull() array
+    const reqTextResult = v
+        .Initialize({
+            name: 'reqText',
+            errorMessage:
                         'Please fill in the requirements for your customised tour.',
-                })
-                .exists()
-                .getResult()
+        })
+        .exists()
+        .getResult()
 
-            const tourDateResult = v
-                .Initialize({
-                    name: 'tourDate',
-                    errorMessage: 'Please select a tour date.',
-                })
-                .exists()
-                .getResult()
+    const tourDateResult = v
+        .Initialize({
+            name: 'tourDate',
+            errorMessage: 'Please select a tour date.',
+        })
+        .exists()
+        .getResult()
 
-            const bookPaxResult = v
-                .Initialize({
-                    name: 'tourPax',
-                    errorMessage: 'Please select number of participants.',
-                })
-                .exists()
-                .getResult()
+    const bookPaxResult = v
+        .Initialize({
+            name: 'tourPax',
+            errorMessage: 'Please select number of participants.',
+        })
+        .exists()
+        .getResult()
 
-            const bookTOCResult = v
-                .Initialize({
-                    name: 'bookTOC',
-                    errorMessage:
+    const bookTOCResult = v
+        .Initialize({
+            name: 'bookTOC',
+            errorMessage:
                         'Please agree to the Terms & Conditions before booking a tour.',
-                })
-                .exists()
-                .getResult()
+        })
+        .exists()
+        .getResult()
 
-            // // Evaluate the files and fields data separately
-            const validationErrors = removeNull([
-                reqTextResult,
-                tourDateResult,
-                bookPaxResult,
-                bookTOCResult,
-            ])
+    // // Evaluate the files and fields data separately
+    const validationErrors = removeNull([
+        reqTextResult,
+        tourDateResult,
+        bookPaxResult,
+        bookTOCResult,
+    ])
 
-            // If there are errors, re-render the create listing page with the valid error messages
-            if (!emptyArray(validationErrors)) {
-                res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
-                res.redirect(`/listing/${tourID}/purchase`)
-            } else {
-                // If successful
-                // Remove cookies for stored form values + validation errors
-                res.clearCookie('validationErrors')
-                res.clearCookie('storedValues')
-                const genId = uuid.v1()
+    // If there are errors, re-render the create listing page with the valid error messages
+    if (!emptyArray(validationErrors)) {
+        res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
+        res.redirect(`/listing/${tourID}/purchase`)
+    } else {
+        // If successful
+        // Remove cookies for stored form values + validation errors
+        res.clearCookie('validationErrors')
+        const genId = uuid.v1()
 
-                const rawTourDate = req.fields.tourDate
-                const darr = rawTourDate.split('/')
-                const startTour = new Date(
-                    parseInt(darr[2]),
-                    parseInt(darr[1]) - 1,
-                    parseInt(darr[0]),
-                ).toISOString()
-                const endTour = new Date(
-                    parseInt(darr[2]),
-                    parseInt(darr[1]) - 1,
-                    parseInt(darr[0]),
-                ).toISOString()
-                const orderDateTime = new Date().toISOString()
-                // const customPrice = (listing['tourPrice'] / 10).toFixed(2)
+        const rawTourDate = req.fields.tourDate
+        const darr = rawTourDate.split('/')
+        const startTour = new Date(
+            parseInt(darr[2]),
+            parseInt(darr[1]) - 1,
+            parseInt(darr[0]),
+        ).toISOString()
+        const endTour = new Date(
+            parseInt(darr[2]),
+            parseInt(darr[1]) - 1,
+            parseInt(darr[0]),
+        ).toISOString()
+        const orderDateTime = new Date().toISOString()
+        // const customPrice = (listing['tourPrice'] / 10).toFixed(2)
 
-                Booking.create({
-                    bookId: genId,
-                    custId: userData.id,
-                    tgId: listing.userId,
-                    listingId: listing.id,
-                    chatId: '00000000-0000-0000-0000-000000000000',
-                    orderDatetime: orderDateTime,
-                    tourStart: startTour,
-                    tourEnd: endTour,
-                    bookPax: req.fields.tourPax,
-                    bookDuration: 0,
-                    bookItinerary: listing.finalItinerary,
-                    bookBaseprice: listing.tourPrice,
-                    bookCharges: '',
-                    // processStep: 0, set to 1 for now until approval & payment system is in place
-                    processStep: 0,
-                    revisions: listing.tourRevision,
-                    addInfo: '',
-                    custRequests: req.fields.reqText,
-                    completed: 0,
-                    approved: 1,
-                    custom: 1,
-                    paid: 0,
-                }).then(async (data) => {
-                    participants = [userData.id, listing.userId]
-                    addRoom(participants, genId, (roomId) => {
-                        updateDB('booking', { bookId: genId }, { chatId: roomId }, () => {
-                            console.log('updated successfully')
-                            // c-c-callback hell,,?
-                            timelineMsg = '<customer> placed an order for this tour with custom requirements.'
-                            addMessage(roomId, 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
-                                //  will be removed once TG accept/reject system is in place
-                                addMessage(roomId, 'SYSTEM', '<tourguide> accepted the order.', 'ACTIVITY', () => {
-                                    res.redirect(307, `/listing/${genId}/stripe-create-checkout`)
-                                })
-                            })
+        Booking.create({
+            bookId: genId,
+            custId: userData.id,
+            tgId: listing.userId,
+            listingId: listing.id,
+            chatId: '00000000-0000-0000-0000-000000000000',
+            orderDatetime: orderDateTime,
+            tourStart: startTour,
+            tourEnd: endTour,
+            bookPax: req.fields.tourPax,
+            bookDuration: 0,
+            bookItinerary: listing.finalItinerary,
+            bookBaseprice: listing.tourPrice,
+            bookCharges: '0,',
+            processStep: 0,
+            revisions: listing.tourRevision,
+            addInfo: '',
+            custRequests: req.fields.reqText,
+            completed: 0,
+            approved: 1,
+            custom: 1,
+            paid: 0,
+        })
+            .then(async (data) => {
+                participants = [userData.id, listing.userId]
+                addRoom(participants, genId, (roomId) => {
+                    updateDB('booking', { bookId: genId }, { chatId: roomId }, () => {
+                        console.log('updated successfully')
+                        timelineMsg = '<customer> placed an order for this tour with custom requirements.'
+                        addMessage(roomId, 'SYSTEM', timelineMsg, 'ACTIVITY', () => {
+                            res.redirect(307, `/listing/${genId}/stripe-create-checkout`)
                         })
                     })
-                        .catch((err) => {
-                            console.log(err)
-                        })
                 })
-            }
-        })
+            })
+    }
 })
 
-
 // End: Booking-related items under the listing route
+router.get('/stripe-create-account', loginRequired, async (req, res)=>{
+    const metadata = {
+        data: {
+            currentUser: req.currentUser,
+        },
+    }
+    // return res.redirect(307, '/listing/stripe-create-account')
+    return res.render('tmp.hbs', metadata)
+})
+
+router.post('/stripe-create-account', loginRequired, async (req, res) => {
+    const userData = req.currentUser
+    let savedUserData = await User.findAll({
+        where: {
+            id: userData.id,
+        },
+        raw: true,
+    })
+
+    savedUserData = savedUserData[0]
+    stripeAccId = savedUserData['stripe_account_id']
+
+    const account = await stripe.accounts.retrieve(
+        stripeAccId,
+    )
+    // If true, means user setup is completed, don't have to redirect to setup page
+    payoutEnabled = account.payouts_enabled
+    console.log(payoutEnabled)
+
+    if (payoutEnabled) {
+        return res.redirect('/listing')
+    } else { // Redirect user to fill up detail page
+        console.log('WE REACHED HERE')
+
+        const accountLinks = await stripe.accountLinks.create({
+            account: stripeAccId,
+            refresh_url: `${baseUrl}/listing/stripe-create-account`,
+            return_url: `${baseUrl}/tourguide`,
+            type: 'account_onboarding',
+        })
+
+        console.log(accountLinks)
+        res.redirect(303, accountLinks.url)
+    }
+})
 
 module.exports = router

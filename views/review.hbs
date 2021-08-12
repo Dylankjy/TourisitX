@@ -1,0 +1,68 @@
+<section class='section'>
+	<div class='content has-text-centered'>
+		<h1>Rate your tour experience!</h1>
+	</div>
+
+	<div class='columns is-centered'>
+		<div class='column is-half'>
+			<div class='box'>
+				<div class='columns is-vcentered'>
+					<div class='column'>
+						<div class='ml-4'>
+							<div class='listing-author m-2'>
+								<div>
+									<div class='profile-img' style="background-image: url('data:image/jpeg;base64');"></div>
+									<b>Harold Chan</b></div>
+							</div>
+							<h1 class='title'>Bishan Nightlife</h1>
+							<p class='subtitle truncate is-size-6 has-text-grey'>A guided tour aorund Bishan at night. Taking you to hidden jewels.</p>
+							<br />
+						</div>
+					</div>
+					<div class='column'>
+						<div class='box listing-img' style="background-image: url('data:image/jpeg;base64'); height:200px;"></div>
+					</div>
+				</div>
+
+				<form id='review_form' method='POST'>
+
+					<fieldset>
+						<div class='field has-text-centered'>
+							<div id="rater"></div>
+						</div>
+
+						<div class='field'>
+							<label class='label' for='review'>Leave a review</label>
+							<div class='control'>
+								<textarea
+									name='review_text'
+									class='textarea'
+									rows='5'
+									style='height: 150px;'
+									placeholder='What were some things you enjoyed about this experience? How can it be improved?'
+								></textarea>
+							</div>
+						</div>
+						<div class='field'>
+							<label class='label' for='review-submit'></label>
+							<div class='control'>
+								<input id='review-submit' name='review-submit' type='submit' class='button is-success is-medium is-fullwidth' />
+							</div>
+						</div>
+					</fieldset>
+				</form>
+			</div>
+		</div>
+	</div>
+</section>
+<script src="node-modules/rater-js/index.js"></script>
+<script>
+     {
+        starSize:32,
+        element:document.querySelector("#rater"),
+        rateCallback:function rateCallback(rating, done) {
+            this.setRating(rating); 
+            done(); 
+        }
+    }
+</script>
