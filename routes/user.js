@@ -3,7 +3,7 @@ const fs = require('fs')
 const { default: axios } = require('axios')
 const uuid = require('uuid')
 const path = require('path')
-const { Op } = require("sequelize");
+const { Op } = require('sequelize')
 
 const formidableValidator = require('../app/validation')
 const formidable = require('express-formidable')
@@ -90,7 +90,7 @@ router.get('/profile/:id', async (req, res) => {
     const custR = []
     const tgR = []
 
-    //Tour Guide
+    // Tour Guide
     Review.findAll({
         attributes: ['id', 'type', 'reviewText', 'rating', 'createdAt', 'subjectId', 'reviewerId'],
         where: {
@@ -103,8 +103,8 @@ router.get('/profile/:id', async (req, res) => {
         },
         {
             model: Shop,
-            attributes: ['tourTitle']
-        },]
+            attributes: ['tourTitle'],
+        }],
     }).then(async (data) => {
         await data.forEach((doc) => {
             tgR.push(doc['dataValues'])
@@ -129,8 +129,8 @@ router.get('/profile/:id', async (req, res) => {
         },
         {
             model: Shop,
-            attributes: ['tourTitle']
-        },]
+            attributes: ['tourTitle'],
+        }],
     }).then(async (data) => {
         await data.forEach((doc) => {
             custR.push(doc['dataValues'])
