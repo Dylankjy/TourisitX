@@ -244,6 +244,7 @@ router.post('/:id/accept-plan', async (req, res) => {
     })
 })
 
+
 router.post('/:id/complete-tour', async (req, res) => {
     const bookId = req.params.id
 
@@ -277,6 +278,7 @@ router.post('/:id/complete-tour', async (req, res) => {
     let totalPayoutAmt = (parseFloat(bookData.bookBaseprice) + parseFloat(bookData.bookCharges.split(',').reduce((a, b) => a + b))) * 0.85
     // Remember to x100 to convert dollar to cents
     totalPayoutAmt = totalPayoutAmt.toFixed(2) * 100
+    totalPayoutAmt = parseInt(totalPayoutAmt)
 
     const transfer = await stripe.transfers.create({
         amount: totalPayoutAmt,
