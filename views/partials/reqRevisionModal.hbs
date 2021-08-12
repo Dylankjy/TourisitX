@@ -24,9 +24,27 @@
                     placeholder="Enter the changes you would like to see.." name="requestField"></input>
                     </div>
                     <div class="field is-grouped is-grouped-centered mt-5 mb-5">
-                            <button class="button is-fullwidth is-info" id="req_submit" type="submit" value="submit">Submit</button>
+                            <button class="button is-fullwidth is-info" id="req_submit" type="submit" value="submit" disabled="disabled">Submit</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
+<script>
+$('#revisionform input').on("keyup change", function() {
+
+        var empty = false
+        $('#revisionform :input').each(function() {
+            if ($(this).val() == '') {
+                empty = true
+            }
+        })
+
+        if (empty) {
+            $('#req_submit').attr('disabled', 'disabled')
+        } else {
+            $('#req_submit').removeAttr('disabled')
+        }
+    })
+</script>
