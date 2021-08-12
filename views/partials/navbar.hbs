@@ -58,9 +58,6 @@
                         <a class="navbar-item" href='/u/setting/general'>
                             Account settings
                         </a>
-                        <a class="navbar-item" href='/u/profile/{{ data.currentUser.id }}/transaction-history'>
-                            Transaction History
-                        </a>
                         {{#ifEitherTrue data.currentUser.is_tourguide data.currentUser.is_admin}}
                         <hr class="navbar-divider">
                         {{/ifEitherTrue}}

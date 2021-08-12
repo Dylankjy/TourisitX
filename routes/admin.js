@@ -664,8 +664,27 @@ router.post('/manage/tours/edit/:id', async (req, res) => {
     return res.render('404', { layout: 'admin' })
 })
 
-router.get('/payments', async (req, res) => {
+router.get('/payments', (req, res) => {
+    const metadata = {
+        meta: {
+            title: 'Payments',
+            path: false,
+        },
+        nav: {
+            sidebarActive: 'payments',
+        },
+        layout: 'admin',
+        data: {
+            currentUser: req.currentUser,
+            transactions: { exampleTransaction, exampleTransaction2 },
+        },
+    }
+    return res.render('admin/payments', metadata)
+})
+
+router.get('/payments/transactions', async (req, res) => {
     let invoices = await stripe.charges.list({
+        limit: 3,
     })
     invoices = invoices['data']
     console.log(invoices)
@@ -685,7 +704,6 @@ router.get('/payments', async (req, res) => {
     }
     return res.render('admin/transactions', metadata)
 })
-
 
 router.get('/manage/tickets', (req, res) => {
     if (req.query.page === undefined) {

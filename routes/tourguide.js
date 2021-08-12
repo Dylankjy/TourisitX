@@ -15,13 +15,6 @@ const { removeNull, emptyArray, removeFromArray } = require('../app/helpers')
 const syncLoop = require('sync-loop')
 const { UserAgent } = require('express-useragent')
 // Put all your routings below this line -----
-const config = require('../config/apikeys.json')
-
-
-const STRIPE_PUBLIC_KEY = config.stripe.STRIPE_PUBLIC_KEY
-const STRIPE_SECRET_KEY = config.stripe.STRIPE_SECRET_KEY
-
-const stripe = require('stripe')(STRIPE_SECRET_KEY)
 
 const exampleTransaction = {
     date_paid: new Date('2011-10-05T14:48:00.000Z'),
