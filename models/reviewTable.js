@@ -64,11 +64,13 @@ module.exports = (sequelize, DataTypes) => {
 
     Review.associate = (models) => {
         Review.belongsTo(models.User, {
+            as: 'Reviewer',
             targetKey: 'id',
             foreignKey: 'reviewerId',
         })
 
         Review.belongsTo(models.User, {
+            as: 'Subject',
             targetKey: 'id',
             foreignKey: 'subjectId',
         })
