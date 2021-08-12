@@ -3,6 +3,7 @@ const fs = require('fs')
 const { default: axios } = require('axios')
 const uuid = require('uuid')
 const path = require('path')
+const { Op } = require("sequelize");
 
 const formidableValidator = require('../app/validation')
 const formidable = require('express-formidable')
@@ -88,19 +89,15 @@ router.get('/profile/:id', async (req, res) => {
 
     const custR = []
     const tgR = []
+
+    //Tour Guide
     Review.findAll({
-        attributes: ['id', 'type', 'reviewerId', 'reviewText', 'rating', 'createdAt', 'subjectId'],
+        attributes: ['id', 'type', 'reviewText', 'rating', 'createdAt', 'subjectId', 'reviewerId'],
         where: {
             'subjectId': req.params.id,
             'type': 'TOUR',
         },
-        include: {
-            model: User,
-            attributes: ['name'],
-            // where: {
-            //     'id': attributes.subjectId,
-            // }
-        },
+        include: { model: User, as: 'Subject' }
     }).then(async (data) => {
         await data.forEach((doc) => {
             tgR.push(doc['dataValues'])
@@ -113,16 +110,13 @@ router.get('/profile/:id', async (req, res) => {
         res.json({ 'Message': 'Failed' })
     })
 
+    // Customer
     Review.findAll({
-        attributes: ['id', 'type', 'reviewerId', 'reviewText', 'rating', 'createdAt'],
+        attributes: ['id', 'type', 'reviewText', 'rating', 'createdAt', 'reviewerId'],
         where: {
-            'subjectId': req.params.id,
-            'type': 'CUST',
+            'reviewerId': req.params.id,
         },
-        include: {
-            model: User,
-            attributes: ['name']
-        },
+        include: { model: User, as: 'Reviewer' }
     }).then(async (data) => {
         await data.forEach((doc) => {
             custR.push(doc['dataValues'])
