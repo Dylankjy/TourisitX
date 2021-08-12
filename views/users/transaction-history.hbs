@@ -1,0 +1,26 @@
+<table class="table is-fullwidth">
+    <tr>
+        <th>Date</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Receipt</th>
+    </tr>
+    {{#each data.history}}
+    <tr>
+        <td>{{timestampParseISO this.created }}</td>
+
+        <td>${{ divide this.amount 100 }}</td>
+
+        {{#ifEquals this.status "succeeded"}}
+        <td class="has-text-success-dark"><i class="fas fa-check-circle"></i>&nbsp;Completed</td>
+        {{else}}
+        <td class="has-text-warning-dark"><i class="fas fa-clock"></i>&nbsp;Pending</td>
+        {{/ifEquals}}
+
+        <td><a href={{ this.charges.data.0.receipt_url }} target="_blank">Receipt</a></td>
+     
+
+        
+    </tr>
+    {{/each}}
+</table>

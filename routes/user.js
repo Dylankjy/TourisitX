@@ -1,20 +1,27 @@
 const express = require('express')
 const fs = require('fs')
+const { default: axios } = require('axios')
 const uuid = require('uuid')
 const path = require('path')
+const { Op } = require('sequelize')
 
 const formidableValidator = require('../app/validation')
 const formidable = require('express-formidable')
 const genkan = require('../app/genkan/genkan')
+const { convert } = require('image-file-resize')
 
-const { requireLogin, removeNull, emptyArray } = require('../app/helpers')
+const { requireLogin, requirePermission, removeNull, emptyArray, removeFromArray } = require('../app/helpers')
 
 // Config file
 const config = require('../config/genkan.json')
 
 // Globals
 const router = express.Router()
-const { User, Shop } = require('../models')
+const { User, Shop, Review } = require('../models')
+const elasticSearchHelper = require('../app/elasticSearch')
+
+const esClient = require('../app/elasticSearch').esClient
+
 const Validator = formidableValidator.Validator
 const fileValidator = formidableValidator.FileValidator
 
@@ -23,10 +30,19 @@ const savedpfpFolder = './storage/users'
 // Hashing
 const sha512 = require('hash-anything').sha512
 const bcrypt = require('bcrypt')
+const { findDB } = require('../app/db')
 
 require('../app/db')
 
 const Vibrant = require('node-vibrant')
+
+const apiConfig = require('../config/apikeys.json')
+
+
+const STRIPE_PUBLIC_KEY = apiConfig.stripe.STRIPE_PUBLIC_KEY
+const STRIPE_SECRET_KEY = apiConfig.stripe.STRIPE_SECRET_KEY
+
+const stripe = require('stripe')(STRIPE_SECRET_KEY)
 
 router.use(formidable())
 
@@ -78,6 +94,63 @@ router.get('/profile/:id', async (req, res) => {
             'id': req.params.id,
         },
     })
+
+    const custR = []
+    const tgR = []
+
+    // Tour Guide
+    Review.findAll({
+        attributes: ['id', 'type', 'reviewText', 'rating', 'createdAt', 'subjectId', 'reviewerId'],
+        where: {
+            'subjectId': req.params.id,
+            'type': 'TOUR',
+        },
+        include: [{
+            model: User, as: 'Reviewer',
+            attributes: ['name', 'profile_img'],
+        },
+        {
+            model: Shop,
+            attributes: ['tourTitle'],
+        }],
+    }).then(async (data) => {
+        await data.forEach((doc) => {
+            tgR.push(doc['dataValues'])
+        })
+        return tgR
+    }).then(async (tgR) => {
+        console.log('TgReview', tgR)
+    }).catch((err) => {
+        console.log(err)
+        res.json({ 'Message': 'Failed' })
+    })
+
+    // Customer
+    Review.findAll({
+        attributes: ['id', 'type', 'reviewText', 'rating', 'createdAt', 'reviewerId'],
+        where: {
+            'reviewerId': req.params.id,
+        },
+        include: [{
+            model: User, as: 'Reviewer',
+            attributes: ['name', 'profile_img'],
+        },
+        {
+            model: Shop,
+            attributes: ['tourTitle'],
+        }],
+    }).then(async (data) => {
+        await data.forEach((doc) => {
+            custR.push(doc['dataValues'])
+        })
+        return custR
+    }).then(async (custR) => {
+        console.log('CustReview', custR)
+    }).catch((err) => {
+        console.log(err)
+        res.json({ 'Message': 'Failed' })
+    })
+
     const isOwner = req.currentUser.id == userD[0]['dataValues'].id
     const listings = []
     Shop.findAll({
@@ -112,6 +185,8 @@ router.get('/profile/:id', async (req, res) => {
                     currentUser: req.currentUser,
                     pageColor,
                 },
+                tgreviews: tgR,
+                ureviews: custR,
                 listings: listings,
                 uData: userD[0]['dataValues'],
                 isOwner: owner,
@@ -129,6 +204,8 @@ router.get('/profile/:id', async (req, res) => {
                     currentUser: req.currentUser,
                     pageColor,
                 },
+                tgreviews: tgR,
+                ureviews: custR,
                 listings: listings,
                 uData: userD[0]['dataValues'],
                 isOwner: owner,
@@ -495,17 +572,6 @@ router.post('/profile/edit/:savedId', (req, res) => {
         const imgDetails = {
             'profile_img': savedName,
         }
-        User.findAll({
-            where: {
-                id: req.params.savedId,
-            },
-        }).then((items) => {
-            const savedPfpFile = items[0]['dataValues']['profile_img']
-            if (savedPfpFile != 'default.png') {
-                console.log(`Removed IMAGE FILE: ${savedPfpFile}`)
-                fs.unlinkSync(`${savedpfpFolder}/${savedPfpFile}`)
-            }
-        })
         updateDB('user', { 'id': req.params.savedId }, imgDetails, () => {
             return res.redirect(`/u/profile/${req.params.savedId}`)
         })
@@ -515,6 +581,37 @@ router.post('/profile/edit/:savedId', (req, res) => {
         res.cookie('imageValError', errMsg, { maxAge: 5000 })
         res.redirect(`/u/profile/${req.params.savedId}`)
     }
+})
+
+
+router.get('/profile/:savedId/transaction-history', async (req, res)=> {
+    const currentUser = req.currentUser
+    const currentUserID = currentUser.Id
+    // if (currentUserID != req.params.savedId) {
+    //     console.log(currentUserID)
+    //     console.log(req.params.savedId)
+    //     return res.redirect('/')
+    // }
+
+    let paymentHistory = await stripe.paymentIntents.list({
+        customer: currentUser.stripe_customer_id,
+    })
+
+    paymentHistory = paymentHistory['data']
+
+    const metadata = {
+        meta: {
+            title: 'Transaction History',
+            path: false,
+        },
+        // layout: 'tourguid',
+        data: {
+            currentUser: req.currentUser,
+            history: paymentHistory,
+        },
+    }
+
+    res.render('users/transaction-history.hbs', metadata)
 })
 
 router.post('/setting/set_accmode_welcome', (req, res) => {
