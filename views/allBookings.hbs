@@ -82,7 +82,7 @@
                             {{/ifEquals}}
 
                             {{#ifEquals this.processStep '3'}}
-                            <th>{{this.[Shop.tourTitle]}}{{this.processStep}}</th>
+                            <th>{{this.[Shop.tourTitle]}}</th>
                             <td><a href="/bookings/{{this.bookId}}">
                                 <span class="is-link mr-2">Make Payment&nbsp;</span><i class="fas fa-arrow-right"></i>
                                     </a></td>
@@ -90,7 +90,7 @@
 
                             {{#ifEquals this.processStep '4'}}
                                 {{#ifAfterToday this.tourStart}}
-                                <th>{{this.[Shop.tourTitle]}}{{this.processStep}}</th>
+                                <th>{{this.[Shop.tourTitle]}}</th>
                             <td><a href="/bookings/{{this.bookId}}">
                                 <span class="is-link mr-2">Declare that Tour is complete&nbsp;</span><i class="fas fa-arrow-right"></i>
                                     </a></td>
@@ -98,7 +98,7 @@
                             {{/ifEquals}}
 
                              {{#ifEquals this.processStep '5'}}
-                             <th>{{this.[Shop.tourTitle]}}{{this.processStep}}</th>
+                             <th>{{this.[Shop.tourTitle]}}</th>
                             <td><a href="/bookings/{{this.bookId}}">
                                 <span class="is-link mr-2">Leave a review&nbsp;</span><i class="fas fa-arrow-right"></i>
                                     </a></td>
