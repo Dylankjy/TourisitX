@@ -367,6 +367,12 @@ io.on('connection', (socket) => {
         if (data.msg === '') {
             return
         }
+
+        // Discard any messages that have doNotRebroadcast set to true
+        if (data.doNotRebroadcast) {
+            return
+        }
+
         // require('./config/genkan.json').genkan.secretKey
         const reqCookies = require('cookie').parse(socket.handshake.headers.cookie)
         console.log(reqCookies)
