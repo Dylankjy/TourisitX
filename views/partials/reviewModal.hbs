@@ -1,7 +1,9 @@
-{{!--
-<script defer src="/third_party/jquery/jquery-raty.js" data-turbolinks="false"></script> --}}
-<link href="dist/css/star-rating.min.css" rel="stylesheet">
-
+<style>
+    .rating_star {
+        cursor: pointer;
+        color: #ffdf00;
+    }
+</style>
 <div class="modal is-active" id="ReviewModal" style="display: none;">
     <div class="modal-background" onclick="$('#ReviewModal').fadeOut('fast');"></div>
     <div class="modal-content">
@@ -23,9 +25,6 @@
             <form id='review_form' method="POST" action="/bookings/{{data.book.bookId}}/review-tour">
                 <fieldset>
                     <div class="field has-text-centered">
-                        {{!-- <div class="star"></div>
-                        <input id="rating"> --}}
-
                         {{!-- for now --}}
                         {{!-- <select name="rating">
                             <option value="1">1 star</option>
@@ -35,34 +34,11 @@
                             <option value="5">5 star</option>
                         </select> --}}
                         <div class="rating">
-                            <div class="label-value">Value Label</div>
-                            <div class="star-container">
-                                <div class="star">
-                                    <i class="star-empty"></i>
-                                    <i class="star-half"></i>
-                                    <i class="star-filled"></i>
-                                </div>
-                                <div class="star">
-                                    <i class="star-empty"></i>
-                                    <i class="star-half"></i>
-                                    <i class="star-filled"></i>
-                                </div>
-                                <div class="star">
-                                    <i class="star-empty"></i>
-                                    <i class="star-half"></i>
-                                    <i class="star-filled"></i>
-                                </div>
-                                <div class="star">
-                                    <i class="star-empty"></i>
-                                    <i class="star-half"></i>
-                                    <i class="star-filled"></i>
-                                </div>
-                                <div class="star">
-                                    <i class="star-empty"></i>
-                                    <i class="star-half"></i>
-                                    <i class="star-filled"></i>
-                                </div>
-                            </div>
+                            <i class="rating_star far fa-star fa-3x"></i>
+                            <i class="rating_star far fa-star fa-3x"></i>
+                            <i class="rating_star far fa-star fa-3x"></i>
+                            <i class="rating_star far fa-star fa-3x"></i>
+                            <i class="rating_star far fa-star fa-3x"></i>
                         </div>
                     </div>
 
@@ -83,25 +59,29 @@
                     </div>
                 </fieldset>
             </form>
+        </div>
+    </div>
+</div>
 
-            <script>
+<script>
+    const ratingStars = [...document.getElementsByClassName("rating_star")];
 
-                $(document).ready(function () {
-                    $('#rating').hide();
-                    $('.star').raty({
-                        score: function () {
-                            return $(this).data('score');
-                        },
-                        path: '/public/static',
-                        starOn: 'star-solid.png',
-                        starOff: 'star-regular.png',
-                        targetKeep: true,
-                        target: '#rating',
-                        hints: [1, 2, 3, 4, 5]
-                    });
+    function executeRating(stars) {
+        const starClassActive = "rating_star fas fa-star fa-3x";
+        const starClassInactive = "rating_star far fa-star fa-3x";
+        const starsLength = stars.length;
+        let i;
+        stars.map((star) => {
+            star.onclick = () => {
+                i = stars.indexOf(star);
 
-                    $('#review-submit').click(function () {
-                        $('#rating').val($('.star').raty(score));
-                    });
-                });
-            </script>
+                if (star.className === starClassInactive) {
+                    for (i; i >= 0; --i) stars[i].className = starClassActive;
+                } else {
+                    for (i; i < starsLength; ++i) stars[i+1].className = starClassInactive;
+                }
+            };
+        });
+    }
+    executeRating(ratingStars);
+</script>
