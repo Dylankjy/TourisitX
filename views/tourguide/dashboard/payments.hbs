@@ -1,26 +1,24 @@
-<h1 class="title">Transaction History</h1>
+<h1 class="title">Transfer History</h1>
+<a class="button is-rounded is-outlined" href={{ data.accLink.url }} target="_blank">View Account Details</a>
 <table class="table is-fullwidth">
     <tr>
         <th>Date</th>
-        <th>Tour</th>
-        <th>Payee</th>
+        <th>Description</th>
         <th>Amount</th>
         <th>Status</th>
     </tr>
-    {{#each data.transactions}}
+    {{#each data.history}}
     <tr>
-        <td>{{timestampParseISO this.date_paid }}</td>
+        <td>{{timestampParseISO this.created }}</td>
 
-        <td>{{ this.tour_name }}</td>
+        <td>{{ this.description }}</td>
 
-        <td>{{ this.cust_id }}</td>
+        <td>${{ divide this.amount 100 }}</td>
 
-        <td>${{ this.earnings }}</td>
-
-        {{#ifEquals this.status true}}
+        {{#ifEquals this.reversed false}}
         <td class="has-text-success-dark"><i class="fas fa-check-circle"></i>&nbsp;Completed</td>
         {{else}}
-        <td class="has-text-warning-dark"><i class="fas fa-clock"></i>&nbsp;Pending</td>
+        <td class="has-text-warning-dark"><i class="fas fa-clock"></i>&nbsp;Reversed</td>
         {{/ifEquals}}
     </tr>
     {{/each}}

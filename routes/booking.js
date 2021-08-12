@@ -19,6 +19,14 @@ const { addRoom, getAllBookingMessagesByRoomID } = require('../app/chat/chat')
 const syncLoop = require('sync-loop')
 const { route } = require('./tourguide')
 
+const config = require('../config/apikeys.json')
+
+
+const STRIPE_PUBLIC_KEY = config.stripe.STRIPE_PUBLIC_KEY
+const STRIPE_SECRET_KEY = config.stripe.STRIPE_SECRET_KEY
+
+const stripe = require('stripe')(STRIPE_SECRET_KEY)
+
 // Put all your routings below this line -----
 
 router.get('/', async (req, res) => {
@@ -238,7 +246,6 @@ router.post('/:id/accept-plan', async (req, res) => {
 
 router.post('/:id/complete-tour', async (req, res) => {
     const bookId = req.params.id
-    console.log(req.fields)
 
     bookData = await Booking.findOne({
         where: {
@@ -247,7 +254,37 @@ router.post('/:id/complete-tour', async (req, res) => {
         raw: true,
     })
 
-    console.log(bookData)
+    tourguideId = bookData.tgId
+    tourGuideInfo = await User.findOne({
+        where: {
+            id: tourguideId,
+        },
+        raw: true,
+    })
+
+    const tourInfo = await Shop.findOne({
+        where: {
+            id: bookData.listingId,
+        },
+        raw: true,
+    })
+
+    const tourName = tourInfo['tourTitle']
+
+    // stripeId of booker
+    const stripeAcc = tourGuideInfo['stripe_account_id']
+
+    let totalPayoutAmt = (parseFloat(bookData.bookBaseprice) + parseFloat(bookData.bookCharges.split(',').reduce((a, b) => a + b))) * 0.85
+    // Remember to x100 to convert dollar to cents
+    totalPayoutAmt = totalPayoutAmt.toFixed(2) * 100
+
+    const transfer = await stripe.transfers.create({
+        amount: totalPayoutAmt,
+        currency: 'sgd',
+        destination: stripeAcc,
+        description: tourName,
+    })
+    console.log(transfer)
 
     Booking.update({
         processStep: '5',
