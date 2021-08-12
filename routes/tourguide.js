@@ -147,6 +147,9 @@ router.get('/bookings', async (req, res) => {
     let offset = 0
     if (pageNo) {
         pageNo = parseInt(pageNo)
+        if (pageNo <= 0) {
+            pageNo = 1
+        }
         offset = pageSize * (pageNo - 1)
     } else {
         pageNo = 1
@@ -169,9 +172,15 @@ router.get('/bookings', async (req, res) => {
         offset: offset,
     })
     console.log(bookings)
-    const bookCount = bookings.count
-    const bookList = bookings.rows
-    const lastPage = Math.ceil(bookCount / pageSize)
+    let bookCount = 0
+    let bookList
+    let lastPage = 1
+    if (bookings.rows.length > 0) {
+        bookCount = bookings.count
+        bookList = bookings.rows
+        lastPage = Math.ceil(bookCount / pageSize)
+    }
+    console.log('pageno ', pageNo, ' and lastpage ', lastPage, ' and offset ', offset)
     const metadata = {
         meta: {
             title: 'All Active Bookings',
@@ -198,6 +207,9 @@ router.get('/bookings/completed', async (req, res) => {
     let offset = 0
     if (pageNo) {
         pageNo = parseInt(pageNo)
+        if (pageNo <= 0) {
+            pageNo = 1
+        }
         offset = pageSize * (pageNo - 1)
     } else {
         pageNo = 1
@@ -226,9 +238,14 @@ router.get('/bookings/completed', async (req, res) => {
         offset: offset,
     })
     console.log(bookings)
-    const bookCount = bookings.count
-    const bookList = bookings.rows
-    const lastPage = Math.ceil(bookCount / pageSize)
+    let bookCount = 0
+    let bookList
+    let lastPage = 1
+    if (bookings.rows.length > 0) {
+        bookCount = bookings.count
+        bookList = bookings.rows
+        lastPage = Math.ceil(bookCount / pageSize)
+    }
     const metadata = {
         meta: {
             title: 'All Completed Bookings',
@@ -250,6 +267,7 @@ router.get('/bookings/completed', async (req, res) => {
 })
 
 router.get('/bookings/:id', async (req, res) => {
+    console.log('hi.im here')
     const bookID = req.params.id
 
     bookData = await Booking.findOne({
@@ -272,8 +290,8 @@ router.get('/bookings/:id', async (req, res) => {
         return res.render('404', metadata)
     }
 
-    if (bookData.custId != req.currentUser.id) {
-        res.redirect(`/bookings`)
+    if (bookData.tgId != req.currentUser.id) {
+        res.redirect(`/tourguide/bookings`)
     }
     res.cookie('storedValues', JSON.stringify(bookData), { maxage: 5000 })
     // const sid = req.signedCookies.sid
@@ -439,7 +457,6 @@ router.post('/bookings/:id', async (req, res) => {
     console.log('tourDateResult is '+ tourDateResult)
     console.log('validationErrors is '+ validationErrors)
     if (!emptyArray(validationErrors)) {
-        console.log('ooga valid error')
         res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
         res.redirect(`/tourguide/bookings/${bookId}`)
     } else {

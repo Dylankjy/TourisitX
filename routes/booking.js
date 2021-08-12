@@ -28,6 +28,9 @@ router.get('/', async (req, res) => {
     let offset = 0
     if (pageNo) {
         pageNo = parseInt(pageNo)
+        if (pageNo <= 0) {
+            pageNo = 1
+        }
         offset = pageSize * (pageNo - 1)
     } else {
         pageNo = 1
@@ -41,7 +44,6 @@ router.get('/', async (req, res) => {
     let lastPage = 1
     let reqAction
     let upcoming
-    let reqTest
     if (bookType) {
         if (bookType == 'planning') {
             processStepQuery = ['1', '2', '3']
@@ -69,17 +71,13 @@ router.get('/', async (req, res) => {
                     where: { reviewerId: req.currentUser.id } }],
             raw: true,
             limit: pageSize,
-            // offset: offset,
+            offset: offset,
         })
 
         if (bookings) {
-            console.log(bookings)
             bookCount = bookings.count
             bookList = bookings.rows
             lastPage = Math.ceil(bookCount / pageSize)
-            if (pageNo > lastPage) {
-                res.redirect(`/bookings?type=${bookType}&page=${lastPage}`)
-            }
         }
     } else {
         // Overview
@@ -102,6 +100,7 @@ router.get('/', async (req, res) => {
                     attributes: ['id', 'reviewerId', 'type', 'reviewText'] }],
             raw: true,
         })
+        console.log(reqAction)
 
         upcoming = await Booking.findAndCountAll({
             where: {
