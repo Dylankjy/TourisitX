@@ -36,6 +36,14 @@ require('../app/db')
 
 const Vibrant = require('node-vibrant')
 
+const apiConfig = require('../config/apikeys.json')
+
+
+const STRIPE_PUBLIC_KEY = apiConfig.stripe.STRIPE_PUBLIC_KEY
+const STRIPE_SECRET_KEY = apiConfig.stripe.STRIPE_SECRET_KEY
+
+const stripe = require('stripe')(STRIPE_SECRET_KEY)
+
 router.use(formidable())
 
 imageToB64Callback = (filePath, fileType, callback) => {
@@ -575,5 +583,36 @@ router.post('/profile/edit/:savedId', (req, res) => {
     }
 })
 
+
+
+router.get('/profile/:savedId/transaction-history', async (req, res)=> {
+    const currentUser = req.currentUser
+    const currentUserID = currentUser.Id
+    // if (currentUserID != req.params.savedId) {
+    //     console.log(currentUserID)
+    //     console.log(req.params.savedId)
+    //     return res.redirect('/')
+    // }
+
+    let paymentHistory = await stripe.paymentIntents.list({
+        customer: currentUser.stripe_customer_id,
+    })
+
+    paymentHistory = paymentHistory['data']
+
+    const metadata = {
+        meta: {
+            title: 'Transaction History',
+            path: false,
+        },
+        // layout: 'tourguid',
+        data: {
+            currentUser: req.currentUser,
+            history: paymentHistory,
+        },
+    }
+
+    res.render('users/transaction-history.hbs', metadata)
+})
 
 module.exports = router
