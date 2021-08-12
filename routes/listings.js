@@ -178,24 +178,17 @@ router.get('/info/:id', (req, res) => {
                 if (tourData.hidden == 'true') {
                     return res.redirect('/marketplace')
                 }
-                console.log('THIS IS THIS')
-                console.log(tourguideName.name)
+
                 return res.render('listing.hbs', {
                     tourData: tourData,
                     tourguideName: tourguideName.name,
                     isOwner: false,
                 })
             } else {
-                // Check if session is up to date. Else, require person to reloggin
-                if ((await genkan.isLoggedinAsync(sid)) == false) {
-                    // Redirect to login page
-                    return res.redirect('/id/login')
-                }
-
                 // Alex you suck!!! >:( <:3
 
                 // If user is logged in and has a valid session
-                const userData = await genkan.getUserBySessionAsync(sid)
+                const userData = await req.currentUser
                 const userWishlist = userData.wishlist || ''
                 // var userWishlistArr = userWishlist.split(';!;')
 
@@ -223,6 +216,9 @@ router.get('/info/:id', (req, res) => {
                     }
 
                     const metadata = {
+                        meta: {
+                            title: tourData.tourTitle,
+                        },
                         tourData: tourData,
                         // tourguideName: (await genkan.getUserByIDAsync(tourData.userId)).name,
                         isOwner: owner,
@@ -243,6 +239,9 @@ router.get('/info/:id', (req, res) => {
                         owner = false
 
                         const metadata = {
+                            meta: {
+                                title: tourData.tourTitle,
+                            },
                             data: {
                                 currentUser: req.currentUser,
                             },
@@ -1193,7 +1192,7 @@ router.get('/api/getImage/:id', (req, res) => {
 
 // Start: Booking-related items under the listing route
 // Rendering the book-now form
-router.get('/:id/purchase', async (req, res) => {
+router.get('/:id/purchase', loginRequired, async (req, res) => {
     const itemID = req.params.id
 
     Shop.findAll({
