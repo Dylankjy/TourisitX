@@ -1,0 +1,41 @@
+<h1 class="title">Transaction History</h1>
+
+{{>adminUserStaffManageNotifs}}
+
+<h1></h1>
+
+<table class="table is-fullwidth">
+    <tr>
+        <th>Date</th>
+        <th>Customer</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>Refunded</th>
+        <th>Receipt</th>
+    </tr>
+    {{#each data.transactions}}
+    <tr>
+        <td>{{timestampParseISO this.created }}</td>
+
+        <td>{{ this.billing_details.email }}</td>
+
+        <td>${{ divide this.amount 100 }}</td>
+
+        {{#ifEquals this.status "succeeded"}}
+        <td class="has-text-success-dark"><i class="fas fa-check-circle"></i>&nbsp;Completed</td>
+        {{else}}
+        <td class="has-text-warning-dark"><i class="fas fa-clock"></i>&nbsp;Pending</td>
+        {{/ifEquals}}
+
+        {{#ifEquals this.refunded true}}
+        <td><i class="fas fa-check"></i></td>
+        {{else}}
+        <td><i class="fas fa-times"></i></td>
+        {{/ifEquals}}
+
+        <td><a href={{ this.receipt_url }} target="_blank">Receipt</a></td>
+
+        
+    </tr>
+    {{/each}}
+</table>
