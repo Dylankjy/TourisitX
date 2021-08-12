@@ -234,7 +234,8 @@ router.get('/bookings/completed', async (req, res) => {
             bookList: bookList,
         },
         nav: {
-            sidebarActive: 'bookingsCompleted',
+            sidebarActive: 'bookings',
+            sidebarSubActive: 'bookingsCompleted',
         },
         layout: 'tourguide',
     }
