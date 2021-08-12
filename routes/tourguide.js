@@ -251,7 +251,7 @@ router.get('/bookings/:id', async (req, res) => {
         include: Shop,
         raw: true,
     })
-    res.cookie('result', JSON.stringify(bookData), { maxage: 5000 })
+    res.cookie('storedValues', JSON.stringify(bookData), { maxage: 5000 })
     // const sid = req.signedCookies.sid
     // const userId = await genkan.getUserBySessionAsync(sid)
 
@@ -264,6 +264,7 @@ router.get('/bookings/:id', async (req, res) => {
             ['createdAt', 'ASC'],
         ],
     })
+    console.log(tourPlanData)
 
     const reviews = {
         CUST: null,
@@ -334,6 +335,7 @@ router.get('/bookings/:id', async (req, res) => {
                             serviceFee: serviceFee,
                         },
                     },
+                    tourPlans: tourPlanData.rows,
                     nav: {
                         sidebarActive: 'bookings',
                     },
@@ -392,6 +394,14 @@ router.post('/bookings/:id', async (req, res) => {
         .exists()
         .getResult()
 
+    const itineraryResult = v
+        .Initialize({
+            name: 'finalItinerary',
+            errorMessage: 'Please create a Tour Itinerary',
+        })
+        .exists()
+        .getResult()
+
     // // Evaluate the files and fields data separately
     const validationErrors = removeNull([
         tourDateResult,
@@ -399,6 +409,7 @@ router.post('/bookings/:id', async (req, res) => {
         endTimeResult,
         tourPaxResult,
         tourPriceResult,
+        itineraryResult,
     ])
 
     console.log('tourDateResult is '+ tourDateResult)
@@ -450,6 +461,8 @@ router.post('/bookings/:id', async (req, res) => {
                 bookPax: req.fields.tourPax,
                 bookBaseprice: req.fields.tourPrice,
                 revisions: bookData.revisions - 1,
+                addInfo: req.fields.addInfo,
+                bookItinerary: req.fields.finalItinerary,
             },
             {
                 where: { bookId: bookId },
@@ -473,7 +486,7 @@ router.post('/bookings/:id', async (req, res) => {
                 tourEnd: tourEnd,
                 tourPax: req.fields.tourPax,
                 tourPrice: req.fields.tourPrice,
-                tourItinerary: '',
+                tourItinerary: req.fields.finalItinerary,
                 accepted: 0,
             },
         ).then((data) => {

@@ -196,6 +196,10 @@ app.engine(
                 return time
             },
 
+            onlyTime24h: (value) => {
+                return dateFormat(value, 'HH:MM')
+            },
+
             timestampParseISO: (value) => {
                 return dateFormat(value, 'dS mmmm yyyy, HH:MM:ss')
             },

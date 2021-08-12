@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="/third_party/bulma/bulma-badge.css">
 <link rel="stylesheet" href="/third_party/bulma/bulma-timeline.min.css">
 <link rel='stylesheet' href='/third_party/alex/create_listing.css'>
+<script src='/third_party/jquery-ui/jquery-ui.js'></script>
 
 <script defer src="/js/chatBooking.js" data-turbolinks="false"></script>
 
@@ -342,39 +343,26 @@
                             <div class='field'>
                     <label class="label" for="tour-starttime">Start Time</label>
                     <div class='control'>
-                        <input name="startTime" class="input" type="time" value={{onlyTime data.book.tourStart}}>
+                        <input name="startTime" class="input" type="time" value={{onlyTime24h data.book.tourStart}}>
                     </div>
                 </div>
 
                     <div class='field'>
                         <label class="label" for="tour-endtime">End Time</label>
                         <div class='control'>
-                            <input name="endTime" class="input" type="time" value={{onlyTime data.book.tourEnd}}>
+                            <input name="endTime" class="input" type="time" value={{onlyTime24h data.book.tourEnd}}>
                         </div>
                         </div>  
                     </div>
                     </div>
 
-                    {{!-- <label class="label" for="tour-items">Tour itinerary</label>
-                    <div class="field has-addons">
-                        <div class="control is-expanded">
-                            <input class="input" type="text" placeholder="Activity">
-                        </div>
-                        <div class="control">
-                            <a id='addItemButton' class="button" onclick="AddItinerary();AppendtoItem()">
-                                Add Itinerary
-                            </a>
-                        </div>
-                    </div>
-                    <br>
-
-                    <ul class='ui-sortable' id='itineraryItems'>
-                    </ul> --}}
                     <br>
                     <div>
                         <label class="label" for="tour-items">Tour itinerary</label>
-                    <div class='control has-icons-right is-clickable'>
-                        <input class='input is-success' id='itinerary-str' placeholder="Add itinerary item..">
+
+                        {{!-- spoosh here --}}
+                        <div class='control has-icons-right is-clickable'>
+                        <input class='input is-success' id='itinerary-str'>
                         <span class='icon is-right'>
                             <i class="fas fa-feather-alt" id='add-itinerary-icon'
                                 style="margin-right: 20px; pointer-events: initial"></i>
@@ -382,17 +370,8 @@
                     </div>
 
                     <ul class='ui-sortable' id='itineraryItems'>
-                        {{#each (readArrWithReplace data.book.[Shop.finalItinerary])}}
-                            {{!-- <li class="itinerary-item mt-3 tag is-info is-medium" contenteditable="true"> --}}
-                            <li class="itinerary-item" contenteditable="true">
-                            {{!-- <span class="tag is-info is-medium"> --}}
-                            {{this}}
-                            {{!-- <button class="delete" onclick="this.parentElement.remove()"></button> --}}
-                            <i class="fas fa-trash-alt itinerary-item-icon" onclick="this.parentElement.remove()"></i>
-                            {{!-- </span> --}}
-                            </li>
-                        {{/each}}
                     </ul>
+                        {{!-- here --}}
                 </div>
                     
                     <br>
@@ -742,7 +721,7 @@
         $("#itinerary-str").val("")
         var elem = `<li class="itinerary-item" contenteditable="true">
                         ${item}
-                        <i class="fas fa-trash-alt itinerary-item-icon" onclick="this.parentElement.remove()"></i>
+                        <i class="fas fa-times itinerary-item-icon is-clickable" onclick="this.parentElement.remove()"></i>
                     </li>`
         $("#itineraryItems").append(elem)
 
@@ -765,15 +744,10 @@
         var item = itinerary
         // Reset input box to empty
         $("#itinerary-str").val("")
-        // var elem = `<li class="itinerary-item mt-3 tag is-info is-medium" contenteditable="true">
-        //                ${item}
-        //                <button class="delete" onclick="this.parentElement.remove()"></button>
-        //            </li>`
         var elem = `<li class="itinerary-item" contenteditable="true">
                         ${item}
-                        <i class="fas fa-trash-alt itinerary-item-icon" onclick="this.parentElement.remove()"></i>
+                        <i class="fas fa-times itinerary-item-icon is-clickable" onclick="this.parentElement.remove()"></i>
                     </li>`
-
         $("#itineraryItems").append(elem)
 
         // Sortable + Editable for Itinerary list
@@ -800,7 +774,11 @@
         createdItinerary = createdItinerary.map(x => x.replaceAll(",", ";!;"))
     }
 
+    // Place all listeners inside this function
     $(document).ready(() => {
+
+        // All initialization functions here
+
         // Tour Itinerary, Define function to run when the icon is clicked
         // When feather icon is clicked, add the current input to the list
         $("#add-itinerary-icon").on('click', () => {
@@ -812,11 +790,21 @@
             }
         })
 
-        $("#custom_form").on('submit', () => {
+
+        // Right before submitting, I want to run these stuff
+        $("#custom_tour").on('submit', () => {
+            // Don't have to update these, because these are constantly updated when changed/deleted (Because they are used to render the outputs)
+
             updateCreatedItineraryArray()
             $('input:hidden[name=finalItinerary]').val(createdItinerary)
         })
 
+
+
+
+
+
+        // If there is stored cookies (Means that there was an error and you re-render)
         if (getCookieValue("storedValues") != 'undefined') {
             var storedValues = JSON.parse(decodeURIComponent(getCookieValue("storedValues")))
 
@@ -824,7 +812,7 @@
             console.log(storedValues)
 
             // Tour Itinerary
-            var existingItinerary = storedValues.finalItinerary.split(',')
+            var existingItinerary = storedValues.bookItinerary.split(',')
             if (existingItinerary != '') {
                 existingItinerary.forEach((itinerary) => {
                     // Reverse the replace operation just now. Fill back the commas
@@ -837,7 +825,13 @@
             }
 
         }
+
     })
 
+
+    $(document).on('turbolinks:load', () => {
+        $("#itineraryItems").sortable()
+        console.log("RAN THIS THING")
+    })
 
 </script>
