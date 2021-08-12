@@ -1,13 +1,15 @@
 const express = require('express')
 const fs = require('fs')
+const { default: axios } = require('axios')
 const uuid = require('uuid')
 const path = require('path')
 
 const formidableValidator = require('../app/validation')
 const formidable = require('express-formidable')
 const genkan = require('../app/genkan/genkan')
+const { convert } = require('image-file-resize')
 
-const { requireLogin, removeNull, emptyArray } = require('../app/helpers')
+const { requireLogin, requirePermission, removeNull, emptyArray, removeFromArray } = require('../app/helpers')
 
 // Config file
 const config = require('../config/genkan.json')
@@ -15,6 +17,10 @@ const config = require('../config/genkan.json')
 // Globals
 const router = express.Router()
 const { User, Shop, Review } = require('../models')
+const elasticSearchHelper = require('../app/elasticSearch')
+
+const esClient = require('../app/elasticSearch').esClient
+
 const Validator = formidableValidator.Validator
 const fileValidator = formidableValidator.FileValidator
 
@@ -23,6 +29,7 @@ const savedpfpFolder = './storage/users'
 // Hashing
 const sha512 = require('hash-anything').sha512
 const bcrypt = require('bcrypt')
+const { findDB } = require('../app/db')
 
 require('../app/db')
 
@@ -79,13 +86,55 @@ router.get('/profile/:id', async (req, res) => {
         },
     })
 
-    // const uReview = await Review.findAll({
-    //     where: {
-    //         'subjectId': req.params.id,
-    //         'type': "CUST",
-    //     },
-    // })
-    
+    const custR = []
+    const tgR = []
+    Review.findAll({
+        attributes: ['id', 'type', 'reviewerId', 'reviewText', 'rating', 'createdAt', 'subjectId'],
+        where: {
+            'subjectId': req.params.id,
+            'type': 'TOUR',
+        },
+        include: {
+            model: User,
+            attributes: ['name'],
+            // where: {
+            //     'id': attributes.subjectId,
+            // }
+        },
+    }).then(async (data) => {
+        await data.forEach((doc) => {
+            tgR.push(doc['dataValues'])
+        })
+        return tgR
+    }).then(async (tgR) => {
+        console.log('TgReview', tgR)
+    }).catch((err) => {
+        console.log(err)
+        res.json({ 'Message': 'Failed' })
+    })
+
+    Review.findAll({
+        attributes: ['id', 'type', 'reviewerId', 'reviewText', 'rating', 'createdAt'],
+        where: {
+            'subjectId': req.params.id,
+            'type': 'CUST',
+        },
+        include: {
+            model: User,
+            attributes: ['name']
+        },
+    }).then(async (data) => {
+        await data.forEach((doc) => {
+            custR.push(doc['dataValues'])
+        })
+        return custR
+    }).then(async (custR) => {
+        console.log('CustReview', custR)
+    }).catch((err) => {
+        console.log(err)
+        res.json({ 'Message': 'Failed' })
+    })
+
     const isOwner = req.currentUser.id == userD[0]['dataValues'].id
     const listings = []
     Shop.findAll({
@@ -99,7 +148,7 @@ router.get('/profile/:id', async (req, res) => {
         })
         return listings
     }).then(async (listings) => {
-        // console.log('Tours', listings)
+        console.log('Tours', listings)
 
         let pageColor = [0, 0, 0]
         try {
@@ -118,11 +167,12 @@ router.get('/profile/:id', async (req, res) => {
                 },
                 data: {
                     currentUser: req.currentUser,
-                    // reviews: uReview[0],
                     pageColor,
                 },
+                tgreviews: tgR,
+                ureviews: custR,
                 listings: listings,
-                uData: userD,
+                uData: userD[0]['dataValues'],
                 isOwner: owner,
                 bioErrors: req.cookies.bioErrors,
             }
@@ -137,8 +187,9 @@ router.get('/profile/:id', async (req, res) => {
                 data: {
                     currentUser: req.currentUser,
                     pageColor,
-                    // reviews: uReview[0],
                 },
+                tgreviews: tgR,
+                ureviews: custR,
                 listings: listings,
                 uData: userD[0]['dataValues'],
                 isOwner: owner,
@@ -505,17 +556,6 @@ router.post('/profile/edit/:savedId', (req, res) => {
         const imgDetails = {
             'profile_img': savedName,
         }
-        User.findAll({
-            where: {
-                id: req.params.savedId,
-            },
-        }).then((items) => {
-            const savedPfpFile = items[0]['dataValues']['profile_img']
-            if (savedPfpFile != 'default.png') {
-                console.log(`Removed IMAGE FILE: ${savedPfpFile}`)
-                fs.unlinkSync(`${savedpfpFolder}/${savedPfpFile}`)
-            }
-        })
         updateDB('user', { 'id': req.params.savedId }, imgDetails, () => {
             return res.redirect(`/u/profile/${req.params.savedId}`)
         })
@@ -527,30 +567,5 @@ router.post('/profile/edit/:savedId', (req, res) => {
     }
 })
 
-router.post('/setting/set_accmode_welcome', (req, res) => {
-    const { accountMode } = req.fields
-
-    if (accountMode === 'USER') {
-        User.update({ 'is_tourguide': false }, {
-            where: {
-                id: req.currentUser.id,
-            },
-        }).then((data) => {
-            return res.redirect(`/`)
-        })
-    }
-
-    if (accountMode === 'TOURGUIDE') {
-        User.update({ 'is_tourguide': true }, {
-            where: {
-                id: req.currentUser.id,
-            },
-        }).then((data) => {
-            return res.redirect(`/`)
-        })
-    }
-
-    return false
-})
 
 module.exports = router
