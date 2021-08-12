@@ -1,4 +1,4 @@
-const { Shop, User } = require('../models')
+const { Shop, User, Review } = require('../models')
 
 // Config file
 const config = require('../config/apikeys.json')
@@ -9,7 +9,7 @@ const STRIPE_SECRET_KEY = config.stripe.STRIPE_SECRET_KEY
 
 const stripe = require('stripe')(STRIPE_SECRET_KEY)
 
-const id = 'acct_1JIqrc4fL5hixuop'
+const id = 'acct_1JNZVT4e3RKFRugX'
 
 payout = async () => {
     // const accountId = 'acct_1JIpirQCkAaMeH0J'
@@ -17,6 +17,7 @@ payout = async () => {
         amount: 6000 * 100,
         currency: 'sgd',
         destination: id,
+        description: 'this is working',
     })
 
     console.log(transfer)
@@ -60,4 +61,19 @@ test = async () => {
     console.log(link)
 }
 
-test()
+t = async () => {
+    const itemId = 'eff68494-225d-4c87-a6af-de5a6fa572a6'
+
+    const tourReviews = await Review.findAll({
+        where: {
+            'tourId': itemId,
+            'type': 'TOUR',
+        },
+        include: [{ model: User, as: 'Reviewer' }],
+        raw: true,
+    })
+
+    console.log(tourReviews[0]['Reviewer.name'])
+}
+
+t()

@@ -125,10 +125,11 @@
                     <h2 class="title">Reviews</h2>
                     <p class="subtitle">See what past tourisits have to say</p>
                     <div>
+                        {{#each tourReviews}}
                         <div class="box p-5">
                             <p>
                                 <span class="has-text-weight-bold">
-                                    <a href="/u/profile/{{Changethis}}">Ri Takamochi</a>
+                                    <a href="/u/profile/{{ this.reviewerId }}">Name</a>
                                 </span>
                                 <span>
                                     &nbsp;
@@ -136,23 +137,20 @@
                                     &nbsp;
                                 </span>
                                 <span>
-                                    10/12/2021
+                                    {{ timestampParseISO this.createdAt }}
                                 </span>
                                 <span>
                                     &nbsp;
                                     &bull;
                                     &nbsp;
                                 </span>
-                                <span class="has-text-grey-lighter">
-                                    <i class="fas fa-star has-text-dark"></i>
-                                    <i class="fas fa-star has-text-dark"></i>
-                                    <i class="fas fa-star has-text-dark"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
+                                <span>
+                                    {{ this.rating }}
                                 </span>
                             </p>
-                            <p class="content">The tour guide is very friendly. Would buy again</p>
+                            <p class="content">{{ this.reviewText }}</p>
                         </div>
+                        {{/each}}
                     </div>
                 </div>
             </div>

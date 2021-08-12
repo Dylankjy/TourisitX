@@ -3,12 +3,15 @@
 <table class="table is-fullwidth">
     <tr>
         <th>Date</th>
+        <th>Description</th>
         <th>Amount</th>
         <th>Status</th>
     </tr>
     {{#each data.history}}
     <tr>
         <td>{{timestampParseISO this.created }}</td>
+
+        <td>{{ this.description }}</td>
 
         <td>${{ divide this.amount 100 }}</td>
 

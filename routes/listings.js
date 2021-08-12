@@ -29,6 +29,7 @@ const {
     Booking,
     ChatRoom,
     ChatMessages,
+    Review,
 } = require('../models')
 const elasticSearchHelper = require('../app/elasticSearch')
 // const esClient = elasticSearch.Client({
@@ -170,6 +171,16 @@ router.get('/info/:id', (req, res) => {
             const tourData = await items[0]['dataValues']
             const tourguideName = await genkan.getUserByIDAsync(tourData.userId)
             const sid = req.signedCookies.sid
+            const tourReviews = await Review.findAll({
+                where: {
+                    tourId: itemID,
+                    type: 'TOUR',
+                },
+                include: { model: User, as: 'Reviewer' },
+                raw: true,
+            })
+            console.log(tourReviews)
+            // console.log(Object.keys(tourReviews[0]))
 
             // If person is not logged in
             if (sid == undefined) {
@@ -179,6 +190,7 @@ router.get('/info/:id', (req, res) => {
 
                 return res.render('listing.hbs', {
                     tourData: tourData,
+                    tourReviews: tourReviews,
                     tourguideName: tourguideName.name,
                     isOwner: false,
                 })
@@ -224,6 +236,7 @@ router.get('/info/:id', (req, res) => {
                         errMsg: errMsg,
                         wishlistArr: userWishlist,
                         bannedStatus: banStatus,
+                        tourReviews: tourReviews,
                         data: {
                             currentUser: req.currentUser,
                         },
@@ -247,6 +260,7 @@ router.get('/info/:id', (req, res) => {
                             tourData: tourData,
                             isOwner: owner,
                             wishlistArr: userWishlist,
+                            tourReviews: tourReviews,
                         }
                         return res.render('listing.hbs', metadata)
                     }
@@ -1502,7 +1516,7 @@ router.get('/stripe-create-account', loginRequired, async (req, res)=>{
         },
     }
     // return res.redirect(307, '/listing/stripe-create-account')
-    return res.render('tmp.hbs', metadata)
+    return res.render('stripe-create-account.hbs', metadata)
 })
 
 router.post('/stripe-create-account', loginRequired, async (req, res) => {
