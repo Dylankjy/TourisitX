@@ -98,10 +98,12 @@
                             {{/ifEquals}}
 
                              {{#ifEquals this.processStep '5'}}
-                             <th>{{this.[Shop.tourTitle]}}</th>
+                             {{#unless this.[Reviews.id]}}
+                             <th>{{this.[Shop.tourTitle]}}{{this.[Reviews.id]}}</th>
                             <td><a href="/bookings/{{this.bookId}}">
                                 <span class="is-link mr-2">Leave a review&nbsp;</span><i class="fas fa-arrow-right"></i>
                                     </a></td>
+                            {{/unless}}
                             {{/ifEquals}}
                             </tr>
                             {{/each}}

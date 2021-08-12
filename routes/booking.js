@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
     let pageNo = req.query.page
     const pageSize = 5
     let offset = 0
-    if (pageNo) {
+    if (pageNo > 0) {
         pageNo = parseInt(pageNo)
         offset = pageSize * (pageNo - 1)
     } else {
@@ -41,6 +41,7 @@ router.get('/', async (req, res) => {
     let lastPage = 1
     let reqAction
     let upcoming
+    let reqTest
     if (bookType) {
         if (bookType == 'planning') {
             processStepQuery = ['1', '2', '3']
@@ -76,25 +77,29 @@ router.get('/', async (req, res) => {
             bookCount = bookings.count
             bookList = bookings.rows
             lastPage = Math.ceil(bookCount / pageSize)
+            if (pageNo > lastPage) {
+                res.redirect(`/bookings?type=${bookType}&page=${lastPage}`)
+            }
         }
     } else {
         // Overview
-        const reviewQuery = 'Reviews.reviewerId != "'+ req.currentUser.id +'"'
-        console.log(reviewQuery)
+
         reqAction = await Booking.findAndCountAll({
             where: {
                 custId: req.currentUser.id,
                 approved: 1,
                 processStep: ['2', '3', '4', '5'],
             },
-            where: sequelize.literal('Reviews.reviewerId != Booking.custId OR Reviews.id IS NULL'),
+            // where: sequelize.literal('Reviews.reviewerId != Booking.custId OR Reviews.id IS NULL'),
             attributes: ['bookId', 'processStep'],
             order: [['updatedAt', 'ASC']],
             include: [
                 { model: Shop,
                     attributes: ['tourTitle'] },
                 { model: Review,
-                    attributes: [] }],
+                    required: false,
+                    where: sequelize.literal('Reviews.type != "CUST"'),
+                    attributes: ['id', 'reviewerId', 'type', 'reviewText'] }],
             raw: true,
         })
 
@@ -329,7 +334,7 @@ router.post('/:id/review-tour', async (req, res) => {
 
             },
         ).then((data) => {
-            addMessage(bookData['chatId'], 'SYSTEM', tourType, 'REVIEW', () => {
+            addMessage(bookData['chatId'], req.currentUser.id, tourType, 'REVIEW', () => {
                 if (req.currentUser.id == bookData['custId']) {
                     res.redirect(`/bookings/${bookId}`)
                 } else if (req.currentUser.id == bookData['tgId']) {
