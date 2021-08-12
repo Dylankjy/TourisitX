@@ -97,7 +97,14 @@ router.get('/profile/:id', async (req, res) => {
             'subjectId': req.params.id,
             'type': 'TOUR',
         },
-        include: { model: User, as: 'Subject' }
+        include: [{
+            model: User, as: 'Reviewer',
+            attributes: ['name', 'profile_img'],
+        },
+        {
+            model: Shop,
+            attributes: ['tourTitle']
+        },]
     }).then(async (data) => {
         await data.forEach((doc) => {
             tgR.push(doc['dataValues'])
@@ -116,7 +123,14 @@ router.get('/profile/:id', async (req, res) => {
         where: {
             'reviewerId': req.params.id,
         },
-        include: { model: User, as: 'Reviewer' }
+        include: [{
+            model: User, as: 'Reviewer',
+            attributes: ['name', 'profile_img'],
+        },
+        {
+            model: Shop,
+            attributes: ['tourTitle']
+        },]
     }).then(async (data) => {
         await data.forEach((doc) => {
             custR.push(doc['dataValues'])

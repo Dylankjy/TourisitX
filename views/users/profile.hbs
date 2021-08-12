@@ -68,77 +68,86 @@
     </div>
 </section>
 
-{{!-- TODO: Show list of reviews this user has created --}}
 <section class="section has-background-light">
     <div class="container">
         <h2 class="title">Reviews of {{uData.name}} as Tour Guide</h2>
         {{#if tgreviews}}
         {{#each tgreviews}}
         <div class="box p-5">
-            <p>
-                <span class="has-text-weight-bold">
-                    <a href="/u/profile/{{reviewerId}}">{{User.dataValues.name}}</a>
-                </span>
-                <span>
-                    &nbsp;
-                    &bull;
-                    &nbsp;
-                </span>
-                <span>
-                    {{dateParseISO createdAt}}
-                </span>
-                <span>
-                    &nbsp;
-                    &bull;
-                    &nbsp;
-                </span>
-                {{#ifEquals rating '1'}}
-                <span class="has-text-grey-lighter">
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                </span>
-                {{/ifEquals}}
-                {{#ifEquals rating '2'}}
-                <span class="has-text-grey-lighter">
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                </span>
-                {{/ifEquals}}
-                {{#ifEquals rating '3'}}
-                <span class="has-text-grey-lighter">
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                </span>
-                {{/ifEquals}}
-                {{#ifEquals rating '4'}}
-                <span class="has-text-grey-lighter">
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star"></i>
-                </span>
-                {{/ifEquals}}
-                {{#ifEquals rating '5'}}
-                <span class="has-text-grey-lighter">
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star has-text-warning"></i>
-                </span>
-                {{/ifEquals}}
-            </p>
-            <p class="content">{{reviewText}}</p>
+            <div class="columns is-vcentered">
+                <div class="column is-1">
+                    <div class='profile-img-review'
+                        style="background-image: url('/static/users/{{Reviewer.dataValues.profile_img}}')">
+                    </div>
+                </div>
+                <div class="column">
+                    <h4 class="has-text-weight-bold">{{Shop.dataValues.tourTitle}}</h4>
+                    <p>
+                        <span class="has-text-weight-bold">
+                            <a href="/u/profile/{{reviewerId}}">{{Reviewer.dataValues.name}}</a>
+                        </span>
+                        <span>
+                            &nbsp;
+                            &bull;
+                            &nbsp;
+                        </span>
+                        <span>
+                            {{dateParseISO createdAt}}
+                        </span>
+                        <span>
+                            &nbsp;
+                            &bull;
+                            &nbsp;
+                        </span>
+                        {{#ifEquals rating '1'}}
+                        <span class="has-text-grey-lighter">
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </span>
+                        {{/ifEquals}}
+                        {{#ifEquals rating '2'}}
+                        <span class="has-text-grey-lighter">
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </span>
+                        {{/ifEquals}}
+                        {{#ifEquals rating '3'}}
+                        <span class="has-text-grey-lighter">
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </span>
+                        {{/ifEquals}}
+                        {{#ifEquals rating '4'}}
+                        <span class="has-text-grey-lighter">
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star"></i>
+                        </span>
+                        {{/ifEquals}}
+                        {{#ifEquals rating '5'}}
+                        <span class="has-text-grey-lighter">
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star has-text-warning"></i>
+                        </span>
+                        {{/ifEquals}}
+                    </p>
+                    <p class="content">{{reviewText}}</p>
+                </div>
+            </div>
         </div>
         {{/each}}
         {{else}}
@@ -153,71 +162,80 @@
         {{#if ureviews}}
         {{#each ureviews}}
         <div class="box p-5">
-            <p>
-                <span class="has-text-weight-bold">
-                    <a href="/u/profile/{{reviewerId}}">{{User.dataValues.name}}</a>
-                </span>
-                <span>
-                    &nbsp;
-                    &bull;
-                    &nbsp;
-                </span>
-                <span>
-                    {{dateParseISO createdAt}}
-                </span>
-                <span>
-                    &nbsp;
-                    &bull;
-                    &nbsp;
-                </span>
-                {{#ifEquals rating '1'}}
-                <span class="has-text-grey-lighter">
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                </span>
-                {{/ifEquals}}
-                {{#ifEquals rating '2'}}
-                <span class="has-text-grey-lighter">
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                </span>
-                {{/ifEquals}}
-                {{#ifEquals rating '3'}}
-                <span class="has-text-grey-lighter">
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                </span>
-                {{/ifEquals}}
-                {{#ifEquals rating '4'}}
-                <span class="has-text-grey-lighter">
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star"></i>
-                </span>
-                {{/ifEquals}}
-                {{#ifEquals rating '5'}}
-                <span class="has-text-grey-lighter">
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star has-text-warning"></i>
-                    <i class="fas fa-star has-text-warning"></i>
-                </span>
-                {{/ifEquals}}
-
-            </p>
-            <p class="content">{{reviewText}}</p>
+            <div class="columns is-vcentered">
+                <div class="column is-1">
+                    <div class='profile-img-review'
+                        style="background-image: url('/static/users/{{Reviewer.dataValues.profile_img}}')">
+                    </div>
+                </div>
+                <div class="column">
+                    <h4 class="has-text-weight-bold">{{Shop.dataValues.tourTitle}}</h4>
+                    <p>
+                        <span class="has-text-weight-bold">
+                            <a href="/u/profile/{{reviewerId}}">{{Reviewer.dataValues.name}}</a>
+                        </span>
+                        <span>
+                            &nbsp;
+                            &bull;
+                            &nbsp;
+                        </span>
+                        <span>
+                            {{dateParseISO createdAt}}
+                        </span>
+                        <span>
+                            &nbsp;
+                            &bull;
+                            &nbsp;
+                        </span>
+                        {{#ifEquals rating '1'}}
+                        <span class="has-text-grey-lighter">
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </span>
+                        {{/ifEquals}}
+                        {{#ifEquals rating '2'}}
+                        <span class="has-text-grey-lighter">
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </span>
+                        {{/ifEquals}}
+                        {{#ifEquals rating '3'}}
+                        <span class="has-text-grey-lighter">
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </span>
+                        {{/ifEquals}}
+                        {{#ifEquals rating '4'}}
+                        <span class="has-text-grey-lighter">
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star"></i>
+                        </span>
+                        {{/ifEquals}}
+                        {{#ifEquals rating '5'}}
+                        <span class="has-text-grey-lighter">
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star has-text-warning"></i>
+                            <i class="fas fa-star has-text-warning"></i>
+                        </span>
+                        {{/ifEquals}}
+                    </p>
+                    <p class="content">{{reviewText}}</p>
+                </div>
+            </div>
         </div>
         {{/each}}
         {{else}}
