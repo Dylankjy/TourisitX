@@ -22,12 +22,22 @@ payout = async () => {
     console.log(transfer)
 }
 
-test = async () => {
+listCharges = async () => {
     const invoices = await stripe.charges.list({
         limit: 3,
     })
 
     console.log(invoices['data'])
+}
+
+
+test = async () => {
+    const paymentIntents = await stripe.paymentIntents.list({
+        customer: 'cus_JwkMh0iAeKGWgj',
+    })
+
+    console.log(paymentIntents['data'][0]['charges']['data'])
+    // console.log(paymentIntents['data'][0]['charges']['data'][0]['receipt_url'])
 }
 
 test()

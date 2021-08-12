@@ -737,6 +737,7 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
     const userData = req.currentUser
     const sid = req.signedCookies.sid
     let paymentName = null
+    let priceToPay
 
     let bookData = await Booking.findAll({
         where: {
@@ -770,7 +771,7 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
     // Step 3 means its paying for full tour
     if (bookData['processStep'] == '3') {
         // Base price
-        let priceToPay = itemData['tourPrice']
+        priceToPay = itemData['tourPrice']
         console.log(priceToPay)
 
         // Any extra revisions
@@ -792,20 +793,21 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
 
         // Step 1 means its paying for customise tour *10% of base tour)
     } else if (bookData['processStep'] == '0') {
-        const priceToPay = itemData['tourPrice'] * 100 * 0.1
+        priceToPay = itemData['tourPrice'] * 100 * 0.1
         paymentName = itemData['tourTitle'] + ' Customization fee'
     } else {
         console.log('ERROR')
-        const priceToPay = 0
+        priceToPay = 0
     }
 
     const baseUrl = routesConfig['base_url']
 
+    console.log(savedUserData['stripe_customer_id'])
     const session = await stripe.checkout.sessions.create({
         payment_intent_data: {
             setup_future_usage: 'on_session',
         },
-        customer: savedUserData['stripe_id'],
+        customer: savedUserData['stripe_customer_id'],
         payment_method_types: ['card'],
         line_items: [
             {
@@ -814,8 +816,7 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
                     product_data: {
                         name: paymentName,
                     },
-                    unit_amount: 60000*100,
-                    // unit_amount: priceToPay,
+                    unit_amount: priceToPay,
                 },
                 quantity: 1,
             },
@@ -823,7 +824,7 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
         mode: 'payment',
         // Where to redirect after payment is done
         success_url: `${baseUrl}/listing/${bookId}/stripe-create-checkout/success`,
-        cancel_url: `${baseUrl}/${itemID}/purchase`,
+        cancel_url: `${baseUrl}/listing/${itemID}/purchase`,
     })
 
     res.redirect(303, session.url)
@@ -926,7 +927,7 @@ router.get('/:id/payment', loginRequired, async (req, res) => {
     itemData = itemData[0]
     savedUserData = savedUserData[0]
     // Boolean to check if user has stripeId. If no have, then add card details
-    const requireRegisterCustomer = savedUserData['stripe_id'] == null
+    const requireRegisterCustomer = savedUserData['stripe_customer_id'] == null
 
     // Redirect to register customer first
     if (requireRegisterCustomer) {
