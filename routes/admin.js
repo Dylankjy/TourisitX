@@ -12,6 +12,14 @@ const chat = require('../app/chat/chat')
 
 const { default: axios } = require('axios')
 
+const config = require('../config/apikeys.json')
+
+
+const STRIPE_PUBLIC_KEY = config.stripe.STRIPE_PUBLIC_KEY
+const STRIPE_SECRET_KEY = config.stripe.STRIPE_SECRET_KEY
+
+const stripe = require('stripe')(STRIPE_SECRET_KEY)
+
 // Database operations
 require('../app/db')
 
@@ -672,6 +680,29 @@ router.get('/payments', (req, res) => {
         },
     }
     return res.render('admin/payments', metadata)
+})
+
+router.get('/payments/transactions', async (req, res) => {
+    let invoices = await stripe.charges.list({
+        limit: 3,
+    })
+    invoices = invoices['data']
+    console.log(invoices)
+    const metadata = {
+        meta: {
+            title: 'Payments',
+            path: false,
+        },
+        nav: {
+            sidebarActive: 'payments',
+        },
+        layout: 'admin',
+        data: {
+            currentUser: req.currentUser,
+            transactions: invoices,
+        },
+    }
+    return res.render('admin/transactions', metadata)
 })
 
 router.get('/manage/tickets', (req, res) => {

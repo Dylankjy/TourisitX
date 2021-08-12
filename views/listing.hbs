@@ -1,6 +1,19 @@
 <link rel='stylesheet' href='/third_party/bulma/bulma-timeline.min.css'>
 <link rel='stylesheet' href='/third_party/alex/listing.css'>
 
+<script>
+    $(document).ready(()=> {
+        $("#editImgBtn").on('click', ()=>{
+            $("input[name=tourImage").click()
+        })
+
+        $("input[name=tourImage").on('change', ()=>{
+            $("#editImageForm").submit()
+            console.log("SUBMIT")
+        })
+    })
+</script>
+
 <section class="hero is-black"
     style="background: url('/static/listings/{{tourData.tourImage}}'); background-position: center center; background-size: cover; background-color: rgba(0,0,0,.15) !important; background-blend-mode: overlay !important;">
     <div class="hero-fadein"></div>
@@ -136,6 +149,26 @@
                 <div class="navbar-item">
                     <div class="buttons">
                         {{#if isOwner}}
+                        
+                        {{#if (isDefined errMsg)}}
+                        <div class='container' style="margin-right: 10px">
+                            <p class='has-text-danger'>{{errMsg}}</p>
+                        </div>
+                        {{/if}}
+                        <form id="editImageForm" enctype="multipart/form-data" method="post" action="/listing/edit/image/{{tourData.id}}">
+            
+                            <button class='navbar-item button is-link is-light' id="editImgBtn" type="button">
+                                <span class='icon'>
+                                    <i class="fas fa-image"></i>
+                                </span>
+                                <span>
+                                    Edit Image
+                                </span>
+                            </button>
+
+                            <input name="tourImage" type="file" accept="image/x-png,image/jpeg" hidden>
+                        </form>
+
                         <a class='navbar-item button is-link is-light' href='/listing/edit/{{tourData.id}}'>
                             <span class='icon'>
                                 <i class="fas fa-edit"></i>
@@ -238,3 +271,5 @@
         window.history.back();
     }
 </script>
+
+

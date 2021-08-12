@@ -266,6 +266,10 @@ app.engine(
                     return options.inverse(this)
                 }
             },
+
+            divide: (a, b) => {
+                return Number(a) / Number(b)
+            },
         },
     }),
 )
