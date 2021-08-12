@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
     let pageNo = req.query.page
     const pageSize = 5
     let offset = 0
-    if (pageNo > 0) {
+    if (pageNo) {
         pageNo = parseInt(pageNo)
         offset = pageSize * (pageNo - 1)
     } else {
@@ -52,8 +52,7 @@ router.get('/', async (req, res) => {
         } else {
             res.redirect(`/bookings`)
         }
-
-        bookings = await Booking.findAndCountAll({
+        const bookings = await Booking.findAndCountAll({
             where: {
                 custId: req.currentUser.id,
                 approved: 1,
@@ -70,8 +69,9 @@ router.get('/', async (req, res) => {
                     where: { reviewerId: req.currentUser.id } }],
             raw: true,
             limit: pageSize,
-            offset: offset,
+            // offset: offset,
         })
+
         if (bookings) {
             console.log(bookings)
             bookCount = bookings.count
@@ -357,6 +357,23 @@ router.get('/:id', async (req, res) => {
         raw: true,
     })
     console.log(bookData)
+
+    if (bookData == undefined) {
+        const metadata = {
+            meta: {
+                title: '404',
+            },
+            data: {
+                currentUser: req.currentUser,
+            },
+        }
+        res.status = 404
+        return res.render('404', metadata)
+    }
+
+    if (bookData.custId != req.currentUser.id) {
+        res.redirect(`/bookings`)
+    }
     // const sid = req.signedCookies.sid
     // const userId = await genkan.getUserBySessionAsync(sid)
 

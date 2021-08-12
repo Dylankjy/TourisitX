@@ -1226,7 +1226,16 @@ router.get('/:id/purchase', loginRequired, async (req, res) => {
             return res.render('bookNow.hbs', metadata)
         })
         .catch((err) => {
-            throw err
+            const metadata = {
+                meta: {
+                    title: '404',
+                },
+                data: {
+                    currentUser: req.currentUser,
+                },
+            }
+            res.status = 404
+            return res.render('404', metadata)
         })
 })
 

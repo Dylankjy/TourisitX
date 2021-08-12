@@ -259,6 +259,22 @@ router.get('/bookings/:id', async (req, res) => {
         include: Shop,
         raw: true,
     })
+    if (bookData == undefined) {
+        const metadata = {
+            meta: {
+                title: '404',
+            },
+            data: {
+                currentUser: req.currentUser,
+            },
+        }
+        res.status = 404
+        return res.render('404', metadata)
+    }
+
+    if (bookData.custId != req.currentUser.id) {
+        res.redirect(`/bookings`)
+    }
     res.cookie('storedValues', JSON.stringify(bookData), { maxage: 5000 })
     // const sid = req.signedCookies.sid
     // const userId = await genkan.getUserBySessionAsync(sid)
