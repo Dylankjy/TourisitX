@@ -1,76 +1,107 @@
-<script defer src="/third_party/jquery/jquery-raty.js" data-turbolinks="false"></script>
+{{!--
+<script defer src="/third_party/jquery/jquery-raty.js" data-turbolinks="false"></script> --}}
+<link href="dist/css/star-rating.min.css" rel="stylesheet">
 
 <div class="modal is-active" id="ReviewModal" style="display: none;">
-        <div class="modal-background" onclick="$('#ReviewModal').fadeOut('fast');"></div>
-        <div class="modal-content">
-            <div class="box">
+    <div class="modal-background" onclick="$('#ReviewModal').fadeOut('fast');"></div>
+    <div class="modal-content">
+        <div class="box">
 
-    {{#ifEquals data.currentUser.id data.book.custId}}
+            {{#ifEquals data.currentUser.id data.book.custId}}
 
-                        <div class="content has-text-centered">
-                                    <h1>Review {{data.book.[Shop.tourTitle]}}</h1>
-                                </div>
-    {{/ifEquals}}
+            <div class="content has-text-centered">
+                <h1>Review {{data.book.[Shop.tourTitle]}}</h1>
+            </div>
+            {{/ifEquals}}
 
-    {{#ifEquals data.currentUser.id data.book.tgId}}
-    <div class="content has-text-centered">
+            {{#ifEquals data.currentUser.id data.book.tgId}}
+            <div class="content has-text-centered">
                 <h1>Rate your Experience with {{data.cust.name}}</h1>
             </div>
-    {{/ifEquals}}
+            {{/ifEquals}}
 
-                        <form id='review_form' method="POST" action="/bookings/{{data.book.bookId}}/review-tour">
-                            <fieldset>
-                                <div class="field has-text-centered">
-                                    {{!-- <div class="star"></div>
-                                    <input id="rating"> --}}
+            <form id='review_form' method="POST" action="/bookings/{{data.book.bookId}}/review-tour">
+                <fieldset>
+                    <div class="field has-text-centered">
+                        {{!-- <div class="star"></div>
+                        <input id="rating"> --}}
 
-                                    {{!-- for now --}}
-                                    <select name="rating">
-                                        <option value="1">1 star</option>
-                                        <option value="2">2 star</option>
-                                        <option value="3">3 star</option>
-                                        <option value="4">4 star</option>
-                                        <option value="5">5 star</option>
-                                    </select>
-                                    
+                        {{!-- for now --}}
+                        {{!-- <select name="rating">
+                            <option value="1">1 star</option>
+                            <option value="2">2 star</option>
+                            <option value="3">3 star</option>
+                            <option value="4">4 star</option>
+                            <option value="5">5 star</option>
+                        </select> --}}
+                        <div class="rating">
+                            <div class="label-value">Value Label</div>
+                            <div class="star-container">
+                                <div class="star">
+                                    <i class="star-empty"></i>
+                                    <i class="star-half"></i>
+                                    <i class="star-filled"></i>
                                 </div>
-
-                                <div class="field">
-                                    <label class="label" for="review">How was the experience?</label>
-                                    <div class="control">
-                                       <textarea class="textarea" name="reviewText" placeholder="I enjoyed.." rows="5"
-                                       cols="50"></textarea>
-                                    </div>
+                                <div class="star">
+                                    <i class="star-empty"></i>
+                                    <i class="star-half"></i>
+                                    <i class="star-filled"></i>
                                 </div>
-
-                                <div class="field">
-                                    <label class="label" for="review-submit"></label>
-                                    <div class="control">
-                                        <input id="review-submit" name="review-submit" type="submit"
-                                               class="button is-success is-medium is-fullwidth">
-                                    </div>
+                                <div class="star">
+                                    <i class="star-empty"></i>
+                                    <i class="star-half"></i>
+                                    <i class="star-filled"></i>
                                 </div>
-                            </fieldset>
-                        </form>
-    
-    <script>
+                                <div class="star">
+                                    <i class="star-empty"></i>
+                                    <i class="star-half"></i>
+                                    <i class="star-filled"></i>
+                                </div>
+                                <div class="star">
+                                    <i class="star-empty"></i>
+                                    <i class="star-half"></i>
+                                    <i class="star-filled"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-        $(document).ready(function () {
-            $('#rating').hide();
-            $('.star').raty({
-                score: function () {
-                    return $(this).data('score');
-                },
-                path: '/public/static',
-                starOn: 'star-solid.png',
-                starOff: 'star-regular.png',
-                targetKeep: true,
-                target: '#rating',
-                hints: [1, 2, 3, 4, 5]
-            });
+                    <div class="field">
+                        <label class="label" for="review">How was the experience?</label>
+                        <div class="control">
+                            <textarea class="textarea" name="reviewText" placeholder="I enjoyed.." rows="5"
+                                cols="50"></textarea>
+                        </div>
+                    </div>
 
-            $('#review-submit').click(function () {
-                $('#rating').val($('.star').raty(score));
-            });
-        });
-    </script>
+                    <div class="field">
+                        <label class="label" for="review-submit"></label>
+                        <div class="control">
+                            <input id="review-submit" name="review-submit" type="submit"
+                                class="button is-success is-medium is-fullwidth">
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+
+            <script>
+
+                $(document).ready(function () {
+                    $('#rating').hide();
+                    $('.star').raty({
+                        score: function () {
+                            return $(this).data('score');
+                        },
+                        path: '/public/static',
+                        starOn: 'star-solid.png',
+                        starOff: 'star-regular.png',
+                        targetKeep: true,
+                        target: '#rating',
+                        hints: [1, 2, 3, 4, 5]
+                    });
+
+                    $('#review-submit').click(function () {
+                        $('#rating').val($('.star').raty(score));
+                    });
+                });
+            </script>
