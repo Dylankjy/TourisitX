@@ -584,7 +584,6 @@ router.post('/profile/edit/:savedId', (req, res) => {
 })
 
 
-
 router.get('/profile/:savedId/transaction-history', async (req, res)=> {
     const currentUser = req.currentUser
     const currentUserID = currentUser.Id
@@ -613,6 +612,32 @@ router.get('/profile/:savedId/transaction-history', async (req, res)=> {
     }
 
     res.render('users/transaction-history.hbs', metadata)
+})
+
+router.post('/setting/set_accmode_welcome', (req, res) => {
+    const { accountMode } = req.fields
+
+    if (accountMode === 'USER') {
+        User.update({ 'is_tourguide': false }, {
+            where: {
+                id: req.currentUser.id,
+            },
+        }).then((data) => {
+            return res.redirect(`/`)
+        })
+    }
+
+    if (accountMode === 'TOURGUIDE') {
+        User.update({ 'is_tourguide': true }, {
+            where: {
+                id: req.currentUser.id,
+            },
+        }).then((data) => {
+            return res.redirect(`/`)
+        })
+    }
+
+    return false
 })
 
 module.exports = router
