@@ -40,19 +40,24 @@ transactionHistory = async () => {
     // console.log(paymentIntents['data'][0]['charges']['data'][0]['receipt_url'])
 }
 
-test = async () => {
+viewTransfers = async () => {
+    accId = 'acct_1JNZVT4e3RKFRugX'
     const account = await stripe.accounts.retrieve(
-        'acct_1JIqrc4fL5hixuop',
+        'acct_1JNZVT4e3RKFRugX',
     )
     // const payouts = await stripe.payouts.list({})
     bankAccId = account['external_accounts']['data'][0]['id']
-    console.log(bankAccId)
-    const payouts = await stripe.payouts.list({
-        destination: bankAccId,
-    })
 
-    console.log(payouts)
-    // ba_1JIr1S4fL5hixuopkp0e86Ad
+    const transfers = await stripe.transfers.list({
+        destination: accId,
+    })
+    console.log(transfers)
+}
+
+test = async () => {
+    accId = 'acct_1JNZVT4e3RKFRugX'
+    const link = await stripe.accounts.createLoginLink(accId)
+    console.log(link)
 }
 
 test()
