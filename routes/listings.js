@@ -176,24 +176,17 @@ router.get('/info/:id', (req, res) => {
                 if (tourData.hidden == 'true') {
                     return res.redirect('/marketplace')
                 }
-                console.log('THIS IS THIS')
-                console.log(tourguideName.name)
+
                 return res.render('listing.hbs', {
                     tourData: tourData,
                     tourguideName: tourguideName.name,
                     isOwner: false,
                 })
             } else {
-                // Check if session is up to date. Else, require person to reloggin
-                if ((await genkan.isLoggedinAsync(sid)) == false) {
-                    // Redirect to login page
-                    return res.redirect('/id/login')
-                }
-
                 // Alex you suck!!! >:( <:3
 
                 // If user is logged in and has a valid session
-                const userData = await genkan.getUserBySessionAsync(sid)
+                const userData = await req.currentUser
                 const userWishlist = userData.wishlist || ''
                 // var userWishlistArr = userWishlist.split(';!;')
 
@@ -221,6 +214,9 @@ router.get('/info/:id', (req, res) => {
                     }
 
                     const metadata = {
+                        meta: {
+                            title: tourData.tourTitle,
+                        },
                         tourData: tourData,
                         // tourguideName: (await genkan.getUserByIDAsync(tourData.userId)).name,
                         isOwner: owner,
@@ -241,6 +237,9 @@ router.get('/info/:id', (req, res) => {
                         owner = false
 
                         const metadata = {
+                            meta: {
+                                title: tourData.tourTitle,
+                            },
                             data: {
                                 currentUser: req.currentUser,
                             },
@@ -300,7 +299,7 @@ router.get('/create', loginRequired, async (req, res) => {
         },
     }
 
-    return res.render('tourGuide/createListing.hbs', metadata)
+    return res.render('tourguide/createListing.hbs', metadata)
 })
 
 // To create the listing
@@ -491,7 +490,7 @@ router.get('/edit/:savedId', loginRequired, async (req, res) => {
                     },
                 }
 
-                return res.render('tourGuide/editListing.hbs', metadata)
+                return res.render('tourguide/editListing.hbs', metadata)
             } else {
                 // Will return "No perms" screen
                 return requirePermission(res)
@@ -733,6 +732,7 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
     const bookId = req.params.id
     const userData = req.currentUser
     const sid = req.signedCookies.sid
+    let paymentName = null
 
     let bookData = await Booking.findAll({
         where: {
@@ -763,7 +763,6 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
 
     console.log(bookData)
     let priceToPay
-    let paymentName
 
     // Step 3 means its paying for full tour (Base tour + customization)
     if (bookData['processStep'] == '3') {
@@ -812,7 +811,8 @@ router.post('/:id/stripe-create-checkout', async (req, res) => {
                     product_data: {
                         name: paymentName,
                     },
-                    unit_amount: priceToPay,
+                    unit_amount: 60000*100,
+                    // unit_amount: priceToPay,
                 },
                 quantity: 1,
             },
@@ -950,7 +950,7 @@ router.get('/:id/payment', loginRequired, async (req, res) => {
         tourData: itemData,
     }
 
-    return res.render('tourGuide/payment.hbs', metadata)
+    return res.render('tourguide/payment.hbs', metadata)
 })
 
 router.get('/charges', async (req, res) => {
@@ -1051,12 +1051,25 @@ router.get('/api/autocomplete/location', (req, res) => {
         })
 })
 
-router.post('/edit/image/:savedId', (req, res) => {
+router.post('/edit/image/:savedId', async (req, res) => {
+    const savedUser = req.currentUser
+    const sData = await Shop.findAll({
+        where: {
+            id: req.params.savedId,
+        },
+        raw: true,
+    })
+
+    if (savedUser['id'] != sData[0]['userId']) {
+        res.redirect(`/listing/info/${req.params.savedId}`)
+    }
+    console.log(sData)
     console.log('Image edited')
     const v = new fileValidator(req.files['tourImage'])
     const imageResult = v
         .Initialize({ errorMessage: 'Please supply a valid Image' })
         .fileExists()
+        .extAllowed(['.jpg', '.jpeg', '.png'])
         .sizeAllowed({ maxSize: 5000000 })
         .getResult()
 
@@ -1185,10 +1198,7 @@ router.get('/api/getImage/:id', (req, res) => {
 
 // Start: Booking-related items under the listing route
 // Rendering the book-now form
-router.get('/:id/purchase', async (req, res) => {
-    if (req.currentUser.id == undefined) {
-        return res.redirect('/id/login')
-    }
+router.get('/:id/purchase', loginRequired, async (req, res) => {
     const itemID = req.params.id
 
     Shop.findAll({
