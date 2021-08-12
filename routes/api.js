@@ -96,10 +96,10 @@ router.get('/tourguide/generate_report', loginRequired, async (req, res) => {
                 report: {
                     from,
                     to,
-                    totalEarningsBeforeSvc: roundTo(stats.totalEarningsBeforeSvc, 2).toFixed(2).toString(),
-                    totalRevenue: roundTo(stats.totalEarnings, 2).toFixed(2).toString(),
+                    totalEarningsBeforeSvc: stats.totalEarningsBeforeSvc.toFixed(2).toString(),
+                    totalRevenue: stats.totalEarnings.toFixed(2).toString(),
                     totalTours: stats.totalTours,
-                    serviceCharge: roundTo(stats.serviceCharge, 2).toFixed(2).toString(),
+                    serviceCharge: stats.serviceCharge.toFixed(2).toString(),
                     tours: await getTours(from, to, currentUserId),
                 },
             },
@@ -117,9 +117,6 @@ router.get('/tourguide/generate_report', loginRequired, async (req, res) => {
 
 // Admin Panel API
 router.get('/admin', adminAuthorisationRequired, async (req, res) => {
-    // Custom Satisfication
-    // TODO: Implement, wait for table to be created.
-
     // Final JSON object to be returned
     const ResponseObject = {
         money: {

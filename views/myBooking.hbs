@@ -2,6 +2,7 @@
 <link rel="stylesheet" href="/third_party/bulma/bulma-tooltip.css">
 <link rel="stylesheet" href="/third_party/bulma/bulma-badge.css">
 <link rel="stylesheet" href="/third_party/bulma/bulma-timeline.min.css">
+<link rel="stylesheet" href="/public/css/pulsing.css">
 
 <script defer src="/js/chatBooking.js" data-turbolinks="false"></script>
 
@@ -40,21 +41,16 @@
                 <!--START: Activity Section-->
                 <div id="Activity" class="content-tab">
                     <div class="box">
-                        <!--START: danger!!! delete!!!!-->
-                        {{#ifBigger data.book.custom 0}}
-                        <form id="fastTravel" method="POST" action="/bookings/fastTravel/{{data.book.bookId}}">
-                        <button class="button is-danger" type="submit">Do Hackerman things (Danger! Don't click me!)</button>
-                        </form>
-                        {{/ifBigger}}
-                        <!--END-->
                     <section class="section">
                         <div class="container">
                             <p class="has-text-centered is-size-4 has-text-weight-bold">Activity</p>
                             <div class="has-text-weight-semibold">
                             <span>Current Progress</span>
-                            <progress class="progress is-success" value={{data.book.processStep}} max="6">100%</progress>
+                            <progress class="progress is-success" value={{data.book.processStep}} max="5">100%</progress>
                             <div id="steps">
+                            {{#unless data.reviews.TOUR}}
                             <p>Current Step</p>
+                            {{/unless}}
                             <!--START: steps-->
                             <div class="tags are-medium">
                                 {{#ifEquals data.book.processStep '0'}}
@@ -70,15 +66,18 @@
                                 {{/ifEquals}}
 
                                 {{#ifEquals data.book.processStep '4'}}
-                                    {{#ifAfterToday data.book.tourStart}}<a onclick="window.scrollTo(0,document.body.scrollHeight);">{{/ifAfterToday}}
-                                    <span class="tag has-tooltip-multiline has-tooltip-right {{#ifAfterToday data.book.tourStart}} is-link {{/ifAfterToday}} " 
+                                    <span {{#ifAfterToday data.book.tourStart}}onclick="$('#CompleteTourModal').fadeIn('fast');" data-tooltip="Declare that you've gone on your tour" {{/ifAfterToday}} 
+                                    class="tag has-tooltip-multiline has-tooltip-right {{#ifAfterToday data.book.tourStart}} is-link {{/ifAfterToday}}" 
                                     data-tooltip="Available after the tour date, {{dateParseISO data.book.tourStart}}">
-                                    Declare that Tour is Complete </span></a>
+                                    Declare that Tour is Complete </span>
                                 {{/ifEquals}}
 
-                                {{#ifEquals data.book.processStep '5'}}
-                                    <a href="/bookings/{{data.book.bookId}}/review"><span class="tag is-link">Leave a Review </span></a>
-                                {{/ifEquals}}
+                                {{#ifBigger data.book.processStep '4'}}
+                                {{#unless data.reviews.TOUR}}
+                                    {{!-- <a href="/bookings/{{data.book.bookId}}/review"><span class="tag is-link">Leave a Review </span></a> --}}
+                                    <span class="tag is-link" onclick="$('#ReviewModal').fadeIn('fast');">Leave a Review </span></a>
+                                {{/unless}}
+                                {{/ifBigger}}
 
                                 {{#ifEquals data.book.processStep '1'}}
                                     <span class="tag is-light">Awaiting Tour Guide Action</span>
@@ -107,10 +106,7 @@
                                                 <i class="fas fa-check"></i>
                                             </div>
                                             <div class="timeline-content">
-                                                {{data.currentUser.name}}
-                                                {{../currentUser}}
-                                                {{#with (lookup ../currentUser (this.name))}}{{/with}}
-                                                <p class="has-text-weight-semibold">{{bookActivityName this.messageText @root.data.currentUser.name @root.data.tg.name}}</p>
+                                                <p class="has-text-weight-semibold">{{{bookActivityName this.messageText @root.data.currentUser.name @root.data.tg.name}}}</p>
                                             </div>
                                         </div>
                                     {{/ifEquals}}
@@ -137,7 +133,7 @@
                                     <i class="fas fa-check"></i>
                                     </div>
                                     <div class="timeline-content">
-                                    <p class="has-text-weight-semibold">(Tour Guide)
+                                    <p class="has-text-weight-semibold"><span class="has-text-info">{{@root.data.tg.name}}</span>
                                         posted a draft of the Tour Plan (#{{this.messageText}}).</p>
 
                                     <!--Tour plan card-->
@@ -217,71 +213,22 @@
                                                 <button class="button is-danger is-outlined" style="pointer-events: none;">Request a Revision<i class="fas fa-check ml-1"></i></button>
                                                 {{/ifEquals}}
                                                 {{#ifEquals accepted '0'}}
-                                                <button class="button is-danger" onclick="console.log('piess');$('#ReqRevisionModal').fadeIn('fast');">Request a Revision</button>
+                                                <button class="button is-danger" onclick="$('#ReqRevisionModal').fadeIn('fast');">Request a Revision</button>
                                                 {{/ifEquals}}
                                                 {{#ifEquals accepted '1'}}
                                                 <button class="button is-static" style="pointer-events: none;">Request a Revision</button>
                                                 {{/ifEquals}}
 
                                                 {{#ifEquals accepted '-1'}}
-                                                <button class="button is-static" style="pointer-events: none;">Approve Plan<i class="fas fa-check ml-1"></i></button>
+                                                <button class="button is-static" style="pointer-events: none;">Approve Plan</button>
                                                 {{/ifEquals}}
                                                 {{#ifEquals accepted '0'}}
-                                                <button class="button is-success">Approve Plan</button>
+                                                <button class="button is-success" onclick="$('#AcceptPlanModal').fadeIn('fast');">Approve Plan</button>
                                                 {{/ifEquals}}
                                                 {{#ifEquals accepted '1'}}
                                                 <button class="button is-success is-outlined" style="pointer-events: none;">Approve Plan<i class="fas fa-check ml-1"></i></button>
                                                 {{/ifEquals}}
 
-                                                {{!-- <button class="button 
-                                                {{#ifEquals accepted '-1'}}
-                                                is-danger is-outlined
-                                                {{/ifEquals}}
-                                                {{#ifEquals accepted '0'}}
-                                                is-danger
-                                                {{/ifEquals}}
-                                                {{#ifEquals accepted '1'}}
-                                                is-static
-                                                {{/ifEquals}}
-                                                " 
-                                                {{#ifEquals accepted '-1'}}
-                                                style="pointer-events: none;"
-                                                {{/ifEquals}}
-                                                {{#ifEquals accepted '1'}}
-                                                style="pointer-events: none;"
-                                                {{/ifEquals}}>Request a Revision
-
-                                                {{#ifEquals accepted '-1'}}
-                                                    <i class="fas fa-check ml-1"></i>
-                                                {{/ifEquals}}
-                                                </button>
-                                            </div> --}}
-
-                                            {{!-- <div class="control">
-                                                <button class="button
-                                                {{#ifEquals accepted '-1'}}
-                                                is-static
-                                                {{/ifEquals}}
-                                                {{#ifEquals accepted '0'}}
-                                                is-success
-                                                {{/ifEquals}}
-                                                {{#ifEquals accepted '1'}}
-                                                is-success is-outlined
-                                                {{/ifEquals}}
-                                                "
-                                                
-                                                {{#ifEquals accepted '-1'}}
-                                                style="pointer-events: none;"
-                                                {{/ifEquals}}
-                                                {{#ifEquals accepted '1'}}
-                                                style="pointer-events: none;"
-                                                {{/ifEquals}}>Approve Plan
-
-                                                {{#ifEquals accepted '1'}}
-                                                    <i class="fas fa-check ml-1"></i>
-                                                {{/ifEquals}}
-                                                </button>
-                                            </div> --}}
                                         </div>
                                         </footer>
                                         {{/with}}
@@ -292,6 +239,42 @@
                                 </div>
                                     {{/ifEquals}}
 
+
+                                    {{#ifEquals this.flag "REVIEW"}}
+                                    <div class="timeline-item">
+                                    <div class="timeline-marker is-icon has-background-success has-text-white">
+                                    <i class="far fa-thumbs-up"></i>
+                                    </div>
+                                    <div class="timeline-content">
+                                        {{#ifEquals this.messageText 'TOUR'}}
+                                        {{#with @root.data.reviews.[TOUR]}}
+                                    <p class="has-text-weight-semibold"> <span class="has-text-info">{{@root.data.currentUser.name}}</span> left a review.</p>
+                                    <div class="has-background-white-ter ml-3 mt-3 p-4">
+                                        <div class="container">
+                                        <p>
+                                            {{{rating this.rating}}}
+                                        </p>
+                                        <p>{{this.reviewText}}</p>
+                                        </div>
+                                        {{/with}}
+                                        {{/ifEquals}}
+
+                                        {{#ifEquals this.messageText 'CUST'}}
+                                        {{#with @root.data.reviews.[CUST]}}
+                                    <p class="has-text-weight-semibold"><span class="has-text-info"> {{@root.data.tg.name}}</span> left a review.</p>
+                                    <div class="has-background-white-ter ml-3 mt-3 p-4">
+                                        <div class="container">
+                                        <p>
+                                            {{{rating this.rating}}}
+                                        </p>
+                                        <p>{{this.reviewText}}</p>
+                                        </div>
+                                        {{/with}}
+                                        {{/ifEquals}}
+                                    </div>
+                                    </div>
+                                    </div>
+                                    {{/ifEquals}}
 
                                 {{/each}}
 
@@ -313,6 +296,7 @@
                                 {{/ifEquals}}
 
                                 {{#ifEquals data.book.processStep '3'}}
+                                <a href="/listings/{{data.book.bookId}}/stripe-create-checkout">
                                 <div class="timeline-item">
                                     <div class="timeline-marker is-icon has-background-grey has-text-white">
                                     <i class="fas fa-ellipsis-h"></i>
@@ -322,6 +306,7 @@
                                         <i class="fas fa-chevron-right mr-2"></i> Proceed to Payment.</p>
                                     </div>
                                 </div>
+                                </a>
                                 {{/ifEquals}}
 
                                 {{#ifEquals data.book.processStep '4'}}
@@ -330,7 +315,7 @@
                                     <div class="timeline-marker is-icon has-background-grey has-text-white">
                                     <i class="fas fa-ellipsis-h"></i>
                                     </div>
-                                    <div class="timeline-content pt-3">
+                                    <div class="timeline-content pt-3" onclick="$('#CompleteTourModal').fadeIn('fast');">
                                     <p class="button is-link is-inverted has-text-weight-semibold is-italic">
                                         <i class="fas fa-chevron-right mr-2"></i> Declare that the tour has been completed.</p>
                                     </div>
@@ -338,17 +323,19 @@
                                 {{/ifAfterToday}}
                                 {{/ifEquals}}
 
-                                {{#ifEquals data.book.processStep '5'}}
+                                {{#ifBigger data.book.processStep '4'}}
+                                {{#unless data.reviews.TOUR}}
                                 <div class="timeline-item">
                                     <div class="timeline-marker is-icon has-background-grey has-text-white">
                                     <i class="fas fa-ellipsis-h"></i>
                                     </div>
-                                    <div class="timeline-content pt-3">
+                                    <div class="timeline-content pt-3" onclick="$('#ReviewModal').fadeIn('fast');">
                                     <p class="button is-link is-inverted has-text-weight-semibold is-italic">
                                         <i class="fas fa-chevron-right mr-2"></i> Leave a review.</p>
                                     </div>
                                 </div>
-                                {{/ifEquals}}
+                                {{/unless}}
+                                {{/ifBigger}}
 
                                 {{!-- <div class="timeline-item">
                                     <div class="timeline-marker is-icon has-background-success has-text-white">
@@ -488,8 +475,8 @@
                                             </div><br> 
 
                                             {{#ifNotEquals data.book.addInfo ''}}
-                                            <div>
-                                                <p class="has-text-weight-bold is-size-4 has-text-centered">Additional Information</p>
+                                            <div class="mt-3 has-text-centered">
+                                                <p class="has-text-weight-bold is-size-4">Additional Information</p>
                                                 <p>{{data.book.addInfo}}</p>
                                             </div>
                                             {{/ifNotEquals}}
@@ -506,7 +493,7 @@
                     <!-- Paid and outstanding will be hidden for default tours-->
                     <div class="columns is-v-centered">
                         {{#ifBigger data.book.custom 0}}
-                        {{#ifInRange data.book.processStep 1 6}}
+                        {{#ifInRange data.book.processStep 1 3}}
                         <div class="column">
                             <div class="box p-5">
                                 <p class="has-text-weight-bold is-size-5 has-text-success">Paid</p>
@@ -515,10 +502,13 @@
                                         <th>Item</th>
                                         <th>Price</th>
                                     </tr>
+                                    {{!-- {{#with (readArr data.book.bookCharges)}} --}}
                                     <tr>
                                         <td>Customisation Fee</td>
-                                        <td>${{data.book.bookCharges}}</td>
+                                        <td>${{data.charges.customFee}}</td>
+                                        {{!-- <td>${{this.[0]}}</td> --}}
                                     </tr>
+                                    {{!-- {{/with}} --}}
                                 </table>
                             </div>
                         </div>
@@ -529,20 +519,21 @@
                             <div class="column">
                             <div class="box p-5">
                                 <p class="has-text-weight-bold is-size-5 has-text-info">Outstanding</p>
-                                <p class="title has-text-centered">${{data.book.bookCharges}}</p>
+                                <p class="title has-text-centered">${{data.charges.priceToPay}}</p>
                                 <p class="subtitle has-text-centered">Customisation fee</p>
-                                <button class="button is-fullwidth is-success">Proceed to Payment</button>
+                                <button class="button is-fullwidth is-success" type="submit">Proceed to Payment</button>
                             </div>
                         </div>
                         {{/ifEquals}}
 
                         {{#ifEquals data.book.paid 0}}
-                        {{#ifEquals data.book.processStep '5'}}
+                        {{#ifEquals data.book.processStep '3'}}
                         <div class="column">
                             <div class="box p-5">
                                 <p class="has-text-weight-bold is-size-5 has-text-info">Outstanding</p>
-                                <p class="title has-text-centered">${{data.book.bookBaseprice}}</p>
-                                <button class="button is-fullwidth is-success">Proceed to Payment</button>
+                                <p class="title has-text-centered">${{data.charges.priceToPay}}</p>
+                                <form id="payform" method="POST" action="/listing/{{data.book.bookId}}/stripe-create-checkout">
+                                <button class="button is-fullwidth is-success">Proceed to Payment</button></form>
                             </div>
                         </div>
                         {{/ifEquals}}
@@ -568,7 +559,7 @@
                                     {{#ifBigger data.book.custom 0}}
                                     <tr>
                                         <td>Customisation Fee</td>
-                                        <td>${{data.book.bookCharges}}</td>
+                                        <td>${{data.charges.customFee}}</td>
                                     </tr>
                                     {{/ifBigger}}
                                     <tr>
@@ -579,23 +570,15 @@
                                     {{#ifSmaller (toNum data.book.revisions) 0}}
                                     <tr>
                                         <td>Extra Revisions {{data.book.revisions}}</td>
-                                        <td>${{math data.book.revisions '*' data.book.bookCharges}}</td>
+                                        {{!-- <td>${{math data.book.revisions '*' data.book.bookCharges}}</td> --}}
+                                        <td>${{data.charges.extraRevFees}}</td>
                                     </tr>
                                     {{/ifSmaller}}
                                     {{/ifBigger}}
-                                    <tr>
-                                        <th>Subtotal</th>
-                                        {{!-- calculate subtotal server side --}}
-                                        <th>${{math data.book.bookBaseprice '+' data.book.bookCharges}}</th>
-                                    </tr>
-                                     <tr>
-                                        <th>Service Fee <span><i class="far fa-question-circle has-tooltip-multiline" 
-                                        data-tooltip="Tourisit takes a 10% service fee for sustainability. Thank you for using our service."></i></span></th>
-                                        <th>${{math (math data.book.bookBaseprice '+' data.book.bookCharges) '*' 0.1}}</th>
-                                    </tr>
                                     <tr class="has-background-white-ter has-text-weight-bold is-size-5">
                                         <th>Total</th>
-                                        <th>${{math (math (math data.book.bookBaseprice '+' data.book.bookCharges) '*' 0.1) '+' (math data.book.bookBaseprice '+' data.book.bookCharges)}}</th>
+                                        {{!-- <th>${{math (math (math data.book.bookBaseprice '+' data.book.bookCharges) '*' 0.1) '+' (math data.book.bookBaseprice '+' data.book.bookCharges)}}</th> --}}
+                                        <th>${{round2DP (math data.charges.customFee '+' data.charges.priceToPay)}}</th>
                                     </tr>
                                 </table>
                             </div>
@@ -645,12 +628,12 @@
             </div>
             <div class="column is-one-quarter">
                 <div class="container mt-5">
-                    <a href="/u/messages">
+                    {{!-- <a href="/u/messages">
                     <button class="button is-fullwidth has-text-weight-semibold is-rounded is-warning is-light">
                         <span class="icon"><i class="fas fa-comment-alt"></i></span>
                         Chat with <span class="has-text-primary ml-1 has-text-weight-bold">{{data.tg.name}}</span>
                     </button></a>
-                    <br>
+                    <br> --}}
 
                     <div class="mt-4 has-background-white-bis p-4">
                         <img style="border-radius:10px;" src="/static/listings/{{data.book.[Shop.tourImage]}}">
@@ -668,7 +651,7 @@
                             </tr>
                             <tr>
                                 <th>Ordered from</th>
-                                <td class="has-text-link">{{data.tg.name}}</td>
+                                <td><a href="/u/profile/{{data.tg.id}}">{{data.tg.name}}</a></td>
                             </tr>
                         </table>
                     </div>
@@ -686,6 +669,9 @@
 </section>
 
 {{>reqRevisionModal}}
+{{>acceptPlanModal}}
+{{>declareTourComplete}}
+{{>reviewModal}}
 
 <script defer src="/js/tabs.js"></script>
 

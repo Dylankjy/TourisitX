@@ -6,7 +6,15 @@ const router = express.Router()
 
 // Formidable
 const formidable = require('express-formidable')
+const { addMessage, addRoom } = require('../app/chat/chat')
 router.use(formidable())
+
+// Database
+const { ChatRoom } = require('../models')
+const { Op } = require('sequelize')
+
+// UUID
+const uuid = require('uuid')
 
 router.get('/', async (req, res) => {
     const metadata = {
@@ -25,6 +33,36 @@ router.get('/', async (req, res) => {
     }
 
     return res.render('chat', metadata)
+})
+
+router.post('/start_chat', async (req, res) => {
+    const { withParticipant, msgToSend, enquireTourID, enquireTourName } = req.fields
+
+    // Find existing chat if one already exists
+    const existingChatRoom = await ChatRoom.findAll({
+        where: {
+            participants: {
+                [Op.like]: '%' + withParticipant + '%',
+            },
+            bookingId: null,
+        },
+    })
+
+    if (existingChatRoom.length === 0) {
+        return addRoom([req.currentUser.id, withParticipant], null, (resultantRoomID) => {
+            return addMessage(resultantRoomID, uuid.NIL, `This enquiry is for <a class="has-text-weight-medium" href="/listing/info/${enquireTourID}">${enquireTourName}</a>.`, 'EMBED', () => {
+                return addMessage(resultantRoomID, req.currentUser.id, msgToSend, 'SENT', () => {
+                    return res.redirect(`/messages/${resultantRoomID}`)
+                })
+            })
+        })
+    }
+
+    return addMessage(existingChatRoom[0].dataValues.chatId, uuid.NIL, `This enquiry is for <a class="has-text-weight-medium" href="/listing/info/${enquireTourID}">${enquireTourName}</a>.`, 'EMBED', () => {
+        return addMessage(existingChatRoom[0].dataValues.chatId, req.currentUser.id, msgToSend, 'SENT', () => {
+            return res.redirect(`/messages/${existingChatRoom[0].dataValues.chatId}`)
+        })
+    })
 })
 
 router.get('/:roomId', (req, res) => {

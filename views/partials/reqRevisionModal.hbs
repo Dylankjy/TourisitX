@@ -15,7 +15,7 @@
                 {{/ifBigger}}
 
                 <button class="button is-white is-pulled-right has-tooltip-multiline has-tooltip-left"
-                        data-tooltip="Every extra revision after all your free revisions have been used will cost an extra $no">
+                        data-tooltip="Every extra revision after all your free revisions have been used will cost an extra ${{data.bookCharges.[0]}}">
                     <i class="far fa-question-circle"></i>
                 </button>
                 <form id="revisionform" method="POST" action="/bookings/{{data.book.bookId}}/request-revision">
@@ -24,9 +24,27 @@
                     placeholder="Enter the changes you would like to see.." name="requestField"></input>
                     </div>
                     <div class="field is-grouped is-grouped-centered mt-5 mb-5">
-                            <button class="button is-fullwidth is-info" id="req_submit" type="submit" value="submit" onclick="$('#RequireModal').fadeOut('fast');">Submit</button>
+                            <button class="button is-fullwidth is-info" id="req_submit" type="submit" value="submit" disabled="disabled">Submit</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
+<script>
+$('#revisionform input').on("keyup change", function() {
+
+        var empty = false
+        $('#revisionform :input').each(function() {
+            if ($(this).val() == '') {
+                empty = true
+            }
+        })
+
+        if (empty) {
+            $('#req_submit').attr('disabled', 'disabled')
+        } else {
+            $('#req_submit').removeAttr('disabled')
+        }
+    })
+</script>
