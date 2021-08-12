@@ -81,8 +81,31 @@
                     <p class="subtitle">Learn more before going</p>
                     <p>{{tourData.tourDesc}}</p>
                 </div>
-                <div>
+                <hr>
+                <div class="block has-background-info-light pt-5 pb-5 has-text-centered" style="border-radius: 4px;">
+                    <h2 class="title has-text-centered has-text-dark is-4">On the fence?</h2>
+                    <p class="subtitle has-text-centered has-text-grey">Contact the tour guide before booking</p>
 
+                    <div id="sendMessageModal" class="modal is-active" style="display: none;">
+                        <div class="modal-background" onclick="$('#reportGenModal').fadeOut('fast')"></div>
+                        <div class="modal-content">
+                            <div class="box p-6">
+                                <form method="POST" action="/messages/start_chat">
+                                    <h1 class="title">Leave a message</h1>
+                                    <p class="subtitle">Please enter your enquiry for the tour guide.</p>
+                                    <input type="hidden" name="withParticipant" value="{{tourData.userId}}" required>
+                                    <input type="hidden" name="enquireTourID" value="{{tourData.id}}" required>
+                                    <input type="hidden" name="enquireTourName" value="{{tourData.tourTitle}}" required>
+                                    <textarea name="msgToSend" class="textarea block"
+                                        placeholder="Hi, I'll like to know whether..." required></textarea>
+                                    <button class="is-fullwidth button is-dark"><i class="fas fa-arrow-right"></i>&ensp;Send</button>
+                                </form>
+                            </div>
+                        </div>
+                        <button onclick="$('#sendMessageModal').fadeOut('fast')" class="modal-close is-large"
+                        aria-label="close"></button>
+                    </div>
+                    <button class="button is-info" onclick="$('#sendMessageModal').fadeIn('fast')"><i class="fas fa-comment-dots"></i>&ensp;Start chat</button>
                 </div>
                 <hr>
                 <div class="block">
@@ -126,7 +149,7 @@
 
 <div id="toolbar" class="navbar is-fixed-bottom pb-4 pt-3 is-glass-white">
     <div class="container">
-        <div class="navbar-menu">
+        <div class="navbar-menu is-active">
             <div class="navbar-start">
                 <a onclick="goBack()" class="navbar-item has-text-weight-medium has-text-danger-dark">
                     <i class="fas fa-arrow-left"></i>&ensp;Previous page

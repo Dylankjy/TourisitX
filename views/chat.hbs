@@ -3,14 +3,21 @@
     <div id="message-container-display" style="display: none">
         {{#each data.chat}}
 
-        {{#ifEquals @root.data.currentUser.id this.senderId}}
-        <p class="message-bubble send mt-3">{{this.messageText}}</p>
-        {{else}}
-        <p class="message-bubble receive mt-3">{{this.messageText}}</p>
+        {{#ifEquals this.flag 'EMBED'}}
+        <hr>
+        <p class="has-text-centered block">{{{this.messageText}}}</p>
+        {{/ifEquals}}
+
+        {{#ifEquals this.flag 'SENT'}}
+            {{#ifEquals @root.data.currentUser.id this.senderId}}
+            <p class="message-bubble send mt-3">{{this.messageText}}</p>
+            {{else}}
+            <p class="message-bubble receive mt-3">{{this.messageText}}</p>
+            {{/ifEquals}}
         {{/ifEquals}}
         {{/each}}
     </div>
-    <div class="message-input">
+    <div class="message-input is-glass-white">
         <div class="field">
             <div class="control has-icons-left has-icons-right">
                 <input id="messageBoxInput" class="input" type="text" name="messageText" placeholder="Type message...">

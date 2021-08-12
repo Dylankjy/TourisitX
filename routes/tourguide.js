@@ -4,7 +4,7 @@ const genkan = require('../app/genkan/genkan')
 
 // Globals
 const router = express.Router()
-const { Shop, Booking, ChatRoom, ChatMessages, TourPlans } = require('../models')
+const { Shop, Booking, ChatRoom, ChatMessages, TourPlans, Review, User } = require('../models')
 const formidableValidator = require('../app/validation')
 const formidable = require('express-formidable')
 router.use(formidable())
@@ -13,6 +13,7 @@ const uuid = require('uuid')
 const { removeNull, emptyArray, removeFromArray } = require('../app/helpers')
 // Sync Loops
 const syncLoop = require('sync-loop')
+const { UserAgent } = require('express-useragent')
 // Put all your routings below this line -----
 
 const exampleTransaction = {
@@ -145,108 +146,207 @@ router.get('/bookings', async (req, res) => {
     }
 
     const userData = await genkan.getUserBySessionAsync(sid)
-    Booking.findAndCountAll({
+
+    bookings = await Booking.findAndCountAll({
         where: {
             tgId: userData.id,
-            completed: 0,
             approved: 1,
+            processStep: ['1', '2', '3', '4'],
         },
-        order: [['createdAt', 'ASC']],
-        include: Shop,
+        attributes: ['bookId', 'processStep', 'completed', 'tourStart', 'orderDatetime', 'custId'],
+        order: [['updatedAt', 'ASC']],
+        include: { model: Shop,
+            attributes: ['tourTitle'] },
         raw: true,
         limit: pageSize,
         offset: offset,
     })
-        .then( (result) => {
-            const bookCount = result.count
-            const bookList = result.rows
-            const lastPage = Math.ceil(bookCount / pageSize)
-            const metadata = {
-                meta: {
-                    title: 'All Bookings',
-                    pageNo: pageNo,
-                    count: bookCount,
-                    lastPage: lastPage,
-                },
-                data: {
-                    currentUser: req.currentUser,
-                    bookList: bookList,
-                },
-                nav: {
-                    sidebarActive: 'bookings',
-                },
-                layout: 'tourguide',
-            }
-            return res.render('tourguide/dashboard/bookings', metadata)
-        }).catch((err) => console.log)
+    console.log(bookings)
+    const bookCount = bookings.count
+    const bookList = bookings.rows
+    const lastPage = Math.ceil(bookCount / pageSize)
+    const metadata = {
+        meta: {
+            title: 'All Active Bookings',
+            pageNo: pageNo,
+            count: bookCount,
+            lastPage: lastPage,
+        },
+        data: {
+            currentUser: req.currentUser,
+            bookList: bookList,
+        },
+        nav: {
+            sidebarActive: 'bookings',
+        },
+        layout: 'tourguide',
+    }
+    return res.render('tourguide/dashboard/bookings', metadata)
 })
 
-router.get('/bookings/:id', (req, res) => {
+router.get('/bookings/completed', async (req, res) => {
+    const sid = req.signedCookies.sid
+    let pageNo = req.query.page
+    const pageSize = 5
+    let offset = 0
+    if (pageNo) {
+        pageNo = parseInt(pageNo)
+        offset = pageSize * (pageNo - 1)
+    } else {
+        pageNo = 1
+    }
+
+    const userData = await genkan.getUserBySessionAsync(sid)
+
+    bookings = await Booking.findAndCountAll({
+        where: {
+            tgId: userData.id,
+            approved: 1,
+            processStep: '5',
+            completed: 1,
+        },
+        // order: [['updatedAt', 'ASC']],
+        attributes: ['bookId', 'processStep', 'completed', 'tourStart', 'orderDatetime', 'custId'],
+        include: [
+            { model: Shop,
+                attributes: ['tourTitle'] },
+            { model: Review,
+                required: false,
+                attributes: ['id'],
+                where: { reviewerId: userData.id } }],
+        raw: true,
+        limit: pageSize,
+        offset: offset,
+    })
+    console.log(bookings)
+    const bookCount = bookings.count
+    const bookList = bookings.rows
+    const lastPage = Math.ceil(bookCount / pageSize)
+    const metadata = {
+        meta: {
+            title: 'All Completed Bookings',
+            pageNo: pageNo,
+            count: bookCount,
+            lastPage: lastPage,
+        },
+        data: {
+            currentUser: req.currentUser,
+            bookList: bookList,
+        },
+        nav: {
+            sidebarActive: 'bookings',
+            sidebarSubActive: 'bookingsCompleted',
+        },
+        layout: 'tourguide',
+    }
+    return res.render('tourguide/dashboard/bookings-completed', metadata)
+})
+
+router.get('/bookings/:id', async (req, res) => {
     const bookID = req.params.id
-    // const booking = bookingList.filter((obj) => {
-    //     return obj.id == bookID
-    // })[0]
-    Booking.findOne({
+
+    bookData = await Booking.findOne({
         where: {
             bookId: bookID,
         },
         include: Shop,
         raw: true,
-    }) .then(async (result) => {
-        res.cookie('result', JSON.stringify(result), { maxage: 5000 })
-        // const sid = req.signedCookies.sid
-        // const userId = await genkan.getUserBySessionAsync(sid)
+    })
+    res.cookie('storedValues', JSON.stringify(bookData), { maxage: 5000 })
+    // const sid = req.signedCookies.sid
+    // const userId = await genkan.getUserBySessionAsync(sid)
 
-        TourPlans.findAndCountAll({
-            where: {
-                bookId: bookID,
-            },
-            raw: true,
-        }) .then((tourPlanData) => {
-            console.log(tourPlanData.rows)
-            // Hi again, yes. I swapped this one out as well.
-            // Read booking.js at line 100 for more info.
-            getAllTypesOfMessagesByRoomID(result.chatId, (chatroomObject) => {
-                const listOfParticipantNames = []
+    tourPlanData = await TourPlans.findAndCountAll({
+        where: {
+            bookId: bookID,
+        },
+        raw: true,
+        order: [
+            ['createdAt', 'ASC'],
+        ],
+    })
+    console.log(tourPlanData)
 
-                // This is a hacky way to get the names of the participants in a chat room.
-                syncLoop(chatroomObject.users.length, (loop) => {
-                    const i = loop.iteration()
+    const reviews = {
+        CUST: null,
+        TOUR: null,
+    }
+    reviews['CUST'] = await Review.findOne({
+        where: {
+            bookId: bookID,
+            subjectId: bookData['custId'],
+        },
+        raw: true,
+    })
+    reviews['TOUR'] = await Review.findOne({
+        where: {
+            bookId: bookID,
+            subjectId: bookData['tgId'],
+        },
+        raw: true,
+    })
+    console.log(reviews)
 
-                    genkan.getUserByID(chatroomObject.users[i], (userObject) => {
-                        listOfParticipantNames.push(userObject.name)
-                        loop.next()
-                    })
-                }, () => {
-                    genkan.getUserByID(result['custId'], (custData) => {
-                        console.log(custData)
-                        const metadata = {
-                            meta: {
-                                title: result['Shop.tourTitle'],
-                                path: false,
-                            },
-                            validationErrors: req.cookies.validationErrors,
-                            data: {
-                                currentUser: req.currentUser,
-                                book: result,
-                                timeline: chatroomObject.msg,
-                                participants: listOfParticipantNames,
-                                cust: custData,
-                            },
-                            nav: {
-                                sidebarActive: 'bookings',
-                            },
-                            layout: 'main',
-                            // tourPlans is a placeholder used for testing until the customisation features are in
-                            tourPlans: tourPlanData.rows,
+    getAllTypesOfMessagesByRoomID(bookData.chatId, (chatroomObject) => {
+        const listOfParticipantNames = []
 
-                        }
-                        return res.render('tourguide/myJob', metadata)
-                    })
-                })
+        // This is a hacky way to get the names of the participants in a chat room.
+        syncLoop(chatroomObject.users.length, (loop) => {
+            const i = loop.iteration()
+
+            genkan.getUserByID(chatroomObject.users[i], (userObject) => {
+                listOfParticipantNames.push(userObject.name)
+                loop.next()
+            })
+        }, () => {
+            genkan.getUserByID(bookData['custId'], (custData) => {
+                console.log(custData)
+                // Calculating price stuff
+                const chargesArr = bookData['bookCharges'].split(',')
+                const revisionFee = chargesArr[0]
+                let priceToPay = parseInt(bookData['bookBaseprice'])
+                let extraRevFees = 0
+
+                // Any extra revisions
+                if (bookData['custom'] > 0 && bookData['revisions'] < 0) {
+                    const noOfRevisions = Math.abs(bookData['revisions'])
+                    extraRevFees = noOfRevisions * revisionFee
+                    priceToPay += extraRevFees
+                }
+                extraRevFees = extraRevFees.toFixed(2)
+                serviceFee = priceToPay * 0.15
+                const metadata = {
+                    meta: {
+                        title: bookData['Shop.tourTitle'],
+                        path: false,
+                    },
+                    validationErrors: req.cookies.validationErrors,
+                    data: {
+                        currentUser: req.currentUser,
+                        book: bookData,
+                        timeline: chatroomObject.msg,
+                        participants: listOfParticipantNames,
+                        reviews: reviews,
+                        cust: custData,
+                        charges: {
+                            bookCharges: chargesArr,
+                            customFee: revisionFee,
+                            priceToPay: priceToPay,
+                            extraRevFees: extraRevFees,
+                            serviceFee: serviceFee,
+                        },
+                    },
+                    tourPlans: tourPlanData.rows,
+                    nav: {
+                        sidebarActive: 'bookings',
+                    },
+                    layout: 'main',
+
+                }
+                return res.render('tourguide/myJob', metadata)
             })
         })
-    }).catch((err) => console.log)
+    })
 })
 
 router.post('/bookings/:id', async (req, res) => {
@@ -295,6 +395,14 @@ router.post('/bookings/:id', async (req, res) => {
         .exists()
         .getResult()
 
+    const itineraryResult = v
+        .Initialize({
+            name: 'finalItinerary',
+            errorMessage: 'Please create a Tour Itinerary',
+        })
+        .exists()
+        .getResult()
+
     // // Evaluate the files and fields data separately
     const validationErrors = removeNull([
         tourDateResult,
@@ -302,6 +410,7 @@ router.post('/bookings/:id', async (req, res) => {
         endTimeResult,
         tourPaxResult,
         tourPriceResult,
+        itineraryResult,
     ])
 
     console.log('tourDateResult is '+ tourDateResult)
@@ -336,55 +445,55 @@ router.post('/bookings/:id', async (req, res) => {
         // process itinerary
         // calculate tour duration
         // process index
-        Booking.findOne({
+
+        const bookData = await Booking.findOne({
             where: {
                 bookId: bookId,
             },
             raw: true,
-        }).then((bookData) => {
-            // update booking's process step and details
-            Booking.update(
-                {
-                    processStep: 2,
-                    tourStart: tourStart,
-                    tourEnd: tourEnd,
-                    bookPax: req.fields.tourPax,
-                    bookBaseprice: req.fields.tourPrice,
-                    revisions: bookData.revisions - 1,
-                },
-                {
-                    where: { bookId: bookId },
-                },
-            )
-            TourPlans.findAndCountAll({
-                where: {
-                    bookId: bookId,
-                },
-            }).then((tourPlanResult) => {
-                const planIndex = tourPlanResult.count + 1
-                const genId = uuid.v1()
-                TourPlans.create(
-                    {
-                        planId: genId,
-                        bookId: bookId,
-                        index: planIndex,
-                        tourStart: tourStart,
-                        tourEnd: tourEnd,
-                        tourPax: req.fields.tourPax,
-                        tourPrice: req.fields.tourPrice,
-                        tourItinerary: '',
-                        accepted: 0,
-                    },
-                ).then((data) => {
-                    addMessage(bookData.chatId, 'SYSTEM', planIndex, 'TOURPLAN', () => {
-                        res.redirect(`/tourguide/bookings/${bookId}`)
-                    })
-                })
-            }).catch((err) =>{
-                console.log(err)
+        })
+
+        // update booking's process step and details
+        Booking.update(
+            {
+                processStep: 2,
+                tourStart: tourStart,
+                tourEnd: tourEnd,
+                bookPax: req.fields.tourPax,
+                bookBaseprice: req.fields.tourPrice,
+                revisions: bookData.revisions - 1,
+                addInfo: req.fields.addInfo,
+                bookItinerary: req.fields.finalItinerary,
+            },
+            {
+                where: { bookId: bookId },
+            },
+        )
+
+        const tourPlanResult = await TourPlans.findAndCountAll({
+            where: {
+                bookId: bookId,
+            },
+        })
+
+        const planIndex = tourPlanResult.count + 1
+        const genId = uuid.v1()
+        TourPlans.create(
+            {
+                planId: genId,
+                bookId: bookId,
+                index: planIndex,
+                tourStart: tourStart,
+                tourEnd: tourEnd,
+                tourPax: req.fields.tourPax,
+                tourPrice: req.fields.tourPrice,
+                tourItinerary: req.fields.finalItinerary,
+                accepted: 0,
+            },
+        ).then((data) => {
+            addMessage(bookData.chatId, 'SYSTEM', planIndex, 'TOURPLAN', () => {
+                res.redirect(`/tourguide/bookings/${bookId}`)
             })
-        }) .catch((err) =>{
-            console.log(err)
         })
     }
 })

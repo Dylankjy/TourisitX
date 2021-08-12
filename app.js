@@ -155,10 +155,8 @@ app.engine(
             },
 
             ifAfterToday: (value, options) => {
-                // bug: returns html without the handlebars blocks
                 today = new Date()
                 if (today >= value) {
-                    console.log(options.fn(this))
                     return options.fn(this)
                 } else {
                     return options.inverse(this)
@@ -167,9 +165,9 @@ app.engine(
 
             math: (base, operator, value) => {
                 if (operator == '+') {
-                    return parseFloat(base) + parseFloat(value)
+                    return (parseFloat(base) + parseFloat(value))
                 } else if (operator == '-') {
-                    return parseFloat(base) - parseFloat(value)
+                    return (parseFloat(base) - parseFloat(value))
                 } else if (operator == '/') {
                     return parseFloat(base) / parseFloat(value)
                 } else if (operator == '*') {
@@ -196,6 +194,10 @@ app.engine(
                 }
                 const time = dateFormat(value, 'hh:MM') + suffix
                 return time
+            },
+
+            onlyTime24h: (value) => {
+                return dateFormat(value, 'HH:MM')
             },
 
             timestampParseISO: (value) => {
@@ -250,11 +252,24 @@ app.engine(
             },
 
             bookActivityName: (msg, custName, tgName, options) => {
-                let newMsg = msg.replace('<customer>', custName)
-                newMsg = newMsg.replace('<tourguide>', tgName)
+                let newMsg = msg.replace('<customer>', '<span class="has-text-info">'+custName+'</span>')
+                newMsg = newMsg.replace('<tourguide>', '<span class="has-text-info">'+tgName+'</span>')
                 return newMsg
             },
 
+            rating: (n) => {
+                console.log('\n \n \n')
+                let emptyStars = 5
+                let accum = ''
+                for (let i=0; i< parseInt(n); i++) {
+                    accum += '<i class="fas fa-star"></i>'
+                    emptyStars -= 1
+                }
+                for (let i=0; i< emptyStars; i++) {
+                    accum += '<i class="far fa-star"></i>'
+                }
+                return accum
+            },
             round2DP: (value) => {
                 return roundTo(value, 2).toFixed(2).toString()
             },
@@ -371,7 +386,7 @@ io.on('connection', (socket) => {
                     // When SYSTEM uses addMessage(), the socket is invoked by the Chat API and added to the database accordingly.
                     // The socket message will then be picked up by this eventHandler and then added again.
                     // This if essentially prevents SYSTEM messages from being added to the database twice.
-                    if (userObject.senderId === '00000000-0000-0000-0000-000000000000') return
+                    if (userObject.senderId === '00000000-0000-0000-0000-000000000000') return false
 
                     // Else send message
                     addMessage(data.roomId, data.senderId, sanitizeHtml(data.msg), 'SENT', () => {
@@ -417,6 +432,7 @@ require('./models')
             })
             .then(() => {
                 // If all is well, start the webserver.
+                destroyAllSessions()
                 webserver()
             })
     })

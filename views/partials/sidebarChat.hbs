@@ -1,4 +1,4 @@
-<aside data-turbolinks-permanent class="column is-3 has-background-dark chat-sidebar p-5">
+<aside data-turbolinks-permanent class="column is-3 has-background-light chat-sidebar p-5" style="border-radius: 6px;">
     <nav data-turbolinks-permanent class="menu">
         <p class="menu-label">
             Your chats
@@ -6,8 +6,7 @@
         <ul class="menu-list">
             {{#each data.availableChats}}
             <li>
-                <a href="/messages/{{this.chatId}}" class="{{#ifEquals this.chatId @root.nav.chatSidebar}}is-active{{else}}has-background-dark{{/ifEquals}}
-                    has-text-white">
+                <a href="/messages/{{this.chatId}}" class="{{#ifEquals this.chatId @root.nav.chatSidebar}}is-active has-text-white{{else}}has-background-light has-text-dark{{/ifEquals}}">
                     {{#ifEquals this.receiverName "SYSTEM"}}
                     Tourisit System<span class="ml-3 tag is-danger"><i class="fas fa-user-shield"></i>&nbsp;Staff</span>
                     {{else}}

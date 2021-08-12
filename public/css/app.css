@@ -7,7 +7,7 @@
 @import url('/css/navbar.css');
 @import url('/css/chat.css');
 
-* {
+*, .button, a {
     font-family: 'Red Hat Display', sans-serif;
 }
 
