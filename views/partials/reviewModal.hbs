@@ -47,13 +47,28 @@
                                     <label class="label" for="review-submit"></label>
                                     <div class="control">
                                         <input id="review-submit" name="review-submit" type="submit"
-                                               class="button is-success is-medium is-fullwidth">
+                                               class="button is-success is-medium is-fullwidth" disabled="disabled">
                                     </div>
                                 </div>
                             </fieldset>
                         </form>
     
     <script>
+        $('#review_form input').on("keyup change", function() {
+
+        var empty = false
+        $('#review_form :input').each(function() {
+            if ($(this).val() == '') {
+                empty = true
+            }
+        })
+        if (empty) {
+            $('#review_submit').attr('disabled', 'disabled')
+        } else {
+            $('#review_submit').removeAttr('disabled')
+        }
+    })
+
         $(document).ready(function () {
             $('#rating').hide();
             $('.star').raty({
