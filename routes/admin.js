@@ -702,7 +702,7 @@ router.get('/payments/transactions', async (req, res) => {
             transactions: invoices,
         },
     }
-    return res.render('admin/transactions.hbs', metadata)
+    return res.render('admin/transactions', metadata)
 })
 
 router.get('/manage/tickets', (req, res) => {

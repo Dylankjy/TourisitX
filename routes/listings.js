@@ -1046,12 +1046,25 @@ router.get('/api/autocomplete/location', (req, res) => {
         })
 })
 
-router.post('/edit/image/:savedId', (req, res) => {
+router.post('/edit/image/:savedId', async (req, res) => {
+    const savedUser = req.currentUser
+    const sData = await Shop.findAll({
+        where: {
+            id: req.params.savedId,
+        },
+        raw: true,
+    })
+
+    if (savedUser['id'] != sData[0]['userId']) {
+        res.redirect(`/listing/info/${req.params.savedId}`)
+    }
+    console.log(sData)
     console.log('Image edited')
     const v = new fileValidator(req.files['tourImage'])
     const imageResult = v
         .Initialize({ errorMessage: 'Please supply a valid Image' })
         .fileExists()
+        .extAllowed(['.jpg', '.jpeg', '.png'])
         .sizeAllowed({ maxSize: 5000000 })
         .getResult()
 

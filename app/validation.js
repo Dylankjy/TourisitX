@@ -1,5 +1,6 @@
 // Custom validators here
 // Instructions at the bottom
+const path = require('path')
 
 class Validator {
     constructor(data) {

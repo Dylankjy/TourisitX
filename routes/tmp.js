@@ -27,7 +27,7 @@ test = async () => {
         limit: 3,
     })
 
-    console.log(invoices["data"])
+    console.log(invoices['data'])
 }
 
 test()
