@@ -1186,6 +1186,9 @@ router.get('/api/getImage/:id', (req, res) => {
 // Start: Booking-related items under the listing route
 // Rendering the book-now form
 router.get('/:id/purchase', async (req, res) => {
+    if (req.currentUser.id == undefined) {
+        return res.redirect('/id/login')
+    }
     const itemID = req.params.id
 
     Shop.findAll({
