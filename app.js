@@ -155,10 +155,8 @@ app.engine(
             },
 
             ifAfterToday: (value, options) => {
-                // bug: returns html without the handlebars blocks
                 today = new Date()
                 if (today >= value) {
-                    console.log(options.fn(this))
                     return options.fn(this)
                 } else {
                     return options.inverse(this)
@@ -167,9 +165,9 @@ app.engine(
 
             math: (base, operator, value) => {
                 if (operator == '+') {
-                    return parseFloat(base) + parseFloat(value)
+                    return (parseFloat(base) + parseFloat(value))
                 } else if (operator == '-') {
-                    return parseFloat(base) - parseFloat(value)
+                    return (parseFloat(base) - parseFloat(value))
                 } else if (operator == '/') {
                     return parseFloat(base) / parseFloat(value)
                 } else if (operator == '*') {
