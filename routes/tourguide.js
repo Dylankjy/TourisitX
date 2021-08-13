@@ -508,29 +508,47 @@ router.post('/bookings/:id', async (req, res) => {
 
 router.get('/payments', async (req, res) => {
     const accId = req.currentUser.stripe_account_id
-    const transfers = await stripe.transfers.list({
+    stripe.transfers.list({
         destination: accId,
-    })
-    // View all transfers to this account
-    const history = transfers['data']
-    // Get a stripe link to this account
-    const accLink = await stripe.accounts.createLoginLink(accId)
+    }).then(async (transfers)=> {
+        // View all transfers to this account
+        const history = transfers['data']
+        // Get a stripe link to this account
+        const accLink = await stripe.accounts.createLoginLink(accId)
 
-    const metadata = {
-        meta: {
-            title: 'Payments',
-            path: false,
-        },
-        nav: {
-            sidebarActive: 'payments',
-        },
-        layout: 'tourguide',
-        data: {
-            'history': history,
-            'accLink': accLink,
-        },
-    }
-    return res.render('tourguide/dashboard/payments', metadata)
+        const metadata = {
+            meta: {
+                title: 'Payments',
+                path: false,
+            },
+            nav: {
+                sidebarActive: 'payments',
+            },
+            layout: 'tourguide',
+            data: {
+                'history': history,
+                'accLink': accLink,
+            },
+        }
+        return res.render('tourguide/dashboard/payments', metadata)
+    }).catch((err)=>{
+        console.log(err)
+        const metadata = {
+            meta: {
+                title: 'Payments',
+                path: false,
+            },
+            nav: {
+                sidebarActive: 'payments',
+            },
+            layout: 'tourguide',
+            data: {
+                'history': [],
+                'accLink': "",
+            },
+        }
+        return res.render('tourguide/dashboard/payments', metadata)
+    })
 })
 
 module.exports = router

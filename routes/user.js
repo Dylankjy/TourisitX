@@ -593,25 +593,42 @@ router.get('/profile/:savedId/transaction-history', async (req, res)=> {
     //     return res.redirect('/')
     // }
 
-    let paymentHistory = await stripe.paymentIntents.list({
+    stripe.paymentIntents.list({
         customer: currentUser.stripe_customer_id,
     })
+        .then((paymentHistory)=> {
+            paymentHistory = paymentHistory['data']
 
-    paymentHistory = paymentHistory['data']
+            const metadata = {
+                meta: {
+                    title: 'Transaction History',
+                    path: false,
+                },
+                // layout: 'tourguid',
+                data: {
+                    currentUser: req.currentUser,
+                    history: paymentHistory,
+                },
+            }
 
-    const metadata = {
-        meta: {
-            title: 'Transaction History',
-            path: false,
-        },
-        // layout: 'tourguid',
-        data: {
-            currentUser: req.currentUser,
-            history: paymentHistory,
-        },
-    }
+            res.render('users/transaction-history.hbs', metadata)
+        })
+        .catch((err)=> {
+            console.log(err)
+            const metadata = {
+                meta: {
+                    title: 'Transaction History',
+                    path: false,
+                },
+                // layout: 'tourguid',
+                data: {
+                    currentUser: req.currentUser,
+                    history: [],
+                },
+            }
 
-    res.render('users/transaction-history.hbs', metadata)
+            res.render('users/transaction-history.hbs', metadata)
+        })
 })
 
 router.post('/setting/set_accmode_welcome', (req, res) => {
