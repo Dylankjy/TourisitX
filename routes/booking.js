@@ -71,12 +71,16 @@ router.get('/', async (req, res) => {
             attributes: ['bookId', 'processStep', 'completed'],
             // order: [['updatedAt', 'DESC']],
             include: [
-                { model: Shop,
-                    attributes: ['tourTitle', 'tourImage'] },
-                { model: Review,
+                {
+                    model: Shop,
+                    attributes: ['tourTitle', 'tourImage']
+                },
+                {
+                    model: Review,
                     required: false,
                     attributes: ['id'],
-                    where: { reviewerId: req.currentUser.id } }],
+                    where: { reviewerId: req.currentUser.id }
+                }],
             raw: true,
             limit: pageSize,
             offset: offset,
@@ -100,12 +104,16 @@ router.get('/', async (req, res) => {
             attributes: ['bookId', 'processStep'],
             order: [['updatedAt', 'ASC']],
             include: [
-                { model: Shop,
-                    attributes: ['tourTitle'] },
-                { model: Review,
+                {
+                    model: Shop,
+                    attributes: ['tourTitle']
+                },
+                {
+                    model: Review,
                     required: false,
                     where: sequelize.literal('Reviews.type != "CUST"'),
-                    attributes: ['id', 'reviewerId', 'type', 'reviewText'] }],
+                    attributes: ['id', 'reviewerId', 'type', 'reviewText']
+                }],
             raw: true,
         })
         console.log(reqAction)
@@ -119,8 +127,10 @@ router.get('/', async (req, res) => {
             attributes: ['bookId', 'processStep', 'tourStart'],
             order: [['tourStart', 'DESC']],
             include:
-                    { model: Shop,
-                        attributes: ['tourTitle'] },
+            {
+                model: Shop,
+                attributes: ['tourTitle']
+            },
             raw: true,
         })
     }
@@ -194,7 +204,7 @@ router.post('/:id/request-revision', async (req, res) => {
             custRequests: newReq,
         }, {
             where: { bookId: bookId },
-        }).then(() =>{
+        }).then(() => {
             TourPlans.update({
                 accepted: '-1',
             }, {
@@ -236,7 +246,7 @@ router.post('/:id/accept-plan', async (req, res) => {
         processStep: '3',
     }, {
         where: { bookId: bookId },
-    }).then(() =>{
+    }).then(() => {
         TourPlans.update({
             accepted: '1',
         }, {
@@ -297,7 +307,7 @@ router.post('/:id/complete-tour', async (req, res) => {
         completed: 1,
     }, {
         where: { bookId: bookId },
-    }).then(() =>{
+    }).then(() => {
         addMessage(bookData['chatId'], 'SYSTEM', '<customer> declared that the tour is complete.', 'ACTIVITY', () => {
             res.redirect(`/bookings/${bookId}`)
         })
@@ -309,13 +319,18 @@ router.post('/:id/review-tour', async (req, res) => {
     console.log(req.fields)
 
     const v = new Validator(req.fields)
-    const ratingResult = v
-        .Initialize({
-            name: 'rater',
-            errorMessage: 'Please provide a rating from 1 to 5.',
-        })
-        .exists()
-        .getResult()
+    validationErrors = []
+    if (req.fields.rater > 0) {
+    } else {
+        const ratingResult = v
+            .Initialize({
+                name: 'rater',
+                errorMessage: 'Please provide a rating from 1 to 5.',
+            })
+            .exists()
+            .getResult()
+        validationErrors.push(ratingResult)
+    }
 
     const reviewTextResult = v
         .Initialize({
@@ -324,11 +339,10 @@ router.post('/:id/review-tour', async (req, res) => {
         })
         .exists()
         .getResult()
+    validationErrors.push(reviewTextResult)
 
-    const validationErrors = removeNull([
-        ratingResult,
-        reviewTextResult,
-    ])
+    validationErrors = removeNull(validationErrors)
+
     if (!emptyArray(validationErrors)) {
         console.log('ooga valid error')
         res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
