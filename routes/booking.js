@@ -317,15 +317,18 @@ router.post('/:id/complete-tour', async (req, res) => {
 router.post('/:id/review-tour', async (req, res) => {
     const bookId = req.params.id
     console.table(req.fields)
-
+    validationErrors = []
     const v = new Validator(req.fields)
-    const ratingResult = v
-        .Initialize({
-            name: 'rater',
-            errorMessage: 'Please provide a rating from 1 to 5.',
-        })
-        .exists()
-        .getResult()
+    if (req.fields.rater > 0) {
+        const ratingResult = v
+            .Initialize({
+                name: 'rater',
+                errorMessage: 'Please provide a rating from 1 to 5.',
+            })
+            .exists()
+            .getResult()
+        validationErrors.push(ratingResult)
+    }
 
     const reviewTextResult = v
         .Initialize({
@@ -334,11 +337,9 @@ router.post('/:id/review-tour', async (req, res) => {
         })
         .exists()
         .getResult()
+    validationErrors.push(reviewTextResult)
 
-    const validationErrors = removeNull([
-        ratingResult,
-        reviewTextResult,
-    ])
+    validationErrors = removeNull([validationErrors])
     if (!emptyArray(validationErrors)) {
         console.log('ooga valid error')
         res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
