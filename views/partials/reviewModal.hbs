@@ -34,12 +34,13 @@
                             <option value="5">5 star</option>
                         </select> --}}
                         <div class="rating">
-                            <i class="rating_star far fa-star fa-3x"></i>
-                            <i class="rating_star far fa-star fa-3x"></i>
-                            <i class="rating_star far fa-star fa-3x"></i>
-                            <i class="rating_star far fa-star fa-3x"></i>
-                            <i class="rating_star far fa-star fa-3x"></i>
+                            <i class="rating_star far fa-star fa-3x" id="star1"></i>
+                            <i class="rating_star far fa-star fa-3x" id="star2"></i>
+                            <i class="rating_star far fa-star fa-3x" id="star3"></i>
+                            <i class="rating_star far fa-star fa-3x" id="star4"></i>
+                            <i class="rating_star far fa-star fa-3x" id="star5"></i>
                         </div>
+                        <input type='hidden' id='ratingF' name='rater' />
                     </div>
 
                     <div class="field">
@@ -78,10 +79,23 @@
                 if (star.className === starClassInactive) {
                     for (i; i >= 0; --i) stars[i].className = starClassActive;
                 } else {
-                    for (i; i < starsLength; ++i) stars[i+1].className = starClassInactive;
+                    for (i; i < starsLength; ++i) stars[i + 1].className = starClassInactive;
                 }
             };
         });
     }
     executeRating(ratingStars);
+    $("#review-submit").click(function () {
+        if ($('#star5').className && $('#star4').className && $('#star3').className && $('#star2').className == "rating_star far fa-star fa-3x") {
+            $('#ratingF').val(1)
+        } else if ($('#star5').className && $('#star4').className && $('#star3').className == "rating_star far fa-star fa-3x") {
+            $('#ratingF').val(2)
+        } else if ($('#star5').className && $('#star4').className == "rating_star far fa-star fa-3x") {
+            $('#ratingF').val(3)
+        } else if ($('#star5').className == "rating_star far fa-star fa-3x") {
+            $('#ratingF').val(4)
+        } else if ($('#star5').className == "rating_star fas fa-star fa-3x"){
+            $('#ratingF').val(5)
+        }
+    });
 </script>

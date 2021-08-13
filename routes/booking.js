@@ -311,7 +311,7 @@ router.post('/:id/review-tour', async (req, res) => {
     const v = new Validator(req.fields)
     const ratingResult = v
         .Initialize({
-            name: 'rating',
+            name: 'rater',
             errorMessage: 'Please provide a rating from 1 to 5.',
         })
         .exists()
@@ -368,7 +368,7 @@ router.post('/:id/review-tour', async (req, res) => {
                 tourId: bookData['listingId'],
                 bookId: bookId,
                 reviewText: req.fields.reviewText,
-                rating: req.fields.rating,
+                rating: req.fields.rater,
 
             },
         ).then((data) => {
