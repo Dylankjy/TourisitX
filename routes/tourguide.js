@@ -263,7 +263,7 @@ router.get('/bookings/completed', async (req, res) => {
         },
         layout: 'tourguide',
     }
-    return res.render('tourguide/dashboard/bookings-completed', metadata)
+    return res.render('tourguide/dashboard/bookingsCompleted', metadata)
 })
 
 router.get('/bookings/:id', async (req, res) => {
