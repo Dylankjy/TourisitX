@@ -40,9 +40,8 @@
                             <i class="rating_star far fa-star fa-3x" id="star4"></i>
                             <i class="rating_star far fa-star fa-3x" id="star5"></i>
                         </div>
-                        <input type='hidden' id='ratingF' name='rater' />
                     </div>
-
+                    <input type='hidden' id='rater' name='rater'>
                     <div class="field">
                         <label class="label" for="review">How was the experience?</label>
                         <div class="control">
@@ -54,8 +53,10 @@
                     <div class="field">
                         <label class="label" for="review-submit"></label>
                         <div class="control">
-                            <input id="review-submit" name="review-submit" type="submit"
-                                class="button is-success is-medium is-fullwidth">
+                            <button class='button is-success is-medium is-fullwidth' id="review-submit"
+                                name="review-submit" type='submit'>Submit</button>
+                            {{!-- <input id="review-submit" name="review-submit" type="submit"
+                                class="button is-success is-medium is-fullwidth"> --}}
                         </div>
                     </div>
                 </fieldset>
@@ -85,17 +86,21 @@
         });
     }
     executeRating(ratingStars);
+</script>
+<script>
+    const starClassActive = "rating_star fas fa-star fa-3x";
+    const starClassInactive = "rating_star far fa-star fa-3x";
     $("#review-submit").click(function () {
-        if ($('#star5').className && $('#star4').className && $('#star3').className && $('#star2').className == "rating_star far fa-star fa-3x") {
-            $('#ratingF').val(1)
-        } else if ($('#star5').className && $('#star4').className && $('#star3').className == "rating_star far fa-star fa-3x") {
-            $('#ratingF').val(2)
-        } else if ($('#star5').className && $('#star4').className == "rating_star far fa-star fa-3x") {
-            $('#ratingF').val(3)
-        } else if ($('#star5').className == "rating_star far fa-star fa-3x") {
-            $('#ratingF').val(4)
-        } else if ($('#star5').className == "rating_star fas fa-star fa-3x"){
-            $('#ratingF').val(5)
+        if ($('#star5').hasClass(starClassActive)) {
+            $('#rater').val('5')
+        } else if (($('#star5').hasClass(starClassInactive) && $('#star4').hasClass(starClassActive)) == true) {
+            $('#rater').val('4')
+        } else if (($('#star4').hasClass(starClassInactive) && $('#star3').hasClass(starClassActive)) == true) {
+            $('#rater').val('3')
+        } else if (($('#star3').hasClass(starClassInactive) && $('#star2').hasClass(starClassActive)) == true) {
+            $('#rater').val('2')
+        } else if (($('#star2').hasClass(starClassInactive) && $('#star1').hasClass(starClassActive)) == true) {
+            $('#rater').val('1')
         }
     });
 </script>
