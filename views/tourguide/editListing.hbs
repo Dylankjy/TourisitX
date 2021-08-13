@@ -1,8 +1,8 @@
-
 <!-- <link rel='stylesheet' href='/public/css/create_listing.css'> -->
 <link rel='stylesheet' href='/third_party/alex/create_listing.css'>
 <!-- <script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script> -->
 <script src='/third_party/jquery-ui/jquery-ui.js'></script>
+<link rel="stylesheet" href="/third_party/bulma/bulma-divider.css">
 
 
 
@@ -15,6 +15,14 @@
 <!-- Tour Days --------- Final Name:finalDays       ID: tourDay  -->
 <!-- Tour Itinerary ---- Final Name:finalItinerary  ID: itineraryItems  -->
 
+<section class="section has-background-black">
+    <div class="container">
+        <a onclick="goBack()" class="has-text-weight-medium has-text-danger-dark">
+            <i class="fas fa-arrow-left"></i>&ensp;Previous page
+        </a>
+        <h1 class="title has-text-white is-2">Edit Listing</h1>
+    </div>
+</section>
 
 <!-- If validationErrors is defined and there are validationErrors -->
 {{#if (isDefined validationErrors)}}
@@ -41,237 +49,242 @@
 
 <form class="form-horizontal" enctype="multipart/form-data" method="POST" id='createListingForm'>
     <div class='section'>
+        <div class="columns">
+            <div class="column">
+                <h1 class="title is-4 has-text-primary">General Information</h1>
+                <!--START: General Information-->
+                <div>
+                    <!-- TOUR TITLE -->
+                    <div class='container'>
+                        <div class='field'>
+                            <div class='label'>
+                                <h1 class="title is-5">Title</h1>
+                                <h2 class="subtitle is-6">
+                                    Give your tour a nice name
+                                </h2>
+                            </div>
+                            <input name='tourTitle' class="input is-primary" type="text" placeholder="Primary input">
 
-        <!-- TOUR TITLE -->
-        <div class='container'>
-            <div class='columns is-variable is-5 is-vcentered'>
-                <div class='column is-one-quarter' style="text-align:right;">
-                    <section class="section">
-                        <h1 class="title is-5">Tour Title</h1>
-                        <h2 class="subtitle is-6">
-                            Give your tour a nice name
-                        </h2>
-                    </section>
-                </div>
-                <div class='column is-half'>
-                    <input name='tourTitle' class="input is-primary" type="text" placeholder="Primary input">
-                </div>
-            </div>
-        </div>
-
-        <!-- TOUR DESCRIPTION -->
-        <div class='container'>
-            <div class='columns is-variable is-5 is-vcentered'>
-                <div class='column is-one-quarter' style="text-align:right;">
-                    <section class="section">
-                        <h1 class="title is-5">Tour Description</h1>
-                        <h2 class="subtitle is-6">
-                            Give a brief overview of your tour
-                        </h2>
-                    </section>
-                </div>
-                <div class='column is-half' style='margin-top: 50px;'>
-                    <textarea name='tourDesc' class="textarea is-primary" placeholder="e.g. Hello world"></textarea>
-                </div>
-            </div>
-        </div>
-
-
-
-        <!-- TOUR DURATION -->
-        <div class='container'>
-            <div class='columns is-variable is-5 is-vcentered'>
-                <div class='column is-one-quarter' style="text-align:right;">
-                    <section class="section">
-                        <h1 class="title is-5">Tour Duration</h1>
-                        <h2 class="subtitle is-6">
-                            How long will your Tour last?
-                        </h2>
-                    </section>
-                </div>
-                <div class='column is-1'>
-                    <div class="select is-info">
-                        <select id='tourDuration' name='tourDuration'>
-                            <option></option>
-                        </select>
+                        </div>
                     </div>
-                </div>
+                    <br>
 
-                <div class='column'>
-                    Hours
+                    <!-- TOUR DESCRIPTION -->
+                    <div class='container'>
+                        <div class='field'>
+                            <div class='label'>
+                                <h1 class="title is-5">Description</h1>
+                                <h2 class="subtitle is-6">
+                                    Give a brief overview of your tour
+                                </h2>
+                            </div>
+                            <textarea name='tourDesc' class="textarea is-primary"
+                                placeholder="e.g. Hello world"></textarea>
+
+                        </div>
+                    </div>
+                    <br>
+
+                    <!-- Min Price -->
+                    <div class='container'>
+                        <div class='field'>
+                            <div class='label'>
+                                <h1 class="title is-5">Price</h1>
+                                <h2 class="subtitle is-6">
+                                    Minimum price of your Tour
+                                </h2>
+                            </div>
+                            <div class='control has-icons-left'>
+                                <input name='tourPrice' class="input is-primary" type="number">
+                                <span class="icon is-small is-left">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+
+                    <!-- Max Pax -->
+                    <div class='container'>
+                        <div class='field'>
+                            <div class='label'>
+                                <h1 class="title is-5">Tour Pax</h1>
+                                <h2 class="subtitle is-6">
+                                    Maximum Tour Participants
+                                </h2>
+                            </div>
+                            <div class='control has-icons-right'>
+                                <input name='tourPax' class="input is-primary" type="number">
+                                <span class="icon is-small is-right">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+
+                    <!-- Max Revisions -->
+                    <div class='container'>
+                        <div class='field'>
+                            <div class='label'>
+                                <h1 class="title is-5">Tour Revisions</h1>
+                                <h2 class="subtitle is-6">
+                                    Maximum times a customer can revise the itinerary for free
+                                </h2>
+                            </div>
+                            <input name='tourRevision' class="input is-primary" type="number">
+                        </div>
+                    </div>
+                    <br>
+
+                </div>
+                <!--END: General Information-->
+            </div>
+
+            <div class="divider is-vertical is-right"></div>
+            <div class="column">
+                <div>
+                    <h1 class="title is-4 has-text-primary">Availability</h1>
+
+                    <!--START: Availability-->
+                    <div>
+
+                        <!-- TOUR DURATION -->
+                        <div class='container'>
+                            <div class='field'>
+                                <div class='label'>
+                                    <h1 class="title is-5">Tour Duration</h1>
+                                    <h2 class="subtitle is-6">
+                                        How long will your Tour last?
+                                    </h2>
+                                </div>
+                                <div class='columns'>
+                                    <div class='column is-four-fifths'>
+                                        <div class="select is-info is-fullwidth">
+                                            <select id='tourDuration' name='tourDuration'>
+                                                <option></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class='column'>
+                                        Hours
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+
+                        <!-- TOUR TIMINGS -->
+                        <div class='container'>
+                            <div class='field'>
+                                <div class='label'>
+                                    <h1 class="title is-5">Tour Timings</h1>
+                                    <h2 class="subtitle is-6">
+                                        When your Tour will be conducted
+                                    </h2>
+                                </div>
+                                <div>
+                                    <div class="select is-info is-fullwidth">
+                                        <select class='timeslots' id='tourTiming'>
+                                            <option>-</option>
+                                        </select>
+                                    </div>
+
+                                    <div class='tag-container' id='timeTags'>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+
+                        <!-- AVAILABLE DAYS -->
+                        <div class='container'>
+                            <div class='field'>
+                                <div class='label'>
+                                    <h1 class="title is-5">Available Days</h1>
+                                    <h2 class="subtitle is-6">
+                                        Tours are available on these days
+                                    </h2>
+                                </div>
+                                <div>
+                                    <div class='select is-primary is-fullwidth'>
+                                        <select id='tourDay'>
+                                            <option>-</option>
+                                        </select>
+                                    </div>
+
+                                    <div class='tag-container' id='dayTags'>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+
+                    </div>
+                    <!--END: Availability-->
+                </div>
+                <div class="divider is-right"></div>
+                <div>
+                    <h1 class="title is-4 has-text-primary">Tour Plan</h1>
+
+                    <!--TOUR ITINERARY-->
+                    <div class='container'>
+                        <div class='field'>
+                            <div class='label'>
+                                <h1 class="title is-5">Itinerary</h1>
+                                <h2 class="subtitle is-6">
+                                    Provide a detailed outline of the Tour
+                                </h2>
+                            </div>
+                            <div class='control has-icons-right is-clickable'>
+                                <input class='input is-success' id='itinerary-str'>
+                                <span class='icon is-right'>
+                                    <i class="fas fa-feather-alt" id='add-itinerary-icon'
+                                        style="margin-right: 20px; pointer-events: initial"></i>
+                                </span>
+                            </div>
+
+                            <ul class='ui-sortable' id='itineraryItems'>
+                            </ul>
+                        </div>
+                    </div>
+                    <br>
+
+                    <!-- TOUR LOCATION -->
+                    <div class='container'>
+                        <div class='field'>
+                            <div class='label'>
+                                <h1 class="title is-5">Locations</h1>
+                                <h2 class="subtitle is-6">
+                                    Which places will your Tour cover?
+                                </h2>
+                            </div>
+                            <div>
+                                <input id='tourLocation' class="input is-info" type='text' list='renderedLocations'>
+                                <datalist id="renderedLocations"></datalist>
+                                <div class='column is-4 tag-container' id='locationTags'></div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <br>
+
                 </div>
             </div>
         </div>
 
-        <!-- TOUR TIMINGS -->
-        <div class='container'>
-            <div class='columns is-variable is-5 is-vcentered'>
-                <div class='column is-one-quarter' style="text-align:right;">
-                    <section class="section">
-                        <h1 class="title is-5">Tour Timings</h1>
-                        <h2 class="subtitle is-6">
-                            When your Tour will be conducted
-                        </h2>
-                    </section>
-                </div>
-
-
-                <div class='column is-three-quarters' style='margin-top: 30px;'>
-                    <div class="select is-info">
-                        <select class='timeslots' id='tourTiming'>
-                            <option>-</option>
-                        </select>
-                    </div>
-
-                    <div class='tag-container' id='timeTags'>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- AVAILABLE DAYS -->
-        <div class='container'>
-            <div class='columns is-variable is-5 is-vcentered'>
-                <div class='column is-one-quarter' style="text-align:right;">
-                    <section class="section">
-                        <h1 class="title is-5">Available Days</h1>
-                        <h2 class="subtitle is-6">
-                            Tours are available on these days
-                        </h2>
-                    </section>
-                </div>
-                <div class='column is-half'>
-                    <div class='select is-primary'>
-                        <select id='tourDay'>
-                            <option>-</option>
-                        </select>
-                    </div>
-
-                    <div class='tag-container' id='dayTags'>
-
-                    </div>
-
-
-                </div>
-            </div>
-        </div>
-
-
-
-
-        <!-- TOUR ITINERARY -->
-        <div class='container'>
-            <div class='columns is-variable is-5 is-vcentered'>
-                <div class='column is-one-quarter' style="text-align:right;">
-                    <section class="section">
-                        <h1 class="title is-5">Tour Itinerary</h1>
-                        <h2 class="subtitle is-6">
-                            Provide a detailed outline of the Tour
-                        </h2>
-                    </section>
-                </div>
-
-                <div class='column is-5 itinerary'>
-                    <div class='control has-icons-right is-clickable'>
-                        <input class='input is-success' id='itinerary-str'>
-                        <span class='icon is-right'>
-                            <i class="fas fa-feather-alt" id='add-itinerary-icon'
-                                style="margin-right: 20px; pointer-events: initial"></i>
-                        </span>
-                    </div>
-
-                    <ul class='ui-sortable' id='itineraryItems'>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- TOUR LOCATION -->
-        <div class='container'>
-            <div class='columns is-variable is-5 is-vcentered'>
-
-                <div class='column is-one-quarter' style="text-align:right;">
-                    <section class="section">
-                        <h1 class="title is-5">Tour Location</h1>
-                        <h2 class="subtitle is-6">
-                            Which places will your Tour cover?
-                        </h2>
-                    </section>
-                </div>
-
-                <div class='column is-4'>
-                    <input id='tourLocation' class="input is-info" type='text' list='renderedLocations'>
-                    <datalist id="renderedLocations"></datalist>
-                </div>
-
-                <div class='column is-4 tag-container' id='locationTags'>
-                </div>
-
-            </div>
-        </div>
     </div>
-
-    <!-- Min Price -->
-    <div class='container'>
-        <div class='columns is-variable is-5 is-vcentered'>
-            <div class='column is-one-quarter' style="text-align:right;">
-                <section class="section">
-                    <h1 class="title is-5">Tour Price</h1>
-                    <h2 class="subtitle is-6">
-                        Minimum price of your Tour
-                    </h2>
-                </section>
-            </div>
-            <div class='column is-2'>
-                <input name='tourPrice' class="input is-primary" type="number">
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Max Pax -->
-    <div class='container'>
-        <div class='columns is-variable is-5 is-vcentered'>
-            <div class='column is-one-quarter' style="text-align:right;">
-                <section class="section">
-                    <h1 class="title is-5">Tour Pax</h1>
-                    <h2 class="subtitle is-6">
-                        Maximum Tour Participants
-                    </h2>
-                </section>
-            </div>
-            <div class='column is-2'>
-                <input name='tourPax' class="input is-primary" type="number">
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Max Revisions -->
-    <div class='container'>
-        <div class='columns is-variable is-5 is-vcentered'>
-            <div class='column is-one-quarter' style="text-align:right;">
-                <section class="section">
-                    <h1 class="title is-5">Tour Revisions</h1>
-                    <h2 class="subtitle is-6">
-                        Maximum times a customer can revise the itinerary for free
-                    </h2>
-                </section>
-            </div>
-            <div class='column is-2'>
-                <input name='tourRevision' class="input is-primary" type="number">
-            </div>
-        </div>
-    </div>
-
-
 
 
     <!-- SUBMIT BUTTON -->
     <div class='container'>
-        <button class="button is-link is-right" type='submit'>Submit</button>
+        <div class='columns is-centered'>
+            <div class='column is-half'>
+                <button class="button is-link is-right is-fullwidth" type='submit'>Submit</button>
+            </div>
+        </div>
     </div>
 
     <!-- These are the final inputs (arrays to string) you will receive -->
@@ -287,6 +300,16 @@
 
 
 <script>
+    goBack = () => {
+        // If no history go to homepage
+        if (window.history.length === 1) {
+            window.location.href = '/';
+
+            return;
+        }
+        // Otherwise go back in history
+        window.history.back();
+    }
 
     // GLOBAL OBJECTS
 
@@ -453,7 +476,7 @@
         selectedTimeArray.forEach((timeRange) => {
             var elem = `<span class="tag is-primary is-medium" style="margin-left: 10px;">
                             ${timeRange} 
-                            <i class="fas fa-trash-alt" onclick='this.parentElement.remove();removeTimeRange("${timeRange}");updateTiming()' style="margin-left: 20px;"></i>
+                            <i class="fas fa-times is-clickable" onclick='this.parentElement.remove();removeTimeRange("${timeRange}");updateTiming()' style="margin-left: 20px;"></i>
                         </span>`
             $("#timeTags").append(elem)
         })
@@ -462,7 +485,7 @@
     addSpecificTimeTag = (time) => {
         var elem = `<span class="tag is-primary is-medium" style="margin-left: 10px;">
                         ${time} 
-                        <i class="fas fa-trash-alt" onclick='this.parentElement.remove();removeTimeRange("${time}");updateTiming()' style="margin-left: 20px;"></i>
+                        <i class="fas fa-times is-clickable" onclick='this.parentElement.remove();removeTimeRange("${time}");updateTiming()' style="margin-left: 20px;"></i>
                     </span>`
         $("#timeTags").append(elem)
     }
@@ -537,7 +560,7 @@
         selectedDayArray.forEach((day) => {
             var elem = `<span class="tag is-primary is-medium" style="margin-left: 10px;">
                             ${day} 
-                            <i class="fas fa-trash-alt" onclick='this.parentElement.remove();removeDay("${day}");updateDays()' style="margin-left: 20px;"></i>
+                            <i class="fas fa-times is-clickable" onclick='this.parentElement.remove();removeDay("${day}");updateDays()' style="margin-left: 20px;"></i>
                         </span>`
             $("#dayTags").append(elem)
         })
@@ -546,7 +569,7 @@
     addSpecificDayTag = (day) => {
         var elem = `<span class="tag is-primary is-medium" style="margin-left: 10px;">
                         ${day} 
-                        <i class="fas fa-trash-alt" onclick='this.parentElement.remove();removeDay("${day}");updateDays()' style="margin-left: 20px;"></i>
+                        <i class="fas fa-times is-clickable" onclick='this.parentElement.remove();removeDay("${day}");updateDays()' style="margin-left: 20px;"></i>
                     </span>`
         $("#dayTags").append(elem)
     }
@@ -572,7 +595,7 @@
         $("#itinerary-str").val("")
         var elem = `<li class="itinerary-item" contenteditable="true">
                         ${item}
-                        <i class="fas fa-trash-alt itinerary-item-icon" onclick="this.parentElement.remove()"></i>
+                        <i class="fas fa-times is-clickable itinerary-item-icon" onclick="this.parentElement.remove()"></i>
                     </li>`
         $("#itineraryItems").append(elem)
 
@@ -597,7 +620,7 @@
         $("#itinerary-str").val("")
         var elem = `<li class="itinerary-item" contenteditable="true">
                         ${item}
-                        <i class="fas fa-trash-alt itinerary-item-icon" onclick="this.parentElement.remove()"></i>
+                        <i class="fas fa-times is-clickable itinerary-item-icon" onclick="this.parentElement.remove()"></i>
                     </li>`
         $("#itineraryItems").append(elem)
 
@@ -655,7 +678,7 @@
         let locationTags = $("#locationTags")
         let elem = `<span class="tag is-primary is-medium tag-item" style="margin-left: 10px;">
                         ${selectedLocation}
-                        <i class="fas fa-trash-alt" onclick='this.parentElement.remove();removeLocation("${selectedLocation}")' style="margin-left: 20px;"></i>
+                        <i class="fas fa-times is-clickable" onclick='this.parentElement.remove();removeLocation("${selectedLocation}")' style="margin-left: 20px;"></i>
                     </span>`
         locationTags.append(elem)
     }
@@ -667,7 +690,7 @@
         let locationTags = $("#locationTags")
         let elem = `<span class="tag is-primary is-medium tag-item" style="margin-left: 10px;">
                         ${selectedLocation}
-                        <i class="fas fa-trash-alt" onclick='this.parentElement.remove();removeLocation("${selectedLocation}")' style="margin-left: 20px;"></i>
+                        <i class="fas fa-times is-clickable" onclick='this.parentElement.remove();removeLocation("${selectedLocation}")' style="margin-left: 20px;"></i>
                     </span>`
         locationTags.append(elem)
     }
