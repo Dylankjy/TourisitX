@@ -1,4 +1,4 @@
-const { Shop, User } = require('../models')
+const { Shop, User, Review } = require('../models')
 
 // Config file
 const config = require('../config/apikeys.json')
@@ -9,7 +9,7 @@ const STRIPE_SECRET_KEY = config.stripe.STRIPE_SECRET_KEY
 
 const stripe = require('stripe')(STRIPE_SECRET_KEY)
 
-const id = 'acct_1JIqrc4fL5hixuop'
+const id = 'acct_1JNZVT4e3RKFRugX'
 
 payout = async () => {
     // const accountId = 'acct_1JIpirQCkAaMeH0J'
@@ -17,6 +17,7 @@ payout = async () => {
         amount: 6000 * 100,
         currency: 'sgd',
         destination: id,
+        description: 'this is working',
     })
 
     console.log(transfer)
@@ -40,19 +41,39 @@ transactionHistory = async () => {
     // console.log(paymentIntents['data'][0]['charges']['data'][0]['receipt_url'])
 }
 
-test = async () => {
+viewTransfers = async () => {
+    accId = 'acct_1JNZVT4e3RKFRugX'
     const account = await stripe.accounts.retrieve(
-        'acct_1JIqrc4fL5hixuop',
+        'acct_1JNZVT4e3RKFRugX',
     )
     // const payouts = await stripe.payouts.list({})
     bankAccId = account['external_accounts']['data'][0]['id']
-    console.log(bankAccId)
-    const payouts = await stripe.payouts.list({
-        destination: bankAccId,
-    })
 
-    console.log(payouts)
-    // ba_1JIr1S4fL5hixuopkp0e86Ad
+    const transfers = await stripe.transfers.list({
+        destination: accId,
+    })
+    console.log(transfers)
 }
 
-test()
+test = async () => {
+    accId = 'acct_1JNZVT4e3RKFRugX'
+    const link = await stripe.accounts.createLoginLink(accId)
+    console.log(link)
+}
+
+t = async () => {
+    const itemId = 'eff68494-225d-4c87-a6af-de5a6fa572a6'
+
+    const tourReviews = await Review.findAll({
+        where: {
+            'tourId': itemId,
+            'type': 'TOUR',
+        },
+        include: [{ model: User, as: 'Reviewer' }],
+        raw: true,
+    })
+
+    console.log(tourReviews[0]['Reviewer.name'])
+}
+
+t()

@@ -539,7 +539,16 @@ router.post('/bookings/:id', async (req, res) => {
 })
 
 
-router.get('/payments', (req, res) => {
+router.get('/payments', async (req, res) => {
+    const accId = req.currentUser.stripe_account_id
+    const transfers = await stripe.transfers.list({
+        destination: accId,
+    })
+    // View all transfers to this account
+    const history = transfers['data']
+    // Get a stripe link to this account
+    const accLink = await stripe.accounts.createLoginLink(accId)
+
     const metadata = {
         meta: {
             title: 'Payments',
@@ -550,7 +559,8 @@ router.get('/payments', (req, res) => {
         },
         layout: 'tourguide',
         data: {
-            transactions: { exampleTransaction, exampleTransaction2 },
+            'history': history,
+            'accLink': accLink,
         },
     }
     return res.render('tourguide/dashboard/payments', metadata)
