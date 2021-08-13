@@ -34,12 +34,14 @@ listCharges = async () => {
 
 transactionHistory = async () => {
     const paymentIntents = await stripe.paymentIntents.list({
-        customer: 'cus_JwkMh0iAeKGWgj',
+        customer: 'cus_K1gUiDokBOeaJz',
     })
 
-    console.log(paymentIntents['data'][0]['charges']['data'])
+    console.log(paymentIntents['data'])
     // console.log(paymentIntents['data'][0]['charges']['data'][0]['receipt_url'])
 }
+
+transactionHistory()
 
 viewTransfers = async () => {
     accId = 'acct_1JNZVT4e3RKFRugX'
@@ -76,4 +78,4 @@ t = async () => {
     console.log(tourReviews[0]['Reviewer.name'])
 }
 
-t()
+// t()
