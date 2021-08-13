@@ -544,7 +544,7 @@ router.get('/payments', async (req, res) => {
             layout: 'tourguide',
             data: {
                 'history': [],
-                'accLink': "",
+                'accLink': '',
             },
         }
         return res.render('tourguide/dashboard/payments', metadata)
