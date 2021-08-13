@@ -1,0 +1,47 @@
+<h1 class="title">All Completed Tours</h1>
+<table class="table is-fullwidth">
+    <tr>
+        <th>Order Date</th>
+        <th>Tour Date</th>
+        <th>Tour</th>
+        <th>Customer</th>
+        <th>Status</th>
+    </tr>
+    {{#each data.bookList}}
+    <tr>
+        <td>{{dateParseISO this.orderDatetime }}</td>
+
+        <td>{{dateParseISO this.tourStart }}</td>
+
+        <td><a href="/tourguide/bookings/{{this.bookId}}">{{ this.[Shop.tourTitle] }}</a></td>
+
+        <td>{{ this.custId }}</td>
+
+        {{#if this.[Reviews.id]}}
+            {{#ifEquals this.processStep '5'}}
+            <td class="has-text-success-dark"><i class="fas fa-tick"></i>&nbsp;Tour completed</td>
+            {{/ifEquals}}
+        {{else}}
+            <td class="has-text-danger-dark"><i class="fas fa-exclamation-circle"></i>&nbsp;Leave a review</td>
+        {{/if}}
+
+    </tr>
+    {{/each}}
+
+</table>
+
+<section class="section is-small">
+            <div class="has-text-centered">
+                <span>
+                    {{#ifBigger meta.count 0}}
+                    {{#ifNotEquals meta.pageNo 1}}
+                    <a href="?page={{math meta.pageNo '-' 1}}"><i class="fas fa-arrow-alt-circle-left"></i></a>
+                    {{/ifNotEquals}}
+                    Page {{meta.pageNo}} / {{meta.lastPage}}
+                    {{#ifNotEquals meta.pageNo meta.lastPage}}
+                    <a href="?page={{math meta.pageNo '+' 1}}"><i class="fas fa-arrow-alt-circle-right"></i></a>
+                    {{/ifNotEquals}}
+                    {{/ifBigger}}
+                </span>
+            </div>
+        </section>
