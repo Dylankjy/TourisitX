@@ -73,13 +73,13 @@ router.get('/', async (req, res) => {
             include: [
                 {
                     model: Shop,
-                    attributes: ['tourTitle', 'tourImage']
+                    attributes: ['tourTitle', 'tourImage'],
                 },
                 {
                     model: Review,
                     required: false,
                     attributes: ['id'],
-                    where: { reviewerId: req.currentUser.id }
+                    where: { reviewerId: req.currentUser.id },
                 }],
             raw: true,
             limit: pageSize,
@@ -106,13 +106,13 @@ router.get('/', async (req, res) => {
             include: [
                 {
                     model: Shop,
-                    attributes: ['tourTitle']
+                    attributes: ['tourTitle'],
                 },
                 {
                     model: Review,
                     required: false,
                     where: sequelize.literal('Reviews.type != "CUST"'),
-                    attributes: ['id', 'reviewerId', 'type', 'reviewText']
+                    attributes: ['id', 'reviewerId', 'type', 'reviewText'],
                 }],
             raw: true,
         })
@@ -129,7 +129,7 @@ router.get('/', async (req, res) => {
             include:
             {
                 model: Shop,
-                attributes: ['tourTitle']
+                attributes: ['tourTitle'],
             },
             raw: true,
         })
