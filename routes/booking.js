@@ -27,7 +27,6 @@ const STRIPE_SECRET_KEY = config.stripe.STRIPE_SECRET_KEY
 
 const stripe = require('stripe')(STRIPE_SECRET_KEY)
 
-// Put all your routings below this line -----
 
 router.get('/', async (req, res) => {
     const sid = req.signedCookies.sid
@@ -116,7 +115,6 @@ router.get('/', async (req, res) => {
                 }],
             raw: true,
         })
-        console.log(reqAction)
 
         upcoming = await Booking.findAndCountAll({
             where: {
@@ -154,7 +152,6 @@ router.get('/', async (req, res) => {
 
 router.post('/:id/request-revision', async (req, res) => {
     const bookId = req.params.id
-    console.log(req.fields)
 
     const v = new Validator(req.fields)
     const requestResult = v
@@ -169,7 +166,6 @@ router.post('/:id/request-revision', async (req, res) => {
         requestResult,
     ])
     if (!emptyArray(validationErrors)) {
-        console.log('ooga valid error')
         res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
         res.redirect(`/bookings/${bookId}`)
     } else {
@@ -182,10 +178,7 @@ router.post('/:id/request-revision', async (req, res) => {
             raw: true,
         })
 
-        console.log(bookData)
-
         const newReq = bookData['custRequests'] + ';!;' + req.fields.requestField
-        console.log(newReq)
 
         tourPlan = await TourPlans.findOne({
             where: {
@@ -196,8 +189,6 @@ router.post('/:id/request-revision', async (req, res) => {
             ],
             raw: true,
         })
-
-        console.log(tourPlan)
 
         Booking.update({
             processStep: '1',
@@ -219,7 +210,6 @@ router.post('/:id/request-revision', async (req, res) => {
 
 router.post('/:id/accept-plan', async (req, res) => {
     const bookId = req.params.id
-    console.log(req.fields)
 
     bookData = await Booking.findOne({
         where: {
@@ -227,8 +217,6 @@ router.post('/:id/accept-plan', async (req, res) => {
         },
         raw: true,
     })
-
-    console.log(bookData)
 
     tourPlan = await TourPlans.findOne({
         where: {
@@ -239,8 +227,6 @@ router.post('/:id/accept-plan', async (req, res) => {
         ],
         raw: true,
     })
-
-    console.log(tourPlan)
 
     Booking.update({
         processStep: '3',
@@ -292,7 +278,7 @@ router.post('/:id/complete-tour', async (req, res) => {
     let totalPayoutAmt = (parseFloat(bookData.bookBaseprice) + parseFloat(bookData.bookCharges.split(',').reduce((a, b) => a + b))) * 0.85
     // Remember to x100 to convert dollar to cents
     totalPayoutAmt = totalPayoutAmt.toFixed(2) * 100
-    totalPayoutAmt = parseInt(totalPayoutAmt)
+    totalPayoutAmt = parseFloat(totalPayoutAmt)
 
     const transfer = await stripe.transfers.create({
         amount: totalPayoutAmt,
@@ -300,7 +286,6 @@ router.post('/:id/complete-tour', async (req, res) => {
         destination: stripeAcc,
         description: tourName,
     })
-    console.log(transfer)
 
     Booking.update({
         processStep: '5',
@@ -317,18 +302,14 @@ router.post('/:id/complete-tour', async (req, res) => {
 router.post('/:id/review-tour', async (req, res) => {
     const bookId = req.params.id
     console.table(req.fields)
-    validationErrors = []
     const v = new Validator(req.fields)
-    if (req.fields.rater > 0) {
-        const ratingResult = v
-            .Initialize({
-                name: 'rater',
-                errorMessage: 'Please provide a rating from 1 to 5.',
-            })
-            .exists()
-            .getResult()
-        validationErrors.push(ratingResult)
-    }
+    const ratingResult = v
+        .Initialize({
+            name: 'rater',
+            errorMessage: 'Please provide a rating from 1 to 5.',
+        })
+        .exists()
+        .getResult()
 
     const reviewTextResult = v
         .Initialize({
@@ -337,11 +318,13 @@ router.post('/:id/review-tour', async (req, res) => {
         })
         .exists()
         .getResult()
-    validationErrors.push(reviewTextResult)
 
-    validationErrors = removeNull([validationErrors])
+    const validationErrors = removeNull([
+        ratingResult,
+        reviewTextResult,
+    ])
+
     if (!emptyArray(validationErrors)) {
-        console.log('ooga valid error')
         res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
         res.redirect(`/bookings/${bookId}`)
     } else {
@@ -355,16 +338,12 @@ router.post('/:id/review-tour', async (req, res) => {
             raw: true,
         })
 
-        console.log(bookData)
-
         let tourType = ''
         let subjectId = ''
         if (bookData['custId'] == req.currentUser.id) {
-            console.log('tour rev')
             tourType = 'TOUR'
             subjectId = bookData['tgId']
         } else if (bookData['tgId'] == req.currentUser.id) {
-            console.log('cust rev')
             tourType = 'CUST'
             subjectId = bookData['custId']
         }
@@ -395,7 +374,6 @@ router.post('/:id/review-tour', async (req, res) => {
 })
 
 router.get('/:id', async (req, res) => {
-    // console.log(req.currentUser.name)
     const bookID = req.params.id
 
     const bookData = await Booking.findOne({
@@ -454,11 +432,8 @@ router.get('/:id', async (req, res) => {
         },
         raw: true,
     })
-    console.log(reviews)
 
     getAllTypesOfMessagesByRoomID(bookData.chatId, (chatroomObject) => {
-        // console.log(chatroomObject)
-
         const listOfParticipantNames = []
 
         // This is a hacky way to get the names of the participants in a chat room.
@@ -466,7 +441,6 @@ router.get('/:id', async (req, res) => {
             const i = loop.iteration()
 
             genkan.getUserByID(chatroomObject.users[i], (userObject) => {
-                // console.log(userObject)
                 listOfParticipantNames.push(userObject.name)
                 loop.next()
             })
@@ -475,7 +449,7 @@ router.get('/:id', async (req, res) => {
                 // Calculating price stuff
                 const chargesArr = bookData['bookCharges'].split(',')
                 const revisionFee = chargesArr[0]
-                let priceToPay = parseInt(bookData['bookBaseprice'])
+                let priceToPay = parseFloat(bookData['bookBaseprice'])
                 let extraRevFees = 0
 
                 // Any extra revisions
