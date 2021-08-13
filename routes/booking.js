@@ -278,7 +278,7 @@ router.post('/:id/complete-tour', async (req, res) => {
     let totalPayoutAmt = (parseFloat(bookData.bookBaseprice) + parseFloat(bookData.bookCharges.split(',').reduce((a, b) => a + b))) * 0.85
     // Remember to x100 to convert dollar to cents
     totalPayoutAmt = totalPayoutAmt.toFixed(2) * 100
-    totalPayoutAmt = parseInt(totalPayoutAmt)
+    totalPayoutAmt = parseFloat(totalPayoutAmt)
 
     const transfer = await stripe.transfers.create({
         amount: totalPayoutAmt,
@@ -449,7 +449,7 @@ router.get('/:id', async (req, res) => {
                 // Calculating price stuff
                 const chargesArr = bookData['bookCharges'].split(',')
                 const revisionFee = chargesArr[0]
-                let priceToPay = parseInt(bookData['bookBaseprice'])
+                let priceToPay = parseFloat(bookData['bookBaseprice'])
                 let extraRevFees = 0
 
                 // Any extra revisions
