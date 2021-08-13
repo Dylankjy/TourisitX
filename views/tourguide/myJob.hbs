@@ -249,6 +249,7 @@
                                     </div>
                                     </div>
                                     </div>
+                                    </div>
                                     {{/ifEquals}}
 
 
@@ -326,6 +327,27 @@
                             <div class="container">
                                 <p class="has-text-centered is-size-4 has-text-weight-bold">Customize Tour Plan</p>
                                 <br>
+                                {{#if (isDefined validationErrors)}}
+                                {{#if (haveErr validationErrors)}}
+                                <div class='section pt-0'>
+                                    <div class='columns'>
+                                        <div class='column is-8 is-offset-2'>
+                                            <article class="message is-danger">
+                                                <div class="message-header">
+                                                    <p>Errors</p>
+                                                    <button class="delete" onclick="this.parentElement.parentElement.remove()"></button>
+                                                </div>
+                                                <div class='message-body'>
+                                                    {{#each validationErrors}}
+                                                    <blockquote>{{this.msg}}</blockquote>
+                                                    {{/each}}
+                                                </div>
+                                            </article>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{/if}}
+                                {{/if}}
                                 <!--form-->
                                 {{!-- <div class="divider"><p class="has-text-weight-semibold">General</p></div> --}}
                                 <form id='custom_tour' class="form-horizontal" enctype="multipart/form-data" method="POST" action="/tourguide/bookings/{{data.book.bookId}}">
@@ -424,7 +446,7 @@
 
                         <div class="field is-grouped">
                             <div class="control">
-                                <button type="reset" class="button is-link is-light">Clear</button> 
+                                <button type="reset" class="button is-link is-light">Reset</button> 
                             </div>
                             <div class="control">
                                 <button type="submit" class="button is-link">Submit</button> 

@@ -274,6 +274,7 @@
                                     </div>
                                     </div>
                                     </div>
+                                    </div>
                                     {{/ifEquals}}
 
                                 {{/each}}
@@ -288,7 +289,7 @@
                                     <div class="timeline-marker is-icon has-background-grey has-text-white">
                                     <i class="fas fa-ellipsis-h"></i>
                                     </div>
-                                    <div class="timeline-content pt-3">
+                                    <div class="timeline-content pt-3" onclick="openTab(event,'Billing')">
                                     <p class="button is-link is-inverted has-text-weight-semibold is-italic">
                                         <i class="fas fa-chevron-right mr-2"></i> Pay customisation fee.</p>
                                     </div>
@@ -296,17 +297,15 @@
                                 {{/ifEquals}}
 
                                 {{#ifEquals data.book.processStep '3'}}
-                                <a href="/listings/{{data.book.bookId}}/stripe-create-checkout">
                                 <div class="timeline-item">
                                     <div class="timeline-marker is-icon has-background-grey has-text-white">
                                     <i class="fas fa-ellipsis-h"></i>
                                     </div>
-                                    <div class="timeline-content pt-3">
+                                    <div class="timeline-content pt-3" onclick="openTab(event,'Billing')">
                                     <p class="button is-link is-inverted has-text-weight-semibold is-italic">
                                         <i class="fas fa-chevron-right mr-2"></i> Proceed to Payment.</p>
                                     </div>
                                 </div>
-                                </a>
                                 {{/ifEquals}}
 
                                 {{#ifEquals data.book.processStep '4'}}
@@ -336,28 +335,6 @@
                                 </div>
                                 {{/unless}}
                                 {{/ifBigger}}
-
-                                {{!-- <div class="timeline-item">
-                                    <div class="timeline-marker is-icon has-background-success has-text-white">
-                                    <i class="far fa-thumbs-up"></i>
-                                    </div>
-                                    <div class="timeline-content">
-                                    <p class="has-text-weight-semibold"><span class="has-text-primary">Tour Guide</span> 
-                                        left a review for you.
-                                    <div class="has-background-white-ter ml-3 mt-3 p-4">
-                                        <div class="container">
-                                        <p>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="far fa-star"></i>
-                                        </p>
-                                        <p>Wonderful!</p>
-                                        </div>
-                                    </div>
-                                    </div>
-                                </div> --}}
 
                                 </span>
 

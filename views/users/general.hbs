@@ -123,12 +123,4 @@
             $('#mode').val('false')
         }
     });
-
-    document.querySelector('#pfp-input input[type=file]');
-    fileInput.onchange = () => {
-        if (fileInput.files.length > 0) {
-            const fileName = document.querySelector('#pfp-input .file-name');
-            fileName.textContent = fileInput.files[0].name;
-        }
-    }
 </script>

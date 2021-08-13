@@ -36,6 +36,9 @@ router.get('/', async (req, res) => {
     let offset = 0
     if (pageNo) {
         pageNo = parseInt(pageNo)
+        if (pageNo <= 0) {
+            pageNo = 1
+        }
         offset = pageSize * (pageNo - 1)
     } else {
         pageNo = 1
@@ -59,8 +62,7 @@ router.get('/', async (req, res) => {
         } else {
             res.redirect(`/bookings`)
         }
-
-        bookings = await Booking.findAndCountAll({
+        const bookings = await Booking.findAndCountAll({
             where: {
                 custId: req.currentUser.id,
                 approved: 1,
@@ -79,32 +81,34 @@ router.get('/', async (req, res) => {
             limit: pageSize,
             offset: offset,
         })
+
         if (bookings) {
-            console.log(bookings)
             bookCount = bookings.count
             bookList = bookings.rows
             lastPage = Math.ceil(bookCount / pageSize)
         }
     } else {
         // Overview
-        const reviewQuery = 'Reviews.reviewerId != "'+ req.currentUser.id +'"'
-        console.log(reviewQuery)
+
         reqAction = await Booking.findAndCountAll({
             where: {
                 custId: req.currentUser.id,
                 approved: 1,
                 processStep: ['2', '3', '4', '5'],
             },
-            where: sequelize.literal('Reviews.reviewerId != Booking.custId OR Reviews.id IS NULL'),
+            // where: sequelize.literal('Reviews.reviewerId != Booking.custId OR Reviews.id IS NULL'),
             attributes: ['bookId', 'processStep'],
             order: [['updatedAt', 'ASC']],
             include: [
                 { model: Shop,
                     attributes: ['tourTitle'] },
                 { model: Review,
-                    attributes: [] }],
+                    required: false,
+                    where: sequelize.literal('Reviews.type != "CUST"'),
+                    attributes: ['id', 'reviewerId', 'type', 'reviewText'] }],
             raw: true,
         })
+        console.log(reqAction)
 
         upcoming = await Booking.findAndCountAll({
             where: {
@@ -307,7 +311,7 @@ router.post('/:id/review-tour', async (req, res) => {
     const v = new Validator(req.fields)
     const ratingResult = v
         .Initialize({
-            name: 'rating',
+            name: 'rater',
             errorMessage: 'Please provide a rating from 1 to 5.',
         })
         .exists()
@@ -364,11 +368,11 @@ router.post('/:id/review-tour', async (req, res) => {
                 tourId: bookData['listingId'],
                 bookId: bookId,
                 reviewText: req.fields.reviewText,
-                rating: req.fields.rating,
+                rating: req.fields.rater,
 
             },
         ).then((data) => {
-            addMessage(bookData['chatId'], 'SYSTEM', tourType, 'REVIEW', () => {
+            addMessage(bookData['chatId'], req.currentUser.id, tourType, 'REVIEW', () => {
                 if (req.currentUser.id == bookData['custId']) {
                     res.redirect(`/bookings/${bookId}`)
                 } else if (req.currentUser.id == bookData['tgId']) {
@@ -391,6 +395,23 @@ router.get('/:id', async (req, res) => {
         raw: true,
     })
     console.log(bookData)
+
+    if (bookData == undefined) {
+        const metadata = {
+            meta: {
+                title: '404',
+            },
+            data: {
+                currentUser: req.currentUser,
+            },
+        }
+        res.status = 404
+        return res.render('404', metadata)
+    }
+
+    if (bookData.custId != req.currentUser.id) {
+        res.redirect(`/bookings`)
+    }
     // const sid = req.signedCookies.sid
     // const userId = await genkan.getUserBySessionAsync(sid)
 

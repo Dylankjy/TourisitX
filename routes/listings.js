@@ -504,7 +504,7 @@ router.get('/edit/:savedId', loginRequired, async (req, res) => {
                     },
                 }
 
-                return res.render('tourguide/editListing.hbs', metadata)
+                return res.render('tourguide/editListing-new.hbs', metadata)
             } else {
                 // Will return "No perms" screen
                 return requirePermission(res)
@@ -1240,7 +1240,16 @@ router.get('/:id/purchase', loginRequired, async (req, res) => {
             return res.render('bookNow.hbs', metadata)
         })
         .catch((err) => {
-            throw err
+            const metadata = {
+                meta: {
+                    title: '404',
+                },
+                data: {
+                    currentUser: req.currentUser,
+                },
+            }
+            res.status = 404
+            return res.render('404', metadata)
         })
 })
 
