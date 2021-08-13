@@ -25,14 +25,6 @@
             <form id='review_form' method="POST" action="/bookings/{{data.book.bookId}}/review-tour">
                 <fieldset>
                     <div class="field has-text-centered">
-                        {{!-- for now --}}
-                        {{!-- <select name="rating">
-                            <option value="1">1 star</option>
-                            <option value="2">2 star</option>
-                            <option value="3">3 star</option>
-                            <option value="4">4 star</option>
-                            <option value="5">5 star</option>
-                        </select> --}}
                         <div class="rating">
                             <i class="rating_star far fa-star fa-3x" id="star1"></i>
                             <i class="rating_star far fa-star fa-3x" id="star2"></i>
@@ -55,8 +47,6 @@
                         <div class="control">
                             <button class='button is-success is-medium is-fullwidth' id="review-submit"
                                 name="review-submit" type='submit'>Submit</button>
-                            {{!-- <input id="review-submit" name="review-submit" type="submit"
-                                class="button is-success is-medium is-fullwidth"> --}}
                         </div>
                     </div>
                 </fieldset>

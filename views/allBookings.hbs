@@ -7,16 +7,16 @@
         <p class="subtitle has-text-grey-light">All of your bookings past and present.</p>
         <div class="tabs is-toggle">
             <ul>
-                <li {{#unless meta.type}}class="is-active"{{/unless}}>
+                <li {{#unless meta.type}}class="is-active" {{/unless}}>
                     <a href="/bookings"><span class="has-text-white">Overview</span></a>
                 </li>
-                <li {{#ifEquals meta.type 'planning'}}class="is-active"{{/ifEquals}}>
+                <li {{#ifEquals meta.type 'planning' }}class="is-active" {{/ifEquals}}>
                     <a href="?type=planning"><span class="has-text-white">Planning</span></a>
                 </li>
-                <li {{#ifEquals meta.type 'confirmed'}}class="is-active"{{/ifEquals}}>
+                <li {{#ifEquals meta.type 'confirmed' }}class="is-active" {{/ifEquals}}>
                     <a href="?type=confirmed"><span class="has-text-white">Confirmed</span></a>
                 </li>
-                <li {{#ifEquals meta.type 'completed'}}class="is-active"{{/ifEquals}}>
+                <li {{#ifEquals meta.type 'completed' }}class="is-active" {{/ifEquals}}>
                     <a href="?type=completed"><span class="has-text-white">Completed</span></a>
                 </li>
             </ul>
@@ -24,102 +24,85 @@
     </div>
 </section>
 
-{{#unless data.bookList}}
-{{!-- {{#unless data.reqAction.rows}} --}}
-{{#unless data.upcoming.rows}}
-    <section class="section is-medium">
-            <div class="container has-text-centered">
-                <p class="title has-text-grey-light has-text-weight-bold" style="font-size: 4.5rem;">(┯﹏┯)</p>
-                <p class="subtitle is-4 has-text-grey">It's all empty!<br><small>Start a tour with Tourisit today.</small></p>
-                <a class="button is-dark" href="/marketplace"><i class="fas fa-store"></i>&ensp;View the marketplace</a>
-            </div>
-        </section>  
-{{/unless}}
-{{!-- {{/unless}} --}}
-{{/unless}}
-
 {{#unless meta.type}}
 <div class="container mt-5">
-        <div class="box">
-                <div class="columns">
-                    <div class="column">
-                        <p class="subtitle has-text-weight-semibold">Upcoming Tours</p>
-                        {{#if data.upcoming.rows}}
-                        <table class='table is-fullwidth'>
-                            <tr>
-                                <th>Date</th>
-                                <th>Tour</th>
-                            </tr>
-                            {{#each data.upcoming.rows}}
-                                <tr>
-                                    {{!-- formatting needed --}}
-                                    <td>{{dateParseISO this.tourStart}}</td>
-                                    {{!-- <td><a href="/{{this.bookId}}">{{#with (lookup ../listings @index)}}{{tourTitle}}{{/with}}</a>  --}}
-                                    <td><a href="/bookings/{{this.bookId}}">{{this.[Shop.tourTitle]}}</a></td>
-                                </tr>
-                            {{/each}}
-                        </table>
-                        {{else}}
-                        <p>You have no upcoming tours.</p>
-                        {{/if}}
-                    </div>
-
-                    
-
-                    <div class="divider is-vertical is-right"></div>
-                    <div class="column">
-                        <p class="subtitle has-text-weight-semibold">Required Action</p>
-                        {{#if data.reqAction.rows}}
-                        <table class='table is-fullwidth'>
-                            {{#each data.reqAction.rows}}
-                            <tr>
-
-                            {{#ifEquals this.processStep '2'}}
-                            <th>{{this.[Shop.tourTitle]}}</th>
-                            <td><a href="/bookings/{{this.bookId}}">
-                                <span class="is-link mr-2">Review Tour Plan&nbsp;</span><i class="fas fa-arrow-right"></i>
-                                    </a></td>
-                            {{/ifEquals}}
-
-                            {{#ifEquals this.processStep '3'}}
-                            <th>{{this.[Shop.tourTitle]}}</th>
-                            <td><a href="/bookings/{{this.bookId}}">
-                                <span class="is-link mr-2">Make Payment&nbsp;</span><i class="fas fa-arrow-right"></i>
-                                    </a></td>
-                            {{/ifEquals}}
-
-                            {{#ifEquals this.processStep '4'}}
-                                {{#ifAfterToday this.tourStart}}
-                                <th>{{this.[Shop.tourTitle]}}</th>
-                            <td><a href="/bookings/{{this.bookId}}">
-                                <span class="is-link mr-2">Declare that Tour is complete&nbsp;</span><i class="fas fa-arrow-right"></i>
-                                    </a></td>
-                                {{/ifAfterToday}}
-                            {{/ifEquals}}
-
-                             {{#ifEquals this.processStep '5'}}
-                             {{#unless this.[Reviews.id]}}
-                             <th>{{this.[Shop.tourTitle]}}{{this.[Reviews.id]}}</th>
-                            <td><a href="/bookings/{{this.bookId}}">
-                                <span class="is-link mr-2">Leave a review&nbsp;</span><i class="fas fa-arrow-right"></i>
-                                    </a></td>
-                            {{/unless}}
-                            {{/ifEquals}}
-                            </tr>
-                            {{/each}}
-                        </table>
-                        {{else}}
-                        <p>You are caught up to speed!</p>
-                        {{/if}}
-                    </div>
-
-                </div>
+    <div class="box">
+        <div class="columns">
+            <div class="column">
+                <p class="subtitle has-text-weight-semibold">Upcoming Tours</p>
+                {{#if data.upcoming.rows}}
+                <table class='table is-fullwidth'>
+                    <tr>
+                        <th>Date</th>
+                        <th>Tour</th>
+                    </tr>
+                    {{#each data.upcoming.rows}}
+                    <tr>
+                        <td>{{dateParseISO this.tourStart}}</td>
+                        <td><a href="/bookings/{{this.bookId}}">{{this.[Shop.tourTitle]}}</a></td>
+                    </tr>
+                    {{/each}}
+                </table>
+                {{else}}
+                <p>You have no upcoming tours.</p>
+                {{/if}}
             </div>
+
+            <div class="divider is-vertical is-right"></div>
+            <div class="column">
+                <p class="subtitle has-text-weight-semibold">Required Action</p>
+                {{#if data.reqAction.rows}}
+                <table class='table is-fullwidth'>
+                    {{#each data.reqAction.rows}}
+                    <tr>
+
+                        {{#ifEquals this.processStep '2'}}
+                        <th>{{this.[Shop.tourTitle]}}</th>
+                        <td><a href="/bookings/{{this.bookId}}">
+                                <span class="is-link mr-2">Review Tour Plan&nbsp;</span><i
+                                    class="fas fa-arrow-right"></i>
+                            </a></td>
+                        {{/ifEquals}}
+
+                        {{#ifEquals this.processStep '3'}}
+                        <th>{{this.[Shop.tourTitle]}}</th>
+                        <td><a href="/bookings/{{this.bookId}}">
+                                <span class="is-link mr-2">Make Payment&nbsp;</span><i class="fas fa-arrow-right"></i>
+                            </a></td>
+                        {{/ifEquals}}
+
+                        {{#ifEquals this.processStep '4'}}
+                        {{#ifAfterToday this.tourStart}}
+                        <th>{{this.[Shop.tourTitle]}}</th>
+                        <td><a href="/bookings/{{this.bookId}}">
+                                <span class="is-link mr-2">Declare that Tour is complete&nbsp;</span><i
+                                    class="fas fa-arrow-right"></i>
+                            </a></td>
+                        {{/ifAfterToday}}
+                        {{/ifEquals}}
+
+                        {{#ifEquals this.processStep '5'}}
+                        {{#unless this.[Reviews.id]}}
+                        <th>{{this.[Shop.tourTitle]}}{{this.[Reviews.id]}}</th>
+                        <td><a href="/bookings/{{this.bookId}}">
+                                <span class="is-link mr-2">Leave a review&nbsp;</span><i class="fas fa-arrow-right"></i>
+                            </a></td>
+                        {{/unless}}
+                        {{/ifEquals}}
+                    </tr>
+                    {{/each}}
+                </table>
+                {{else}}
+                <p>You are caught up to speed!</p>
+                {{/if}}
+            </div>
+
         </div>
-{{/unless}}
-
+    </div>
+</div>
+<br>
+{{else}}
 {{#if data.bookList}}
-
 
 <section class="section">
     <div class="container">
@@ -131,7 +114,6 @@
                 <div class="columns">
                     <div class="column is-one-fifth m-0"
                         style="background-image: url('/static/listings/{{this.[Shop.tourImage]}}'); background-size: cover; background-position: center center;">
-                        {{!-- style="background-image: url('data:image/jpeg;base64, tourimage;" --}}
                     </div>
                     <div class="column is-three-fifths m-0">
                         <p class="has-text-weight-bold is-size-4">{{this.[Shop.tourTitle]}}</p>
@@ -170,29 +152,31 @@
         <!-- end: card -->
         {{/each}}
 
-
         <section class="section is-small">
             <div class="has-text-centered">
                 <span>
                     {{#ifNotEquals meta.pageNo 1}}
-                    <a href="?type={{meta.type}}&page={{math meta.pageNo '-' 1}}"><i class="fas fa-arrow-alt-circle-left"></i></a>
+                    <a href="?type={{meta.type}}&page={{math meta.pageNo '-' 1}}"><i
+                            class="fas fa-arrow-alt-circle-left"></i></a>
                     {{/ifNotEquals}}
                     Page {{meta.pageNo}} / {{meta.lastPage}}
                     {{#ifNotEquals meta.pageNo meta.lastPage}}
-                    <a href="?type={{meta.type}}&page={{math meta.pageNo '+' 1}}"><i class="fas fa-arrow-alt-circle-right"></i></a>
+                    <a href="?type={{meta.type}}&page={{math meta.pageNo '+' 1}}"><i
+                            class="fas fa-arrow-alt-circle-right"></i></a>
                     {{/ifNotEquals}}
                 </span>
             </div>
         </section>
 
         {{else}}
-        {{!-- <section class="section is-medium">
+        <section class="section is-medium">
             <div class="container has-text-centered">
                 <p class="title has-text-grey-light has-text-weight-bold" style="font-size: 4.5rem;">(┯﹏┯)</p>
-                <p class="subtitle is-4 has-text-grey">It's all empty!<br><small>Start a tour with Tourisit today.</small></p>
+                <p class="subtitle is-4 has-text-grey">It's all empty!<br><small>Start a tour with Tourisit
+                        today.</small></p>
                 <a class="button is-dark" href="/marketplace"><i class="fas fa-store"></i>&ensp;View the marketplace</a>
             </div>
-        </section> --}}
+        </section>
         {{/if}}
-
+        {{/unless}}
 </section>

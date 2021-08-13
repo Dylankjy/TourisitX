@@ -171,7 +171,6 @@ router.get('/bookings', async (req, res) => {
         limit: pageSize,
         offset: offset,
     })
-    console.log(bookings)
     let bookCount = 0
     let bookList
     let lastPage = 1
@@ -180,7 +179,7 @@ router.get('/bookings', async (req, res) => {
         bookList = bookings.rows
         lastPage = Math.ceil(bookCount / pageSize)
     }
-    console.log('pageno ', pageNo, ' and lastpage ', lastPage, ' and offset ', offset)
+
     const metadata = {
         meta: {
             title: 'All Active Bookings',
@@ -237,7 +236,7 @@ router.get('/bookings/completed', async (req, res) => {
         limit: pageSize,
         offset: offset,
     })
-    console.log(bookings)
+
     let bookCount = 0
     let bookList
     let lastPage = 1
@@ -267,7 +266,6 @@ router.get('/bookings/completed', async (req, res) => {
 })
 
 router.get('/bookings/:id', async (req, res) => {
-    console.log('hi.im here')
     const bookID = req.params.id
 
     bookData = await Booking.findOne({
@@ -306,7 +304,6 @@ router.get('/bookings/:id', async (req, res) => {
             ['createdAt', 'ASC'],
         ],
     })
-    console.log(tourPlanData)
 
     const reviews = {
         CUST: null,
@@ -326,7 +323,6 @@ router.get('/bookings/:id', async (req, res) => {
         },
         raw: true,
     })
-    console.log(reviews)
 
     getAllTypesOfMessagesByRoomID(bookData.chatId, (chatroomObject) => {
         const listOfParticipantNames = []
@@ -341,7 +337,6 @@ router.get('/bookings/:id', async (req, res) => {
             })
         }, () => {
             genkan.getUserByID(bookData['custId'], (custData) => {
-                console.log(custData)
                 // Calculating price stuff
                 const chargesArr = bookData['bookCharges'].split(',')
                 const revisionFee = chargesArr[0]
@@ -454,8 +449,6 @@ router.post('/bookings/:id', async (req, res) => {
         itineraryResult,
     ])
 
-    console.log('tourDateResult is '+ tourDateResult)
-    console.log('validationErrors is '+ validationErrors)
     if (!emptyArray(validationErrors)) {
         res.cookie('validationErrors', validationErrors, { maxAge: 5000 })
         res.redirect(`/tourguide/bookings/${bookId}`)
@@ -463,7 +456,6 @@ router.post('/bookings/:id', async (req, res) => {
         res.clearCookie('validationErrors')
         res.clearCookie('storedValues')
 
-        console.log(req.fields)
         // process dates
         const tourDate = req.fields.tourDate
         const tourDateArr = tourDate.split('-')
@@ -482,9 +474,6 @@ router.post('/bookings/:id', async (req, res) => {
         }
         const tourStart = formatDateTime(req.fields.startTime)
         const tourEnd = formatDateTime(req.fields.endTime)
-        // process itinerary
-        // calculate tour duration
-        // process index
 
         const bookData = await Booking.findOne({
             where: {
