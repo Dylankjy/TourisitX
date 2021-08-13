@@ -89,6 +89,9 @@ router.get('/manage/listings', async (req, res) => {
                 nav: {
                     sidebarActive: 'listings',
                 },
+                data: {
+                    currentUser: req.currentUser,
+                },
                 layout: 'tourguide',
                 listing: itemsArr,
             }
@@ -129,6 +132,9 @@ router.get('/manage/listings/archived', async (req, res) => {
                 nav: {
                     sidebarActive: 'listings',
                     sidebarSubActive: 'listingsArchived',
+                },
+                data: {
+                    currentUser: req.currentUser,
                 },
                 layout: 'tourguide',
                 listing: itemsArr,
@@ -550,6 +556,7 @@ router.get('/payments', async (req, res) => {
             data: {
                 'history': history,
                 'accLink': accLink,
+                'currentUser': req.currentUser,
             },
         }
         return res.render('tourguide/dashboard/payments', metadata)
@@ -565,6 +572,7 @@ router.get('/payments', async (req, res) => {
             },
             layout: 'tourguide',
             data: {
+                'currentUser': req.currentUser,
                 'history': [],
                 'accLink': '',
             },
