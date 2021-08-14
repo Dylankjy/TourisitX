@@ -99,3 +99,10 @@
         transform: scale(1)
     }
 }
+
+@media only screen and (max-width: 768px) {
+    .chat-sidebar {
+        height: 20vh;
+        overflow-y: auto;
+    }
+}
