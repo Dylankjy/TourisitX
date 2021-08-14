@@ -25,8 +25,8 @@
 </section>
 
 {{#unless meta.type}}
-<div class="container mt-5">
-    <div class="box">
+<div class="section">
+    <div class="container mt-5">
         <div class="columns">
             <div class="column">
                 <p class="subtitle has-text-weight-semibold">Upcoming Tours</p>
@@ -89,12 +89,11 @@
                         {{/unless}}
                         {{/ifEquals}}
                     </tr>
-                {{else}}
-                <p>You are caught up to speed!</p>
-                {{/each}}
+                    {{else}}
+                    <p>You are caught up to speed!</p>
+                    {{/each}}
                 </table>
             </div>
-
         </div>
     </div>
 </div>
