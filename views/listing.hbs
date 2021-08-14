@@ -118,7 +118,11 @@
                         <button onclick="$('#sendMessageModal').fadeOut('fast')" class="modal-close is-large"
                         aria-label="close"></button>
                     </div>
+                    {{#ifEquals data.currentUser.id undefined}}
+                    <a class="button is-info" href="/id/login?required=1"><i class="fas fa-comment-dots"></i>&ensp;Start chat</a>
+                    {{else}}
                     <button class="button is-info" onclick="$('#sendMessageModal').fadeIn('fast')"><i class="fas fa-comment-dots"></i>&ensp;Start chat</button>
+                    {{/ifEquals}}
                 </div>
                 <hr>
                 <div class="block">
