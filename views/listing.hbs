@@ -118,7 +118,11 @@
                         <button onclick="$('#sendMessageModal').fadeOut('fast')" class="modal-close is-large"
                         aria-label="close"></button>
                     </div>
+                    {{#ifEquals data.currentUser.id undefined}}
+                    <a class="button is-info" href="/id/login?required=1"><i class="fas fa-comment-dots"></i>&ensp;Start chat</a>
+                    {{else}}
                     <button class="button is-info" onclick="$('#sendMessageModal').fadeIn('fast')"><i class="fas fa-comment-dots"></i>&ensp;Start chat</button>
+                    {{/ifEquals}}
                 </div>
                 <hr>
                 <div class="block">
@@ -240,6 +244,17 @@
                         </a>
 
                         {{else}}
+
+                        {{#ifEquals data.currentUser.id undefined}}
+                        <a class='navbar-item button is-dark' href="/id/login">
+                            <span class='icon'>
+                                <i class="fas fa-sign-in-alt"></i>
+                            </span>
+                            <span>
+                                Login to book
+                            </span>
+                        </a>
+                        {{else}}
                         <a class='navbar-item button is-success' href="/listing/{{tourData.id}}/purchase">
                             <span class='icon'>
                                 <i class="fas fa-shopping-cart"></i>
@@ -248,6 +263,7 @@
                                 Book now
                             </span>
                         </a>
+                        {{/ifEquals}}
 
                         {{#if (iteminWishList tourData.id wishlistArr )}}
                         <a class='button is-danger' href="/listing/{{tourData.id}}/unfavourite">
