@@ -33,6 +33,7 @@
 {{/if}}
 
 <div class='container'>
+	<h2 class='title'>Account Information</h2>
 	<!-- Update account settings -->
 	<form class='form-horizontal formfield' enctype='multipart/form-data' method='POST' id='editSettingForm'>
 		<!-- Account Mode -->
@@ -46,7 +47,7 @@
 			{{else}}
 				<label class='has-text-weight-medium has-text-grey-dark' for='account_mode'>Tour Guide Mode:</label>
 				&nbsp;
-				<input class='switch is-rounded' type='checkbox' name='account_modes' id='account_modes' >
+				<input class='switch' type='checkbox' name='account_modes' id='account_modes' >
 				<!-- Empty label -->
 				<label class='has-text-weight-medium has-text-grey-dark' for='account_modes'></label>
 			{{/if}}
@@ -57,7 +58,7 @@
 		<div class='field'>
 			<label class='label has-text-weight-medium has-text-grey-dark' for='uname'>Name:</label>
 			<div class='control'>
-				<input class='input' type='text' name='uname' value='{{user.name}}' />
+				<input class='input' type='text' name='uname' value='{{user.name}}' style="width:50%;">
 			</div>
 		</div>
 
@@ -65,7 +66,7 @@
 		<div class='field'>
 			<label class='label has-text-weight-medium has-text-grey-dark' for='user_email'>Email:</label>
 			<div class='control'>
-				<input class='input' type='text' name='user_email' value='{{user.email}}' />
+				<input class='input' type='text' name='user_email' value='{{user.email}}'  style="width:50%;">
 			</div>
 		</div>
 
@@ -73,7 +74,7 @@
 		<div class='field'>
 			<label class='label has-text-weight-medium has-text-grey-dark' for='phone_number'>Phone Number:</label>
 			<div class='control'>
-				<input class='input' type='text' name='phone_number' value='{{user.phone_number}}' />
+				<input class='input' type='text' name='phone_number' value='{{user.phone_number}}' style="width:50%;">
 			</div>
 		</div>
 
@@ -81,7 +82,7 @@
 		<div class='field'>
 			<label class='label has-text-weight-medium has-text-grey-dark' for='user_bio'>Bio:</label>
 			<div class='control'>
-				<input class='input' type='text' name='user_bio' value='{{user.bio}}' />
+				<input class='input' type='text' name='user_bio' value='{{user.bio}}' style="width:50%;">
 			</div>
 		</div>
 
@@ -89,21 +90,21 @@
 		<div class='field'>
 			<label class='label has-text-weight-medium has-text-grey-dark' for='fb'>Facebook:</label>
 			<div class='control'>
-				<input class='input' type='text' name='fb' value='{{user.fb}}' />
+				<input class='input' type='text' name='fb' value='{{user.fb}}' style="width:50%;">
 			</div>
 		</div>
 		<!-- Instagram -->
 		<div class='field'>
 			<label class='label has-text-weight-medium has-text-grey-dark' for='insta'>Instagram:</label>
 			<div class='control'>
-				<input class='input' type='text' name='insta' value='{{user.insta}}' />
+				<input class='input' type='text' name='insta' value='{{user.insta}}' style="width:50%;">
 			</div>
 		</div>
 		<!-- LinkedIn -->
 		<div class='field'>
 			<label class='label has-text-weight-medium has-text-grey-dark' for='linkedin'>LinkedIn:</label>
 			<div class='control'>
-				<input class='input' type='text' name='li' value='{{user.li}}' />
+				<input class='input' type='text' name='li' value='{{user.li}}' style="width:50%;">
 			</div>
 		</div>
 		<div class='field'>

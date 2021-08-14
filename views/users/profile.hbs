@@ -55,7 +55,7 @@
 {{!-- TODO: Show a list of tours this user has created --}}
 <section class="section">
     <div class="container">
-        <h2 class="title">All tours by {{uData.name}}</h2>
+        <h2 class="title">{{uData.name}} Tours</h2>
         {{#if listings}}
         <div class="columns is-multiline is-variable is-5">
             {{#each listings}}
@@ -70,7 +70,7 @@
 
 <section class="section has-background-light">
     <div class="container">
-        <h2 class="title">Reviews of {{uData.name}} as Tour Guide</h2>
+        <h2 class="title">Reviews as Tour Guide</h2>
         {{#if tgreviews}}
         {{#each tgreviews}}
         <div class="box p-5">
@@ -158,7 +158,7 @@
 
 <section class="section has-background-light">
     <div class="container">
-        <h2 class="title">Reviews by {{uData.name}}</h2>
+        <h2 class="title">Reviews as Tourist</h2>
         {{#if ureviews}}
         {{#each ureviews}}
         <div class="box p-5">

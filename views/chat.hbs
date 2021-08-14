@@ -1,3 +1,7 @@
+<head>
+    <meta name="turbolinks-visit-control" content="reload">
+</head>
+
 <div class="column ml-5 mr-5 message-container">
     {{#if data.chat}}
     <div id="message-container-display" style="display: none">
@@ -9,11 +13,11 @@
         {{/ifEquals}}
 
         {{#ifEquals this.flag 'SENT'}}
-            {{#ifEquals @root.data.currentUser.id this.senderId}}
-            <p class="message-bubble send mt-3">{{this.messageText}}</p>
-            {{else}}
-            <p class="message-bubble receive mt-3">{{this.messageText}}</p>
-            {{/ifEquals}}
+        {{#ifEquals @root.data.currentUser.id this.senderId}}
+        <p class="message-bubble send mt-3">{{this.messageText}}</p>
+        {{else}}
+        <p class="message-bubble receive mt-3">{{this.messageText}}</p>
+        {{/ifEquals}}
         {{/ifEquals}}
         {{/each}}
     </div>
@@ -37,6 +41,8 @@
 </div>
 
 {{#if data.chat}}
-{{!-- This exists because turbolinks caches <head></head> and is here for turbolinks to know to only run chat.js when it sees this --}}
+{{!-- This exists because turbolinks caches
+
+<head></head> and is here for turbolinks to know to only run chat.js when it sees this --}}
 <div id="thisIsAChatPageSoPleaseLoadTheChatScript"></div>
 {{/if}}

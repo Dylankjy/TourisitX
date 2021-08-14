@@ -41,14 +41,25 @@ router.post('/start_chat', async (req, res) => {
     // Find existing chat if one already exists
     const existingChatRoom = await ChatRoom.findAll({
         where: {
-            participants: {
-                [Op.like]: '%' + withParticipant + '%',
-            },
+            [Op.or]: [
+                {
+                    participants: {
+                        [Op.eq]: `${req.currentUser.id},${withParticipant}`,
+                    },
+                },
+                {
+                    participants: {
+                        [Op.eq]: `${withParticipant},${req.currentUser.id}`,
+                    },
+                },
+            ],
             bookingId: null,
         },
     })
 
     if (existingChatRoom.length === 0) {
+        // addRoom = (participants, bookingId, callback)
+        // addMessage = (roomId, senderId, messageText, flag, callback)
         return addRoom([req.currentUser.id, withParticipant], null, (resultantRoomID) => {
             return addMessage(resultantRoomID, uuid.NIL, `This enquiry is for <a class="has-text-weight-medium" href="/listing/info/${enquireTourID}">${enquireTourName}</a>.`, 'EMBED', () => {
                 return addMessage(resultantRoomID, req.currentUser.id, msgToSend, 'SENT', () => {
