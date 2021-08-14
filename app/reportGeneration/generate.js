@@ -23,7 +23,7 @@ generatePDFReport = (fromDate, toDate, uid) => {
             {
                 name: 'apikey',
                 value: await invokeSystemLogin('INTERNAL API - PDF Generator'),
-                domain: 'localhost:5000',
+                domain: routeConfig.domain,
             },
         )
 
