@@ -56,7 +56,7 @@ const getStatsRange = async (to, from, tguid) => {
     return {
         totalEarningsBeforeSvc,
         totalEarnings,
-        averageEarnings,
+        averageEarnings: roundTo(averageEarnings, 2),
         serviceCharge,
         totalTours,
     }
