@@ -51,7 +51,6 @@
             <div class="divider is-vertical is-right"></div>
             <div class="column">
                 <p class="subtitle has-text-weight-semibold">Required Action</p>
-                {{#if data.reqAction.rows}}
                 <table class='table is-fullwidth'>
                     {{#each data.reqAction.rows}}
                     <tr>
@@ -90,11 +89,10 @@
                         {{/unless}}
                         {{/ifEquals}}
                     </tr>
-                    {{/each}}
-                </table>
                 {{else}}
                 <p>You are caught up to speed!</p>
-                {{/if}}
+                {{/each}}
+                </table>
             </div>
 
         </div>
@@ -102,11 +100,12 @@
 </div>
 <br>
 {{else}}
-{{#if data.bookList}}
+{{#if meta.bookExist}}
 
 <section class="section">
     <div class="container">
 
+        {{#if data.bookList}}
         {{#each data.bookList}}
         <!-- Card (todo: partial)-->
         <a href="/bookings/{{this.bookId}}">
@@ -167,6 +166,11 @@
                 </span>
             </div>
         </section>
+
+        {{else}}
+        You have no {{meta.type}} tours.
+
+        {{/if}}
 
         {{else}}
         <section class="section is-medium">

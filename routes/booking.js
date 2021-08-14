@@ -29,7 +29,6 @@ const stripe = require('stripe')(STRIPE_SECRET_KEY)
 
 
 router.get('/', async (req, res) => {
-    const sid = req.signedCookies.sid
     let pageNo = req.query.page
     const pageSize = 5
     let offset = 0
@@ -51,86 +50,90 @@ router.get('/', async (req, res) => {
     let lastPage = 1
     let reqAction
     let upcoming
-    if (bookType) {
-        if (bookType == 'planning') {
-            processStepQuery = ['1', '2', '3']
-        } else if (bookType == 'confirmed') {
-            processStepQuery = '4'
-        } else if (bookType == 'completed') {
-            processStepQuery = '5'
-        } else {
-            res.redirect(`/bookings`)
-        }
-        const bookings = await Booking.findAndCountAll({
-            where: {
-                custId: req.currentUser.id,
-                approved: 1,
-                processStep: processStepQuery,
-            },
-            attributes: ['bookId', 'processStep', 'completed'],
-            // order: [['updatedAt', 'DESC']],
-            include: [
-                {
-                    model: Shop,
-                    attributes: ['tourTitle', 'tourImage'],
-                },
-                {
-                    model: Review,
-                    required: false,
-                    attributes: ['id'],
-                    where: { reviewerId: req.currentUser.id },
-                }],
-            raw: true,
-            limit: pageSize,
-            offset: offset,
-        })
 
-        if (bookings) {
-            bookCount = bookings.count
-            bookList = bookings.rows
-            lastPage = Math.ceil(bookCount / pageSize)
-        }
-    } else {
+    const bookExist = await Booking.findOne( { where: { custId: req.currentUser.id }, raw: true })
+
+    if (bookExist) {
+        if (bookType) {
+            if (bookType == 'planning') {
+                processStepQuery = ['1', '2', '3']
+            } else if (bookType == 'confirmed') {
+                processStepQuery = '4'
+            } else if (bookType == 'completed') {
+                processStepQuery = '5'
+            } else {
+                res.redirect(`/bookings`)
+            }
+            const bookings = await Booking.findAndCountAll({
+                where: {
+                    custId: req.currentUser.id,
+                    approved: 1,
+                    processStep: processStepQuery,
+                },
+                attributes: ['bookId', 'processStep', 'completed'],
+                include: [
+                    {
+                        model: Shop,
+                        attributes: ['tourTitle', 'tourImage'],
+                    },
+                    {
+                        model: Review,
+                        required: false,
+                        attributes: ['id'],
+                        where: { reviewerId: req.currentUser.id },
+                    }],
+                raw: true,
+                limit: pageSize,
+                offset: offset,
+            })
+
+            if (bookings) {
+                bookCount = bookings.count
+                bookList = bookings.rows
+                lastPage = Math.ceil(bookCount / pageSize)
+            }
+        } else {
         // Overview
 
-        reqAction = await Booking.findAndCountAll({
-            where: {
-                custId: req.currentUser.id,
-                approved: 1,
-                processStep: ['2', '3', '4', '5'],
-            },
-            // where: sequelize.literal('Reviews.reviewerId != Booking.custId OR Reviews.id IS NULL'),
-            attributes: ['bookId', 'processStep'],
-            order: [['updatedAt', 'ASC']],
-            include: [
-                {
-                    model: Shop,
-                    attributes: ['tourTitle'],
+            reqAction = await Booking.findAndCountAll({
+                where: {
+                    custId: req.currentUser.id,
+                    approved: 1,
+                    processStep: ['2', '3', '4', '5'],
                 },
-                {
-                    model: Review,
-                    required: false,
-                    where: sequelize.literal('Reviews.type != "CUST"'),
-                    attributes: ['id', 'reviewerId', 'type', 'reviewText'],
-                }],
-            raw: true,
-        })
+                // where: sequelize.literal('Reviews.reviewerId != Booking.custId OR Reviews.id IS NULL'),
+                attributes: ['bookId', 'processStep'],
+                order: [['updatedAt', 'ASC']],
+                include: [
+                    {
+                        model: Shop,
+                        attributes: ['tourTitle'],
+                    },
+                    {
+                        model: Review,
+                        required: false,
+                        where: sequelize.literal('Reviews.type != "CUST"'),
+                        attributes: ['id', 'reviewerId', 'type'],
+                    }],
+                raw: true,
+            })
 
-        upcoming = await Booking.findAndCountAll({
-            where: {
-                custId: req.currentUser.id,
-                approved: 1,
-                processStep: '4',
-            },
-            attributes: ['bookId', 'processStep', 'tourStart'],
-            order: [['tourStart', 'DESC']],
-            include:
+            upcoming = await Booking.findAndCountAll({
+                where: {
+                    custId: req.currentUser.id,
+                    approved: 1,
+                    processStep: '4',
+                },
+                attributes: ['bookId', 'processStep', 'tourStart'],
+                order: [['tourStart', 'DESC']],
+                include:
             {
                 model: Shop,
                 attributes: ['tourTitle'],
             },
-            raw: true,
-        })
+                raw: true,
+            })
+        }
     }
     const metadata = {
         meta: {
@@ -139,6 +142,7 @@ router.get('/', async (req, res) => {
             count: bookCount,
             lastPage: lastPage,
             type: bookType,
+            bookExist: bookExist,
         },
         data: {
             currentUser: req.currentUser,
