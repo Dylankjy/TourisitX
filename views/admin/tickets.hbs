@@ -11,7 +11,17 @@
 
         <td>{{ this.uid }}</td>
 
-        <td>{{ this.status }}</td>
+        <td>
+            {{#ifEquals this.status 'Open'}}
+            <span class="tag is-black is-light">{{ this.status }}</span>
+            {{/ifEquals}}
+            {{#ifEquals this.status 'Pending'}}
+            <span class="tag is-success is-light">{{ this.status }}</span>
+            {{/ifEquals}}
+            {{#ifEquals this.status 'Closed'}}
+            <span class="tag is-danger is-light">{{ this.status }}</span>
+            {{/ifEquals}}
+        </td>
     </tr>
     {{/each}}
 </table>
