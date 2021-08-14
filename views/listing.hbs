@@ -240,6 +240,17 @@
                         </a>
 
                         {{else}}
+
+                        {{#ifEquals data.currentUser.id undefined}}
+                        <a class='navbar-item button is-dark' href="/id/login">
+                            <span class='icon'>
+                                <i class="fas fa-sign-in-alt"></i>
+                            </span>
+                            <span>
+                                Login to book
+                            </span>
+                        </a>
+                        {{else}}
                         <a class='navbar-item button is-success' href="/listing/{{tourData.id}}/purchase">
                             <span class='icon'>
                                 <i class="fas fa-shopping-cart"></i>
@@ -248,6 +259,7 @@
                                 Book now
                             </span>
                         </a>
+                        {{/ifEquals}}
 
                         {{#if (iteminWishList tourData.id wishlistArr )}}
                         <a class='button is-danger' href="/listing/{{tourData.id}}/unfavourite">
