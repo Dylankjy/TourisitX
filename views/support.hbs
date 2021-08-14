@@ -1,13 +1,20 @@
+<section class="section has-background-black">
+	<div class="container">
+		<h1 class="title has-text-white">Support</h1>
+		<p class="subtitle has-text-grey-light">Hi, how can we help?</p>
+	</div>
+</section>
+
 {{#if (isDefined supportErrors)}}
 {{#if (haveErr supportErrors)}}
 <div id="errorSupport" class="notification is-danger">
-    {{#each supportErrors}}
-    <p>{{this.msg}}</p>
-    {{/each}}
+	{{#each supportErrors}}
+	<p>{{this.msg}}</p>
+	{{/each}}
 </div>
 
 <script>
-    $('#errorSupport').delay(10000).slideUp();
+	$('#errorSupport').delay(10000).slideUp();
 </script>
 {{/if}}
 {{/if}}
@@ -15,52 +22,63 @@
 {{#if (isDefined successSupport)}}
 {{#if (haveErr successSupport)}}
 <div id="successSup" class="notification is-success">
-    {{#each successSupport}}
-    <p>{{this.msg}}</p>
-    {{/each}}
+	{{#each successSupport}}
+	<p>{{this.msg}}</p>
+	{{/each}}
 </div>
 
 <script>
-    $('#successSup').delay(10000).slideUp();
+	$('#successSup').delay(10000).slideUp();
 </script>
 {{/if}}
 {{/if}}
 
-<section class="section has-background-black">
-	<div class="container">
-		<h1 class="title has-text-white">Support</h1>
-		<p class="subtitle has-text-grey-light">How can we help you today?</p>
+<div class="box has-background-black m-6" style="border-radius: 50px;">
+	<div class="columns">
+		<div class="column is-5">
+			<h3 class="title has-text-white pl-4">Contact Information</h3>
+			<p class="is-size-6 has-text-white pl-4">Fill up the form and our Team will get back to you via your
+				registered email address within 24 hours.</p>
+			<br>
+			<br>
+			<span class="has-text-white pl-4 is-size-5"><i class="fas fa-phone-alt"></i>&nbsp&nbsp +65 6888
+				1883</span>
+			<br>
+			<br>
+			<span class="has-text-white pl-4 is-size-5"><i class="fas fa-envelope"></i>&nbsp&nbsp
+				support@tourisit.com</span>
+		</div>
+		<div class="column">
+			<div class="box" style="border-radius: 20px;">
+				<form class='form-horizontal' method='POST'>
+					<fieldset>
+						<div class='field'>
+							<label class='label'>What can we help you with?</label>
+							<div class='select is-fullwidth'>
+								<select name='type'>
+									<option>General Enquiry</option>
+									<option>Transaction Enquiry</option>
+									<option>Apply for Verified</option>
+									<option>Others</option>
+								</select>
+							</div>
+						</div>
+						<div class='field'>
+							<label class='label'>Message <label class='has-text-danger'>*</label></label>
+							<div class='control'>
+								<textarea name='content' class='textarea' rows='5'
+									style='height: 150px;'></textarea>
+							</div>
+						</div>
+						<div class='field'>
+							<div class='control'>
+								<input type='submit' value='Submit Ticket' id='supportbtn' name='supportbtn'
+									class='button is-dark'>
+							</div>
+						</div>
+					</fieldset>
+				</form>
+			</div>
+		</div>
 	</div>
-</section>
-
-<section class="section is-medium">
-	<div class="container">
-		<form class='form-horizontal' method='POST'>
-		<fieldset>
-			<div class='field'>
-				<label class='label'>What can we help you with?</label>
-				<div class='select is-fullwidth'>
-					<select name='type'>
-						<option>General Enquiry</option>
-						<option>Transaction Enquiry</option>
-						<option>Apply for Verified</option>
-						<option>Others</option>
-					</select>
-				</div>
-			</div>
-			
-			<div class='field'>
-				<label class='label'>Message <label class='has-text-danger'>*</label></label>
-				<div class='control'>
-					<textarea name='content' class='textarea' rows='5' style='height: 150px;'></textarea>
-				</div>
-			</div>
-			<div class='field'>
-				<div class='control'>
-					<input type='submit' value='Submit Ticket' id='supportbtn' name='supportbtn' class='button is-dark'>
-				</div>
-			</div>
-		</fieldset>
-	</form>
-	</div>
-</section>
+</div>
