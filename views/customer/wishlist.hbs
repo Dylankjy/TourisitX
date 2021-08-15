@@ -11,19 +11,18 @@
 <section class="section is-medium">
     <div class="container has-text-centered">
         <p class="title has-text-grey-light has-text-weight-bold" style="font-size: 4.5rem;">(」・﹏・)」</p>
-        <p class="subtitle is-4 has-text-grey">Nothing to show<br><small>Start adding tours to your wishlist to keep for later.</small></p>
+        <p class="subtitle is-4 has-text-grey">Nothing to show<br><small>Start adding tours to your wishlist to keep for
+                later.</small></p>
         <a href="/marketplace" class="button is-dark"><i class="fas fa-store"></i>&ensp;Explore tours</a>
     </div>
 </section>
 {{else}}
 <div class='section'>
     <div class='container'>
-        <div class='box'>
-            <div class="columns is-multiline is-variable is-5">
-                {{#each wishlist}}
-                {{>listingCard}}
-                {{/each}}
-            </div>
+        <div class="columns is-multiline is-variable is-5">
+            {{#each wishlist}}
+            {{>listingCard}}
+            {{/each}}
         </div>
     </div>
 </div>

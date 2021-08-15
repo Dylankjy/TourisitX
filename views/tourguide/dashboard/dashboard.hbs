@@ -191,13 +191,13 @@
 <script>
     const main = () => {
         $.getJSON('/api/tourguide', function (data) {
-            $('#currentEarningsField').text(data.money.currentPeriod.totalEarnings)
-            $('#currentAvgField').text(data.money.currentPeriod.averageEarnings)
+            $('#currentEarningsField').text(data.money.currentPeriod.totalEarnings.toFixed(2).toString())
+            $('#currentAvgField').text(data.money.currentPeriod.averageEarnings.toFixed(2).toString())
 
             if (data.money.currentPeriod.totalEarnings === 0) {
                 $('#currentAvgMonthField').text(parseInt(0))  // Prevents division by 0
             } else {
-                $('#currentAvgMonthField').text(parseFloat(data.money.currentPeriod.totalEarnings / 6))
+                $('#currentAvgMonthField').text(parseFloat(data.money.currentPeriod.totalEarnings / 6).toFixed(2).toString())
             }
 
             if (data.money.currentPeriod.totalEarnings - data.money.lastPeriod.totalEarnings < 0) {

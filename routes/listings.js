@@ -307,7 +307,7 @@ router.get('/create', loginRequired, async (req, res) => {
 
     const metadata = {
         validationErrors: req.cookies.validationErrors,
-        layout: 'tourGuide',
+        layout: 'tourguide',
         data: {
             currentUser: req.currentUser,
         },
