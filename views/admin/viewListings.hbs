@@ -2,15 +2,15 @@
 <table class="table is-fullwidth">
     <tr>
         <th>Tour Name</th>
-        <th>Tour Guide UID</th>
+        <th>Tour Guide Profile</th>
         <th>Date Created</th>
     </tr>
 
 {{#each listing}}
 <tr>
     <td><a href="/admin/manage/tours/edit/{{this.id}}">{{this.tourTitle}}</a></td>
-    <td>{{this.userId}}</td>
-    <td>{{this.createdAt}}</td>
+    <td><a href="/u/profile/{{this.userId}}" target="_blank">View Profile</a></td>
+    <td>{{timestampParseISO this.createdAt}}</td>
 <tr>
 {{/each}}
 

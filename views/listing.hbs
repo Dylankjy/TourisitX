@@ -148,9 +148,51 @@
                                     &bull;
                                     &nbsp;
                                 </span>
-                                <span>
-                                    {{ this.rating }}<i class="fas fa-star"></i>
+                                {{#ifEquals this.rating '1'}}
+                                <span class="has-text-grey-lighter">
+                                    <i class="fas fa-star has-text-warning"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
                                 </span>
+                                {{/ifEquals}}
+                                {{#ifEquals this.rating '2'}}
+                                <span class="has-text-grey-lighter">
+                                    <i class="fas fa-star has-text-warning"></i>
+                                    <i class="fas fa-star has-text-warning"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </span>
+                                {{/ifEquals}}
+                                {{#ifEquals this.rating '3'}}
+                                <span class="has-text-grey-lighter">
+                                    <i class="fas fa-star has-text-warning"></i>
+                                    <i class="fas fa-star has-text-warning"></i>
+                                    <i class="fas fa-star has-text-warning"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </span>
+                                {{/ifEquals}}
+                                {{#ifEquals this.rating '4'}}
+                                <span class="has-text-grey-lighter">
+                                    <i class="fas fa-star has-text-warning"></i>
+                                    <i class="fas fa-star has-text-warning"></i>
+                                    <i class="fas fa-star has-text-warning"></i>
+                                    <i class="fas fa-star has-text-warning"></i>
+                                    <i class="fas fa-star"></i>
+                                </span>
+                                {{/ifEquals}}
+                                {{#ifEquals this.rating '5'}}
+                                <span class="has-text-grey-lighter">
+                                    <i class="fas fa-star has-text-warning"></i>
+                                    <i class="fas fa-star has-text-warning"></i>
+                                    <i class="fas fa-star has-text-warning"></i>
+                                    <i class="fas fa-star has-text-warning"></i>
+                                    <i class="fas fa-star has-text-warning"></i>
+                                </span>
+                                {{/ifEquals}}
                             </p>
                             <p class="content">{{ this.reviewText }}</p>
                         </div>
