@@ -575,7 +575,15 @@ router.post('/manage/tours/edit/:id', async (req, res) => {
         if (banStatus == true) {
             console.log('BANNED ALREADY')
         } else {
-            const revokeMessage = req.fields.revokeReason
+            const tourData = await Shop.findOne({
+                where: {
+                    id: itemID,
+                },
+                raw: true,
+            })
+            console.log(tourData)
+            const tourName = tourData['tourTitle']
+            const revokeMessage = `Revoked Tour: ${tourName} for reason: ${req.fields.revokeReason}`
 
             await Shop.update(
                 {
@@ -616,8 +624,6 @@ router.post('/manage/tours/edit/:id', async (req, res) => {
                 },
             }, raw = true)
             const chatRoomID = chatData[0]['chatId']
-            console.log('THIS IS CHAT ROOM ID' + chatRoomID)
-            console.log(revokeMessage)
             chat.addMessage(chatRoomID, 'SYSTEM', revokeMessage, 'SENT', () => { })
             // revokeMessage: Message to send to person
             //

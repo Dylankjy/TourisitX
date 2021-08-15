@@ -15,7 +15,7 @@
     </tr>
     {{#each data.transactions}}
     <tr>
-        <td>{{timestampParseISO this.created }}</td>
+        <td>{{ unixToTime this.created }}</td>
 
         <td>{{ this.billing_details.email }}</td>
 
