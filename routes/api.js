@@ -31,7 +31,7 @@ router.get('/tourguide/generate_report', loginRequired, async (req, res) => {
 
     if (format === 'pdf') {
         // Generate report in PDF format (Returns in base64)
-        const pdf = await generatePDFReport(to, from, req.currentUser.id)
+        const pdf = await generatePDFReport(from, to, req.currentUser.id)
 
         // Set headers
         res.writeHead(200, {
