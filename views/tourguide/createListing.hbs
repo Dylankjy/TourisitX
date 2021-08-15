@@ -6,7 +6,7 @@
 
     <script>
         // When the document is ready, initialize the sortable item
-        $(document).ready(()=> {
+        $(document).ready(() => {
             $("#itineraryItems").sortable()
         })
     </script>
@@ -21,16 +21,9 @@
 <!-- Tour Itinerary ---- Final Name:finalItinerary  ID: itineraryItems  -->
 
 
-<section class="section has-background-black">
-    <div class="container">
-        <a onclick="goBack()" class="has-text-weight-medium has-text-danger-dark">
-            <i class="fas fa-arrow-left"></i>&ensp;Previous page
-        </a>
-        <h1 class="title has-text-white is-2">Edit Listing</h1>
-    </div>
-</section>
-
-<div class='conatiner m-3'>
+<div class="section">
+    <div class='container m-3'>
+        <h1 class="title has-text-white is-2">Create Listing</h1>
         <div class="tabs is-left">
             <ul>
                 <li class="tab pl-3 pr-3 is-active" onclick="openTab(event,'General')">
@@ -44,6 +37,7 @@
                 </li>
             </ul>
         </div>
+    </div>
 </div>
 
 <!-- If validationErrors is defined and there are validationErrors -->
@@ -74,82 +68,81 @@
         <div class="columns">
             <!--START: General Information-->
             <div class="column content-tab" id="General">
-                    <div class='container'>
-                        <h1 class="title is-4">General Information</h1>
+                <div class='container'>
+                    <h1 class="title is-4">General Information</h1>
 
-                        <!-- TOUR TITLE -->
-                        <div class='field'>
-                            <div class='label'>
-                                <h1 class="title is-5">Title</h1>
-                                <h2 class="subtitle is-6">
-                                    Give your tour a nice name
-                                </h2>
-                            </div>
-                            <input name='tourTitle' class="input" type="text" placeholder="My Tour">
-
+                    <!-- TOUR TITLE -->
+                    <div class='field'>
+                        <div class='label'>
+                            <h1 class="title is-5">Title</h1>
+                            <h2 class="subtitle is-6">
+                                Give your tour a nice name
+                            </h2>
                         </div>
+                        <input name='tourTitle' class="input" type="text" placeholder="My Tour">
+
+                    </div>
                     <br>
 
                     <!-- TOUR DESCRIPTION -->
-                        <div class='field'>
-                            <div class='label'>
-                                <h1 class="title is-5">Description</h1>
-                                <h2 class="subtitle is-6">
-                                    Give a brief overview of your tour
-                                </h2>
-                            </div>
-                            <textarea name='tourDesc' class="textarea"
-                                placeholder="e.g. This tour is..."></textarea>
-
+                    <div class='field'>
+                        <div class='label'>
+                            <h1 class="title is-5">Description</h1>
+                            <h2 class="subtitle is-6">
+                                Give a brief overview of your tour
+                            </h2>
                         </div>
+                        <textarea name='tourDesc' class="textarea" placeholder="e.g. This tour is..."></textarea>
+
+                    </div>
                     <br>
 
                     <!-- Min Price -->
-                        <div class='field'>
-                            <div class='label'>
-                                <h1 class="title is-5">Price</h1>
-                                <h2 class="subtitle is-6">
-                                    Minimum price of your Tour
-                                </h2>
-                            </div>
-                            <div class='control has-icons-left'>
-                                <input name='tourPrice' class="input" type="number">
-                                <span class="icon is-small is-left">
-                                    <i class="fas fa-dollar-sign"></i>
-                                </span>
-                            </div>
+                    <div class='field'>
+                        <div class='label'>
+                            <h1 class="title is-5">Price</h1>
+                            <h2 class="subtitle is-6">
+                                Minimum price of your Tour
+                            </h2>
                         </div>
-                    <br>
-
-                    <!-- Max Pax -->
-                        <div class='field'>
-                            <div class='label'>
-                                <h1 class="title is-5">Tour Pax</h1>
-                                <h2 class="subtitle is-6">
-                                    Maximum Tour Participants
-                                </h2>
-                            </div>
-                            <div class='control has-icons-right'>
-                                <input name='tourPax' class="input" type="number">
-                                <span class="icon is-small is-right">
-                                    <i class="fas fa-user"></i>
-                                </span>
-                            </div>
-                        </div>
-                    <br>
-
-                    <!-- Max Revisions -->
-                        <div class='field'>
-                            <div class='label'>
-                                <h1 class="title is-5">Tour Revisions</h1>
-                                <h2 class="subtitle is-6">
-                                    Maximum times a customer can revise the itinerary for free
-                                </h2>
-                            </div>
-                            <input name='tourRevision' class="input" type="number">
+                        <div class='control has-icons-left'>
+                            <input name='tourPrice' class="input" type="number">
+                            <span class="icon is-small is-left">
+                                <i class="fas fa-dollar-sign"></i>
+                            </span>
                         </div>
                     </div>
                     <br>
+
+                    <!-- Max Pax -->
+                    <div class='field'>
+                        <div class='label'>
+                            <h1 class="title is-5">Tour Pax</h1>
+                            <h2 class="subtitle is-6">
+                                Maximum Tour Participants
+                            </h2>
+                        </div>
+                        <div class='control has-icons-right'>
+                            <input name='tourPax' class="input" type="number">
+                            <span class="icon is-small is-right">
+                                <i class="fas fa-user"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <br>
+
+                    <!-- Max Revisions -->
+                    <div class='field'>
+                        <div class='label'>
+                            <h1 class="title is-5">Tour Revisions</h1>
+                            <h2 class="subtitle is-6">
+                                Maximum times a customer can revise the itinerary for free
+                            </h2>
+                        </div>
+                        <input name='tourRevision' class="input" type="number">
+                    </div>
+                </div>
+                <br>
             </div>
             <!--END: General Information-->
 
@@ -158,135 +151,135 @@
                 <div class='container'>
                     <h1 class="title is-4">Availability</h1>
 
-                        <!-- TOUR DURATION -->
-                            <div class='field'>
-                                <div class='label'>
-                                    <h1 class="title is-5">Tour Duration</h1>
-                                    <h2 class="subtitle is-6">
-                                        How long will your Tour last?
-                                    </h2>
-                                </div>
-                                <div class='columns'>
-                                    <div class='column is-four-fifths'>
-                                        <div class="select is-fullwidth">
-                                            <select id='tourDuration' name='tourDuration'>
-                                                <option></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class='column'>
-                                        Hours
-                                    </div>
+                    <!-- TOUR DURATION -->
+                    <div class='field'>
+                        <div class='label'>
+                            <h1 class="title is-5">Tour Duration</h1>
+                            <h2 class="subtitle is-6">
+                                How long will your Tour last?
+                            </h2>
+                        </div>
+                        <div class='columns'>
+                            <div class='column is-four-fifths'>
+                                <div class="select is-fullwidth">
+                                    <select id='tourDuration' name='tourDuration'>
+                                        <option></option>
+                                    </select>
                                 </div>
                             </div>
-                        <br>
-
-                        <!-- TOUR TIMINGS -->
-                            <div class='field'>
-                                <div class='label'>
-                                    <h1 class="title is-5">Tour Timings</h1>
-                                    <h2 class="subtitle is-6">
-                                        When your Tour will be conducted
-                                    </h2>
-                                </div>
-                                <div>
-                                    <div class="select is-fullwidth">
-                                        <select class='timeslots' id='tourTiming'>
-                                            <option>-</option>
-                                        </select>
-                                    </div>
-
-                                    <div class='tag-container' id='timeTags'>
-
-                                    </div>
-                                </div>
+                            <div class='column'>
+                                Hours
                             </div>
-                        <br>
-
-                        <!-- AVAILABLE DAYS -->
-                            <div class='field'>
-                                <div class='label'>
-                                    <h1 class="title is-5">Available Days</h1>
-                                    <h2 class="subtitle is-6">
-                                        Tours are available on these days
-                                    </h2>
-                                </div>
-                                <div>
-                                    <div class='select is-fullwidth'>
-                                        <select id='tourDay'>
-                                            <option>-</option>
-                                        </select>
-                                    </div>
-
-                                    <div class='tag-container' id='dayTags'>
-
-                                    </div>
-                                </div>
-                            </div>
-                        <br>
+                        </div>
                     </div>
-                
+                    <br>
+
+                    <!-- TOUR TIMINGS -->
+                    <div class='field'>
+                        <div class='label'>
+                            <h1 class="title is-5">Tour Timings</h1>
+                            <h2 class="subtitle is-6">
+                                When your Tour will be conducted
+                            </h2>
+                        </div>
+                        <div>
+                            <div class="select is-fullwidth">
+                                <select class='timeslots' id='tourTiming'>
+                                    <option>-</option>
+                                </select>
+                            </div>
+
+                            <div class='tag-container' id='timeTags'>
+
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+
+                    <!-- AVAILABLE DAYS -->
+                    <div class='field'>
+                        <div class='label'>
+                            <h1 class="title is-5">Available Days</h1>
+                            <h2 class="subtitle is-6">
+                                Tours are available on these days
+                            </h2>
+                        </div>
+                        <div>
+                            <div class='select is-fullwidth'>
+                                <select id='tourDay'>
+                                    <option>-</option>
+                                </select>
+                            </div>
+
+                            <div class='tag-container' id='dayTags'>
+
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                </div>
+
             </div>
             <!--END: Availability-->
 
-        <!--Start: Tour Plan-->
-                <div class="column content-tab" id="TourPlan" style="display:none;">
-                    <div class='container'>
+            <!--Start: Tour Plan-->
+            <div class="column content-tab" id="TourPlan" style="display:none;">
+                <div class='container'>
                     <h1 class="title is-4">Tour Plan</h1>
 
                     <!--TOUR ITINERARY-->
-                        <div class='field'>
-                            <div class='label'>
-                                <h1 class="title is-5">Itinerary</h1>
-                                <h2 class="subtitle is-6">
-                                    Provide a detailed outline of the Tour
-                                </h2>
-                            </div>
-                            <div class='control has-icons-right is-clickable'>
-                                <input class='input' id='itinerary-str'>
-                                <span class='icon is-right'>
-                                    <i class="fas fa-feather-alt" id='add-itinerary-icon'
-                                        style="margin-right: 20px; pointer-events: initial"></i>
-                                </span>
-                            </div>
-
-                            <ul class='ui-sortable' id='itineraryItems'>
-                            </ul>
+                    <div class='field'>
+                        <div class='label'>
+                            <h1 class="title is-5">Itinerary</h1>
+                            <h2 class="subtitle is-6">
+                                Provide a detailed outline of the Tour
+                            </h2>
                         </div>
+                        <div class='control has-icons-right is-clickable'>
+                            <input class='input' id='itinerary-str'>
+                            <span class='icon is-right'>
+                                <i class="fas fa-feather-alt" id='add-itinerary-icon'
+                                    style="margin-right: 20px; pointer-events: initial"></i>
+                            </span>
+                        </div>
+
+                        <ul class='ui-sortable' id='itineraryItems'>
+                        </ul>
+                    </div>
                     <br>
 
                     <!-- TOUR LOCATION -->
-                        <div class='field'>
-                            <div class='label'>
-                                <h1 class="title is-5">Locations</h1>
-                                <h2 class="subtitle is-6">
-                                    Which places will your Tour cover?
-                                </h2>
-                            </div>
-                            <div>
-                                <input id='tourLocation' class="input" type='text' list='renderedLocations'>
-                                <datalist id="renderedLocations"></datalist>
-                                <div class='column is-4 tag-container' id='locationTags'></div>
-                            </div>
-
+                    <div class='field'>
+                        <div class='label'>
+                            <h1 class="title is-5">Locations</h1>
+                            <h2 class="subtitle is-6">
+                                Which places will your Tour cover?
+                            </h2>
                         </div>
-                    </div>
+                        <div>
+                            <input id='tourLocation' class="input" type='text' list='renderedLocations'>
+                            <datalist id="renderedLocations"></datalist>
+                            <div class='column is-4 tag-container' id='locationTags'></div>
+                        </div>
 
+                    </div>
                 </div>
-        <!--End: Tour Plan-->
+
             </div>
+            <!--End: Tour Plan-->
         </div>
+    </div>
     </div>
 
     <div id="toolbar" class="navbar is-fixed-bottom pt-3 is-glass-white">
-    <div class="container">
-        <div class="navbar-menu is-active">
-            <div class="navbar-end">
-                <button class="button is-link" type='submit'>Submit</button>
+        <div class="container">
+            <div class="navbar-menu is-active">
+                <div class="navbar-end">
+                    <button class="button is-link" type='submit'>Submit</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
     <!-- These are the final inputs (arrays to string) you will receive -->
     <input name='finalTimings' hidden>
@@ -348,16 +341,16 @@
     isEmptyArray = (arr) => {
         return arr.filter((n) => n).length == 0
     }
-    
+
     // Returns an array with trimmed elements and no empty elements
     trimmedArray = (arr) => {
         // Remove all whitespaces front and back of each element
-        arr = arr.map(x=>x.trim())
+        arr = arr.map(x => x.trim())
         // Remove all empty elements
-        arr = arr.filter(x=>x)
+        arr = arr.filter(x => x)
         return arr
-    } 
-    
+    }
+
 
     // INITIALIZER FUNCTIONS
     initializeDuration = () => {
@@ -368,8 +361,8 @@
         select.html('<option></option>')
         // select.html("")
 
-        for(var i = 1; i < 11.5; i+= 0.5) {
-            select.append(`<option value=${i}>${i}</option>`)        
+        for (var i = 1; i < 11.5; i += 0.5) {
+            select.append(`<option value=${i}>${i}</option>`)
         }
         console.log("Done Duration initialize!")
     }
@@ -377,14 +370,14 @@
     // Takes number (minutes) and returns a string
     // Takes 420 and returns 7am
     numToTime = (i) => {
-        hours = Math.floor(i/60)
-        minutes = i%60
+        hours = Math.floor(i / 60)
+        minutes = i % 60
         if (minutes == 0) {
             minutes = '0' + minutes
         }
-        ampm = hours%24 < 12 ? "AM" : "PM"
+        ampm = hours % 24 < 12 ? "AM" : "PM"
         hours = hours % 12
-        if (hours===0) {
+        if (hours === 0) {
             hours = 12
         }
 
@@ -397,11 +390,11 @@
         tmp = x.split(':')[1]
         min = parseInt(tmp.split(' ')[0])
         ampm = tmp.split(' ')[1]
-        hours = hours%12
+        hours = hours % 12
         if (ampm == 'PM') {
             hours += 12
         }
-        
+
         num = (hours * 60) + min
         return num
     }
@@ -421,21 +414,21 @@
         var numArr = []
 
         // To get the list of nums of already selected time ranges
-        arr.forEach((timeRange) =>{
+        arr.forEach((timeRange) => {
             start = timeRange.split(' - ')[0]
             end = timeRange.split(' - ')[1]
             startNum = timeToNum(start)
             endNum = timeToNum(end)
-            for(i = startNum; i<= endNum; i+= 30) {
+            for (i = startNum; i <= endNum; i += 30) {
                 numArr.push(i)
             }
         })
 
         $("#tourTiming").html("<option>-</option>")
 
-            
-        for(var i = 420; i < 1380 - duration; i+= 30) {
-            if (numArr.includes(i) || numArr.includes(i+duration)) {
+
+        for (var i = 420; i < 1380 - duration; i += 30) {
+            if (numArr.includes(i) || numArr.includes(i + duration)) {
                 continue
             }
             var start = numToTime(i)
@@ -451,7 +444,7 @@
         var currentTime = $("#tourTiming").val()
         if (currentTime != '-') {
             selectedTimeArray.push(currentTime)
-        }   
+        }
     }
 
     // If it has "Specific" means it adds using user-defined input (time)
@@ -459,7 +452,7 @@
     updateSpecificTimeRangeArray = (time) => {
         if (time != '-') {
             selectedTimeArray.push(time)
-        }   
+        }
     }
 
     // Updater
@@ -476,7 +469,7 @@
     // 3. Update the rendered time ranges (Which changes because the selectedTimeArray has changed)
     addTimeTag = () => {
         $("#timeTags").html("")
-        selectedTimeArray.forEach((timeRange)=>{
+        selectedTimeArray.forEach((timeRange) => {
             var elem = `<span class="tag is-light is-info is-medium" style="margin-left: 10px;">
                             ${timeRange} 
                             <i class="fas fa-times is-clickable" onclick='this.parentElement.remove();removeTimeRange("${timeRange}");updateTiming()' style="margin-left: 20px;"></i>
@@ -514,7 +507,7 @@
         selector = $("#tourDay")
         // Reset the array first
         selector.html("<option>-</option>")
-        allDays.forEach((day)=>{
+        allDays.forEach((day) => {
             selector.append(`<option>${day}</option>`)
         })
     }
@@ -525,12 +518,12 @@
         selector = $("#tourDay")
         // Reset the array first
         selector.html("<option>-</option>")
-        allDays.forEach((day)=>{
+        allDays.forEach((day) => {
             // If the day isn't selected yet, we render it
             if (!selectedDayArray.includes(day)) {
                 selector.append(`<option>${day}</option>`)
             }
-            
+
         })
     }
 
@@ -540,14 +533,14 @@
         currentDay = $("#tourDay").val()
         if (currentDay != '-') {
             selectedDayArray.push(currentDay)
-        }   
+        }
     }
 
 
     updateSpecificSelectedDayArray = (day) => {
         if (day != '-') {
             selectedDayArray.push(day)
-        }   
+        }
     }
 
     // Array Updater
@@ -556,11 +549,11 @@
         selectedDayArray = selectedDayArray.filter(e => e !== val)
     }
 
-    
+
     // Initializer
     addDayTag = () => {
         $("#dayTags").html("")
-        selectedDayArray.forEach((day)=>{
+        selectedDayArray.forEach((day) => {
             var elem = `<span class="tag is-light is-info is-medium" style="margin-left: 10px;">
                             ${day} 
                             <i class="fas fa-times is-clickable" onclick='this.parentElement.remove();removeDay("${day}");updateDays()' style="margin-left: 20px;"></i>
@@ -605,13 +598,13 @@
         // Sortable + Editable for Itinerary list
         // Must call this everytime I add an itinerary item so that this onclick trigger applies to them too
         // When I double-click, I can edit the string inside (But I cannot sort it)
-        $(".itinerary-item").on('dblclick', ()=>{
-            $("#itineraryItems").sortable({cancel: ':input,button,[contenteditable="true"]'})
+        $(".itinerary-item").on('dblclick', () => {
+            $("#itineraryItems").sortable({ cancel: ':input,button,[contenteditable="true"]' })
         })
 
         // When I click away, I can no longer edit the string, but I can now sort it
-        $(".itinerary-item").on('focusout', ()=>{
-            $("#itineraryItems").sortable({cancel: ""})
+        $(".itinerary-item").on('focusout', () => {
+            $("#itineraryItems").sortable({ cancel: "" })
         })
     }
 
@@ -630,13 +623,13 @@
         // Sortable + Editable for Itinerary list
         // Must call this everytime I add an itinerary item so that this onclick trigger applies to them too
         // When I double-click, I can edit the string inside (But I cannot sort it)
-        $(".itinerary-item").on('dblclick', ()=>{
-            $("#itineraryItems").sortable({cancel: ':input,button,[contenteditable="true"]'})
+        $(".itinerary-item").on('dblclick', () => {
+            $("#itineraryItems").sortable({ cancel: ':input,button,[contenteditable="true"]' })
         })
 
         // When I click away, I can no longer edit the string, but I can now sort it
-        $(".itinerary-item").on('focusout', ()=>{
-            $("#itineraryItems").sortable({cancel: ""})
+        $(".itinerary-item").on('focusout', () => {
+            $("#itineraryItems").sortable({ cancel: "" })
         })
     }
 
@@ -651,7 +644,7 @@
         createdItinerary = createdItinerary.map(x => x.replaceAll(",", ";!;"))
     }
 
-    
+
 
 
 
@@ -661,21 +654,21 @@
     // TOUR LOCATION
 
 
-    updateSelectedLocationArray = () =>{
+    updateSelectedLocationArray = () => {
         currentLocation = $("#tourLocation").val()
         selectedLocationArray.push(currentLocation)
     }
 
-    updateSpecificSelectedLocationArray = (location) =>{
+    updateSpecificSelectedLocationArray = (location) => {
         currentLocation = location
         selectedLocationArray.push(currentLocation)
     }
 
     removeLocation = (val) => {
-        selectedLocationArray = selectedLocationArray.filter(e => e!== val)
+        selectedLocationArray = selectedLocationArray.filter(e => e !== val)
     }
 
-    addLocationTag = () =>{
+    addLocationTag = () => {
         let selectedLocation = $("#tourLocation").val()
         updateSelectedLocationArray()
         $("#tourLocation").val("")
@@ -687,7 +680,7 @@
         locationTags.append(elem)
     }
 
-    addSpecificLocationTag = (location) =>{
+    addSpecificLocationTag = (location) => {
         let selectedLocation = location
         updateSpecificSelectedLocationArray(selectedLocation)
         $("#tourLocation").val("")
@@ -752,25 +745,25 @@
 
 
     // Place all listeners inside this function
-    $(document).ready(()=>{
+    $(document).ready(() => {
 
         // All initialization functions here
         initializeDuration()
         initializeDays()
 
-        $("#tourDuration").on('change', ()=>{
+        $("#tourDuration").on('change', () => {
             console.log("DURATION CHANGE")
-                // Reset the selectedTimeArray first, so it can contain the new duration ranges
-                selectedTimeArray = []
-                // Reset the timings to be displayed on the dropdown, following the new duration
-                updateTiming()
-                // Reset all the preselected time tags
-                resetTimeTag()
-            }
+            // Reset the selectedTimeArray first, so it can contain the new duration ranges
+            selectedTimeArray = []
+            // Reset the timings to be displayed on the dropdown, following the new duration
+            updateTiming()
+            // Reset all the preselected time tags
+            resetTimeTag()
+        }
         )
 
         // Every time we click on a tour Timing, we want to add it to the internal array, as well as update the rendered time ranges. We also want to add the time range tag
-        $("#tourTiming").on('change', ()=>{
+        $("#tourTiming").on('change', () => {
             updateTimeRangeArray()
             updateTiming()
             addTimeTag()
@@ -778,7 +771,7 @@
 
 
         // When a day is selected
-        $("#tourDay").on('change', ()=>{
+        $("#tourDay").on('change', () => {
             // Append selected option to array
             updateSelectedDayArray()
             // Update the rendered days
@@ -790,7 +783,7 @@
 
         // Tour Itinerary, Define function to run when the icon is clicked
         // When feather icon is clicked, add the current input to the list
-        $("#add-itinerary-icon").on('click', ()=>{
+        $("#add-itinerary-icon").on('click', () => {
             if ($("#itinerary-str").val().trim() != '') {
                 addItineraryItem()
             } else {
@@ -800,9 +793,9 @@
         })
 
 
-        
+
         // Tour Location, when a location is typed, trigger fetch API call and autocomplete
-        $("#tourLocation").on("keyup", ()=>{
+        $("#tourLocation").on("keyup", () => {
             var selector = $("#renderedLocations")
             var typedLocation = $("#tourLocation").val()
             // Reset the selector
@@ -812,24 +805,24 @@
             if (typedLocation.length > 4) {
                 // fetch data from the TIH API
                 fetch(`/listing/api/autocomplete/location?typedLocation=${typedLocation}`)
-                .then((res)=>{
-                    return res.json()
-                }).then((data)=>{
-                    selector.html("")
-                    // console.log(data["data"])
-                    data["data"].forEach((elem)=>{
-                        // If the location was previously selected, won't render again
-                        if (!selectedLocationArray.includes(elem["description"])) {
-                            selector.append(`<option value='${elem["description"]}' id='location-elem'>`)
-                        }
+                    .then((res) => {
+                        return res.json()
+                    }).then((data) => {
+                        selector.html("")
+                        // console.log(data["data"])
+                        data["data"].forEach((elem) => {
+                            // If the location was previously selected, won't render again
+                            if (!selectedLocationArray.includes(elem["description"])) {
+                                selector.append(`<option value='${elem["description"]}' id='location-elem'>`)
+                            }
+                        })
                     })
-                })
-            } 
+            }
         })
 
 
         // When a location from the dropdown is selected
-        $("#tourLocation").on("change", ()=>{
+        $("#tourLocation").on("change", () => {
             // Add the tag to the box
             addLocationTag()
         })
@@ -847,18 +840,18 @@
 
 
         // Right before submitting, I want to run these stuff
-        $("#createListingForm").on('submit', ()=>{
+        $("#createListingForm").on('submit', () => {
             // Don't have to update these, because these are constantly updated when changed/deleted (Because they are used to render the outputs)
             $('input:hidden[name=finalTimings]').val(selectedTimeArray)
             $('input:hidden[name=finalDays]').val(selectedDayArray)
-            
+
             // Replace all commas with ';!;'
             removeCommaLocationTag()
             $('input:hidden[name=finalLocations]').val(selectedLocationArray)
 
             updateCreatedItineraryArray()
             $('input:hidden[name=finalItinerary]').val(createdItinerary)
-            
+
             // Remove whitespaces 
             $("input[name=tourTitle]").val($.trim($("input[name=tourTitle]").val()))
             $("textarea[name=tourDesc]").val($.trim($("textarea[name=tourDesc]").val()))
@@ -888,13 +881,13 @@
             // Trigger the change function for the tourDuration so I can update the Tour Timings
             // If I simply use jQuery to set the value, the 'change' function won't trigger so I'll have to manually trigger it
             $("select[name=tourDuration]").trigger("change")
-        
+
 
             // Tour Timings
             var existingTimings = storedValues.finalTimings.split(',')
             console.log("Running for TIMINGS")
             if (existingTimings != '') {
-                existingTimings.forEach((timing)=>{
+                existingTimings.forEach((timing) => {
                     console.log(`Ran for time ${timing}`)
                     updateSpecificTimeRangeArray(timing)
                     updateTiming()
@@ -903,13 +896,13 @@
             } else {
                 console.log("Time works correctly now")
             }
-            
+
 
 
             // Tour Days
             var existingDays = storedValues.finalDays.split(',')
             if (existingDays != '') {
-                existingDays.forEach((day)=>{
+                existingDays.forEach((day) => {
                     console.log(`Ran for day ${day}`)
                     updateSpecificSelectedDayArray(day)
                     updateDays()
@@ -923,7 +916,7 @@
             // Tour Itinerary
             var existingItinerary = storedValues.finalItinerary.split(',')
             if (existingItinerary != '') {
-                existingItinerary.forEach((itinerary)=>{
+                existingItinerary.forEach((itinerary) => {
                     // Reverse the replace operation just now. Fill back the commas
                     itinerary = itinerary.replaceAll(";!;", ',')
                     addSpecificItineraryItem(itinerary)
@@ -937,7 +930,7 @@
 
             var existingLocations = storedValues.finalLocations.split(',')
             if (existingLocations != '') {
-                existingLocations.forEach((location)=>{
+                existingLocations.forEach((location) => {
                     // Reverse the replace operation just now. Fill back the commas
                     location = location.replaceAll(";!;", ',')
                     addSpecificLocationTag(location)
@@ -946,9 +939,9 @@
             } else {
                 console.log("Days works fine too")
             }
-            
+
         }
-      
+
     })
 </script>
 <script defer src="/js/tabs.js"></script>
