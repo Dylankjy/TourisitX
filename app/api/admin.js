@@ -65,7 +65,7 @@ const getCSATStats = async (offset) => {
     const numberOfPositive = (await Review.findAll({ where: { 'createdAt': { [Op.between]: [(new Date()) - startOffset, new Date() - endOffset] }, 'rating': { [Op.gte]: 3 } } })).length
     const numberOfNegative = (await Review.findAll({ where: { 'createdAt': { [Op.between]: [(new Date()) - startOffset, new Date() - endOffset] }, 'rating': { [Op.lt]: 3 } } })).length
 
-    let percentage = 0
+    let percentage = 100
     if (numberOfReviews !== 0) {
         percentage = (allReviews.map((entry) => parseInt(entry.rating)).reduce((a, b) => a + b) / numberOfReviews / 5) * 100
     }
