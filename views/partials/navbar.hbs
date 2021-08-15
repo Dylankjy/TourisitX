@@ -21,9 +21,11 @@
                 <a class="navbar-item has-text-white" href="/marketplace">
                     Tours
                 </a>
+                {{#if data.currentUser.id}}
                 <a class="navbar-item has-text-white" href="/helpdesk">
                     Support
                 </a>
+                {{/if}}
             </div>
             {{#if data.currentUser}}
             <div class="navbar-end">
