@@ -191,10 +191,10 @@
                 $('#csatField').text(data.csat.currentPeriod.percentage);
 
                 if (data.csat.currentPeriod.percentage - data.csat.lastPeriod.percentage < 0) {
-                    $('#csatDiffField').text(`-${-(data.csat.currentPeriod.percentage - data.csat.lastPeriod.percentage)}%`);
+                    $('#csatDiffField').text(`-${-(data.csat.currentPeriod.percentage - data.csat.lastPeriod.percentage).toFixed(2).toString()}%`);
                     $('#csatDiffFieldTag').addClass('is-danger');
                 } else {
-                    $('#csatDiffField').text(`+${data.csat.currentPeriod.percentage - data.csat.lastPeriod.percentage}%`);
+                    $('#csatDiffField').text(`+${(data.csat.currentPeriod.percentage - data.csat.lastPeriod.percentage).toFixed(2).toString()}%`);
                     $('#csatDiffFieldTag').addClass('is-success');
                 }
 

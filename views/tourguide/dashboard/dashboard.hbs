@@ -248,7 +248,7 @@
             var incomeChartData = new Chart(incomeChart, {
                 type: 'line',
                 data: {
-                    labels: recent_months.reverse(),
+                    labels: (recent_months.reverse()).slice(1),
                     datasets: [{
                         label: 'Earnings',
                         data: [moneyData.m5.totalEarnings, moneyData.m4.totalEarnings, moneyData.m3.totalEarnings, moneyData.m2.totalEarnings, moneyData.m1.totalEarnings, moneyData.m0.totalEarnings],
