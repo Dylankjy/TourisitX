@@ -1,18 +1,17 @@
 <head>
     <meta name="turbolinks-visit-control" content="reload">
+    <!-- <link rel='stylesheet' href='/public/css/create_listing.css'> -->
+    <link rel='stylesheet' href='/third_party/alex/create_listing.css' defer>
+    <!-- <script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script> -->
+    <script src='/third_party/jquery-ui/jquery-ui.js'></script>
+
+    <script>
+        // When the document is ready, initialize the sortable item
+        $(document).ready(() => {
+            $("#itineraryItems").sortable()
+        })
+    </script>
 </head>
-
-<!-- <link rel='stylesheet' href='/public/css/create_listing.css'> -->
-<link rel='stylesheet' href='/third_party/alex/create_listing.css'>
-<!-- <script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script> -->
-<script src='/third_party/jquery-ui/jquery-ui.js'></script>
-
-<script>
-    // When the document is ready, initialize the sortable item
-    $(document).ready(() => {
-        $("#itineraryItems").sortable()
-    })
-</script>
 
 <!-- Convetion: Name will end with 's' and ID without -->
 <!-- Tour Title -------- Name:tourTitle      ID: NIL -->

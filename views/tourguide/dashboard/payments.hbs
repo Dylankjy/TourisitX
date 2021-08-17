@@ -1,4 +1,4 @@
-<h1 class="title">Transfer History</h1>
+<h1 class="title">Transaction History</h1>
 <a class="button is-rounded is-outlined" href={{ data.accLink.url }} target="_blank">View Account Details</a>
 <table class="table is-fullwidth">
     <tr>
@@ -9,7 +9,7 @@
     </tr>
     {{#each data.history}}
     <tr>
-        <td>{{timestampParseISO this.created }}</td>
+        <td>{{unixToTime this.created }}</td>
 
         <td>{{ this.description }}</td>
 
