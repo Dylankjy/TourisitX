@@ -211,10 +211,10 @@
             $('#csatField').text(data.csat.currentPeriod.CSATForPeriod)
 
             if (data.csat.currentPeriod.CSATForPeriod - data.csat.lastPeriod.CSATForPeriod < 0) {
-                $('#csatDiffField').text(`-${-(data.csat.currentPeriod.CSATForPeriod - data.csat.lastPeriod.CSATForPeriod)}%`);
+                $('#csatDiffField').text(`-${-(data.csat.currentPeriod.CSATForPeriod - data.csat.lastPeriod.CSATForPeriod).toFixed(1).toString()}%`);
                 $('#csatDiffFieldTag').addClass('is-danger');
             } else {
-                $('#csatDiffField').text(`+${data.csat.currentPeriod.CSATForPeriod - data.csat.lastPeriod.CSATForPeriod}%`);
+                $('#csatDiffField').text(`+${(data.csat.currentPeriod.CSATForPeriod - data.csat.lastPeriod.CSATForPeriod).toFixed(1).toString()}%`);
                 $('#csatDiffFieldTag').addClass('is-success');
             }
 
